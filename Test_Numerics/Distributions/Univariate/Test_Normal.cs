@@ -1,0 +1,132 @@
+﻿using System;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Numerics;
+using Numerics.Data.Statistics;
+using Numerics.Distributions;
+
+namespace Distributions.Univariate
+{
+    [TestClass]
+    public class Test_Normal
+    {
+
+        // Reference: "Flood Frequency Analysis", A.R. Rao & K.H. Hamed, CRC Press, 2000.
+        // Table 5.1.1 Tippecanoe River Near Delphi, Indiana (Station 43) Data
+        private double[] sample = new double[] { 6290d, 2700d, 13100d, 16900d, 14600d, 9600d, 7740d, 8490d, 8130d, 12000d, 17200d, 15000d, 12400d, 6960d, 6500d, 5840d, 10400d, 18800d, 21400d, 22600d, 14200d, 11000d, 12800d, 15700d, 4740d, 6950d, 11800d, 12100d, 20600d, 14600d, 14600d, 8900d, 10600d, 14200d, 14100d, 14100d, 12500d, 7530d, 13400d, 17600d, 13400d, 19200d, 16900d, 15500d, 14500d, 21900d, 10400d, 7460d };
+
+        /// <summary>
+        /// Verification of Normal Distribution fit with method of moments.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// Reference: "Flood Frequency Analysis", A.R. Rao & K.H. Hamed, CRC Press, 2000.
+        /// </para>
+        /// <para>
+        /// Example 5.1.1 page 88.
+        /// </para>
+        /// </remarks>
+        [TestMethod()]
+        public void Test_Normal_MOM_Fit()
+        {
+            var norm = new Normal();
+            norm.Estimate(sample, ParameterEstimationMethod.MethodOfMoments);
+            double u1 = norm.Mu;
+            double u2 = norm.Sigma;
+            double true_u1 = 12665d;
+            double true_u2 = 4710d;
+            Assert.AreEqual((u1 - true_u1) / true_u1 < 0.01d, true);
+            Assert.AreEqual((u2 - true_u2) / true_u2 < 0.01d, true);
+
+        }
+
+
+        [TestMethod()]
+        public void Test_Normal_LMOM_Fit()
+        {
+            // Air quality - wind data from R
+            var data = new double[] { 7.4, 8, 12.6, 11.5, 14.3, 14.9, 8.6, 13.8, 20.1, 8.6, 6.9, 9.7, 9.2, 10.9, 13.2, 11.5, 12, 18.4, 11.5, 9.7, 9.7, 16.6, 9.7, 12, 16.6, 14.9, 8, 12, 14.9, 5.7, 7.4, 8.6, 9.7, 16.1, 9.2, 8.6, 14.3, 9.7, 6.9, 13.8, 11.5, 10.9, 9.2, 8, 13.8, 11.5, 14.9, 20.7, 9.2, 11.5, 10.3, 6.3, 1.7, 4.6, 6.3, 8, 8, 10.3, 11.5, 14.9, 8, 4.1, 9.2, 9.2, 10.9, 4.6, 10.9, 5.1, 6.3, 5.7, 7.4, 8.6, 14.3, 14.9, 14.9, 14.3, 6.9, 10.3, 6.3, 5.1, 11.5, 6.9, 9.7, 11.5, 8.6, 8, 8.6, 12, 7.4, 7.4, 7.4, 9.2, 6.9, 13.8, 7.4, 6.9, 7.4, 4.6, 4, 10.3, 8, 8.6, 11.5, 11.5, 11.5, 9.7, 11.5, 10.3, 6.3, 7.4, 10.9, 10.3, 15.5, 14.3, 12.6, 9.7, 3.4, 8, 5.7, 9.7, 2.3, 6.3, 6.3, 6.9, 5.1, 2.8, 4.6, 7.4, 15.5, 10.9, 10.3, 10.9, 9.7, 14.9, 15.5, 6.3, 10.9, 11.5, 6.9, 13.8, 10.3, 10.3, 8, 12.6, 9.2, 10.3, 10.3, 16.6, 6.9, 13.2, 14.3, 8, 11.5 };
+            var norm = new Normal();
+            norm.Estimate(data, ParameterEstimationMethod.MethodOfLinearMoments);
+            double u1 = norm.Mu;
+            double u2 = norm.Sigma;
+            double true_u1 = 9.957516d;
+            double true_u2 = 3.513431d;
+            Assert.AreEqual(u1, true_u1, 0.0001d);
+            Assert.AreEqual(u2, true_u2, 0.0001d);
+            var lmom = norm.LinearMomentsFromParameters(norm.GetParameters);
+            Assert.AreEqual(lmom[0], 9.9575163d, 0.0001d);
+            Assert.AreEqual(lmom[1], 1.9822411d, 0.0001d);
+            Assert.AreEqual(lmom[2], 0.0000000d, 0.0001d);
+            Assert.AreEqual(lmom[3], 0.1226017d, 0.0001d);
+        }
+
+        /// <summary>
+        /// Verification of Normal Distribution fit with method of maximum likelihood.
+        /// </summary>
+        /// <remarks>
+        /// Sigma should be the population standard deviation.
+        /// </remarks>
+        [TestMethod()]
+        public void Test_Normal_MLE_Fit()
+        {
+            var norm = new Normal();
+            norm.Estimate(sample, ParameterEstimationMethod.MaximumLikelihood);
+            double u1 = norm.Mu;
+            double u2 = norm.Sigma;
+            double true_u1 = 12665d;
+            double true_u2 = 4660d;
+            Assert.AreEqual((u1 - true_u1) / true_u1 < 0.01d, true);
+            Assert.AreEqual((u2 - true_u2) / true_u2 < 0.01d, true);
+
+            var lh = norm.LogLikelihood(sample);
+        }
+
+        /// <summary>
+        /// Test the quantile function for the Normal Distribution.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// Reference: "Flood Frequency Analysis", A.R. Rao & K.H. Hamed, CRC Press, 2000.
+        /// </para>
+        /// <para>
+        /// Example 5.1.2 page 91.
+        /// </para>
+        /// </remarks>
+        [TestMethod()]
+        public void Test_Normal_Quantile()
+        {
+            var N = new Normal(12665d, 4710d);
+            double q100 = N.InverseCDF(0.99d);
+            double true_q100 = 23624d;
+            Assert.AreEqual((q100 - true_q100) / true_q100 < 0.01d, true);
+            double p = N.CDF(q100);
+            double true_p = 0.99d;
+            Assert.AreEqual((p - true_p) / true_p < 0.01d, true);
+        }
+
+        /// <summary>
+        /// Test the standard error for the Normal Distribution.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// Reference: "Flood Frequency Analysis", A.R. Rao & K.H. Hamed, CRC Press, 2000.
+        /// </para>
+        /// <para>
+        /// Example 5.1.3 page 94.
+        /// </para>
+        /// </remarks>
+        [TestMethod()]
+        public void Test_Normal_StandardError()
+        {
+
+            // Maximum Likelihood
+            var N = new Normal(12665d, 4710d);
+            double qVar99 = Math.Sqrt(N.QuantileVariance(0.99d, 48, ParameterEstimationMethod.MaximumLikelihood));
+            double true_qVar99 = 1309d;
+            Assert.AreEqual((qVar99 - true_qVar99) / true_qVar99 < 0.01d, true);
+        }
+
+
+
+    }
+}

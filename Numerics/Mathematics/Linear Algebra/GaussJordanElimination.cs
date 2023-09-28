@@ -1,0 +1,152 @@
+﻿using System;
+using System.Runtime.InteropServices;
+
+namespace Numerics.Mathematics.LinearAlgebra
+{
+
+    /// <summary>
+    /// A class for solving a set of linear equations Gauss-Jordan elimination.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    ///     Authors:
+    ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
+    /// </para>
+    /// <para>
+    /// <see href = "https://en.wikipedia.org/wiki/Gaussian_elimination" />
+    /// "Numerical Recipes: The art of Scientific Computing, Third Edition. Press et al. 2017.
+    /// </para>
+    /// </remarks>
+    public class GaussJordanElimination
+    {
+
+        /// <summary>
+        /// Perform Gauss-Jordan elimination.
+        /// </summary>
+        /// <param name="A">The input matrix A.</param>
+        /// <param name="B">The input matrix B containing the M right-hand side vectors.</param>
+        /// <remarks>
+        /// On output, A is replaced by its matrix inverse, and B is replaced by the corresponding set of solution vectors.
+        /// </remarks>
+        public static void Solve(ref Matrix A, [Optional, DefaultParameterValue(null)] ref Matrix B)
+        {
+            // No right-hand sides. Replaces A by its inverse.
+            if (B is null)
+            {
+                // Dummy vector with zero columns
+                B = new Matrix(A.NumberOfRows, 0);
+            }
+
+            int n = A.NumberOfRows;
+            int m = B.NumberOfColumns;
+            var icol = default(int);
+            var irow = default(int);
+            double big;
+            double dum;
+            double pivinv;
+            // These integer arrays are used for bookkeeping on the pivoting.
+            var indxc = new int[n];
+            var indxr = new int[n];
+            var ipiv = new int[n];
+            for (int j = 0; j < n; j++)
+                ipiv[j] = 0;
+            // This is the main loop over the columns to be reduced. 
+            for (int i = 0; i < n; i++)
+            {
+                big = 0.0d;
+                // This is the outer loop of the search for a pivot element.
+                for (int j = 0; j < n; j++)
+                {
+                    if (ipiv[j] != 1.0d)
+                    {
+                        for (int k = 0; k < n; k++)
+                        {
+                            if (ipiv[k] == 0.0d)
+                            {
+                                if (Math.Abs(A[j, k]) >= big)
+                                {
+                                    big = Math.Abs(A[j, k]);
+                                    irow = j;
+                                    icol = k;
+                                }
+                            }
+                            else if (ipiv[k] > 1)
+                            {
+                                throw new Exception("Singular matrix");
+                            }
+                        }
+                    }
+                }
+
+                ipiv[icol] += 1;
+                // We now have the pivot element, so we interchange rows, if needed, to put the pivot
+                // element on the diagonal. The columns are not physically interchanged, only relabeled:
+                // index-c[i], the column of the (i+1)th pivot element, is the (i+1)th column that is
+                // reduced, while index-r[i] is the row in which that pivot element was originally located.
+                // If index-r[i] <> index-c[i], there is an implied column interchange. With the form of 
+                // bookkeeping, the solution B's will end up in the correct order, and the inverse matrix
+                // with be scrambled by columns. 
+                if (irow != icol)
+                {
+                    for (int l = 0; l < n; l++)
+                    {
+                        dum = A[irow, l];
+                        A[irow, l] = A[icol, l];
+                        A[icol, l] = dum;
+                    }
+
+                    for (int l = 0; l < m; l++)
+                    {
+                        dum = B[irow, l];
+                        B[irow, l] = B[icol, l];
+                        B[icol, l] = dum;
+                    }
+                }
+                // We are now ready to divide the pivot row by the pivot element, located at i-row and i-col.
+                indxr[i] = irow;
+                indxc[i] = icol;
+                if (A[icol, icol] == 0.0d)
+                {
+                    throw new Exception("Singular matrix");
+                }
+
+                pivinv = 1.0d / A[icol, icol];
+                A[icol, icol] = 1.0d;
+                for (int l = 0; l < n; l++)
+                    A[icol, l] *= pivinv;
+                for (int l = 0; l < m; l++)
+                    B[icol, l] *= pivinv;
+                // Now we reduce the rows except for the pivot one, of course.
+                for (int ll = 0; ll < n; ll++)
+                {
+                    if (ll != icol)
+                    {
+                        dum = A[ll, icol];
+                        A[ll, icol] = 0.0d;
+                        for (int l = 0; l < n ; l++)
+                            A[ll, l] -= A[icol, l] * dum;
+                        for (int l = 0; l < m; l++)
+                            B[ll, l] -= B[icol, l] * dum;
+                    }
+                }
+            }
+            // This is the of the main loop over columns of the reduction. It only remains to unscramble
+            // the solution in view of the column interchanges. We do this by interchanging pairs of 
+            // columns in the reverse order that the permutation was built up. 
+            for (int l = n - 1; l >= 0; l -= 1)
+            {
+                if (indxr[l] != indxc[l])
+                {
+                    for (int k = 0; k < n ; k++)
+                    {
+                        dum = A[k, indxr[l]];
+                        A[k, indxr[l]] = A[k, indxc[l]];
+                        A[k, indxc[l]] = dum;
+                    }
+                }
+            }
+            // And we are done.
+
+        }
+    }
+}
