@@ -172,7 +172,7 @@ namespace Numerics.Mathematics.Integration
         }
 
         // Make everything static allowing restarts
-        private int NDMX = 100, MXDIM = 20;
+        private int NDMX = 50, MXDIM = 20;
         private double ALPH = 1.5, TINY = 1.0e-30;
         private int i, it, j, k, mds, nd, ndo, ng, npg;
         private double calls, dv2g, dxg, f, f2, f2b, fb, rc, ti;

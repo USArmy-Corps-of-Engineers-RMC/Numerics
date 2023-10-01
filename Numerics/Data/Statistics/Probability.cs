@@ -651,8 +651,9 @@ namespace Numerics.Data.Statistics
         /// <param name="indicators">An 2D array of indicators, 0 means the event did not occur, 1 means the event did occur.</param>
         /// <param name="eventProbabilities">Output. A list of exclusive event probabilities.</param>
         /// <param name="eventIndicators">Output. A list of exclusive event indicators that were evaluated.</param>
-        /// <param name="tolerance">The absolute tolerance for evaluation convergence of the inclusion-exclusion algorithm. Default = 1E-8.</param>
-        public static void IndependentExclusive(IList<double> probabilities, int[] binomialCombinations, int[,] indicators, out List<double> eventProbabilities, out List<int[]> eventIndicators, double tolerance = 1E-8)
+        /// <param name="absoluteTol">The absolute tolerance for evaluation convergence of the inclusion-exclusion algorithm. Default = 1E-8.</param>
+        /// <param name="relativeTol">The realtive tolerance for evaluation convergence of the inclusion-exclusion algorithm. Default = 1E-4.</param>
+        public static void IndependentExclusive(IList<double> probabilities, int[] binomialCombinations, int[,] indicators, out List<double> eventProbabilities, out List<int[]> eventIndicators, double absoluteTol = 1E-8, double relativeTol = 1E-4)
         {
             eventProbabilities = new List<double>();
             eventIndicators = new List<int[]>();
@@ -678,16 +679,16 @@ namespace Numerics.Data.Statistics
                     }
 
                     // Check for convergence
-                    // Each inclusion-exclusion step must have less than 1E-8 (default tolerance) difference.
                     // Add the tolerance to the last joint event
                     double diff = Math.Abs(inc - exc);
-                    if (j > 0 && j < binomialCombinations.Length && diff <= tolerance)
+                    double tol = absoluteTol + relativeTol * Math.Min(inc, exc);
+                    if (j > 0 && j < binomialCombinations.Length && diff <= tol)
                     {
                         eventIndicators.Add(indicators.GetRow(indicators.GetLength(0) - 1));
                         eventProbabilities.Add(0.5 * diff);
                         return;
                     }
-                        
+
                     s *= -1;
                     j++;
                     if (j < binomialCombinations.Length)
@@ -792,8 +793,9 @@ namespace Numerics.Data.Statistics
         /// <param name="indicators">An 2D array of indicators, 0 means the event did not occur, 1 means the event did occur.</param>
         /// <param name="eventProbabilities">Output. A list of exclusive event probabilities.</param>
         /// <param name="eventIndicators">Output. A list of exclusive event indicators that were evaluated.</param>
-        /// <param name="tolerance">The absolute tolerance for evaluation convergence of the inclusion-exclusion algorithm. Default = 1E-8.</param>
-        public static void PositivelyDependentExclusive(IList<double> probabilities, int[] binomialCombinations, int[,] indicators, out List<double> eventProbabilities, out List<int[]> eventIndicators, double tolerance = 1E-8)
+        /// <param name="absoluteTol">The absolute tolerance for evaluation convergence of the inclusion-exclusion algorithm. Default = 1E-8.</param>
+        /// <param name="relativeTol">The realtive tolerance for evaluation convergence of the inclusion-exclusion algorithm. Default = 1E-4.</param>
+        public static void PositivelyDependentExclusive(IList<double> probabilities, int[] binomialCombinations, int[,] indicators, out List<double> eventProbabilities, out List<int[]> eventIndicators, double absoluteTol = 1E-8, double relativeTol = 1E-4)
         {
             eventProbabilities = new List<double>();
             eventIndicators = new List<int[]>();
@@ -819,10 +821,10 @@ namespace Numerics.Data.Statistics
                     }
 
                     // Check for convergence
-                    // Each inclusion-exclusion step must have less than 1E-8 (default tolerance) difference.
                     // Add the tolerance to the last joint event
                     double diff = Math.Abs(inc - exc);
-                    if (j > 0 && j < binomialCombinations.Length && diff <= tolerance)
+                    double tol = absoluteTol + relativeTol * Math.Min(inc, exc);
+                    if (j > 0 && j < binomialCombinations.Length && diff <= tol)
                     {
                         eventIndicators.Add(indicators.GetRow(indicators.GetLength(0) - 1));
                         eventProbabilities.Add(0.5 * diff);
@@ -968,7 +970,6 @@ namespace Numerics.Data.Statistics
             return result;
         }
 
-
         /// <summary>
         /// Returns a list of exclusive probabilities of multiple events occurring assuming independence.
         /// </summary>
@@ -978,8 +979,9 @@ namespace Numerics.Data.Statistics
         /// <param name="multivariateNormal">The multivariate normal distribution used to compute the joint probabilities.</param>
         /// <param name="eventProbabilities">Output. A list of exclusive event probabilities.</param>
         /// <param name="eventIndicators">Output. A list of exclusive event indicators that were evaluated.</param>
-        /// <param name="tolerance">The absolute tolerance for evaluation convergence of the inclusion-exclusion algorithm. Default = 1E-8.</param>
-        public static void ExclusivePCM(IList<double> probabilities, int[] binomialCombinations, int[,] indicators, MultivariateNormal multivariateNormal, out List<double> eventProbabilities, out List<int[]> eventIndicators, double tolerance = 1E-8)
+        /// <param name="absoluteTol">The absolute tolerance for evaluation convergence of the inclusion-exclusion algorithm. Default = 1E-8.</param>
+        /// <param name="relativeTol">The realtive tolerance for evaluation convergence of the inclusion-exclusion algorithm. Default = 1E-4.</param>
+        public static void ExclusivePCM(IList<double> probabilities, int[] binomialCombinations, int[,] indicators, MultivariateNormal multivariateNormal, out List<double> eventProbabilities, out List<int[]> eventIndicators, double absoluteTol = 1E-8, double relativeTol = 1E-4)
         {
             // Get number of unique combinations by subset
             int N = probabilities.Count;
@@ -1015,12 +1017,11 @@ namespace Numerics.Data.Statistics
                     }
 
                     // Check for convergence
-                    // Each inclusion-exclusion step must have less than 1E-8 (default tolerance) difference.
                     // Add the tolerance to the last joint event
                     double diff = Math.Abs(inc - exc);
-                    if (j > 0 && j < binomialCombinations.Length && diff <= tolerance)
+                    double tol = absoluteTol + relativeTol * Math.Min(inc, exc);
+                    if (j > 0 && j < binomialCombinations.Length && diff <= tol)
                     {
-
                         eventIndicators.Add(indicators.GetRow(indicators.GetLength(0) - 1));
                         jointProbabilities.Add(0.5 * diff);
                         goto Exclusive;
@@ -1065,8 +1066,6 @@ namespace Numerics.Data.Statistics
                     if (j < binomialCombinations.Length) c += binomialCombinations[j];
                 }
 
-                //if (c >= eventIndicators.Count - 1) break;
-
                 double prob = jointProbabilities[i];
                 s = 1;
                 for (int k = j; k < cumCombos.Length; k++)
@@ -1076,7 +1075,6 @@ namespace Numerics.Data.Statistics
                     int c2 = k == cumCombos.Length - 1 ? cumCombos[k] + 1 : cumCombos[k + 1];
                     if (c2 >= eventIndicators.Count - 1)
                     {
-                        //prob += s * jointProbabilities.Last();
                         break;
                     }
                     else
@@ -1091,7 +1089,6 @@ namespace Numerics.Data.Statistics
                 eventProbabilities.Add(prob);
             }
         }
-
 
         /// <summary>
         /// Returns an array of exclusive probabilities of multiple events using the inclusion-exclusion method. Dependence between events is captured with the multivariate normal distribution.
@@ -1265,7 +1262,6 @@ namespace Numerics.Data.Statistics
         }
 
         #endregion
-
 
         #region Common Cause Adjustment
 

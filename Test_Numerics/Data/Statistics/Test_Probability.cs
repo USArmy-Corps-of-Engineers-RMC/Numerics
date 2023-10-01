@@ -191,11 +191,11 @@ namespace Data.Statistics
             var probs = new List<double>();
             var inds = new List<int[]>();
 
-            // Probability.IndependentExclusive(probabilities, combos, indicators, out probs, out inds);
+             Probability.IndependentExclusive(probabilities, combos, indicators, out probs, out inds);
 
             // Probability.PositivelyDependentExclusive(probabilities, combos, indicators, out probs, out inds);
 
-            Probability.ExclusivePCM(probabilities, combos, indicators, mvn, out probs, out inds);
+            //Probability.ExclusivePCM(probabilities, combos, indicators, mvn, out probs, out inds);
 
             var sumProbs = Tools.Sum(probs);
 
