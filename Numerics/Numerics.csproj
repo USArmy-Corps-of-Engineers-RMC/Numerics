@@ -131,6 +131,10 @@
     <Compile Include="Distributions\Univariate\Uncertainty Analysis\UncertaintyAnalysisResults.cs" />
     <Compile Include="Functions\IUnivariateFunction.cs" />
     <Compile Include="Functions\TabularFunction.cs" />
+    <Compile Include="Machine Learning\Support\JenksCluster.cs" />
+    <Compile Include="Machine Learning\Unsupervised\GaussianMixture.cs" />
+    <Compile Include="Machine Learning\Unsupervised\JenksNaturalBreaks.cs" />
+    <Compile Include="Machine Learning\Unsupervised\KMeans.cs" />
     <Compile Include="Mathematics\Integration\AdaptiveGaussLobatto.cs" />
     <Compile Include="Mathematics\Integration\Miser.cs" />
     <Compile Include="Mathematics\Integration\MonteCarloIntegration.cs" />
@@ -323,7 +327,9 @@
     </None>
     <EmbeddedResource Include="new-joe-kuo-6.21201" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Machine Learning\Supervised\" />
+  </ItemGroup>
   <ItemGroup>
     <Service Include="{94E38DFF-614B-4CBD-B67C-F211BB35CE8B}" />
   </ItemGroup>

@@ -3,6 +3,8 @@ using System.Diagnostics;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Numerics.Distributions;
+using Numerics.Mathematics;
+using Numerics.Mathematics.LinearAlgebra;
 
 namespace Distributions.Univariate
 {
@@ -89,6 +91,23 @@ namespace Distributions.Univariate
             Assert.AreEqual((x - true_x) / true_x < 0.01d, true);
             Assert.AreEqual((a - true_a) / true_a < 0.01d, true);
             Assert.AreEqual((k - true_k) / true_k < 0.01d, true);
+
+            //var h = GEV.ExpectedInformationMatrix(sample.Length);
+            //var b = new Matrix(h.NumberOfRows);
+            //GaussJordanElimination.Solve(ref h, ref b);
+            //var d = Matrix.Determinant(h);
+
+            //var hess = NumericalDerivative.Hessian((double[] z) =>
+            //                                        {
+            //                                            var dist = new GeneralizedExtremeValue(z[0], z[1], z[2]);
+            //                                            return dist.LogLikelihood(sample);
+            //                                        }, new double[] { x, a, k });
+            //var hessian = new Matrix(hess);
+            //hessian = hessian * -1;
+            //b = new Matrix(h.NumberOfRows);
+            //GaussJordanElimination.Solve(ref hessian, ref b);
+            //var det = Matrix.Determinant(hessian);
+
         }
 
         /// <summary>
@@ -168,6 +187,7 @@ namespace Distributions.Univariate
         {
             var GEV = new GeneralizedExtremeValue(22299.7822d, 11080.8716d, -0.0378d);
             double J = GEV.Jacobian(new[] { 0.9d, 0.99d, 0.999d });
+          
         }
     }
 }

@@ -380,13 +380,14 @@ namespace Numerics.Distributions
         /// <param name="throwException">Determines whether to throw an exception or not.</param>
         public ArgumentOutOfRangeException ValidateParameters(double mean, double standardDeviation, double min, double max, bool throwException)
         {
-            if (standardDeviation <= 0.0d)
+
+            if (double.IsNaN(standardDeviation) || double.IsInfinity(standardDeviation) || standardDeviation <= 0.0d)
             {
                 if (throwException)
                     throw new ArgumentOutOfRangeException(nameof(Sigma), "Standard deviation must be positive.");
                 return new ArgumentOutOfRangeException(nameof(Sigma), "Standard deviation must be positive.");
             }
-            if (min > max)
+            if (double.IsNaN(min) || double.IsNaN(max) || min > max)
             {
                 if (throwException)
                     throw new ArgumentOutOfRangeException(nameof(Min), "The min cannot be greater than the max.");

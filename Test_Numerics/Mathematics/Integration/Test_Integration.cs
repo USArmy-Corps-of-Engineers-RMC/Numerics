@@ -287,6 +287,52 @@ namespace Mathematics.Integration
 
 
         /// <summary>
+        /// Test function. The mean of one independent normal distributions. Should equal 10.
+        /// </summary>
+        public double MeanOneNormal(double[] x, double w)
+        {
+            double result = 0;
+            //double sum = 0;
+            //double prod = 1;
+            //for (int i = 0; i < 1; i++)
+            //{
+            //    //sum += x[i];
+            //    //prod *= Normal.StandardPDF(x[i]);
+
+            //    result += mu20[i] + sigma20[i] * Normal.StandardZ(x[i]);
+            //    //result += x[i] * Normal.StandardPDF((mu20[i] - x[i]) / sigma20[i]);
+            //}
+            // result = sum * prod;
+
+            if (x[0] >= 0.99)
+            {
+                result = mu20[0] + sigma20[0] * Normal.StandardZ(x[0]);            
+            }
+            
+
+            //Debug.WriteLine(w.ToString());
+
+            return result;
+        }
+
+        /// <summary>
+        /// Test function. The sum of two independent normal distributions. Should equal 40.
+        /// </summary>
+        public double SumTwoNormals(double[] x)
+        {
+            double result = 0;
+            double sum = 0;
+            double prod = 1;
+            for (int i = 0; i < 2; i++)
+            {
+                sum += x[i];
+                prod *= dists[i].PDF(x[i]);
+            }
+            result = sum * prod;
+            return result;
+        }
+
+        /// <summary>
         /// Test function. The sum of three independent normal distributions. Should equal 57.
         /// </summary>
         public double SumThreeNormals(double[] x)
@@ -296,12 +342,16 @@ namespace Mathematics.Integration
             double prod = 1;
             for (int i = 0; i < 3; i++)
             {
+                var norm = new Normal(mu20[i], sigma20[i]);
                 sum += x[i];
-                prod *= dists[i].PDF(x[i]);
+                prod *= norm.PDF(x[i]);
             }
             result = sum * prod;
             return result;
         }
+
+
+
 
         public double SumFiveNormals(double[] p)
         {
@@ -318,8 +368,53 @@ namespace Mathematics.Integration
             double result = 0;
             for (int i = 0; i < 20; i++)
             {
-                result += mu20[i] + sigma20[i] * Normal.StandardZ(p[i]);
+                //result += mu20[i] + sigma20[i] * Normal.StandardZ(p[i]);
+                result += mu20[i] + sigma20[i] * p[i] ;
             }
+            return result;
+        }
+
+
+        public double SumOfTwentyNormals(double[] x)
+        {
+            var z = new double[20];
+            var mean = new double[20];
+            var covar = new double[20, 20];
+            double rho = 0;
+
+            double sum = 0;
+            double prod = 1;
+            double prodZ = 1;
+
+            for (int i = 0; i < 20; i++)
+            {
+                var norm = new Normal(mu20[i], sigma20[i]);
+                sum += x[i];
+                prod *= norm.PDF(x[i]);
+
+
+
+                //z[i] = Normal.StandardZ(norm.CDF(x[i]));
+                //prodZ *= Normal.StandardPDF(z[i]);
+
+                //mean[i] = 0;
+                //for(int j = 0; j < 20; j++)
+                //{
+                //   if (j == i)
+                //   {
+                //        covar[i, j] = 1;
+                //   }
+                //   else
+                //   {
+                //        covar[i, j] = rho;
+                //    }
+                //}
+            }
+            //var mvn = new MultivariateNormal(mean, covar);
+
+            //double result = sum * mvn.PDF(z) / prodZ * prod;
+
+            double result = sum * prod;
             return result;
         }
 
@@ -383,7 +478,60 @@ namespace Mathematics.Integration
             mis.Integrate();
             e = mis.Result;
             val = 57;
+
+            var min = new double[20];
+            var max = new double[20];
+            for (int i = 0; i < 20; i++)
+            {
+                min[i] = 1E-16;
+                max[i] = 1 - 1E-16;
+            }
+
+            mis = new Numerics.Mathematics.Integration.Miser((x) => { return SumTwentyNormals(x); }, 20, min, max);
+            mis.Random = new MersenneTwister(12345);
+            mis.UseSobolSequence = false;
+            mis.MaxFunctionEvaluations = 110000;
+            mis.Integrate();
+            e = mis.Result;
+            val = 837;
+            Assert.AreEqual(val, e, val * 0.01);
+
         }
+
+        [TestMethod()]
+        public void Test_Vegas_1()
+        {
+
+            var min = new double[1];
+            var max = new double[1];
+            for (int i = 0; i < 1; i++)
+            {
+                //var norm = new Normal(mu20[i], sigma20[i]);
+                //min[i] = norm.InverseCDF(1E-16);
+                //max[i] = norm.InverseCDF(1 - 1E-16);
+
+                min[i] = 1E-16;
+                max[i] = 1 - 1E-16;
+            }
+
+            var v = new Numerics.Mathematics.Integration.Vegas((x, y) => { return MeanOneNormal(x, y); }, 1, min, max);
+            // Warmup
+            v.FunctionCalls = 1000;
+            v.IndependentEvaluations = 10;
+            v.Initialize = 0;
+            //v.IsProbabilityDomain = true;
+            v.Integrate();
+            // Final
+            v.FunctionCalls = 10000;
+            v.IndependentEvaluations = 1;
+            v.Initialize = 1;
+            v.Integrate();
+            var e = v.Result;
+            double val = 837;
+            Assert.AreEqual(val, e, val * 0.01);
+
+        }
+
 
         /// <summary>
         /// Vegas - Adaptive Monte Carlo integration.
@@ -392,7 +540,7 @@ namespace Mathematics.Integration
         public void Test_Vegas()
         {
             var v = new Numerics.Mathematics.Integration.Vegas((x, y) => { return PI(x); }, 2, new double[] { -1, -1 }, new double[] { 1, 1 });
-            v.Random = new MersenneTwister(12345);              
+            v.Random = new MersenneTwister(12345);
             // Warmup
             v.FunctionCalls = 2000;
             v.IndependentEvaluations = 5;
@@ -405,7 +553,7 @@ namespace Mathematics.Integration
             v.Integrate();
             var e = v.Result;
             double val = Math.PI;
-            Assert.AreEqual(val, e, val*0.01);
+            Assert.AreEqual(val, e, val * 0.01);
 
             v = new Numerics.Mathematics.Integration.Vegas((x, y) => { return GSL(x); }, 3, new double[] { 0, 0, 0 }, new double[] { Math.PI, Math.PI, Math.PI });
             v.Random = new MersenneTwister(12345);
@@ -421,7 +569,30 @@ namespace Mathematics.Integration
             v.Integrate();
             e = v.Result;
             val = 1.3932039296856768591842462603255;
-            Assert.AreEqual(val, e, val*0.01);
+            Assert.AreEqual(val, e, val * 0.01);
+
+
+
+
+            //v = new Numerics.Mathematics.Integration.Vegas((x, y) => { return SumTwoNormals(x); }, 2, new double[] { dists[0].InverseCDF(1E-16), dists[1].InverseCDF(1E-16) },
+            //                                                       new double[] { dists[0].InverseCDF(1 - 1E-16), dists[1].InverseCDF(1 - 1E-16) });
+            //v.Random = new MersenneTwister(12345);
+            //// Warmup
+            //v.FunctionCalls = 1000;
+            //v.IndependentEvaluations = 10;
+            //v.Initialize = 1;
+            //v.Integrate();
+
+            //// Final
+            //v.FunctionCalls = 10000;
+            //v.IndependentEvaluations = 1;
+            //v.Initialize = 1;
+            //v.Integrate();
+            //e = v.Result;
+            //val = 40;
+            //Assert.AreEqual(val, e, val * 0.01);
+
+
 
 
             v = new Numerics.Mathematics.Integration.Vegas((x, y) => { return SumThreeNormals(x); }, 3, new double[] { dists[0].InverseCDF(1E-16), dists[1].InverseCDF(1E-16), dists[2].InverseCDF(1E-16) },
@@ -439,7 +610,7 @@ namespace Mathematics.Integration
             v.Integrate();
             e = v.Result;
             val = 57;
-            Assert.AreEqual(val, e, val*0.01);
+            Assert.AreEqual(val, e, val * 0.01);
 
 
             var min = new double[20];
@@ -452,9 +623,35 @@ namespace Mathematics.Integration
 
             v = new Numerics.Mathematics.Integration.Vegas((x, y) => { return SumTwentyNormals(x); }, 20, min, max);
             v.Random = new MersenneTwister(12345);
+            v.UseSobolSequence = true;
             // Warmup
             v.FunctionCalls = 20000;
             v.IndependentEvaluations = 5;
+            v.Initialize = 0;
+            v.Integrate();
+            // Final
+            v.FunctionCalls = 10000;
+            v.IndependentEvaluations = 1;
+            v.Initialize = 1;
+            v.Integrate();
+            e = v.Result;
+            val = 837;
+            Assert.AreEqual(val, e, val * 0.01);
+
+
+            for (int i = 0; i < 20; i++)
+            {
+                var norm = new Normal(mu20[i], sigma20[i]);
+                min[i] = norm.InverseCDF(1E-16);
+                max[i] = norm.InverseCDF(1 - 1E-16);
+            }
+
+            v = new Numerics.Mathematics.Integration.Vegas((x, y) => { return SumOfTwentyNormals(x); }, 20, min, max);
+            v.Random = new MersenneTwister(12345);
+            v.UseSobolSequence = true;
+            // Warmup
+            v.FunctionCalls = 1000;
+            v.IndependentEvaluations = 10;
             v.Initialize = 0;
             v.Integrate();
             // Final

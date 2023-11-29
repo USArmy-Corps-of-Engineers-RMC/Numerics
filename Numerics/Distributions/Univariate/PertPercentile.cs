@@ -390,11 +390,18 @@ namespace Numerics.Distributions
                 //    SSE += Math.Pow(fiftieth - pert.InverseCDF(0.5), 2d);
                 //SSE += Math.Pow(ninetyFifth - pert.InverseCDF(0.95), 2d);
 
-                if(fifth != fiftieth)
-                    SSE += Math.Pow(0.05 - pert.CDF(fifth), 2d);
+                //if(fifth != fiftieth)
+                //    SSE += Math.Pow(0.05 - pert.CDF(fifth), 2d);
+                //if (fiftieth != ninetyFifth)
+                //    SSE += Math.Pow(0.5 - pert.CDF(fiftieth), 2d);
+                //SSE += Math.Pow(0.95 - pert.CDF(ninetyFifth), 2d);
+
+                if (fifth != fiftieth)
+                    SSE += 0.05 - pert.CDF(fifth);
                 if (fiftieth != ninetyFifth)
-                    SSE += Math.Pow(0.5 - pert.CDF(fiftieth), 2d);
-                SSE += Math.Pow(0.95 - pert.CDF(ninetyFifth), 2d);
+                    SSE += 0.5 - pert.CDF(fiftieth);
+                SSE += 0.95 - pert.CDF(ninetyFifth);
+
                 return SSE;
             }
             var solver = new NelderMead(sse, NumberOfParameters, Initials, Lowers, Uppers);

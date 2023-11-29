@@ -135,6 +135,7 @@
     <Compile Include="Distributions\Univariate\Test_Competing.cs" />
     <Compile Include="Distributions\Univariate\Test_Mixture.cs" />
     <Compile Include="Functions\Test_Functions.cs" />
+    <Compile Include="Machine Learning\Unsupervised\Test_JenksNaturalBreaks.cs" />
     <Compile Include="Mathematics\Differentiation\Test_Differentiation.cs" />
     <Compile Include="Mathematics\Fourier Methods\Test_FastFourierTransform.cs" />
     <Compile Include="Mathematics\Integration\Test_Integration.cs" />

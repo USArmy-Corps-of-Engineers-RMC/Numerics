@@ -121,14 +121,14 @@ namespace Mathematics.Differentiation
         [TestMethod()]
         public void Test_Hessian()
         {
-            var hess = NumericalDerivative.Hessian(FH, new[] { 1d, 2d }, 1E-3);
+            var hess = NumericalDerivative.Hessian(FH, new[] { 1d, 2d });
             var true_hess = new double[,] { { 6, -2 }, { -2, -480 } };
             Assert.AreEqual(hess[0,0], true_hess[0, 0], 1E-3);
             Assert.AreEqual(hess[0,1], true_hess[0, 1], 1E-3);
             Assert.AreEqual(hess[1,0], true_hess[1, 0], 1E-3);
             Assert.AreEqual(hess[1,1], true_hess[1, 1], 1E-3);
 
-            hess = NumericalDerivative.Hessian(FXYZ, new[] { 2d, 2d, 2d }, 1E-3);
+            hess = NumericalDerivative.Hessian(FXYZ, new[] { 2d, 2d, 2d });
             true_hess = new double[,] { { 12d, 0, 0 }, { 0, 48d, 0}, { 0, 0, 160d } };
             for (int i = 0; i < hess.GetLength(0); i++)
                 for (int j = 0; j < hess.GetLength(1); j++)

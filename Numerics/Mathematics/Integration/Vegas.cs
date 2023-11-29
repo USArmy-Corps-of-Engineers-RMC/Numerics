@@ -2,7 +2,9 @@
 using Numerics.Sampling;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Security.Permissions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -62,12 +64,12 @@ namespace Numerics.Mathematics.Integration
             kg = new int[Dimensions];
             dt = new double[Dimensions];
             dx = new double[Dimensions];
-            r = new double[NDMX];
+            r = new double[Bins];
             x = new double[Dimensions];
-            xin = new double[NDMX];
-            d = new double[NDMX, Dimensions];
-            di = new double[NDMX, Dimensions];
-            xi = new double[Dimensions, NDMX];
+            xin = new double[Bins];
+            d = new double[Bins, Dimensions];
+            di = new double[Bins, Dimensions];
+            xi = new double[Dimensions, Bins];
 
             // Create region array
             _region = new double[2 * Dimensions];
@@ -77,6 +79,29 @@ namespace Numerics.Mathematics.Integration
                 _region[i] = Max[i - Dimensions];
 
         }
+
+        private double[] _region;
+        private double _standardError;
+        private double _chiSquared;
+        private SobolSequence _sobol;
+
+        // Make everything static allowing restarts
+        private int MXDIM = 20;
+        private double ALPH = 1.5, TINY = 1.0e-30;
+        private int i, it, j, k, mds = 1, nd, ndo = 1, ng, npg;
+        private double calls, dv2g, dxg, f, f2, f2b, fb, rc, ti;
+        private double tsi, wgt, xjac, xn, xnd, xo, schi, si, swgt;
+        private int[] ia;
+        private int[] kg;
+        private double[] dt;
+        private double[] dx;
+        private double[] r;
+        private double[] x;
+        private double[] xin;
+        private double[,] d;
+        private double[,] di;
+        private double[,] xi;
+
 
         /// <summary>
         /// The multidimensional function to integrate.
@@ -98,48 +123,67 @@ namespace Numerics.Mathematics.Integration
         /// </summary>
         public double[] Max { get; }
 
+
         /// <summary>
-        /// The random number generator to be used within the Monte Carlo integration.
+        /// Gets and sets the random number generator to be used within the Monte Carlo integration.
         /// </summary>
         public Random Random { get; set; }
-
-        private double[] _region;
-        private double _standardError;
-        private double _chiSquared;
-        private SobolSequence _sobol;
-
-        /// <summary>
-        /// The integration standard error. 
-        /// </summary>
-        public double StandardError { get { return _standardError; } set { _standardError = value; } }
-
-        /// <summary>
-        /// The Chi-Squared statistic
-        /// </summary>
-        public double ChiSquared { get { return _chiSquared; } set { _chiSquared = value; } }
-
-        /// <summary>
-        /// Determines how to initialize the Vegas routine. 
-        /// If Initialize <= 0, then Vegas enters on a cold start. 
-        /// If Initialize <= 1, then inherit the grid from a previous call, but not its answers.
-        /// If Initialize <= 2, then inherit the previous grid and its answers.
-        /// </summary>
-        public int Initialize { get; set; } = 0;
-
-        /// <summary>
-        /// The number of statistically independent evaluations of the integral, per iteration. 
-        /// </summary>
-        public int IndependentEvaluations { get; set; } = 5;
-
-        /// <summary>
-        /// The number of function evaluations within each independent evaluation. Default = 1,000.
-        /// </summary>
-        public int FunctionCalls { get; set; } = 1000;
 
         /// <summary>
         /// Determines whether to use a Sobol sequence or a pseudo-Random number generator. 
         /// </summary>
         public bool UseSobolSequence { get; set; } = true;
+
+        public bool IsProbabilityDomain { get; set; } = false;
+
+        /// <summary>
+        /// Determines how to initialize the Vegas routine. 
+        /// </summary>
+        /// <remarks>      
+        /// If 0, then Vegas enters on a cold start. If Initialize 1, then inherit the grid from a previous call, but not its answers. If 2, then inherit the previous grid and its answers.
+        /// </remarks>
+        public int Initialize { get; set; } = 0;
+
+        /// <summary>
+        /// Gets and sets the number of statistically independent evaluations of the integral, per iteration. 
+        /// </summary>
+        public int IndependentEvaluations { get; set; } = 10;
+
+        /// <summary>
+        /// Gets and sets the number of function evaluations within each independent evaluation. Default = 1,000.
+        /// </summary>
+        public int FunctionCalls { get; set; } = 1000;
+
+        /// <summary>
+        /// Gets and sets the number of stratification bins for each dimension. 
+        /// </summary>
+        public int Bins { get; set; } = 50;
+
+        /// <summary>
+        /// Gets and sets the stratification grid. 
+        /// </summary>
+        public double[,] Grid
+        {
+            get { return xi; }
+            set { xi = value; }
+        }
+
+        /// <summary>
+        /// Gets integration standard error. 
+        /// </summary>
+        public double StandardError 
+        { 
+            get { return _standardError; } 
+        }
+
+        /// <summary>
+        /// Gets the Chi-Squared statistic
+        /// </summary>
+        public double ChiSquared 
+        { 
+            get { return _chiSquared; } 
+        }
+
 
         /// <summary>
         /// Evaluates the integral.
@@ -171,23 +215,18 @@ namespace Numerics.Mathematics.Integration
 
         }
 
-        // Make everything static allowing restarts
-        private int NDMX = 50, MXDIM = 20;
-        private double ALPH = 1.5, TINY = 1.0e-30;
-        private int i, it, j, k, mds, nd, ndo, ng, npg;
-        private double calls, dv2g, dxg, f, f2, f2b, fb, rc, ti;
-        private double tsi, wgt, xjac, xn, xnd, xo, schi, si, swgt;
-        private int[] ia;
-        private int[] kg;
-        private double[] dt;
-        private double[] dx;
-        private double[] r;
-        private double[] x;
-        private double[] xin;
-        private double[,] d;
-        private double[,] di;
-        private double[,] xi;
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="fxn"></param>
+        /// <param name="regn"></param>
+        /// <param name="init"></param>
+        /// <param name="ncall">The approximate number of integrand evaluations per iteration.</param>
+        /// <param name="itmx">The maximum number of iterations.</param>
+        /// <param name="tgral">Output. The integral result.</param>
+        /// <param name="sd">Output. The standard deviation of the estimate of the integral.</param>
+        /// <param name="chi2a">The chi-squared per degree of freedom for all iterations up to that point.</param>
         private void vegas(Func<double[], double, double> fxn, double[] regn, int init, int ncall, int itmx, ref double tgral, ref double sd, ref double chi2a)
         {
             // Performs Monte Carlo integration of a user - supplied ndim - dimensional function fxn over a
@@ -217,17 +256,17 @@ namespace Numerics.Mathematics.Integration
             if (init <= 2)
             {
                 // Enter here to inherit the previous grid and its answers.
-                nd = NDMX;
+                nd = Bins;
                 ng = 1;
                 // Set up for stratification
                 if (mds != 0)
                 {
                     ng = (int)Math.Pow(ncall / 2.0 + 0.25, 1.0 / ndim);
                     mds = 1;
-                    if ((2 * ng - NDMX) >= 0)
+                    if ((2 * ng - Bins) >= 0)
                     {
                         mds = -1;
-                        npg = ng / NDMX + 1;
+                        npg = ng / Bins + 1;
                         nd = ng / npg;
                         ng = npg * nd;
                     }
@@ -244,7 +283,7 @@ namespace Numerics.Mathematics.Integration
                 for (j = 0; j < ndim; j++)
                 {
                     dx[j] = regn[j + ndim] - regn[j];
-                    xjac *= dx[j];
+                    xjac *= (IsProbabilityDomain? Normal.StandardCDF(regn[j + ndim]) - Normal.StandardCDF(regn[j]) : dx[j]);
                 }
                 // Do binning if necessary
                 if (nd != ndo)
@@ -254,6 +293,16 @@ namespace Numerics.Mathematics.Integration
                         rebin(ndo / xnd, nd, r, xin, xi, j);
                     ndo = nd;
                 }
+
+                //for (int h = 0; h < xi.GetLength(0); h++)
+                //{
+                //    string output = "";
+                //    for (int k = 0; k < xi.GetLength(1); k++)
+                //    {
+                //        output += xi[h, k].ToString() + ",";
+                //    }
+                //    Trace.WriteLine(output);
+                //}
             }
             // Main iteration loop. Can enter here (init >= 3) to do an additional itmx iteration with all other parameters unchanged.
             for (it = 0; it < itmx; it++)
@@ -279,7 +328,7 @@ namespace Numerics.Mathematics.Integration
                         for (j = 0; j < ndim; j++)
                         {
                             xn = (kg[j] - (UseSobolSequence ? rnd[j] : Random.NextDouble())) * dxg + 1.0;
-                            ia[j] = Math.Max(Math.Min((int)xn, NDMX), 1);
+                            ia[j] = Math.Max(Math.Min((int)xn, Bins), 1);
                             if (ia[j] > 1)
                             {
                                 xo = xi[j, ia[j] - 1] - xi[j, ia[j] - 2];
@@ -366,7 +415,15 @@ namespace Numerics.Mathematics.Integration
                     rebin(rc / xnd, nd, r, xin, xi, j);
                 }
 
-
+                //for (int h = 0; h < xi.GetLength(0); h++)
+                //{
+                //    string output = "";
+                //    for (int k = 0; k < xi.GetLength(1); k++)
+                //    {
+                //        output += xi[h, k].ToString() + ",";
+                //    }
+                //    Trace.WriteLine(output);
+                //}
             }
 
         }

@@ -31,7 +31,6 @@ namespace Numerics.Mathematics
         public static double Derivative(Func<double, double> f, double point, double stepSize = -1)
         {
             double h = stepSize <= 0 ? CalculateStepSize(point) : stepSize;
-            //double h = stepSize;
             return (f(point + h) - f(point - h)) / (2d * h);
         }
 
@@ -103,6 +102,7 @@ namespace Numerics.Mathematics
             var grad = new double[point.Length];
             var hi = new double[point.Length];
             var lo = new double[point.Length];
+
             point.CopyTo(hi, 0);
             point.CopyTo(lo, 0);
             for (int i = 0; i < point.Length; i++)
@@ -157,24 +157,50 @@ namespace Numerics.Mathematics
         /// <returns>The Hessian matrix.</returns>
         public static double[,] Hessian(Func<double[], double> f, double[] point, double stepSize = -1)
         {
-            double h = stepSize <= 0 ? CalculateStepSize(Tools.Min(point), 2) : stepSize;
-            var hess= new double[point.Length, point.Length];
-            var hi = new double[point.Length];
-            var lo = new double[point.Length];
-            point.CopyTo(hi, 0);
-            point.CopyTo(lo, 0);
+            var hess = new double[point.Length, point.Length];
+            var x = new double[point.Length];
+            point.CopyTo(x, 0);
+            double f1, f2, f3, f4;
+            double hi, hj;
+
             for (int i = 0; i < point.Length; i++)
             {
-                //double h = stepSize <= 0 ? CalculateStepSize(point[i], 2) : stepSize;
-                hi[i] += h;
-                lo[i] -= h;
-                var grad1 = Gradient(f, hi, h);
-                var grad2 = Gradient(f, lo, h);
+                hi = stepSize <= 0 ? CalculateStepSize(point[i], 2) : stepSize;
+
                 for (int j = 0; j < point.Length; j++)
-                    hess[i, j] = (grad1[j] - grad2[j]) / (2d * h);
-                hi[i] = point[i];
-                lo[i] = point[i];
+                {
+                    hj = stepSize <= 0 ? CalculateStepSize(point[j], 2) : stepSize;
+
+                    if (i == j)
+                    {
+                        x[i] += hi;
+                        f1 = f(x);
+                        f2 = f(point);
+                        x[i] -= 2 * hi;
+                        f3 = f(x);
+                        hess[i, j] = (f1 - 2 * f2 + f3) / (hi * hi);
+                    }
+                    else
+                    {
+                        x[i] += hi;
+                        x[j] += hj;
+                        f1 = f(x);
+                        x[j] -= 2 * hj;
+                        f2 = f(x);
+                        x[i] -= 2 * hi;
+                        x[j] += 2 * hj;
+                        f3 = f(x);
+                        x[j] -= 2 * hj;
+                        f4 = f(x);
+                        hess[i, j] = (f1 - f2 - f3 + f4) / (4 * hi * hj);
+                    }
+
+                    x[i] = point[i];
+                    x[j] = point[j];
+                }
+
             }
+
             return hess;
         }
 
@@ -185,7 +211,7 @@ namespace Numerics.Mathematics
         /// <param name="order">The order of the derivative.</param>
         public static double CalculateStepSize(double x, int order = 1)
         {
-            return x != 0 ? Math.Pow(Tools.DoubleMachineEpsilon, 1d / (1d + order)) * Math.Abs(x) : Math.Pow(Tools.DoubleMachineEpsilon, 1d / (1d + order));
+            return Math.Pow(Tools.DoubleMachineEpsilon, 1d / (1d + order)) * (1 + Math.Abs(x));
         }
     }
 }

@@ -392,23 +392,16 @@ namespace Numerics.Distributions
                 }
                 if (pert.ParametersValid == false) return double.MaxValue;
                 double SSE = 0d;
-                if (fifth != fiftieth)
-                    SSE += Math.Pow(fifth - pert.InverseCDF(0.05), 2d);
-                if (fiftieth != ninetyFifth)
-                    SSE += Math.Pow(fiftieth - pert.InverseCDF(0.5), 2d);
-                SSE += Math.Pow(ninetyFifth - pert.InverseCDF(0.95), 2d);
 
-                //if (fifth != fiftieth)
-                //    SSE += Math.Pow(0.05 - pert.CDF(fifth), 2d);
-                //if (fiftieth != ninetyFifth)
-                //    SSE += Math.Pow(0.5 - pert.CDF(fiftieth), 2d);
-                //SSE += Math.Pow(0.95 - pert.CDF(ninetyFifth), 2d);
+                SSE += Math.Pow(fifth - pert.InverseCDF(0.05), 2d);
+                SSE += Math.Pow(fiftieth - pert.InverseCDF(0.5), 2d);
+                SSE += Math.Pow(ninetyFifth - pert.InverseCDF(0.95), 2d);
 
                 return SSE;
             }
             var solver = new NelderMead(sse, NumberOfParameters, Initials, Lowers, Uppers);
-            solver.RelativeTolerance = 1E-4;
-            solver.AbsoluteTolerance = 1E-4;
+            solver.RelativeTolerance = 1E-6;
+            solver.AbsoluteTolerance = 1E-6;
             solver.ReportFailure = false;
             solver.Minimize();
             var solution = solver.BestParameterSet.Values;

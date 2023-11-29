@@ -30,7 +30,7 @@ namespace Numerics.Distributions
         /// <summary>
         /// Approximation for assessing if a parameter is near zero. 
         /// </summary>
-        protected double NearZero = 1E-6;
+        protected double NearZero = 1E-4;
 
         /// <summary>
         /// Returns the continuous distribution type.
