@@ -38,7 +38,7 @@ namespace Numerics.Sampling
 
             // Create random number generators
             var rndM = seed > 0 ? new MersenneTwister(seed) : new MersenneTwister();
-            var rnd = new Random[dimension, 2];
+            var rnd = new MersenneTwister[dimension, 2];
             for (int i = 0; i < dimension; i++)
             {
                 rnd[i, 0] = new MersenneTwister(rndM.Next(1, dimension * 10000 + 1));
@@ -49,12 +49,12 @@ namespace Numerics.Sampling
             {
                 // Create N bins of equal probability, 
                 // and randomly generate a number within that bin
-                var populationBins = new List<double>();
+                var bins = new List<double>();
                 for (int i = 1; i <= N; i++)
-                    populationBins.Add((rnd[col, 0].NextDouble() + i - 1d) / N);
+                    bins.Add((rnd[col, 0].NextDouble() + i - 1d) / N);
 
                 // Sample random bin without replacement
-                var bins = populationBins.ToList();
+                //var bins = populationBins.ToList();
                 for (int row = 0; row < N; row++)
                 {
                     int r = rnd[col, 1].Next(0, bins.Count);
@@ -81,7 +81,7 @@ namespace Numerics.Sampling
 
             // Create random number generators
             var rndM = seed > 0 ? new MersenneTwister(seed) : new MersenneTwister();
-            var rnd = new Random[dimension];
+            var rnd = new MersenneTwister[dimension];
             for (int i = 0; i < dimension; i++)
                 rnd[i] = new MersenneTwister(rndM.Next(1, dimension * 10000 + 1));
 
@@ -89,12 +89,12 @@ namespace Numerics.Sampling
             {
                 // Create N bins of equal probability, 
                 // and randomly generate a number within that bin
-                var populationBins = new List<double>();
+                var bins = new List<double>();
                 for (int i = 1; i <= N; i++)
-                    populationBins.Add((0.5 + i - 1d) / N);
+                    bins.Add((0.5 + i - 1d) / N);
 
                 // Sample random bin without replacement
-                var bins = populationBins.ToList();
+                //var bins = populationBins.ToList();
                 for (int row = 0; row < N; row++)
                 {
                     int r = rnd[col].Next(0, bins.Count);

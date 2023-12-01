@@ -1,6 +1,7 @@
 ﻿using Numerics.Sampling;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Numerics
 {
@@ -57,6 +58,35 @@ namespace Numerics
                 values[i] = random.Next(minValue, maxValue);
             return values;
         }
+
+        public static int[] NextIntegers(this Random random, int minValue, int maxValue, int length, bool replace = true)
+        {
+            if (replace == true)
+            {
+                var values = new int[length];
+                for (int i = 0; i < length; i++)
+                    values[i] = random.Next(minValue, maxValue);
+                return values;
+            }
+            else
+            {              
+                var bins = new List<int>();
+                for (int i = minValue; i < maxValue; i++)
+                    bins.Add(i);
+
+                // Sample random bin without replacement
+                var values = new int[length];
+                for (int i = 0; i < length; i++)
+                {
+                    int r = random.Next(0, bins.Count);
+                    values[i] = bins[r];
+                    bins.RemoveAt(r);
+                }
+                return values;
+            }
+
+        }
+
 
         /// <summary>
         /// Returns an array of random doubles.

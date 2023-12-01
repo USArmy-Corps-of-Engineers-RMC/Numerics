@@ -50,7 +50,7 @@ namespace Numerics.Distributions
 
         private bool _parametersValid = true;
         private bool _parametersSolved = false;
-        private Pert _pert = new Pert();
+        private GeneralizedBeta _beta = new GeneralizedBeta();
         private double _5th;
         private double _50th;
         private double _95th;
@@ -207,7 +207,7 @@ namespace Numerics.Distributions
         /// </summary>
         public override double Mean
         {
-            get { return _pert.Mean < MinAllowableValue ? MinAllowableValue : _pert.Mean > MaxAllowableValue ? MaxAllowableValue : _pert.Mean; ; }
+            get { return _beta.Mean < MinAllowableValue ? MinAllowableValue : _beta.Mean > MaxAllowableValue ? MaxAllowableValue : _beta.Mean; ; }
         }
 
         /// <summary>
@@ -215,7 +215,7 @@ namespace Numerics.Distributions
         /// </summary>
         public override double Median
         {
-            get { return _pert.Median < MinAllowableValue ? MinAllowableValue : _pert.Median > MaxAllowableValue ? MaxAllowableValue : _pert.Median; }
+            get { return _beta.Median < MinAllowableValue ? MinAllowableValue : _beta.Median > MaxAllowableValue ? MaxAllowableValue : _beta.Median; }
         }
 
         /// <summary>
@@ -223,7 +223,7 @@ namespace Numerics.Distributions
         /// </summary>
         public override double Mode
         {
-            get { return _pert.Mode < MinAllowableValue ? MinAllowableValue : _pert.Mode > MaxAllowableValue ? MaxAllowableValue : _pert.Mode; }
+            get { return _beta.Mode < MinAllowableValue ? MinAllowableValue : _beta.Mode > MaxAllowableValue ? MaxAllowableValue : _beta.Mode; }
         }
 
         /// <summary>
@@ -231,7 +231,7 @@ namespace Numerics.Distributions
         /// </summary>
         public override double StandardDeviation
         {
-            get { return _pert.StandardDeviation; }
+            get { return _beta.StandardDeviation; }
         }
 
         /// <summary>
@@ -239,7 +239,7 @@ namespace Numerics.Distributions
         /// </summary>
         public override double Skew
         {
-            get { return _pert.Skew; }
+            get { return _beta.Skew; }
         }
 
         /// <summary>
@@ -247,7 +247,7 @@ namespace Numerics.Distributions
         /// </summary>
         public override double Kurtosis
         {
-            get { return _pert.Kurtosis; }
+            get { return _beta.Kurtosis; }
         }
 
         /// <summary>
@@ -255,7 +255,7 @@ namespace Numerics.Distributions
         /// </summary>
         public override double Minimum
         {
-            get { return Math.Max(_pert.Minimum, MinAllowableValue); }
+            get { return Math.Max(_beta.Minimum, MinAllowableValue); }
         }
 
         /// <summary>
@@ -263,7 +263,7 @@ namespace Numerics.Distributions
         /// </summary>
         public override double Maximum
         {
-            get { return Math.Min(_pert.Maximum, MaxAllowableValue); }
+            get { return Math.Min(_beta.Maximum, MaxAllowableValue); }
         }
 
         /// <summary>
@@ -352,66 +352,94 @@ namespace Numerics.Distributions
             //_pert = new Pert(fifth, fiftieth, ninetyFifth);
             if (fifth == fiftieth && fiftieth == ninetyFifth)
             {
-                _pert = new Pert(fifth, fiftieth, ninetyFifth);
+                _beta = GeneralizedBeta.PERT(fifth, fiftieth, ninetyFifth);
                 _parametersSolved = true;
                 return;
             }
 
-            // Get parameter constraints
-            _pert = new Pert(fifth, fiftieth, ninetyFifth);
-            double mode = _pert.Mode;
-            double p05 = _pert.InverseCDF(0.05);
-            double p50 = _pert.InverseCDF(0.5);
-            double p95 = _pert.InverseCDF(0.95);
-            double min = fifth - (ninetyFifth - fifth);
-            double max = ninetyFifth + (ninetyFifth - fifth);
-            var Initials = new double[] { fifth, fiftieth, ninetyFifth };
-            var Lowers = new double[] { min, p50 > mode ? Math.Min(mode, fiftieth) - Tools.DoubleMachineEpsilon : fifth - Tools.DoubleMachineEpsilon, ninetyFifth - Tools.DoubleMachineEpsilon };
-            var Uppers = new double[] { fifth + Tools.DoubleMachineEpsilon, p50 > mode ? ninetyFifth + Tools.DoubleMachineEpsilon : Math.Max(mode, fiftieth) + Tools.DoubleMachineEpsilon, max };
 
+            _beta = GeneralizedBeta.PERT(fifth, fiftieth, ninetyFifth);
+            double min = fifth - (ninetyFifth - fifth) * 2;
+            double max = ninetyFifth + (ninetyFifth - fifth) * 2;
+            var Initials = new double[] { _beta.Alpha, _beta.Beta, _beta.Min, _beta.Max };
+            var Lowers = new double[] { Tools.DoubleMachineEpsilon, Tools.DoubleMachineEpsilon, min, ninetyFifth };
+            var Uppers = new double[] { _beta.Alpha * 10, _beta.Beta * 10, fifth, max };
 
             // Solve using Nelder-Mead (Downhill Simplex)
             double sse(double[] x)
             {
-                var pert = new Pert();
+                var dist = new GeneralizedBeta();
                 try
                 {
-                    pert = new Pert(x[0], x[1], x[2]);
+                    dist = new GeneralizedBeta(x[0], x[1], x[2], x[3]);
                 }
                 catch
                 {
                     return double.MaxValue;
                 }
-                if (pert.ParametersValid == false) return double.MaxValue;
+                if (dist.ParametersValid == false) return double.MaxValue;
+
                 double SSE = 0d;
-                //if (fifth != fiftieth)
-                //    SSE += Math.Pow(fifth - pert.InverseCDF(0.05), 2d);
-                //if (fiftieth != ninetyFifth)
-                //    SSE += Math.Pow(fiftieth - pert.InverseCDF(0.5), 2d);
-                //SSE += Math.Pow(ninetyFifth - pert.InverseCDF(0.95), 2d);
-
-                //if(fifth != fiftieth)
-                //    SSE += Math.Pow(0.05 - pert.CDF(fifth), 2d);
-                //if (fiftieth != ninetyFifth)
-                //    SSE += Math.Pow(0.5 - pert.CDF(fiftieth), 2d);
-                //SSE += Math.Pow(0.95 - pert.CDF(ninetyFifth), 2d);
-
-                if (fifth != fiftieth)
-                    SSE += 0.05 - pert.CDF(fifth);
-                if (fiftieth != ninetyFifth)
-                    SSE += 0.5 - pert.CDF(fiftieth);
-                SSE += 0.95 - pert.CDF(ninetyFifth);
-
+                SSE += Math.Pow(fifth - dist.InverseCDF(0.05), 2d);
+                SSE += Math.Pow(fiftieth - dist.InverseCDF(0.5), 2d);
+                SSE += Math.Pow(ninetyFifth - dist.InverseCDF(0.95), 2d);
                 return SSE;
             }
-            var solver = new NelderMead(sse, NumberOfParameters, Initials, Lowers, Uppers);
-            solver.RelativeTolerance = 1E-6;
-            solver.AbsoluteTolerance = 1E-6;
+            var solver = new NelderMead(sse, 4, Initials, Lowers, Uppers);
+            solver.RelativeTolerance = 1E-8;
+            solver.AbsoluteTolerance = 1E-8;
             solver.ReportFailure = false;
             solver.Minimize();
             var solution = solver.BestParameterSet.Values;
-            _pert = new Pert(solution[0], solution[1], solution[2]);
+            _beta = new GeneralizedBeta(solution[0], solution[1], solution[2], solution[3]);
             _parametersSolved = true;
+
+
+            //// Get parameter constraints
+            //_pert = new Pert(fifth, fiftieth, ninetyFifth);
+            //double mode = _pert.Mode;
+            //double p05 = _pert.InverseCDF(0.05);
+            //double p50 = _pert.InverseCDF(0.5);
+            //double p95 = _pert.InverseCDF(0.95);
+            //double min = fifth - (ninetyFifth - fifth);
+            //double max = ninetyFifth + (ninetyFifth - fifth);
+            ////var Initials = new double[] { fifth, fiftieth, ninetyFifth };
+            //var Lowers = new double[] { min, p50 > mode ? Math.Min(mode, fiftieth) - Tools.DoubleMachineEpsilon : fifth - Tools.DoubleMachineEpsilon, ninetyFifth - Tools.DoubleMachineEpsilon };
+            //var Uppers = new double[] { fifth + Tools.DoubleMachineEpsilon, p50 > mode ? ninetyFifth + Tools.DoubleMachineEpsilon : Math.Max(mode, fiftieth) + Tools.DoubleMachineEpsilon, max };
+
+
+            //// Solve using Nelder-Mead (Downhill Simplex)
+            //double sse(double[] x)
+            //{
+            //    var pert = new Pert();
+            //    try
+            //    {
+            //        pert = new Pert(x[0], x[1], x[2]);
+            //    }
+            //    catch
+            //    {
+            //        return double.MaxValue;
+            //    }
+            //    if (pert.ParametersValid == false) return double.MaxValue;
+                
+            //    double SSE = 0d;
+            //    SSE += Math.Pow(fifth - pert.InverseCDF(0.05), 2d);
+            //    SSE += Math.Pow(fiftieth - pert.InverseCDF(0.5), 2d);
+            //    SSE += Math.Pow(ninetyFifth - pert.InverseCDF(0.95), 2d);
+
+            //    //SSE += Math.Pow(0.05 - pert.CDF(fifth), 2d);
+            //    //SSE += Math.Pow(0.5 - pert.CDF(fiftieth), 2d);
+            //    //SSE += Math.Pow(0.95 - pert.CDF(ninetyFifth), 2d);
+            //    return SSE;
+            //}
+            //var solver = new NelderMead(sse, NumberOfParameters, Initials, Lowers, Uppers);
+            //solver.RelativeTolerance = 1E-8;
+            //solver.AbsoluteTolerance = 1E-8;
+            //solver.ReportFailure = false;
+            //solver.Minimize();
+            //var solution = solver.BestParameterSet.Values;
+            //_pert = new Pert(solution[0], solution[1], solution[2]);
+            //_parametersSolved = true;
 
         }
 
@@ -425,7 +453,7 @@ namespace Numerics.Distributions
             if (_parametersSolved == false) SolveParameters();
             if (x < MinAllowableValue) x = MinAllowableValue;
             if (x > MaxAllowableValue) x = MaxAllowableValue;
-            return _pert.PDF(x);
+            return _beta.PDF(x);
         }
 
         /// <summary>
@@ -442,7 +470,7 @@ namespace Numerics.Distributions
             if (_parametersSolved == false) SolveParameters();
             if (x < MinAllowableValue) x = MinAllowableValue;
             if (x > MaxAllowableValue) x = MaxAllowableValue;
-            return _pert.CDF(x);
+            return _beta.CDF(x);
         }
 
         /// <summary>
@@ -462,7 +490,7 @@ namespace Numerics.Distributions
             // Validate parameters
             if (_parametersValid == false) ValidateParameters(Percentile5th, Percentile50th, Percentile95th, true);
             if (_parametersSolved == false) SolveParameters();
-            var x = _pert.InverseCDF(probability);
+            var x = _beta.InverseCDF(probability);
             if (x < MinAllowableValue) x = MinAllowableValue;
             if (x > MaxAllowableValue) x = MaxAllowableValue;
             return x;
@@ -477,7 +505,7 @@ namespace Numerics.Distributions
                 MaxAllowableValue = MaxAllowableValue,
                 _parametersSolved = _parametersSolved,
                 _parametersValid = _parametersValid,
-                _pert = (Pert)_pert.Clone()};
+                _beta = (GeneralizedBeta)_beta.Clone()};
         }
 
         /// <summary>
@@ -485,7 +513,7 @@ namespace Numerics.Distributions
         /// </summary>
         public Pert ToPert()
         {
-            return (Pert)_pert.Clone();
+            return new Pert(_beta.Min, _beta.Mode, _beta.Max);
         }
 
 

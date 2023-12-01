@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Numerics.Mathematics.SpecialFunctions;
+using System;
 using System.Collections.Generic;
 
 namespace Numerics.Distributions
@@ -368,6 +369,18 @@ namespace Numerics.Distributions
         {
             SetParameters(parameters[0], parameters[1], parameters[2], parameters[3]);
         }
+
+        public void SetParametersFromMoments(double mu, double sigma, double min, double max)
+        {
+            var s2 = sigma * sigma;
+            _alpha = (min - mu) * (min * max - min * mu - max * mu + mu * mu + s2) / (s2 * (max - min));
+            _beta = -(max - mu) * (min * max - min * mu - max * mu + mu * mu + s2) / (s2 * (max - min));
+            _min = min;
+            _max = max;
+            // validate parameters
+            _parametersValid = ValidateParameters(_alpha, _beta, _min, _max, false) is null;
+        }
+
 
         /// <summary>
         /// Validate the parameters.

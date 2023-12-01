@@ -27,6 +27,8 @@ namespace Sampling
             // for (int i = 0; i < y.GetLength(0); i++)
             //     Debug.WriteLine(y[i] + "," + z[i]);
 
+            //var rnd = new Random();
+            //var vals = rnd.NextIntegers(0, 10, 4, false);
         }
 
     }

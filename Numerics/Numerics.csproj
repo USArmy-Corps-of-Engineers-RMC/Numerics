@@ -132,6 +132,7 @@
     <Compile Include="Functions\IUnivariateFunction.cs" />
     <Compile Include="Functions\TabularFunction.cs" />
     <Compile Include="Machine Learning\Support\JenksCluster.cs" />
+    <Compile Include="Machine Learning\Support\KMeansCluster.cs" />
     <Compile Include="Machine Learning\Unsupervised\GaussianMixture.cs" />
     <Compile Include="Machine Learning\Unsupervised\JenksNaturalBreaks.cs" />
     <Compile Include="Machine Learning\Unsupervised\KMeans.cs" />

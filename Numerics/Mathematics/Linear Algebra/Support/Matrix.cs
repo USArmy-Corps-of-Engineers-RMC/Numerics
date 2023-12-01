@@ -51,7 +51,8 @@ namespace Numerics.Mathematics.LinearAlgebra
         public Matrix(double[] initialArray)
         {
             _array = new double[initialArray.Length, 1];
-            for (int i = 0; i < _array.Length; i++) _array[i, 0] = initialArray[i];
+            for (int i = 0; i < _array.Length; i++) 
+                _array[i, 0] = initialArray[i];
         }
 
         /// <summary>

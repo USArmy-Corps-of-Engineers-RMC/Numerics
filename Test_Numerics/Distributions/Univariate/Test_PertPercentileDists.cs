@@ -26,7 +26,8 @@ namespace Distributions.Univariate
             double true_icdf50 = 0.0;
             double true_icdf95 = 1.644;
             var pert = new PertPercentile(-1.644d, 0d, 1.644d);
-            //Assert.AreEqual(pert.Minimum, true_min, 1E-3);
+            pert.SolveParameters();
+            Assert.AreEqual(pert.Minimum, true_min, 1E-3);
             //Assert.AreEqual(pert.Maximum, true_max, 1E-3);
             //Assert.AreEqual(pert.Mean, true_mean, 1E-3);
             //Assert.AreEqual(pert.Median, true_median, 1E-3);
@@ -53,6 +54,7 @@ namespace Distributions.Univariate
             double ninetyfifth = 32;
             double true_mean = 21;
             var pert = new PertPercentile(fifth, fiftieth, ninetyfifth);
+            pert.SolveParameters();
             var p1 = pert.CDF(fifth);
             var p2 = pert.CDF(fiftieth);
             var p3 = pert.CDF(ninetyfifth);
