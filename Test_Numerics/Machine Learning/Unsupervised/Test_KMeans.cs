@@ -19,7 +19,7 @@ namespace MachineLearning
             var stopWatch = new Stopwatch();
             stopWatch.Start();
 
-            int k = 10;
+            int k = 5;
             var kmeans = new KMeans(_dataset3, k);
             kmeans.Estimate(12345);
 
@@ -71,7 +71,7 @@ namespace MachineLearning
 
 
             var kmeans = new KMeans(data, 3);
-            kmeans.Estimate();
+            kmeans.Estimate(12345);
 
             double[] trueValues = new[] { 4.141846, 8.523254, 12.64075, 20.13635, 37.00143 };
             //for (int i = 0; i < jenks.Breaks.Length; i++)
