@@ -135,6 +135,9 @@
     <Compile Include="Distributions\Univariate\Test_Competing.cs" />
     <Compile Include="Distributions\Univariate\Test_Mixture.cs" />
     <Compile Include="Functions\Test_Functions.cs" />
+    <Compile Include="Machine Learning\Supervised\Test_kNN.cs" />
+    <Compile Include="Machine Learning\Supervised\Test_DecisionTree.cs" />
+    <Compile Include="Machine Learning\Supervised\Test_RandomForest.cs" />
     <Compile Include="Machine Learning\Unsupervised\Test_JenksNaturalBreaks.cs" />
     <Compile Include="Machine Learning\Unsupervised\Test_KMeans.cs" />
     <Compile Include="Mathematics\Differentiation\Test_Differentiation.cs" />

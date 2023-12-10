@@ -3,6 +3,8 @@ using Numerics.Distributions;
 using Numerics.Mathematics.LinearAlgebra;
 using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 
 namespace Numerics.Data
 {
@@ -89,6 +91,9 @@ namespace Numerics.Data
         /// </summary>
         public List<double> ParameterStandardErrors { get; private set; }
 
+        /// <summary>
+        /// The list of the estimated parameter t-statistics.
+        /// </summary>
         public List<double> ParameterTStats { get; private set; }
 
         /// <summary>
@@ -247,6 +252,66 @@ namespace Numerics.Data
             AdjRSquared = 1 - (1 - RSquared) * (n - 1) / (DegreesOfFreedom);
 
         }
-  
+
+
+        /// <summary>
+        /// Returns the predicted Y values given the X-values. 
+        /// </summary>
+        /// <param name="x">The matrix of predictor values.</param>
+        public double[] Predict(Matrix x)
+        {
+            var result = new double[x.NumberOfRows];
+            for (int i = 0; i < x.NumberOfRows; i++)
+            {
+                if (hasIntercept == true)
+                {
+                    var values = new List<double>() { 1 };
+                    values.AddRange(x.Row(i));
+                    result[i] = Tools.SumProduct(Parameters, values);
+                }
+                else
+                {
+                    result[i] = Tools.SumProduct(Parameters, x.Row(i));
+                }
+            }
+                
+            return result;
+        }
+
+        /// <summary>
+        /// Returns the prediction intervals for Y in a 2D array with columns: lower, upper, mean.
+        /// </summary>
+        /// <param name="x">The matrix of predictor values.</param>
+        /// <param name="alpha">The confidence level; Default = 0.1, which will result in the 90% prediction intervals.</param>
+        public double[,] PredictionIntervals(Matrix x, double alpha = 0.1)
+        {
+            var percentiles = new double[] { alpha / 2d, 1d - alpha / 2d };
+            var result = new double[x.NumberOfRows, 4]; // lower, median, upper, mean
+            for (int i = 0; i < x.NumberOfRows; i++)
+            {
+                double mu = 0;
+                if (hasIntercept == true)
+                {
+                    var values = new List<double>() { 1 };
+                    values.AddRange(x.Row(i));
+                    mu = Tools.SumProduct(Parameters, values);
+
+                }
+                else
+                {
+                    mu = Tools.SumProduct(Parameters, x.Row(i));
+                }
+                var s = StandardError;
+                var s2 = s * s;
+                var n = DegreesOfFreedom;
+                var t = new StudentT(mu, Math.Sqrt(s2 / n + s2), n);
+                result[i, 0] = t.InverseCDF(percentiles[0]);
+                result[i, 1] = t.InverseCDF(percentiles[1]);
+                result[i, 2] = mu;
+            }
+
+            return result;
+        }
+
     }
 }

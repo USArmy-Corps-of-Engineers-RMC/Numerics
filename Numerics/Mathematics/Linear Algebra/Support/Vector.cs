@@ -99,11 +99,10 @@ namespace Numerics.Mathematics.LinearAlgebra
         }
 
         /// <summary>
-        /// 
+        /// Returns the dot product of two vectors.
         /// </summary>
-        /// <param name="A"></param>
-        /// <param name="B"></param>
-        /// <returns></returns>
+        /// <param name="A">Left-side vector.</param>
+        /// <param name="B">Right-side vector.</param>
         public static double DotProduct(Vector A, Vector B)
         {
             if (A.Length != B.Length) throw new ArgumentException(nameof(A.Length), "The vectors must be the same length.");
@@ -166,8 +165,6 @@ namespace Numerics.Mathematics.LinearAlgebra
                 v[i] = A[i] + B[i];
             return v;
         }
-
-
 
         /// <summary>
         /// Subtracts vectors A and B by subtracting corresponding elements. Vectors A and B must the same size. 

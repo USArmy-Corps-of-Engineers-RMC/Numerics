@@ -362,8 +362,8 @@ namespace Numerics.Distributions
             double min = fifth - (ninetyFifth - fifth) * 2;
             double max = ninetyFifth + (ninetyFifth - fifth) * 2;
             var Initials = new double[] { _beta.Alpha, _beta.Beta, _beta.Min, _beta.Max };
-            var Lowers = new double[] { Tools.DoubleMachineEpsilon, Tools.DoubleMachineEpsilon, min, ninetyFifth };
-            var Uppers = new double[] { _beta.Alpha * 10, _beta.Beta * 10, fifth, max };
+            var Lowers = new double[] { Tools.DoubleMachineEpsilon, Tools.DoubleMachineEpsilon, min, min };
+            var Uppers = new double[] { _beta.Alpha * 100, _beta.Beta * 100, max, max };
 
             // Solve using Nelder-Mead (Downhill Simplex)
             double sse(double[] x)
@@ -393,54 +393,6 @@ namespace Numerics.Distributions
             var solution = solver.BestParameterSet.Values;
             _beta = new GeneralizedBeta(solution[0], solution[1], solution[2], solution[3]);
             _parametersSolved = true;
-
-
-            //// Get parameter constraints
-            //_pert = new Pert(fifth, fiftieth, ninetyFifth);
-            //double mode = _pert.Mode;
-            //double p05 = _pert.InverseCDF(0.05);
-            //double p50 = _pert.InverseCDF(0.5);
-            //double p95 = _pert.InverseCDF(0.95);
-            //double min = fifth - (ninetyFifth - fifth);
-            //double max = ninetyFifth + (ninetyFifth - fifth);
-            ////var Initials = new double[] { fifth, fiftieth, ninetyFifth };
-            //var Lowers = new double[] { min, p50 > mode ? Math.Min(mode, fiftieth) - Tools.DoubleMachineEpsilon : fifth - Tools.DoubleMachineEpsilon, ninetyFifth - Tools.DoubleMachineEpsilon };
-            //var Uppers = new double[] { fifth + Tools.DoubleMachineEpsilon, p50 > mode ? ninetyFifth + Tools.DoubleMachineEpsilon : Math.Max(mode, fiftieth) + Tools.DoubleMachineEpsilon, max };
-
-
-            //// Solve using Nelder-Mead (Downhill Simplex)
-            //double sse(double[] x)
-            //{
-            //    var pert = new Pert();
-            //    try
-            //    {
-            //        pert = new Pert(x[0], x[1], x[2]);
-            //    }
-            //    catch
-            //    {
-            //        return double.MaxValue;
-            //    }
-            //    if (pert.ParametersValid == false) return double.MaxValue;
-                
-            //    double SSE = 0d;
-            //    SSE += Math.Pow(fifth - pert.InverseCDF(0.05), 2d);
-            //    SSE += Math.Pow(fiftieth - pert.InverseCDF(0.5), 2d);
-            //    SSE += Math.Pow(ninetyFifth - pert.InverseCDF(0.95), 2d);
-
-            //    //SSE += Math.Pow(0.05 - pert.CDF(fifth), 2d);
-            //    //SSE += Math.Pow(0.5 - pert.CDF(fiftieth), 2d);
-            //    //SSE += Math.Pow(0.95 - pert.CDF(ninetyFifth), 2d);
-            //    return SSE;
-            //}
-            //var solver = new NelderMead(sse, NumberOfParameters, Initials, Lowers, Uppers);
-            //solver.RelativeTolerance = 1E-8;
-            //solver.AbsoluteTolerance = 1E-8;
-            //solver.ReportFailure = false;
-            //solver.Minimize();
-            //var solution = solver.BestParameterSet.Values;
-            //_pert = new Pert(solution[0], solution[1], solution[2]);
-            //_parametersSolved = true;
-
         }
 
         /// <summary>

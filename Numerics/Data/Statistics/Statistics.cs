@@ -690,5 +690,21 @@ namespace Numerics.Data.Statistics
                 ranks[index[k]] = rank;
             }
         }
+
+        /// <summary>
+        /// Computes the entropy function for a set of numerical values in a given Probability Density Function (pdf).
+        /// </summary>
+        /// <param name="values">The array of values.</param>
+        /// <param name="pdf">A probability distribution function.</param>
+        public static double Entropy(double[] values, Func<double, double> pdf)
+        {
+            double sum = 0;
+            for (int i = 0; i < values.Length; i++)
+            {
+                double p = pdf(values[i]);
+                sum += p * Math.Log(p);
+            }
+            return -sum;
+        }
     }
 }

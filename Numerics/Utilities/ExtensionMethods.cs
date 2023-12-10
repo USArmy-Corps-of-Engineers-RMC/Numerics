@@ -59,6 +59,14 @@ namespace Numerics
             return values;
         }
 
+        /// <summary>
+        /// Returns an array of random integers between a min and max value. 
+        /// </summary>
+        /// <param name="random">A random number generator.</param>
+        /// <param name="minValue">The minimum value to sample between.</param>
+        /// <param name="maxValue">The maximum value to sample between.</param>
+        /// <param name="length">The number of samples to return.</param>
+        /// <param name="replace">Determines whether or not to sample with replacement. Default = true.</param>
         public static int[] NextIntegers(this Random random, int minValue, int maxValue, int length, bool replace = true)
         {
             if (replace == true)

@@ -24,7 +24,7 @@ namespace Numerics.MachineLearning
     /// <see href = "https://en.wikipedia.org/wiki/K-means_clustering" />
     /// </para>
     /// <para>
-    /// k-means clustering is a method of vector quantization, originally from signal processing, 
+    /// k-Means clustering is a method of vector quantization, originally from signal processing, 
     /// that aims to partition n observations into k clusters in which each observation belongs to 
     /// the cluster with the nearest mean (cluster centers or cluster centroid), serving as a prototype of the cluster.
     /// </para>
@@ -211,6 +211,9 @@ namespace Numerics.MachineLearning
                         sum += min;
                     }
 
+                    // Following Acord.Net checks:
+                    // https://github.com/accord-net/framework/blob/development/Sources/Accord.MachineLearning/Clustering/KMeans/KMeans.cs
+                    
                     // Note: the following checks could have been avoided if we added
                     // a small value to each distance, but is kept as this to avoid 
                     // breaking the random pattern in existing code.

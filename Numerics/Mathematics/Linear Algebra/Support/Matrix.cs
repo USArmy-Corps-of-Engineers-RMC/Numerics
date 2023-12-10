@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing.Drawing2D;
 
 namespace Numerics.Mathematics.LinearAlgebra
 {
@@ -16,6 +17,8 @@ namespace Numerics.Mathematics.LinearAlgebra
     public class Matrix
     {
 
+        #region Construction
+
         /// <summary>
         /// Construct a new matrix with specified number of rows and columns.
         /// </summary>
@@ -23,7 +26,7 @@ namespace Numerics.Mathematics.LinearAlgebra
         /// <param name="numberOfColumns">The number of columns.</param>
         public Matrix(int numberOfRows, int numberOfColumns)
         {
-            _array = new double[numberOfRows, numberOfColumns];
+            _matrix = new double[numberOfRows, numberOfColumns];
         }
 
         /// <summary>
@@ -32,7 +35,7 @@ namespace Numerics.Mathematics.LinearAlgebra
         /// <param name="size">The number of rows or columns (rows = columns).</param>
         public Matrix(int size)
         {
-            _array = new double[size, size];
+            _matrix = new double[size, size];
         }
 
         /// <summary>
@@ -41,7 +44,7 @@ namespace Numerics.Mathematics.LinearAlgebra
         /// <param name="initialArray">Initializing array.</param>
         public Matrix(double[,] initialArray)
         {
-            _array = (double[,])initialArray.Clone();
+            _matrix = (double[,])initialArray.Clone();
         }
 
         /// <summary>
@@ -50,9 +53,9 @@ namespace Numerics.Mathematics.LinearAlgebra
         /// <param name="initialArray">Initializing array.</param>
         public Matrix(double[] initialArray)
         {
-            _array = new double[initialArray.Length, 1];
-            for (int i = 0; i < _array.Length; i++) 
-                _array[i, 0] = initialArray[i];
+            _matrix = new double[initialArray.Length, 1];
+            for (int i = 0; i < _matrix.Length; i++)
+                _matrix[i, 0] = initialArray[i];
         }
 
         /// <summary>
@@ -61,8 +64,8 @@ namespace Numerics.Mathematics.LinearAlgebra
         /// <param name="initialVector">Initializing vector.</param>
         public Matrix(Vector initialVector)
         {
-            _array = new double[initialVector.Length, 1];
-            for (int i = 0; i < _array.Length; i++) _array[i, 0] = initialVector[i];
+            _matrix = new double[initialVector.Length, 1];
+            for (int i = 0; i < _matrix.Length; i++) _matrix[i, 0] = initialVector[i];
         }
 
         /// <summary>
@@ -71,23 +74,28 @@ namespace Numerics.Mathematics.LinearAlgebra
         /// <param name="listOfArrays">List of initializing arrays.</param>
         public Matrix(List<double[]> listOfArrays)
         {
-            _array = new double[listOfArrays[1].Length, listOfArrays.Count];
-            for (int i = 0; i < _array.GetLength(0); i++)
+            _matrix = new double[listOfArrays[1].Length, listOfArrays.Count];
+            for (int i = 0; i < _matrix.GetLength(0); i++)
             {
                 for (int j = 0; j < listOfArrays.Count; j++)
                 {
-                    _array[i, j] = listOfArrays[j][i];
+                    _matrix[i, j] = listOfArrays[j][i];
                 }
             }
         }
-        private double[,] _array;
+
+        #endregion
+
+        #region Members
+
+        private double[,] _matrix;
 
         /// <summary>
         /// Gets the number of rows.
         /// </summary>
         public int NumberOfRows
         {
-            get { return _array.GetLength(0); }
+            get { return _matrix.GetLength(0); }
         }
 
         /// <summary>
@@ -95,7 +103,7 @@ namespace Numerics.Mathematics.LinearAlgebra
         /// </summary>
         public int NumberOfColumns
         {
-            get { return _array.GetLength(1); }
+            get { return _matrix.GetLength(1); }
         }
 
         /// <summary>
@@ -105,8 +113,8 @@ namespace Numerics.Mathematics.LinearAlgebra
         /// <param name="columnIndex">The zero-based column index of the element to get or set.</param>
         public double this[int rowIndex, int columnIndex]
         {
-            get { return _array[rowIndex, columnIndex]; }
-            set { _array[rowIndex, columnIndex] = value; }
+            get { return _matrix[rowIndex, columnIndex]; }
+            set { _matrix[rowIndex, columnIndex] = value; }
         }
 
         /// <summary>
@@ -133,7 +141,6 @@ namespace Numerics.Mathematics.LinearAlgebra
                         }
                     }
                 }
-
                 return true;
             }
         }
@@ -141,19 +148,18 @@ namespace Numerics.Mathematics.LinearAlgebra
         /// <summary>
         /// Determines whether this matrix is square.
         /// </summary>
-        public bool IsSquare
+        public bool IsSquare => NumberOfRows == NumberOfColumns;
+
+        #endregion
+
+        #region Methods
+
+        /// <summary>
+        /// Returns a copy of this matrix.  
+        /// </summary>
+        public Matrix Clone()
         {
-            get
-            {
-                if (NumberOfRows == NumberOfColumns)
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
-            }
+            return new Matrix(_matrix);
         }
 
         /// <summary>
@@ -161,7 +167,7 @@ namespace Numerics.Mathematics.LinearAlgebra
         /// </summary>
         public double[,] ToArray()
         {
-            return (double[,])_array.Clone();
+            return (double[,])_matrix.Clone();
         }
 
         /// <summary>
@@ -172,7 +178,7 @@ namespace Numerics.Mathematics.LinearAlgebra
         {
             var vector = new double[NumberOfColumns];
             for (int j = 0; j < NumberOfColumns; j++)
-                vector[j] = _array[index, j];
+                vector[j] = _matrix[index, j];
             return vector;
         }
 
@@ -184,9 +190,11 @@ namespace Numerics.Mathematics.LinearAlgebra
         {
             var vector = new double[NumberOfRows];
             for (int i = 0; i < NumberOfRows; i++)
-                vector[i] = _array[i, index];
+                vector[i] = _matrix[i, index];
             return vector;
         }
+
+        #region Operations
 
         /// <summary>
         /// Returns a new matrix containing the upper triangle of this matrix.
@@ -199,7 +207,6 @@ namespace Numerics.Mathematics.LinearAlgebra
                 for (int j = i; j < NumberOfColumns; j++)
                     result[i, j] = this[i, j];
             }
-
             return result;
         }
 
@@ -217,7 +224,6 @@ namespace Numerics.Mathematics.LinearAlgebra
                     result[i, j] = this[i, j];
                 }
             }
-
             return result;
         }
 
@@ -235,6 +241,52 @@ namespace Numerics.Mathematics.LinearAlgebra
                 result[i] = this[i, i];
             return result;
         }
+
+        /// <summary>
+        /// Returns the matrix determinant.
+        /// </summary>
+        public double Determinant()
+        {
+            if (IsSquare == false)
+                throw new ArgumentException("The matrix must be square.");
+
+            var lU = new LUDecomposition(this);
+            return lU.Determinant();
+        }
+
+        /// <summary>
+        /// Returns the matrix inverse A^-1.
+        /// </summary>
+        public Matrix Inverse()
+        {
+            if (IsSquare == false)
+                throw new ArgumentException("The matrix must be square.");
+
+            var lU = new LUDecomposition(this);
+            return lU.InverseA();
+        }
+
+        /// <summary>
+        /// Transpose the matrix.
+        /// </summary>
+        public void Transpose()
+        {
+            var t = new double[NumberOfColumns, NumberOfRows];
+            for (int i = 0; i < NumberOfRows; i++)
+            {
+                for (int j = 0; j < NumberOfColumns; j++)
+                    t[j, i] = this[i, j];
+            }
+            _matrix = t;
+        }
+
+
+
+
+
+        #endregion
+
+        #region Static Operations
 
         /// <summary>
         /// Returns the diagonal matrix.
@@ -282,123 +334,51 @@ namespace Numerics.Mathematics.LinearAlgebra
                 for (int j = 0; j < A.NumberOfColumns; j++)
                     t[j, i] = A[i, j];
             }
-
             return t;
         }
 
+        #endregion
+
+        #region Mathematics
 
         /// <summary>
-        /// Returns the determinant of the matrix.
+        /// Computes the square root of the matrix point wise. 
         /// </summary>
-        /// <param name="A">The matrix.</param>
-        public static double Determinant(Matrix A)
+        public void Sqrt()
         {
-            if (A.IsSquare == false)
-                throw new ArgumentException("The matrix must be square.");
-            if (A.NumberOfRows == 1)
-            {
-                return A[0, 0];
-            }
-            else
-            {
-                int sign = 1;
-                double D = 0d;
-                for (int i = 0; i < A.NumberOfRows; i++)
-                {
-                    D += sign * A[0, i] * Determinant(minor(A, 0, i));
-                    sign *= -1;
-                }
-                return D;
-            }
-        }
-
-        /// <summary>
-        /// Returns the permanent of the matrix.
-        /// </summary>
-        /// <param name="A">The matrix.</param>
-        public static double Permanent(Matrix A)
-        {
-            if (A.IsSquare == false)
-                throw new ArgumentException("The matrix must be square.");
-            if (A.NumberOfRows == 1)
-            {
-                return A[0, 0];
-            }
-            else
-            {
-                double sum = 0d;
-                for (int i = 0; i < A.NumberOfRows; i++)
-                    sum = sum + A[0, i] * Permanent(minor(A, 0, i));
-                return sum;
-            }
-        }
-
-        private static Matrix minor(Matrix A, int x, int y)
-        {
-            int n = A.NumberOfRows - 1;
-            var result = new Matrix(n);
-            for (int i = 0; i < n; i++)
-            {
-                for (int j = 0; j < n; j++)
-                {
-                    if (i < x && j < y)
-                    {
-                        result[i, j] = A[i, j];
-                    }
-                    else if (i >= x && j < y)
-                    {
-                        result[i, j] = A[i + 1, j];
-                    }
-                    else if (i < x && j >= y)
-                    {
-                        result[i, j] = A[i, j + 1];
-                    }
-                    else
-                    {
-                        result[i, j] = A[i + 1, j + 1];
-                    }
-                }
-            }
-            return result;
-        }
-
-
-        #region Math
-
-        /// <summary>
-        /// Computes the Sqrt of the matrix point wise. 
-        /// </summary>
-        public Matrix Sqrt()
-        {
-            var result = new Matrix(NumberOfRows, NumberOfColumns);
             for (int i = 0; i < NumberOfRows; i++)
                 for (int j = 0; j < NumberOfColumns; j++)
-                    result[i, j] = Math.Sqrt(this[i, j]);
-            return result;
+                    this[i, j] = Math.Sqrt(this[i, j]);
+        }
+
+        /// <summary>
+        /// Computes the square of the matrix point wise. 
+        /// </summary>
+        public void Sqr()
+        {
+            for (int i = 0; i < NumberOfRows; i++)
+                for (int j = 0; j < NumberOfColumns; j++)
+                    this[i, j] = Tools.Sqr(this[i, j]);
         }
 
         /// <summary>
         /// Computes the log of the matrix point wise. 
         /// </summary>
-        public Matrix Log()
+        public void Log()
         {
-            var result = new Matrix(NumberOfRows, NumberOfColumns);
             for (int i = 0; i < NumberOfRows; i++)
                 for (int j = 0; j < NumberOfColumns; j++)
-                    result[i, j] = Math.Log(this[i, j]);
-            return result;
+                    this[i, j] = Math.Log(this[i, j]);
         }
 
         /// <summary>
         /// Computes the exponential of the matrix point wise. 
         /// </summary>
-        public Matrix Exp()
+        public void Exp()
         {
-            var result = new Matrix(NumberOfRows, NumberOfColumns);
             for (int i = 0; i < NumberOfRows; i++)
                 for (int j = 0; j < NumberOfColumns; j++)
-                    result[i, j] = Math.Exp(this[i, j]);
-            return result;
+                    this[i, j] = Math.Exp(this[i, j]);
         }
 
         /// <summary>
@@ -413,7 +393,96 @@ namespace Numerics.Mathematics.LinearAlgebra
             return result;
         }
 
+        /// <summary>
+        /// Multiply by another matrix.
+        /// </summary>
+        /// <param name="matrix">The right-side matrix.</param>
+        public void Multiply(Matrix matrix)
+        {
+            if (NumberOfColumns != matrix.NumberOfRows)
+                throw new ArgumentException("The number of rows in the right-hand matrix must be equal to the number of columns in this matrix.");
+
+            var result = new double[NumberOfRows, matrix.NumberOfColumns];
+            for (int i = 0; i < NumberOfRows; i++)
+            {
+                for (int j = 0; j < matrix.NumberOfColumns; j++)
+                {
+                    double sum = 0.0d;
+                    for (int k = 0; k < NumberOfColumns; k++)
+                        sum += this[i, k] * matrix[k, j];
+                    result[i, j] = sum;
+                }
+            }
+            _matrix = result;
+        }
+
+        /// <summary>
+        /// Multiply by a vector.
+        /// </summary>
+        /// <param name="vector">The right-side vector.</param>
+        public void Multiply(Vector vector)
+        {
+            var matrix = new Matrix(vector);
+            Multiply(matrix);
+        }
+
+        /// <summary>
+        /// Multiply by a scalar.
+        /// </summary>
+        /// <param name="scalar">The scalar to multiply by.</param>
+        public void Multiply(double scalar)
+        {
+            for (int i = 0; i < NumberOfRows; i++)
+                for (int j = 0; j < NumberOfColumns; j++)
+                    this[i, j] = this[i, j] * scalar;
+        }
+
+        /// <summary>
+        /// Divide by a scalar.
+        /// </summary>
+        /// <param name="scalar">The scalar value to divide by.</param>
+        public void Divide(double scalar)
+        {
+            for (int i = 0; i < NumberOfRows; i++)
+                for (int j = 0; j < NumberOfColumns; j++)
+                    this[i, j] = this[i, j] / scalar;
+        }
+
+        /// <summary>
+        /// Add the matrix.
+        /// </summary>
+        /// <param name="matrix">The right-side matrix.</param>
+        public void Add(Matrix matrix)
+        {
+            if (NumberOfColumns != matrix.NumberOfColumns)
+                throw new ArgumentException("The matrix must have the same number of columns.");
+            if (NumberOfRows != matrix.NumberOfRows)
+                throw new ArgumentException("The matrix must have the same number of rows.");
+
+            for (int i = 0; i < NumberOfRows; i++)
+                for (int j = 0; j < NumberOfColumns; j++)
+                    this[i, j] += matrix[i, j];
+        }
+
+        /// <summary>
+        /// Subtract the matrix.
+        /// </summary>
+        /// <param name="matrix">The right-side matrix.</param>
+        public void Subtract(Matrix matrix)
+        {
+            if (NumberOfColumns != matrix.NumberOfColumns)
+                throw new ArgumentException("The matrix must have the same number of columns.");
+            if (NumberOfRows != matrix.NumberOfRows)
+                throw new ArgumentException("The matrix must have the same number of rows.");
+
+            for (int i = 0; i < NumberOfRows; i++)
+                for (int j = 0; j < NumberOfColumns; j++)
+                    this[i, j] -= matrix[i, j];
+        }
+
         #endregion
+
+        #region Operators
 
         /// <summary>
         /// Multiplies matrix A and B and returns the results as a matrix.
@@ -422,51 +491,10 @@ namespace Numerics.Mathematics.LinearAlgebra
         /// <param name="B">Right-side matrix.</param>
         public static Matrix operator *(Matrix A, Matrix B)
         {
-            int aRows = A.NumberOfRows;
-            int bCols = B.NumberOfColumns;
-            int aCols = A.NumberOfColumns;
-            if (aCols != B.NumberOfRows)
-                throw new ArgumentException("The number of rows in matrix B must be equal to the number of columns in matrix A.");
-            var result = new Matrix(aRows, bCols);
-            for (int i = 0; i < aRows; i++)
-            {
-                for (int j = 0; j < bCols; j++)
-                {
-                    double sum = 0.0d;
-                    for (int k = 0; k < aCols; k++)
-                        sum += A[i, k] * B[k, j];
-                    result[i, j] = sum;
-                }
-            }
-
+            var result = A.Clone();
+            result.Multiply(B);
             return result;
         }
-
-
-        /// <summary>
-        /// Returns the element-wise multiplication of two matrices. 
-        /// </summary>
-        /// <param name="A">Left-side matrix.</param>
-        /// <param name="B">Right-side matrix.</param>
-        public static Matrix Multiply(Matrix A, Matrix B)
-        {
-            int aRows = A.NumberOfRows;
-            int aCols = A.NumberOfColumns;
-            if (aCols != B.NumberOfColumns)
-                throw new ArgumentException("Matrix A and B must be the same size.");
-            if (aRows != B.NumberOfRows)
-                throw new ArgumentException("Matrix A and B must be the same size.");
-            var result = new Matrix(A.NumberOfRows, A.NumberOfColumns);
-            for (int i = 0; i < A.NumberOfRows; i++)
-            {
-                for (int j = 0; j < A.NumberOfColumns; j++)
-                    result[i, j] = A[i, j] * B[i, j];
-            }
-            return result;
-        }
-
-
-
 
         /// <summary>
         /// Multiplies matrix A with a vector B and returns the results as an array vector.
@@ -489,7 +517,6 @@ namespace Numerics.Mathematics.LinearAlgebra
             }
             return result;
         }
-
 
         /// <summary>
         /// Multiplies matrix A with a vector B and returns the results as an array vector.
@@ -514,63 +541,14 @@ namespace Numerics.Mathematics.LinearAlgebra
         }
 
         /// <summary>
-        /// Returns the dot product of matrix A and vector x
-        /// </summary>
-        /// <param name="A">The matrix to multiply.</param>
-        /// <param name="x">The vector to multiply with.</param>
-        public static double DotProduct(Matrix A, Vector x)
-        {
-            int aRows = A.NumberOfRows;
-            int aCols = A.NumberOfColumns;
-            if (aCols != x.Length)
-                throw new ArgumentException("The number of rows in vector B must be equal to the number of columns in matrix A.");
-            double result = 0;
-            for (int i = 0; i < aRows; i++)
-            {
-                double sum = 0.0d;
-                for (int j = 0; j < aCols; j++)
-                    sum += A[i, j] * x[j];
-                result += sum;
-            }
-            return result;
-        }
-
-        /// <summary>
-        /// Returns the dot product of matrix A and vector x
-        /// </summary>
-        /// <param name="A">The matrix to multiply.</param>
-        /// <param name="y">The vector to multiply with.</param>
-        public static double DotProduct(Vector x, Matrix A, Vector y)
-        {
-            int aRows = A.NumberOfRows;
-            int aCols = A.NumberOfColumns;
-            if (aCols != x.Length)
-                throw new ArgumentException("The number of rows in vector B must be equal to the number of columns in matrix A.");
-            double result = 0;
-            for (int i = 0; i < aRows; i++)
-            {
-                double sum = 0.0d;
-                for (int j = 0; j < aCols; j++)
-                    sum += A[i, j] * x[j];
-                result += sum;
-            }
-            return result;
-        }
-
-        /// <summary>
         /// Multiplies a matrix A with a scalar and returns the results as a matrix.
         /// </summary>
-        /// <param name="A">The matrix to multiply.</param>
+        /// <param name="matrix">The matrix to multiply.</param>
         /// <param name="scalar">The scalar to multiply by.</param>
-        public static Matrix operator *(Matrix A, double scalar)
+        public static Matrix operator *(Matrix matrix, double scalar)
         {
-            var result = new Matrix(A.NumberOfRows, A.NumberOfColumns);
-            for (int i = 0; i < A.NumberOfRows; i++)
-            {
-                for (int j = 0; j < A.NumberOfColumns; j++)
-                    result[i, j] = A[i, j] * scalar;
-            }
-
+            var result = matrix.Clone();
+            result.Multiply(scalar);
             return result;
         }
 
@@ -578,36 +556,25 @@ namespace Numerics.Mathematics.LinearAlgebra
         /// Multiplies a matrix A with a scalar and returns the results as a matrix.
         /// </summary>
         /// <param name="scalar">The scalar to multiply by.</param>
-        /// <param name="A">The matrix to multiply.</param>
-        public static Matrix operator *(double scalar, Matrix A)
+        /// <param name="matrix">The matrix to multiply.</param>
+        public static Matrix operator *(double scalar, Matrix matrix)
         {
-            var result = new Matrix(A.NumberOfRows, A.NumberOfColumns);
-            for (int i = 0; i < A.NumberOfRows; i++)
-            {
-                for (int j = 0; j < A.NumberOfColumns; j++)
-                    result[i, j] = A[i, j] * scalar;
-            }
-
+            var result = matrix.Clone();
+            result.Multiply(scalar);
             return result;
         }
 
         /// <summary>
         /// Divides a matrix A with a scalar and returns the results as a matrix.
         /// </summary>
-        /// <param name="A">The matrix to divide.</param>
+        /// <param name="matrix">The matrix to divide.</param>
         /// <param name="scalar">The scalar to divide by.</param>
-        public static Matrix operator /(Matrix A, double scalar)
+        public static Matrix operator /(Matrix matrix, double scalar)
         {
-            var result = new Matrix(A.NumberOfRows, A.NumberOfColumns);
-            for (int i = 0; i < A.NumberOfRows; i++)
-            {
-                for (int j = 0; j < A.NumberOfColumns; j++)
-                    result[i, j] = A[i, j] / scalar;
-            }
-
+            var result = matrix.Clone();
+            result.Divide(scalar);
             return result;
         }
-
 
         /// <summary>
         /// Add matrix A and B and returns the results as a matrix.
@@ -616,18 +583,8 @@ namespace Numerics.Mathematics.LinearAlgebra
         /// <param name="B">Right-side matrix.</param>
         public static Matrix operator +(Matrix A, Matrix B)
         {
-            int aRows = A.NumberOfRows;
-            int aCols = A.NumberOfColumns;
-            if (aCols != B.NumberOfColumns)
-                throw new ArgumentException("Matrix A and B must be the same size.");
-            if (aRows != B.NumberOfRows)
-                throw new ArgumentException("Matrix A and B must be the same size.");
-            var result = new Matrix(A.NumberOfRows, A.NumberOfColumns);
-            for (int i = 0; i < A.NumberOfRows; i++)
-            {
-                for (int j = 0; j < A.NumberOfColumns; j++)
-                    result[i, j] = A[i, j] + B[i, j];
-            }
+            var result = A.Clone();
+            result.Add(B);
             return result;
         }
 
@@ -638,19 +595,36 @@ namespace Numerics.Mathematics.LinearAlgebra
         /// <param name="B">Right-side matrix.</param>
         public static Matrix operator -(Matrix A, Matrix B)
         {
-            int aRows = A.NumberOfRows;
-            int aCols = A.NumberOfColumns;
-            if (aCols != B.NumberOfColumns)
-                throw new ArgumentException("Matrix A and B must be the same size.");
-            if (aRows != B.NumberOfRows)
-                throw new ArgumentException("Matrix A and B must be the same size.");
-            var result = new Matrix(A.NumberOfRows, A.NumberOfColumns);
-            for (int i = 0; i < A.NumberOfRows; i++)
-            {
-                for (int j = 0; j < A.NumberOfColumns; j++)
-                    result[i, j] = A[i, j] - B[i, j];
-            }
+            var result = A.Clone();
+            result.Subtract(B);
             return result;
         }
+
+        /// <summary>
+        /// Returns the transposed matrix.
+        /// </summary>
+        /// <param name="matrix">The matrix to transpose.</param>
+        public static Matrix operator ~(Matrix matrix)
+        {
+            var result = matrix.Clone();
+            result.Transpose();
+            return result;
+        }
+
+        /// <summary>
+        /// Returns the inverse of the matrix.
+        /// </summary>
+        /// <param name="matrix">The matrix to inverse.</param>
+        public static Matrix operator !(Matrix matrix)
+        {
+            var result = matrix.Clone();
+            result.Inverse();
+            return result;
+        }
+
+        #endregion
+
+        #endregion
+
     }
 }
