@@ -36,6 +36,21 @@ namespace Numerics.MachineLearning
         /// </summary>
         /// <param name="X">The 1D array of predictor values.</param>
         /// <param name="k">The number of clusters.</param>
+        public KMeans(float[] X, int k)
+        {
+            this.K = k;
+            this.X = new Matrix(X);
+            Dimension = this.X.NumberOfColumns;
+            Centroids = new double[K][];
+            Clusters = new KMeansCluster[K];
+            Labels = new int[this.X.NumberOfRows];
+        }
+
+        /// <summary>
+        /// Creates a new k-Means clustering analysis.
+        /// </summary>
+        /// <param name="X">The 1D array of predictor values.</param>
+        /// <param name="k">The number of clusters.</param>
         public KMeans(double[] X, int k) 
         { 
             this.K = k;
