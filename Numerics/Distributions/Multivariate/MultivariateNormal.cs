@@ -266,12 +266,10 @@ namespace Numerics.Distributions
         {
             // Save correlation matrix
             var D = Matrix.Diagonal(_covariance);
-            var sqrtD = D.Sqrt();
-            var invSqrtD = new Matrix(sqrtD.ToArray());
-            var B = new Matrix(invSqrtD.NumberOfRows, 0);
-            GaussJordanElimination.Solve(ref invSqrtD, ref B);
+            D.Sqrt();
+            var invSqrtD = !D;
             _correlation = (invSqrtD * _covariance) * invSqrtD;
-
+            // Create collapsed matrix
             _correl = new double[NL];
             int t = 0;
             for (int i = 1; i < Dimension; i++)
@@ -282,7 +280,6 @@ namespace Numerics.Distributions
                     t++;
                 }
             }
-
             _correlationMatrixCreated = true;
         }
 

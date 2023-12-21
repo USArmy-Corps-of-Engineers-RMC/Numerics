@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Numerics.Data.Statistics;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
@@ -153,6 +154,61 @@ namespace Numerics
         }
 
         /// <summary>
+        /// Returns the normalized values ranging between 0 and 1. 
+        /// </summary>
+        /// <param name="values">The list of values.</param>
+        public static double[] Normalize(IList<double> values)
+        {
+            var result = new double[values.Count];
+            double min = 0, max = 0;
+            MinMax(values, out min, out max);
+            for (int i = 0; i < values.Count; i++)
+                result[i] = (values[i] - min) / (max - min);
+            return result;
+        }
+
+        /// <summary>
+        /// Returns the denormalized values. 
+        /// </summary>
+        /// <param name="values">The list of normalized values to denormalize.</param>
+        /// <param name="min">The minimum value from the original data.</param>
+        /// <param name="max">The minimum value from the original data.</param>
+        public static double[] Denormalize(IList<double> values, double min, double max)
+        {
+            var result = new double[values.Count];
+            for (int i = 0; i < values.Count; i++)
+                result[i] = values[i] * (max - min) + min;
+            return result;
+        }
+
+        /// <summary>
+        /// Returns the standardized values. 
+        /// </summary>
+        /// <param name="values">The list of values.</param>
+        public static double[] Standardize(IList<double> values)
+        {
+            var result = new double[values.Count];
+            var meanSD = Statistics.MeanStandardDeviation(values);
+            for (int i = 0; i < values.Count; i++)
+                result[i] = (values[i] - meanSD.Item1) / meanSD.Item2;
+            return result;
+        }
+
+        /// <summary>
+        /// Returns the destandardized values. 
+        /// </summary>
+        /// <param name="values">The list of standardized values to destandardize.</param>
+        /// <param name="mean">The mean of the original data.</param>
+        /// <param name="standardDeviation">The standard deviation of the original data.</param>
+        public static double[] Destandardize(IList<double> values, double mean, double standardDeviation)
+        {
+            var result = new double[values.Count];
+            for (int i = 0; i < values.Count; i++)
+                result[i] = values[i] * standardDeviation + mean;
+            return result;
+        }
+
+        /// <summary>
         /// Estimates the sum of a list of values.
         /// </summary>
         /// <param name="values">The list of values.</param>
@@ -191,6 +247,21 @@ namespace Numerics
             double sum = 0d;
             for (int i = 0; i < values.Count; i++)
                 if (indicators[i] == (useComplement ? 0 : 1)) sum += values[i];      
+            return sum;
+        }
+
+        /// <summary>
+        /// Returns the sum product of two lists of values.
+        /// </summary>
+        /// <param name="values1">The first list of values.</param>
+        /// <param name="values2">The second list of values.</param>
+        public static double SumProduct(IList<double> values1, IList<double> values2)
+        {
+            if (values1.Count == 0) return double.NaN;
+            if (values2.Count != values1.Count) return double.NaN;
+            double sum = 0d;
+            for (int i = 0; i < values1.Count; i++)
+                sum += values1[i] * values2[i];
             return sum;
         }
 
@@ -268,6 +339,29 @@ namespace Numerics
             for (j = idx + 1; j < values.Count; j++)
                 if (indicators[j] == (useComplement ? 0 : 1)) product *= values[j];
             return product;
+        }
+
+        /// <summary>
+        /// Returns the minimum and maximum values from a list of values.
+        /// Returns NaN if the list is empty or any entry is NaN.
+        /// </summary>
+        /// <param name="values">The list of values.</param>
+        /// <param name="min">Output. Minimum value.</param>
+        /// <param name="max">Output. Maximum value.</param>
+        public static void MinMax(IList<double> values, out double min, out double max)
+        {
+            min = double.MaxValue;
+            max = double.MinValue;
+            if (values.Count == 0) return;
+            for (int i = 0; i < values.Count; i++)
+            {
+                if (values[i] < min || double.IsNaN(values[i]))
+                    min = values[i];
+
+                if (values[i] > max || double.IsNaN(values[i]))
+                    max = values[i];
+            }
+
         }
 
         /// <summary>
