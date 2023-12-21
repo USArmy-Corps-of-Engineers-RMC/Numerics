@@ -64,9 +64,9 @@ namespace Numerics.Mathematics.LinearAlgebra
         /// <param name="initialArray">Initializing array.</param>
         public Matrix(float[] initialArray)
         {
-            _array = new double[initialArray.Length, 1];
-            for (int i = 0; i < _array.Length; i++)
-                _array[i, 0] = initialArray[i];
+            _matrix = new double[initialArray.Length, 1];
+            for (int i = 0; i < _matrix.Length; i++)
+                _matrix[i, 0] = initialArray[i];
         }
 
         /// <summary>
