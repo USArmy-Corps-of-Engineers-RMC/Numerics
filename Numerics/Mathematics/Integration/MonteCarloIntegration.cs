@@ -100,10 +100,10 @@ namespace Numerics.Mathematics.Integration
                 double sum = 0, sum2 = 0;
                 double avg = 0, avg2 = 0;
 
-                // Get volume
-                double volume = 1;
+                // Get dx
+                double dx = 1;
                 for (int i = 0; i < Dimensions; i++)
-                    volume *= (Max[i] - Min[i]);
+                    dx *= (Max[i] - Min[i]);
 
 
                 for (int i = 1; i <= MaxIterations; i++)
@@ -121,11 +121,11 @@ namespace Numerics.Mathematics.Integration
                     avg = sum / Iterations;
                     avg2 = sum2 / Iterations;
 
-                    Result = volume * avg;
-                    StandardError = volume * Math.Sqrt((avg2 - avg * avg) / Iterations);
+                    Result = avg * dx;
+                    StandardError = Math.Sqrt((avg2 - avg * avg) / Iterations) * dx;
                     
                     // Check tolerance
-                    if (Iterations > MinIterations && (Normal.StandardZ(0.975) * StandardError < AbsoluteTolerance + RelativeTolerance * Result ))
+                    if (Iterations > MinIterations && (Math.Abs(StandardError / Result) < RelativeTolerance))
                     {
                         break;
                     }

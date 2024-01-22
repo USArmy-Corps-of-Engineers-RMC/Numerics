@@ -24,7 +24,7 @@ namespace Sampling.MCMC
             var sample = normDist.GenerateRandomValues(12345, n);
             var mu = Statistics.Mean(sample);
             var sigma = Statistics.StandardDeviation(sample);
-            var priors = new List<IUnivariateDistribution> { new Uniform(-1000, 1000), new Uniform(0, 100) };
+            var priors = new List<IUnivariateDistribution> { new Uniform(-1000, 1000), new Uniform(1E-4, 100) };
 
             var sampler = new HMC(priors, x =>
             {

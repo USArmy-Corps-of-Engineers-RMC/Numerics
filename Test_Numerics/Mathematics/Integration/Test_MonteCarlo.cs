@@ -17,7 +17,7 @@ namespace Mathematics.Integration
             mc.MinIterations = 1000;
             mc.MaxIterations = 100000000;
             mc.AbsoluteTolerance = 1E-8;
-            mc.RelativeTolerance = 1E-3;
+            mc.RelativeTolerance = 1E-4;
             mc.Integrate();
             var result = mc.Result;
             double trueResult = 3.14;
@@ -33,7 +33,7 @@ namespace Mathematics.Integration
             mc.MinIterations = 1000;
             mc.MaxIterations = 100000000;
             mc.AbsoluteTolerance = 1E-8;
-            mc.RelativeTolerance = 1E-3;
+            mc.RelativeTolerance = 1E-4;
             mc.Integrate();
             var result = mc.Result;
             double trueResult = 1.3932039296856768591842462603255;
@@ -57,7 +57,7 @@ namespace Mathematics.Integration
             mc.MinIterations = 1000;
             mc.MaxIterations = 100000000;
             mc.AbsoluteTolerance = 1E-8;
-            mc.RelativeTolerance = 1E-3;
+            mc.RelativeTolerance = 1E-4;
             mc.Integrate();
             var result = mc.Result;
             double trueResult = 57;
@@ -81,7 +81,7 @@ namespace Mathematics.Integration
             mc.MinIterations = 1000;
             mc.MaxIterations = 100000000;
             mc.AbsoluteTolerance = 1E-8;
-            mc.RelativeTolerance = 1E-3;
+            mc.RelativeTolerance = 1E-4;
             mc.Integrate();
             var result = mc.Result;
             double trueResult = 224;
@@ -105,7 +105,7 @@ namespace Mathematics.Integration
             mc.MinIterations = 1000;
             mc.MaxIterations = 100000000;
             mc.AbsoluteTolerance = 1E-8;
-            mc.RelativeTolerance = 1E-3;
+            mc.RelativeTolerance = 1E-4;
             mc.Integrate();
             var result = mc.Result;
             double trueResult = 837;

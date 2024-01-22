@@ -150,8 +150,10 @@ namespace Numerics.Sampling.MCMC
                 // Ensure the parameters are feasible (within the constraints)
                 for (int j = 0; j < NumberOfParameters; j++)
                 {
-                    if (xp[j] < PriorDistributions[i].Minimum) xp[j] = PriorDistributions[i].Minimum + Tools.DoubleMachineEpsilon;
-                    if (xp[j] > PriorDistributions[i].Maximum) xp[j] = PriorDistributions[i].Maximum - Tools.DoubleMachineEpsilon;
+                    if (xp[j] < PriorDistributions[i].Minimum) 
+                        xp[j] = PriorDistributions[i].Minimum + Tools.DoubleMachineEpsilon;
+                    if (xp[j] > PriorDistributions[i].Maximum) 
+                        xp[j] = PriorDistributions[i].Maximum - Tools.DoubleMachineEpsilon;
                 }
 
                 phi += GradientFunction(xp.ToArray()) * _stepSize * (i == _steps-1 ? 0.5: 1.0);
