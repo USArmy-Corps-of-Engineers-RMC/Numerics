@@ -1,4 +1,7 @@
-﻿using System;
+﻿using Numerics.Sampling;
+using System;
+using System.Collections.Generic;
+using System.Windows.Documents;
 
 namespace Numerics.Mathematics.Integration
 {
@@ -49,6 +52,11 @@ namespace Numerics.Mathematics.Integration
         public double Max => b;
 
         /// <summary>
+        /// The minimum recursion depth. Default = 0.
+        /// </summary>
+        public int MinDepth { get; set; } = 0;
+
+        /// <summary>
         /// The maximum recursion depth. Default = 100.
         /// </summary>
         public int MaxDepth { get; set; } = 100;
@@ -74,7 +82,6 @@ namespace Numerics.Mathematics.Integration
                 FunctionEvaluations += 2;
                 double m = 0, fm = 0, whole = Simpsons(Function, a, fa, b, fb, ref m, ref fm);       
                 Result = AdaptiveSimpsons(Function, a, fa, b, fb, RelativeTolerance, MaxDepth, whole, m, fm);
-                StandardError = Math.Sqrt(StandardError);
 
                 if (FunctionEvaluations >= MaxFunctionEvaluations)
                 {
@@ -94,6 +101,52 @@ namespace Numerics.Mathematics.Integration
 
         }
 
+        /// <summary>
+        /// Evaluates the integral.
+        /// </summary>
+        /// <param name="bins">The stratification bins to integrate over.</param>
+        public void Integrate(List<StratificationBin> bins)
+        {
+            StandardError = 0;
+            ClearResults();
+            Validate();
+
+            try
+            {
+                double mu = 0;
+                double sigma = 0;
+                for (int i = 0; i < bins.Count; i++)
+                {
+                    double a = bins[i].LowerBound;
+                    double b = bins[i].UpperBound;
+                    double fa = Function(a);
+                    double fb = Function(b);
+                    FunctionEvaluations += 2;
+                    double m = 0, fm = 0, whole = Simpsons(Function, a, fa, b, fb, ref m, ref fm);
+                    mu += AdaptiveSimpsons(Function, a, fa, b, fb, RelativeTolerance, MaxDepth, whole, m, fm);
+                    sigma += StandardError;
+                }
+
+                Result = mu;
+                StandardError = sigma;
+                if (FunctionEvaluations >= MaxFunctionEvaluations)
+                {
+                    Status = IntegrationStatus.MaximumFunctionEvaluationsReached;
+                }
+                else
+                {
+                    Status = IntegrationStatus.Success;
+                }
+
+            }
+            catch (Exception ex)
+            {
+                Status = IntegrationStatus.Failure;
+                if (ReportFailure) throw ex;
+            }
+        }
+
+
         private double Simpsons(Func<double, double> f, double a, double fa, double b, double fb, ref double m, ref double fm)
         {
             m = (a + b) / 2d;
@@ -109,15 +162,17 @@ namespace Numerics.Mathematics.Integration
             double rm = 0, frm = 0, right = Simpsons(f, m, fm, b, fb, ref rm, ref frm);
             double delta = (left + right - whole) / 15d;
 
-            // Check tolerance
-            // - Depth is less than 0 (greater than max recursions)
+            // Check tolerance 
+            // - Depth is less than or equal to 0 (max recursions have been reached)
             // - Abs(a-b) is smaller than machine epsilon
-            // - Minimum number of function evaluations and also delta less than tolerance
-            if (depth <= 0 || Math.Abs(a - b) <= Tools.DoubleMachineEpsilon || FunctionEvaluations >= MaxFunctionEvaluations ||  (FunctionEvaluations >= MinFunctionEvaluations && Math.Abs(delta) <= epsilon + epsilon * Math.Abs(whole)))
+            // - Maximum number of function evaluations
+            // - Minimum number of function evaluations, the minimum depth, and also delta less than tolerance
+            if (depth <= 0 ||  Math.Abs(a - b) <= Tools.DoubleMachineEpsilon || FunctionEvaluations >= MaxFunctionEvaluations ||  
+                (FunctionEvaluations >= MinFunctionEvaluations && depth <= MaxDepth - MinDepth && Math.Abs(delta) <= epsilon + epsilon * Math.Abs(whole)))
             {
                 // convergence is reached
                 // Terminate recursion
-                StandardError += delta * delta / (b - a);
+                StandardError += Math.Abs(delta);
                 return left + right + delta; 
             }
             else

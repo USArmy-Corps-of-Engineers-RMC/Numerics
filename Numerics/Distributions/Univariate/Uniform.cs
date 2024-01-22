@@ -259,7 +259,8 @@ namespace Numerics.Distributions
         /// <param name="throwException">Determines whether to throw an exception or not.</param>
         public ArgumentOutOfRangeException ValidateParameters(double min, double max, bool throwException)
         {
-            if (min > max)
+            if (double.IsNaN(min) || double.IsInfinity(min) ||
+                double.IsNaN(max) || double.IsInfinity(max) || min > max)
             {
                 if (throwException)
                     throw new ArgumentOutOfRangeException(nameof(Min), "The min cannot be greater than the max.");

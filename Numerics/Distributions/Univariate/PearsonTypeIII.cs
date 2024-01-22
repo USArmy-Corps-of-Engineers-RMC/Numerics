@@ -24,11 +24,11 @@ namespace Numerics.Distributions
     {
 
         /// <summary>
-        /// Constructs a Pearson Type III distribution with a mean of 10, standard deviation of 10, and skew = 0.
+        /// Constructs a Pearson Type III distribution with a mean of 100, standard deviation of 10, and skew = 0.
         /// </summary>
         public PearsonTypeIII()
         {
-            SetParameters(10d, 10d, 0d);
+            SetParameters(100d, 10d, 0d);
         }
 
         /// <summary>
@@ -55,6 +55,7 @@ namespace Numerics.Distributions
             get { return _mu; }
             set
             {
+                _parametersValid = ValidateParameters(value, Sigma, Gamma, false) is null;
                 SetParameters(value, Sigma, Gamma);
             }
         }
@@ -67,6 +68,7 @@ namespace Numerics.Distributions
             get { return _sigma; }
             set
             {
+                if (value < 1E-16 && Math.Sign(value) != -1) value = 1E-16;
                 _parametersValid = ValidateParameters(Mu, value, Gamma, false) is null;
                 SetParameters(Mu, value, Gamma);
             }
@@ -391,6 +393,8 @@ namespace Numerics.Distributions
             var newDistribution = new PearsonTypeIII(Mu, Sigma, Gamma);
             var sample = newDistribution.GenerateRandomValues(seed, sampleSize);
             newDistribution.Estimate(sample, estimationMethod);
+            if (newDistribution.ParametersValid == false)
+                throw new Exception("Bootstrapped distribution parameters are invalid.");
             return newDistribution;
         }
 
@@ -426,10 +430,23 @@ namespace Numerics.Distributions
         /// <param name="throwException">Determines whether to throw an exception or not.</param>
         public ArgumentOutOfRangeException ValidateParameters(double mu, double sigma, double gamma, bool throwException)
         {
-            if (sigma <= 0.0d)
+            if (double.IsNaN(mu) || double.IsInfinity(mu))
             {
-                if (throwException) throw new ArgumentOutOfRangeException(nameof(Sigma), "Standard deviation must be positive.");
-                return new ArgumentOutOfRangeException(nameof(Sigma), "Standard deviation must be positive.");
+                if (throwException)
+                    throw new ArgumentOutOfRangeException(nameof(Mu), "Mu must be a number.");
+                return new ArgumentOutOfRangeException(nameof(Mu), "Mu must be a number.");
+            }
+            if (double.IsNaN(sigma) || double.IsInfinity(sigma) || sigma <= 0.0d)
+            {
+                if (throwException)
+                    throw new ArgumentOutOfRangeException(nameof(Sigma), "Sigma must be positive.");
+                return new ArgumentOutOfRangeException(nameof(Sigma), "Sigma must be positive.");
+            }
+            if (double.IsNaN(gamma) || double.IsInfinity(gamma))
+            {
+                if (throwException)
+                    throw new ArgumentOutOfRangeException(nameof(Gamma), "Gamma must be a number.");
+                return new ArgumentOutOfRangeException(nameof(Gamma), "Gamma must be a number.");
             }
             return null;
         }
@@ -482,7 +499,7 @@ namespace Numerics.Distributions
             double L2 = moments[1];
             double T3 = moments[2];
             double T4 = moments[3];
-            var alpha = default(double);
+            double alpha = double.NaN;
             double z;
             // The following approximation has relative accuracy better than 5x10-5 for all values of alpha.
             if (Math.Abs(T3) > 0.0d && Math.Abs(T3) < 1d / 3d)
@@ -608,6 +625,7 @@ namespace Numerics.Distributions
                 return P3.LogLikelihood(sample);
             }
             var solver = new NelderMead(logLH, NumberOfParameters, Initials, Lowers, Uppers);
+            solver.ReportFailure = true;
             solver.Maximize();
             return solver.BestParameterSet.Values;
 

@@ -106,40 +106,6 @@ namespace Numerics.Mathematics.Integration
             }
             return h * sum;
         }
-
-        ///// <summary>
-        ///// Adaptive Simpson's Rule. 
-        ///// </summary>
-        ///// <param name="f">The function to integrate.</param>
-        ///// <param name="a">Start point for integration.</param>
-        ///// <param name="b">End point for integration.</param>
-        ///// <param name="tolerance">The desired tolerance for the solution. Default = ~Sqrt(Machine Epsilon), or 1E-8.</param>
-        //public static double AdaptiveSimpsonsRule(Func<double, double> f, double a, double b, double tolerance = 1E-8)
-        //{
-        //    double fa = f(a);
-        //    double fb = f(b);
-        //    double m = 0, fm = 0, whole = QuadSimpsons(f, a, fa, b, fb, ref m, ref fm);
-        //    return QuadASR(f, a, fa, b, fb, tolerance, whole, m, fm);
-        //}
-
-        //private static double QuadSimpsons(Func<double, double> f, double a, double fa, double b, double fb, ref double m, ref double fm)
-        //{
-        //    m = (a + b) / 2d;
-        //    fm = f(m);
-        //    return Math.Abs(b - a) / 6d * (fa + 4d * fm + fb);
-        //}
-
-        //private static double QuadASR(Func<double, double> f, double a, double fa, double b, double fb, double eps, double whole, double m, double fm)
-        //{
-        //    double lm = 0, flm = 0, left = QuadSimpsons(f, a, fa, m, fm, ref lm, ref flm);
-        //    double rm = 0, frm = 0, right = QuadSimpsons(f, m, fm, b, fb, ref rm, ref frm);
-        //    double delta = left + right - whole;
-        //    if (Math.Abs(delta) <= 15d * eps)
-        //        return left + right + delta / 15d;
-        //    else
-        //        return QuadASR(f, a, fa, m, fm, eps, left, lm, flm) + QuadASR(f, m, fm, b, fb, eps, right, rm, frm);
-        //}
-
-
+  
     }
 }

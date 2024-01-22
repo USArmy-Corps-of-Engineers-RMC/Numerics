@@ -1,4 +1,5 @@
 ﻿using Numerics.Data.Statistics;
+using Numerics.Mathematics.SpecialFunctions;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -517,6 +518,8 @@ namespace Numerics
             }
             return output.ToArray();
         }
+
+
 
     }
 }

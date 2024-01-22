@@ -392,19 +392,20 @@ namespace Numerics.Distributions
         /// <param name="throwException">Determines whether to throw an exception or not.</param>
         public ArgumentOutOfRangeException ValidateParameters(double alpha, double beta, double min, double max, bool throwException)
         {
-            if (alpha <= 0.0d)
+            if (double.IsNaN(alpha) || double.IsInfinity(alpha) || alpha <= 0.0d)
             {
                 if (throwException)
                     throw new ArgumentOutOfRangeException(nameof(Alpha), "The shape parameter α (alpha) must be positive.");
                 return new ArgumentOutOfRangeException(nameof(Alpha), "The shape parameter α (alpha) must be positive.");
             }
-            if (beta <= 0.0d)
+            if (double.IsNaN(beta) || double.IsInfinity(beta) || beta <= 0.0d)
             {
                 if (throwException)
                     throw new ArgumentOutOfRangeException(nameof(Beta), "The shape parameter β (beta) must be positive.");
                 return new ArgumentOutOfRangeException(nameof(Beta), "The shape parameter β (beta) must be positive.");
             }
-            if (min >= max)
+            if (double.IsNaN(min) || double.IsInfinity(min) ||
+                double.IsNaN(max) || double.IsInfinity(max) || min >= max)
             {
                 if (throwException)
                     throw new ArgumentOutOfRangeException(nameof(Min), "The min cannot be greater than or equal to the max.");

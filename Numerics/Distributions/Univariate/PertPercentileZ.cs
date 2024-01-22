@@ -196,7 +196,11 @@ namespace Numerics.Distributions
         /// </summary>
         public override double Mean
         {
-            get { return Normal.StandardCDF(_beta.Mean); }
+            get 
+            {
+                if (_beta.Min == _beta.Max) return Normal.StandardCDF(_beta.Min);
+                return Normal.StandardCDF(_beta.Mean); 
+            }
         }
 
         /// <summary>
@@ -204,7 +208,11 @@ namespace Numerics.Distributions
         /// </summary>
         public override double Median
         {
-            get { return Normal.StandardCDF(_beta.Median); }
+            get 
+            {
+                if (_beta.Min == _beta.Max) return Normal.StandardCDF(_beta.Min);
+                return Normal.StandardCDF(_beta.Median); 
+            }
         }
 
         /// <summary>
@@ -212,7 +220,11 @@ namespace Numerics.Distributions
         /// </summary>
         public override double Mode
         {
-            get { return Normal.StandardCDF(_beta.Mode); }
+            get 
+            {
+                if (_beta.Min == _beta.Max) return Normal.StandardCDF(_beta.Min);
+                return Normal.StandardCDF(_beta.Mode); 
+            }
         }
 
         /// <summary>
@@ -302,12 +314,13 @@ namespace Numerics.Distributions
         /// <param name="throwException">Determines whether to throw an exception or not.</param>
         private ArgumentOutOfRangeException ValidateParameters(double fifth, double fiftieth, double ninetyFifth, bool throwException)
         {
-            if (fifth > ninetyFifth)
+            if (double.IsNaN(fifth) || double.IsInfinity(fifth) ||
+                double.IsNaN(ninetyFifth) || double.IsInfinity(ninetyFifth) || fifth > ninetyFifth)
             {
                 if (throwException) throw new ArgumentOutOfRangeException(nameof(Percentile5th), "The 5% cannot be greater than the 95%.");
                 return new ArgumentOutOfRangeException(nameof(Percentile5th), "The 5% cannot be greater than the 95%.");
             }
-            else if (fiftieth < fifth || fiftieth > ninetyFifth)
+            else if (double.IsNaN(fiftieth) || double.IsInfinity(fiftieth) || fiftieth < fifth || fiftieth > ninetyFifth)
             {
                 if (throwException) throw new ArgumentOutOfRangeException(nameof(Percentile50th), "The 50% must be between the 5% and 95%.");
                 return new ArgumentOutOfRangeException(nameof(Percentile50th), "The 50% must be between the 5% and 95%.");
@@ -356,7 +369,6 @@ namespace Numerics.Distributions
             //_pert = new Pert(fifth, fiftieth, ninetyFifth);
             if (fifth == fiftieth && fiftieth == ninetyFifth)
             {
-                //_pert = new Pert(Normal.StandardZ(fifth), Normal.StandardZ(fiftieth), Normal.StandardZ(ninetyFifth));
                 _beta = GeneralizedBeta.PERT(Normal.StandardZ(fifth), Normal.StandardZ(fiftieth), Normal.StandardZ(ninetyFifth));
                 _parametersSolved = true;
                 return;
@@ -413,6 +425,11 @@ namespace Numerics.Distributions
             if (x < 0.0d || x > 1.0d) throw new ArgumentOutOfRangeException(nameof(x), "X must be between 0 and 1.");
             if (_parametersValid == false) ValidateParameters(Percentile5th, Percentile50th, Percentile95th, true);
             if (_parametersSolved == false) SolveParameters();
+            // These checks are done specifically for an application where a 
+            // user inputs min = max = mode
+            if (_beta.Min == _beta.Max) return 0.0d;
+            if (double.IsNaN(_beta.Mode)) return 0.0d;
+            //
             return _beta.PDF(Normal.StandardZ(x));
         }
 
@@ -430,6 +447,11 @@ namespace Numerics.Distributions
             if (x < 0.0d || x > 1.0d) throw new ArgumentOutOfRangeException(nameof(x), "X must be between 0 and 1.");
             if (_parametersValid == false) ValidateParameters(Percentile5th, Percentile50th, Percentile95th, true);
             if (_parametersSolved == false) SolveParameters();
+            // These checks are done specifically for an application where a 
+            // user inputs min = max = mode
+            if (_beta.Min == _beta.Max) return 1d;
+            if (double.IsNaN(_beta.Mode)) return 1d;
+            //
             return _beta.CDF(Normal.StandardZ(x));
         }
 
@@ -450,7 +472,21 @@ namespace Numerics.Distributions
             // Validate parameters
             if (_parametersValid == false) ValidateParameters(Percentile5th, Percentile50th, Percentile95th, true);
             if (_parametersSolved == false) SolveParameters();
-            return Normal.StandardCDF(_beta.InverseCDF(probability));
+            var x = Normal.StandardCDF(_beta.Min);
+            // These checks are done specifically for an application where a 
+            // user inputs min = max = mode
+            if (_beta.Min == _beta.Max) return x;
+            if (double.IsNaN(_beta.Mode)) return x;
+            //
+            try
+            {
+                x = Normal.StandardCDF(_beta.InverseCDF(probability));
+            }
+            catch (ArithmeticException ex)
+            {
+                return x;
+            }
+            return x;
         }
 
         /// <summary>

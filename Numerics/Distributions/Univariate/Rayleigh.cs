@@ -276,7 +276,7 @@ namespace Numerics.Distributions
         /// <param name="throwException">Determines whether to throw an exception or not.</param>
         public ArgumentOutOfRangeException ValidateParameters(double scale, bool throwException)
         {
-            if (scale <= 0.0d)
+            if (double.IsNaN(scale) || double.IsInfinity(scale) || scale <= 0.0d)
             {
                 if (throwException)
                     throw new ArgumentOutOfRangeException(nameof(Sigma), "Standard deviation must be greater than zero.");

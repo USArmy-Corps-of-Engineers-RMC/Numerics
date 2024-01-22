@@ -77,7 +77,7 @@ namespace Numerics.Mathematics.Integration
                     if (i > 2)
                     {
                         //if ((Math.Abs(s - os) < RelativeTolerance * Math.Abs(os)) || (s == 0.0 && os == 0.0))
-                        if (CheckConvergence(os, s) || (s == 0.0 && os == 0.0))
+                        if (EvaluateConvergence(os, s) || (s == 0.0 && os == 0.0))
                         {
                             Result = s;
                             UpdateStatus(IntegrationStatus.Success);

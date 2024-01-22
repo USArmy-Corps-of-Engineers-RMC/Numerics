@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Numerics.Data;
 using Numerics.Mathematics.Optimization;
+using static Numerics.Data.Statistics.Histogram;
 
 namespace Numerics.Distributions
 {
@@ -207,7 +208,11 @@ namespace Numerics.Distributions
         /// </summary>
         public override double Mean
         {
-            get { return _beta.Mean < MinAllowableValue ? MinAllowableValue : _beta.Mean > MaxAllowableValue ? MaxAllowableValue : _beta.Mean; ; }
+            get 
+            {
+                if (_beta.Min == _beta.Max) return _beta.Min;
+                return _beta.Mean < MinAllowableValue ? MinAllowableValue : _beta.Mean > MaxAllowableValue ? MaxAllowableValue : _beta.Mean;  
+            }
         }
 
         /// <summary>
@@ -215,7 +220,11 @@ namespace Numerics.Distributions
         /// </summary>
         public override double Median
         {
-            get { return _beta.Median < MinAllowableValue ? MinAllowableValue : _beta.Median > MaxAllowableValue ? MaxAllowableValue : _beta.Median; }
+            get 
+            {
+                if (_beta.Min == _beta.Max) return _beta.Min;
+                return _beta.Median < MinAllowableValue ? MinAllowableValue : _beta.Median > MaxAllowableValue ? MaxAllowableValue : _beta.Median; 
+            }
         }
 
         /// <summary>
@@ -223,7 +232,11 @@ namespace Numerics.Distributions
         /// </summary>
         public override double Mode
         {
-            get { return _beta.Mode < MinAllowableValue ? MinAllowableValue : _beta.Mode > MaxAllowableValue ? MaxAllowableValue : _beta.Mode; }
+            get 
+            {
+                if (_beta.Min == _beta.Max) return _beta.Min;
+                return _beta.Mode < MinAllowableValue ? MinAllowableValue : _beta.Mode > MaxAllowableValue ? MaxAllowableValue : _beta.Mode; 
+            }
         }
 
         /// <summary>
@@ -313,12 +326,13 @@ namespace Numerics.Distributions
         /// <param name="throwException">Determines whether to throw an exception or not.</param>
         private ArgumentOutOfRangeException ValidateParameters(double fifth, double fiftieth, double ninetyFifth, bool throwException)
         {
-            if (fifth > ninetyFifth)
+            if (double.IsNaN(fifth) || double.IsInfinity(fifth) ||
+                double.IsNaN(ninetyFifth) || double.IsInfinity(ninetyFifth) || fifth > ninetyFifth)
             {
                 if (throwException) throw new ArgumentOutOfRangeException(nameof(Percentile5th), "The 5% cannot be greater than the 95%.");
                 return new ArgumentOutOfRangeException(nameof(Percentile5th), "The 5% cannot be greater than the 95%.");
             }
-            else if (fiftieth < fifth || fiftieth > ninetyFifth)
+            else if (double.IsNaN(fiftieth) || double.IsInfinity(fiftieth) || fiftieth < fifth || fiftieth > ninetyFifth)
             {
                 if (throwException) throw new ArgumentOutOfRangeException(nameof(Percentile50th), "The 50% must be between the 5% and 95%.");
                 return new ArgumentOutOfRangeException(nameof(Percentile50th), "The 50% must be between the 5% and 95%.");
@@ -356,7 +370,6 @@ namespace Numerics.Distributions
                 _parametersSolved = true;
                 return;
             }
-
 
             _beta = GeneralizedBeta.PERT(fifth, fiftieth, ninetyFifth);
             double min = fifth - (ninetyFifth - fifth) * 2;
@@ -403,6 +416,11 @@ namespace Numerics.Distributions
         {
             if (_parametersValid == false) ValidateParameters(Percentile5th, Percentile50th, Percentile95th, true);
             if (_parametersSolved == false) SolveParameters();
+            // These checks are done specifically for an application where a 
+            // user inputs min = max = mode
+            if (_beta.Min == _beta.Max) return 0.0d;
+            if (double.IsNaN(_beta.Mode)) return 0.0d;
+            //
             if (x < MinAllowableValue) x = MinAllowableValue;
             if (x > MaxAllowableValue) x = MaxAllowableValue;
             return _beta.PDF(x);
@@ -420,6 +438,11 @@ namespace Numerics.Distributions
         {
             if (_parametersValid == false) ValidateParameters(Percentile5th, Percentile50th, Percentile95th, true);
             if (_parametersSolved == false) SolveParameters();
+            // These checks are done specifically for an application where a 
+            // user inputs min = max = mode
+            if (_beta.Min == _beta.Max) return 1d;
+            if (double.IsNaN(_beta.Mode)) return 1d;
+            //
             if (x < MinAllowableValue) x = MinAllowableValue;
             if (x > MaxAllowableValue) x = MaxAllowableValue;
             return _beta.CDF(x);
@@ -442,7 +465,24 @@ namespace Numerics.Distributions
             // Validate parameters
             if (_parametersValid == false) ValidateParameters(Percentile5th, Percentile50th, Percentile95th, true);
             if (_parametersSolved == false) SolveParameters();
-            var x = _beta.InverseCDF(probability);
+            //
+            var x = _beta.Min;
+            if (x < MinAllowableValue) x = MinAllowableValue;
+            if (x > MaxAllowableValue) x = MaxAllowableValue;
+            // These checks are done specifically for an application where a 
+            // user inputs min = max = mode
+            if (_beta.Min == _beta.Max) return x;
+            if (double.IsNaN(_beta.Mode)) return x;
+            //
+            try
+            {
+                x = _beta.InverseCDF(probability);
+            }
+            catch (ArithmeticException ex)
+            {
+                return x;
+            } 
+            //
             if (x < MinAllowableValue) x = MinAllowableValue;
             if (x > MaxAllowableValue) x = MaxAllowableValue;
             return x;

@@ -24,13 +24,13 @@ namespace Numerics.Distributions
     [Serializable]
     public sealed class GeneralizedLogistic : UnivariateDistributionBase, IColesTawn, IEstimation, IMaximumLikelihoodEstimation, ILinearMomentEstimation, IStandardError, IBootstrappable
     {
- 
+
         /// <summary>
-        /// Constructs a Generalized Logistic distribution with location = 0, scale = 1, and shape =0.
+        /// Constructs a Generalized Logistic distribution with a location of 100, scale of 10, and shape of 0.
         /// </summary>
         public GeneralizedLogistic()
         {
-            SetParameters(0d, 1d, 0d);
+            SetParameters(100d, 10d, 0d);
         }
 
         /// <summary>
@@ -45,12 +45,22 @@ namespace Numerics.Distributions
         }
 
         private bool _parametersValid = true;
-        private double _alpha;
+        private double _xi; // location
+        private double _alpha; // scale
+        private double _kappa; // shape
 
         /// <summary>
         /// Gets and sets the location parameter ξ (Xi).
         /// </summary>
-        public double Xi { get; set; }
+        public double Xi
+        {
+            get { return _xi; }
+            set
+            {
+                _parametersValid = ValidateParameters(new[] { value, Alpha, Kappa }, false) is null;
+                _xi = value;
+            }
+        }
 
         /// <summary>
         /// Gets and sets the scale parameter α (alpha).
@@ -68,7 +78,15 @@ namespace Numerics.Distributions
         /// <summary>
         /// Gets and sets the shape parameter κ (kappa).
         /// </summary>
-        public double Kappa { get; set; }
+        public double Kappa
+        {
+            get { return _kappa; }
+            set
+            {
+                _parametersValid = ValidateParameters(new[] { Xi, Alpha, value }, false) is null;
+                _kappa = value;
+            }
+        }
 
         /// <summary>
         /// Returns the number of distribution parameters.
@@ -365,6 +383,8 @@ namespace Numerics.Distributions
             var newDistribution = new GeneralizedLogistic(Xi, Alpha, Kappa);
             var sample = newDistribution.GenerateRandomValues(seed, sampleSize);
             newDistribution.Estimate(sample, estimationMethod);
+            if (newDistribution.ParametersValid == false)
+                throw new Exception("Bootstrapped distribution parameters are invalid.");
             return newDistribution;
         }
 
@@ -402,11 +422,22 @@ namespace Numerics.Distributions
         /// <param name="throwException">Determines whether to throw an exception or not.</param>
         public ArgumentOutOfRangeException ValidateParameters(double location, double scale, double shape, bool throwException)
         {
-            if (scale <= 0.0d)
+            if (double.IsNaN(location) || double.IsInfinity(location))
             {
                 if (throwException)
-                    throw new ArgumentOutOfRangeException(nameof(Alpha), "The scale parameter α (alpha) must be positive.");
+                    throw new ArgumentOutOfRangeException(nameof(Xi), "The the location parameter ξ (Xi) must be a number.");
+                return new ArgumentOutOfRangeException(nameof(Xi), "The the location parameter ξ (Xi) must be a number.");
+            }
+            if (double.IsNaN(scale) || double.IsInfinity(scale) || scale <= 0.0d)
+            {
+                if (throwException) throw new ArgumentOutOfRangeException(nameof(Alpha), "The scale parameter α (alpha) must be positive.");
                 return new ArgumentOutOfRangeException(nameof(Alpha), "The scale parameter α (alpha) must be positive.");
+            }
+            if (double.IsNaN(shape) || double.IsInfinity(shape))
+            {
+                if (throwException)
+                    throw new ArgumentOutOfRangeException(nameof(Kappa), "The the shape parameter κ (kappa) must be a number.");
+                return new ArgumentOutOfRangeException(nameof(Kappa), "The the shape parameter κ (kappa) must be a number.");
             }
             return null;
         }
@@ -561,6 +592,7 @@ namespace Numerics.Distributions
                 return GLO.LogLikelihood(sample);
             }
             var solver = new NelderMead(logLH, NumberOfParameters, Initials, Lowers, Uppers);
+            solver.ReportFailure = true;
             solver.Maximize();
             return solver.BestParameterSet.Values;
         }

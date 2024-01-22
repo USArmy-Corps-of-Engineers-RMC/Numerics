@@ -75,13 +75,22 @@ namespace Numerics.Distributions
 
         
         private bool _parametersValid = true;
+        private double _mu;
         private double _sigma;
         private int _degreesOfFreedom;
 
         /// <summary>
         /// Gets and sets the location parameter µ (Mu).
         /// </summary>
-        public double Mu { get; set; }
+        public double Mu
+        {
+            get { return _mu; }
+            set
+            {
+                _parametersValid = ValidateParameters(value, Sigma, DegreesOfFreedom, false) is null;
+                _mu = value;
+            }
+        }
 
         /// <summary>
         /// Gets and sets the scale parameter σ (sigma).
@@ -350,7 +359,13 @@ namespace Numerics.Distributions
         /// <param name="throwException">Determines whether to throw an exception or not.</param>
         public ArgumentOutOfRangeException ValidateParameters(double location, double scale, double v, bool throwException)
         {
-            if (scale <= 0.0d)
+            if (double.IsNaN(location) || double.IsInfinity(location))
+            {
+                if (throwException)
+                    throw new ArgumentOutOfRangeException(nameof(Mu), "Mu must be a number.");
+                return new ArgumentOutOfRangeException(nameof(Mu), "Mu must be a number.");
+            }
+            if (double.IsNaN(scale) || double.IsInfinity(scale) || scale <= 0.0d)
             {
                 if (throwException)
                     throw new ArgumentOutOfRangeException(nameof(Sigma), "Standard deviation must be positive.");

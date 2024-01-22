@@ -267,14 +267,14 @@ namespace Numerics.Distributions
         /// <param name="throwException">Determines whether to throw an exception or not.</param>
         public override ArgumentOutOfRangeException ValidateParameters(IList<double> parameters, bool throwException)
         {
-            if (parameters[0] <= 0.0d)
+            if (double.IsNaN(parameters[0]) || double.IsInfinity(parameters[0]) || parameters[0] <= 0.0d)
             {
                 if (throwException)
                     throw new ArgumentOutOfRangeException(nameof(Xm), "The scale parameter Xm must be positive.");
                 return new ArgumentOutOfRangeException(nameof(Xm), "The scale parameter Xm must be positive.");
             }
 
-            if (parameters[1] <= 0.0d)
+            if (double.IsNaN(parameters[1]) || double.IsInfinity(parameters[1]) || parameters[1] <= 0.0d)
             {
                 if (throwException)
                     throw new ArgumentOutOfRangeException(nameof(Alpha), "The shape parameter α (alpha) must be positive.");

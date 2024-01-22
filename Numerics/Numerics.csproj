@@ -133,6 +133,8 @@
     <Compile Include="Functions\TabularFunction.cs" />
     <Compile Include="Machine Learning\Supervised\DecisionTree.cs" />
     <Compile Include="Machine Learning\Supervised\KNearestNeighbors.cs" />
+    <Compile Include="Machine Learning\Supervised\NaiveBayes.cs" />
+    <Compile Include="Machine Learning\Supervised\NeuralNetwork.cs" />
     <Compile Include="Machine Learning\Supervised\RandomForest.cs" />
     <Compile Include="Machine Learning\Support\JenksCluster.cs" />
     <Compile Include="Machine Learning\Support\KMeansCluster.cs" />

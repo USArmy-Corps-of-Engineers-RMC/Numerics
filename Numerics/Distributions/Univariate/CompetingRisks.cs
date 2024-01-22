@@ -327,6 +327,8 @@ namespace Numerics.Distributions
             var newDistribution = (CompetingRisks)Clone();
             var sample = newDistribution.GenerateRandomValues(seed, sampleSize);
             newDistribution.Estimate(sample, estimationMethod);
+            if (newDistribution.ParametersValid == false)
+                throw new Exception("Bootstrapped distribution parameters are invalid.");
             return newDistribution;
         }
 

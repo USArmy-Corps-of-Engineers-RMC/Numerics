@@ -262,7 +262,7 @@ namespace Numerics.Distributions
 
         private bool _correlationMatrixCreated = false;
 
-        private void CreatCorrelationMatrix()
+        private void CreateCorrelationMatrix()
         {
             // Save correlation matrix
             var D = Matrix.Diagonal(_covariance);
@@ -385,7 +385,7 @@ namespace Numerics.Distributions
                 int INFORM = 0;
 
                 if (_correlationMatrixCreated == false)
-                    CreatCorrelationMatrix();
+                    CreateCorrelationMatrix();
                 MVNDST(Dimension, _lower, _upper, _infin, _correl, _maxEvaluations, _absoluteError, _relativeError, ref ERROR, ref VAL, ref INFORM);
                 return VAL;
             }

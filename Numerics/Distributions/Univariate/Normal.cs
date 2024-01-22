@@ -87,13 +87,22 @@ namespace Numerics.Distributions
             SetParameters(mean, standardDeviation);
         }
 
+        private double _mu;
         private double _sigma;
         private bool _parametersValid = true;
 
         /// <summary>
         /// Gets and sets the location parameter µ (Mu).
         /// </summary>
-        public double Mu { get; set; }
+        public double Mu
+        {
+            get { return _mu; }
+            set
+            {
+                _parametersValid = ValidateParameters(value, Sigma, false) is null;
+                _mu = value;
+            }
+        }
 
         /// <summary>
         /// Gets and sets the scale parameter σ (sigma).
@@ -310,6 +319,8 @@ namespace Numerics.Distributions
             var newDistribution = new Normal(Mu, Sigma);
             var sample = newDistribution.GenerateRandomValues(seed, sampleSize);
             newDistribution.Estimate(sample, estimationMethod);
+            if (newDistribution.ParametersValid == false)
+                throw new Exception("Bootstrapped distribution parameters are invalid.");
             return newDistribution;
         }
 
@@ -365,7 +376,13 @@ namespace Numerics.Distributions
         /// <param name="throwException">Determines whether to throw an exception or not.</param>
         public ArgumentOutOfRangeException ValidateParameters(double location, double scale, bool throwException)
         {
-            if (scale <= 0.0d)
+            if (double.IsNaN(location) || double.IsInfinity(scale))
+            {
+                if (throwException)
+                    throw new ArgumentOutOfRangeException(nameof(Mu), "The mean must be a number.");
+                return new ArgumentOutOfRangeException(nameof(Mu), "The mean must be a number.");
+            }
+            if (double.IsNaN(scale) || double.IsInfinity(scale) || scale <= 0.0d)
             {
                 if (throwException)
                     throw new ArgumentOutOfRangeException(nameof(Sigma), "Standard deviation must be positive.");
@@ -428,6 +445,7 @@ namespace Numerics.Distributions
                 return N.LogLikelihood(sample);
             }
             var solver = new NelderMead(logLH, NumberOfParameters, Initials, Lowers, Uppers);
+            solver.ReportFailure = true;
             solver.Maximize();
             return solver.BestParameterSet.Values;
         }

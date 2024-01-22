@@ -109,8 +109,8 @@ namespace Numerics.Mathematics.Integration
             if (MinFunctionEvaluations < 1) throw new ArgumentOutOfRangeException(nameof(MinFunctionEvaluations), "The minimum number of function evaluations must be greater than or equal to 1.");
             if (MaxIterations < 1) throw new ArgumentOutOfRangeException(nameof(MaxIterations), "The maximum number of iterations must be greater than 1.");
             if (MaxFunctionEvaluations < 1) throw new ArgumentOutOfRangeException(nameof(MaxFunctionEvaluations), "The maximum number of function evaluations must be greater than 1.");
-            if (RelativeTolerance <= 10 * Tools.DoubleMachineEpsilon || RelativeTolerance > 1) throw new ArgumentOutOfRangeException(nameof(RelativeTolerance), "The relative tolerance must be between 10*Machine Epsilon and 1.");
-            if (AbsoluteTolerance <= 10 * Tools.DoubleMachineEpsilon || AbsoluteTolerance > 1) throw new ArgumentOutOfRangeException(nameof(AbsoluteTolerance), "The absolute tolerance must be between 10*Machine Epsilon and 1.");
+            if (RelativeTolerance < 1E-15 || RelativeTolerance > 1) throw new ArgumentOutOfRangeException(nameof(RelativeTolerance), "The relative tolerance must be between 1E-15 and 1.");
+            if (AbsoluteTolerance < 1E-15 || AbsoluteTolerance > 1) throw new ArgumentOutOfRangeException(nameof(AbsoluteTolerance), "The absolute tolerance must be between 1E-15 and 1.");
         }
 
         /// <summary>
@@ -129,11 +129,11 @@ namespace Numerics.Mathematics.Integration
         }
 
         /// <summary>
-        /// Checks convergence. 
+        /// Evaluate convergence. 
         /// </summary>
         /// <param name="oldValue">The old value.</param>
         /// <param name="newValue">The new value.</param>
-        protected virtual bool CheckConvergence(double oldValue, double newValue)
+        protected virtual bool EvaluateConvergence(double oldValue, double newValue)
         {
             if (double.IsNaN(oldValue) || double.IsNaN(newValue) || double.IsInfinity(oldValue) || double.IsInfinity(newValue)) return false;
             return Math.Abs(newValue - oldValue) < AbsoluteTolerance && Math.Abs(newValue - oldValue) / Math.Abs(newValue) < RelativeTolerance;

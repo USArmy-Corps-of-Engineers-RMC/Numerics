@@ -236,7 +236,7 @@ namespace Numerics.Distributions
         public override ArgumentOutOfRangeException ValidateParameters(IList<double> parameters, bool throwException)
         {
             // Validate probability
-            if (parameters[0] < 0.0d || parameters[0] > 1.0d)
+            if (double.IsNaN(parameters[0]) || double.IsInfinity(parameters[0]) || parameters[0] < 0.0d || parameters[0] > 1.0d)
             {
                 if (throwException)
                     throw new ArgumentOutOfRangeException(nameof(Probability), "Probability must be between 0 and 1.");

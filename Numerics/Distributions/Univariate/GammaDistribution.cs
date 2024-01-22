@@ -366,6 +366,8 @@ namespace Numerics.Distributions
             var newDistribution = new GammaDistribution(Theta, Kappa);
             var sample = newDistribution.GenerateRandomValues(seed, sampleSize);
             newDistribution.Estimate(sample, estimationMethod);
+            if (newDistribution.ParametersValid == false)
+                throw new Exception("Bootstrapped distribution parameters are invalid.");
             return newDistribution;
         }
 
@@ -399,13 +401,13 @@ namespace Numerics.Distributions
         /// <param name="throwException">Determines whether to throw an exception or not.</param>
         public ArgumentOutOfRangeException ValidateParameters(double scale, double shape, bool throwException)
         {
-            if (scale <= 0.0d)
+            if (double.IsNaN(scale) || double.IsInfinity(scale) || scale <= 0.0d)
             {
                 if (throwException)
                     throw new ArgumentOutOfRangeException(nameof(Theta), "The scale parameter θ (theta) must be positive.");
                 return new ArgumentOutOfRangeException(nameof(Theta), "The scale parameter θ (theta) must be positive.");
             }
-            if (shape <= 0.0d)
+            if (double.IsNaN(shape) || double.IsInfinity(shape) || shape <= 0.0d)
             {
                 if (throwException)
                     throw new ArgumentOutOfRangeException(nameof(Kappa), "The shape parameter κ (kappa) must be positive.");
@@ -559,6 +561,7 @@ namespace Numerics.Distributions
                 return GM.LogLikelihood(sample);
             }
             var solver = new NelderMead(logLH, NumberOfParameters, Initials, Lowers, Uppers);
+            solver.ReportFailure = true;
             solver.Maximize();
             return solver.BestParameterSet.Values;
         }

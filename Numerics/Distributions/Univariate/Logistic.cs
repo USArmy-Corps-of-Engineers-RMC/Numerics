@@ -42,12 +42,21 @@ namespace Numerics.Distributions
         }
 
         private bool _parametersValid = true;
+        private double _xi; // location
         private double _alpha; // scale
 
         /// <summary>
         /// Gets and sets the location parameter ξ (Xi).
         /// </summary>
-        public double Xi { get; set; }
+        public double Xi
+        {
+            get { return _xi; }
+            set
+            {
+                _parametersValid = ValidateParameters(new[] { value, Alpha }, false) is null;
+                _xi = value;
+            }
+        }
 
         /// <summary>
         /// Gets and sets the scale parameter α (alpha).
@@ -257,6 +266,8 @@ namespace Numerics.Distributions
             var newDistribution = new Logistic(Xi, Alpha);
             var sample = newDistribution.GenerateRandomValues(seed, sampleSize);
             newDistribution.Estimate(sample, estimationMethod);
+            if (newDistribution.ParametersValid == false)
+                throw new Exception("Bootstrapped distribution parameters are invalid.");
             return newDistribution;
         }
 
@@ -290,7 +301,13 @@ namespace Numerics.Distributions
         /// <param name="throwException">Determines whether to throw an exception or not.</param>
         public override ArgumentOutOfRangeException ValidateParameters(IList<double> parameters, bool throwException)
         {
-            if (parameters[1] <= 0.0d)
+            if (double.IsNaN(parameters[0]) || double.IsInfinity(parameters[0]))
+            {
+                if (throwException)
+                    throw new ArgumentOutOfRangeException(nameof(Xi), "The the location parameter ξ (Xi) must be a number.");
+                return new ArgumentOutOfRangeException(nameof(Xi), "The the location parameter ξ (Xi) must be a number.");
+            }
+            if (double.IsNaN(parameters[1]) || double.IsInfinity(parameters[1]) || parameters[1] <= 0.0d)
             {
                 if (throwException)
                     throw new ArgumentOutOfRangeException(nameof(Alpha), "The scale parameter α (alpha) must be positive.");
@@ -352,6 +369,7 @@ namespace Numerics.Distributions
                 return LO.LogLikelihood(sample);
             }
             var solver = new NelderMead(logLH, NumberOfParameters, Initials, Lowers, Uppers);
+            solver.ReportFailure = true;
             solver.Maximize();
             return solver.BestParameterSet.Values;
         }

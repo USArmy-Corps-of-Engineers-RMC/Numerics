@@ -47,11 +47,8 @@ namespace Numerics.Mathematics.Integration
             Dimensions = dimensions;
             Min = min.ToArray();
             Max = max.ToArray();
-            Random = new MersenneTwister();
-            _sobol = new SobolSequence(Dimensions);
+            Random = new Random();
         }
-
-        private SobolSequence _sobol;
 
         /// <summary>
         /// The multidimensional function to integrate.
@@ -99,6 +96,7 @@ namespace Numerics.Mathematics.Integration
             try
             {
                 var sample = new double[Dimensions];
+
                 double sum = 0, sum2 = 0;
                 double avg = 0, avg2 = 0;
 
@@ -107,9 +105,6 @@ namespace Numerics.Mathematics.Integration
                 for (int i = 0; i < Dimensions; i++)
                     volume *= (Max[i] - Min[i]);
 
-                double result = 0;
-                double error = 0;
-                double relativeError = 0;
 
                 for (int i = 1; i <= MaxIterations; i++)
                 {
@@ -126,22 +121,25 @@ namespace Numerics.Mathematics.Integration
                     avg = sum / Iterations;
                     avg2 = sum2 / Iterations;
 
-                    result = volume * avg;
-                    error = volume * Math.Sqrt((avg2 - avg * avg) / Iterations);
-                    relativeError = Normal.StandardZ(0.975) * error / result;
-
-                    if (Iterations > MinIterations && relativeError < RelativeTolerance)
+                    Result = volume * avg;
+                    StandardError = volume * Math.Sqrt((avg2 - avg * avg) / Iterations);
+                    
+                    // Check tolerance
+                    if (Iterations > MinIterations && (Normal.StandardZ(0.975) * StandardError < AbsoluteTolerance + RelativeTolerance * Result ))
                     {
                         break;
                     }
-
                 }
 
-                Result = volume * avg;
-                StandardError = volume * Math.Sqrt((avg2 - avg * avg) / Iterations);
-
                 // Update status
-                UpdateStatus(IntegrationStatus.Success);
+                if (FunctionEvaluations >= MaxFunctionEvaluations)
+                {
+                    Status = IntegrationStatus.MaximumFunctionEvaluationsReached;
+                }
+                else
+                {
+                    Status = IntegrationStatus.Success;
+                }
 
             }
             catch (Exception ex)

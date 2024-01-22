@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Windows.Shapes;
 using Numerics.Data.Statistics;
 using Numerics.Distributions;
 using Numerics.Mathematics.LinearAlgebra;
@@ -61,14 +62,25 @@ namespace Numerics.Distributions
         }
     
         private bool _parametersValid = true;
-        private double _alpha;
+        private double _xi; // location
+        private double _alpha; // scale
+        private double _kappa; // shape
+        private double _hondo; // shape 2
         private bool _momentsComputed = false;
         private double[] u = new double[] { double.NaN, double.NaN, double.NaN, double.NaN };
 
         /// <summary>
         /// Gets and sets the location parameter ξ (Xi).
         /// </summary>
-        public double Xi { get; set; }
+        public double Xi
+        {
+            get { return _xi; }
+            set
+            {
+                _parametersValid = ValidateParameters(new[] { value, Alpha, Kappa, Hondo }, false) is null;
+                _xi = value;
+            }
+        }
 
         /// <summary>
         /// Gets and sets the scale parameter α (alpha).
@@ -86,12 +98,28 @@ namespace Numerics.Distributions
         /// <summary>
         /// Gets and sets the shape parameter κ (kappa).
         /// </summary>
-        public double Kappa { get; set; }
+        public double Kappa
+        {
+            get { return _kappa; }
+            set
+            {
+                _parametersValid = ValidateParameters(new[] { Xi, Alpha, value, Hondo }, false) is null;
+                _kappa = value;
+            }
+        }
 
         /// <summary>
         /// Gets and sets the shape parameter h (hondo).
         /// </summary>
-        public double Hondo { get; set; }
+        public double Hondo
+        {
+            get { return _hondo; }
+            set
+            {
+                _parametersValid = ValidateParameters(new[] { Xi, Alpha, Kappa, value }, false) is null;
+                _hondo = value;
+            }
+        }
 
         /// <summary>
         /// Returns the number of distribution parameters.
@@ -350,6 +378,8 @@ namespace Numerics.Distributions
             var newDistribution = new KappaFour(Xi, Alpha, Kappa, Hondo);
             var sample = newDistribution.GenerateRandomValues(seed, sampleSize);
             newDistribution.Estimate(sample, estimationMethod);
+            if (newDistribution.ParametersValid == false)
+                throw new Exception("Bootstrapped distribution parameters are invalid.");
             return newDistribution;
         }
 
@@ -373,10 +403,28 @@ namespace Numerics.Distributions
         /// <param name="throwException">Determines whether to throw an exception or not.</param>
         public override ArgumentOutOfRangeException ValidateParameters(IList<double> parameters, bool throwException)
         {
-            if (parameters[1] <= 0.0d)
+            if (double.IsNaN(parameters[0]) || double.IsInfinity(parameters[0]))
+            {
+                if (throwException)
+                    throw new ArgumentOutOfRangeException(nameof(Xi), "The the location parameter ξ (Xi) must be a number.");
+                return new ArgumentOutOfRangeException(nameof(Xi), "The the location parameter ξ (Xi) must be a number.");
+            }
+            if (double.IsNaN(parameters[1]) || double.IsInfinity(parameters[1]) || parameters[1] <= 0.0d)
             {
                 if (throwException) throw new ArgumentOutOfRangeException(nameof(Alpha), "The scale parameter α (alpha) must be positive.");
                 return new ArgumentOutOfRangeException(nameof(Alpha), "The scale parameter α (alpha) must be positive.");
+            }
+            if (double.IsNaN(parameters[2]) || double.IsInfinity(parameters[2]))
+            {
+                if (throwException)
+                    throw new ArgumentOutOfRangeException(nameof(Kappa), "The the shape parameter κ (kappa) must be a number.");
+                return new ArgumentOutOfRangeException(nameof(Kappa), "The the shape parameter κ (kappa) must be a number.");
+            }
+            if (double.IsNaN(parameters[3]) || double.IsInfinity(parameters[3]))
+            {
+                if (throwException)
+                    throw new ArgumentOutOfRangeException(nameof(Hondo), "The the shape parameter h (hondo) must be a number.");
+                return new ArgumentOutOfRangeException(nameof(Hondo), "The the shape parameter h (hondo) must be a number.");
             }
             return null;
         }
@@ -728,6 +776,7 @@ namespace Numerics.Distributions
                 return K4.LogLikelihood(sample);
             }
             var solver = new NelderMead(logLH, NumberOfParameters, Initials, Lowers, Uppers);
+            solver.ReportFailure = true;
             solver.Maximize();
             return solver.BestParameterSet.Values;
 

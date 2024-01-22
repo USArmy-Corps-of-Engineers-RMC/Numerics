@@ -23,13 +23,13 @@ namespace Numerics.Distributions
     [Serializable]
     public sealed class GeneralizedPareto : UnivariateDistributionBase, IColesTawn, IEstimation, IMaximumLikelihoodEstimation, ILinearMomentEstimation, IStandardError, IBootstrappable
     {
- 
+
         /// <summary>
-        /// Constructs an exponential distribution with mean of 0 and standard deviation of 1.
+        /// Constructs an Generalized Pareto distribution with a location of 100, scale of 10, and shape of 0.
         /// </summary>
         public GeneralizedPareto()
         {
-            SetParameters(DirectMethodOfMoments(new[] { 0d, 1d, 2d }));
+            SetParameters(new[] { 100d, 10d, 0d });
         }
 
         /// <summary>
@@ -44,13 +44,23 @@ namespace Numerics.Distributions
         }
 
         private bool _parametersValid = true;
-        private double _alpha;
+        private double _xi; // location
+        private double _alpha; // scale
+        private double _kappa; // shape
         private double _lambda = 1d;
 
         /// <summary>
         /// Gets and sets the location parameter ξ (Xi).
         /// </summary>
-        public double Xi { get; set; }
+        public double Xi
+        {
+            get { return _xi; }
+            set
+            {
+                _parametersValid = ValidateParameters(new[] { value, Alpha, Kappa }, false) is null;
+                _xi = value;
+            }
+        }
 
         /// <summary>
         /// Gets and sets the scale parameter α (alpha).
@@ -68,7 +78,15 @@ namespace Numerics.Distributions
         /// <summary>
         /// Gets and sets the shape parameter κ (kappa).
         /// </summary>
-        public double Kappa { get; set; }
+        public double Kappa
+        {
+            get { return _kappa; }
+            set
+            {
+                _parametersValid = ValidateParameters(new[] { Xi, Alpha, value }, false) is null;
+                _kappa = value;
+            }
+        }
 
         /// <summary>
         /// Gets and sets the average number of peak per year.
@@ -368,6 +386,8 @@ namespace Numerics.Distributions
             var newDistribution = new GeneralizedPareto(Xi, Alpha, Kappa);
             var sample = newDistribution.GenerateRandomValues(seed, sampleSize);
             newDistribution.Estimate(sample, estimationMethod);
+            if (newDistribution.ParametersValid == false)
+                throw new Exception("Bootstrapped distribution parameters are invalid.");
             return newDistribution;
         }
 
@@ -403,10 +423,22 @@ namespace Numerics.Distributions
         /// <param name="throwException">Determines whether to throw an exception or not.</param>
         public ArgumentOutOfRangeException ValidateParameters(double location, double scale, double shape, bool throwException)
         {
-            if (scale <= 0.0d)
+            if (double.IsNaN(location) || double.IsInfinity(location))
+            {
+                if (throwException)
+                    throw new ArgumentOutOfRangeException(nameof(Xi), "The the location parameter ξ (Xi) must be a number.");
+                return new ArgumentOutOfRangeException(nameof(Xi), "The the location parameter ξ (Xi) must be a number.");
+            }
+            if (double.IsNaN(scale) || double.IsInfinity(scale) || scale <= 0.0d)
             {
                 if (throwException) throw new ArgumentOutOfRangeException(nameof(Alpha), "The scale parameter α (alpha) must be positive.");
                 return new ArgumentOutOfRangeException(nameof(Alpha), "The scale parameter α (alpha) must be positive.");
+            }
+            if (double.IsNaN(shape) || double.IsInfinity(shape))
+            {
+                if (throwException)
+                    throw new ArgumentOutOfRangeException(nameof(Kappa), "The the shape parameter κ (kappa) must be a number.");
+                return new ArgumentOutOfRangeException(nameof(Kappa), "The the shape parameter κ (kappa) must be a number.");
             }
             return null;
         }
@@ -544,20 +576,23 @@ namespace Numerics.Distributions
             // Get bounds of location
             if (initialVals[0] == 0d) initialVals[0] = Tools.DoubleMachineEpsilon;
             lowerVals[0] = initialVals[0] - Math.Pow(10d, Math.Ceiling(Math.Log10(Math.Abs(initialVals[0]))));
-            upperVals[0] = minData;
+            upperVals[0] = minData + Tools.DoubleMachineEpsilon;
 
             // Get bounds of scale
             lowerVals[1] = Tools.DoubleMachineEpsilon;
             upperVals[1] = Math.Pow(10d, Math.Ceiling(Math.Log10(Math.Abs(initialVals[1])) + 1d));
             // Get bounds of shape
-            lowerVals[2] = -10;
+            lowerVals[2] = -10d;
             upperVals[2] = 10d;
             // Correct initial values if necessary
             if (initialVals[0] <= lowerVals[0] || initialVals[0] >= upperVals[0])
             {
                 initialVals[0] = Statistics.Mean(new[] { lowerVals[0], upperVals[0] });
             }
-
+            if (initialVals[1] <= lowerVals[1] || initialVals[1] >= upperVals[1])
+            {
+                initialVals[1] = Statistics.Mean(new[] { lowerVals[1], upperVals[1] });
+            }
             if (initialVals[2] <= lowerVals[2] || initialVals[2] >= upperVals[2])
             {
                 initialVals[2] = 0d;
@@ -577,16 +612,24 @@ namespace Numerics.Distributions
             var Lowers = tuple.Item2;
             var Uppers = tuple.Item3;
 
+            var xi = Statistics.Minimum(sample);
+
             // Solve using Nelder-Mead (Downhill Simplex)
             double logLH(double[] x)
             {
                 var GPA = new GeneralizedPareto();
-                GPA.SetParameters(x);
+                GPA.SetParameters(new[] { xi, x[0], x[1] });
+                //GPA.SetParameters(x);
                 return GPA.LogLikelihood(sample);
             }
-            var solver = new NelderMead(logLH, NumberOfParameters, Initials, Lowers, Uppers);
+            var solver = new NelderMead(logLH, 2, Initials.Subset(1), Lowers.Subset(1), Uppers.Subset(1));
+            solver.ReportFailure = true;
             solver.Maximize();
-            return solver.BestParameterSet.Values;
+            return new double[] { xi, solver.BestParameterSet.Values[0], solver.BestParameterSet.Values[1] };
+            //var solver = new NelderMead(logLH, NumberOfParameters, Initials, Lowers, Uppers);
+            //solver.ReportFailure = true;
+            //solver.Maximize();
+            //return solver.BestParameterSet.Values;
 
         }
 

@@ -142,7 +142,15 @@
     <Compile Include="Machine Learning\Unsupervised\Test_KMeans.cs" />
     <Compile Include="Mathematics\Differentiation\Test_Differentiation.cs" />
     <Compile Include="Mathematics\Fourier Methods\Test_FastFourierTransform.cs" />
+    <Compile Include="Mathematics\Integration\Integrands.cs" />
     <Compile Include="Mathematics\Integration\Test_Integration.cs" />
+    <Compile Include="Mathematics\Integration\Test_MonteCarlo.cs" />
+    <Compile Include="Mathematics\Integration\Test_Vegas.cs" />
+    <Compile Include="Mathematics\Integration\Test_Miser.cs" />
+    <Compile Include="Mathematics\Integration\Test_AdaptiveGaussLobatto.cs" />
+    <Compile Include="Mathematics\Integration\Test_AdaptiveSimpsonsRule.cs" />
+    <Compile Include="Mathematics\Integration\Test_SimpsonsRule.cs" />
+    <Compile Include="Mathematics\Integration\Test_TrapezoidalRule.cs" />
     <Compile Include="Mathematics\Linear Algebra\Test_Matrix.cs" />
     <Compile Include="Mathematics\Linear Algebra\Test_LUDecomp.cs" />
     <Compile Include="Mathematics\Linear Algebra\Test_CholeskyDecomp.cs" />

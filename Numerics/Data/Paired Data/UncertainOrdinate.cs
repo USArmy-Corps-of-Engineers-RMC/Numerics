@@ -147,14 +147,17 @@ namespace Numerics.Data
             // Check for equivalent distribution types
             if (allowDifferentTypes == false && ordinateToCompare.Y.Type != Y.Type)
                 return false;
+
+            double minPercentile = Y.Type == UnivariateDistributionType.PertPercentile || Y.Type == UnivariateDistributionType.PertPercentileZ ? 0.05 : 1E-5;
+
             // Test reasonable lower bound
-            if (GetOrdinate(1E-4d).OrdinateValid(ordinateToCompare.GetOrdinate(1E-4d), strictX, strictY, xOrder, yOrder, compareOrdinateIsNext) == false)
+            if (GetOrdinate(minPercentile).OrdinateValid(ordinateToCompare.GetOrdinate(minPercentile), strictX, strictY, xOrder, yOrder, compareOrdinateIsNext) == false)
                 return false;
             // Test central tendency
             if (GetOrdinate().OrdinateValid(ordinateToCompare.GetOrdinate(), strictX, strictY, xOrder, yOrder, compareOrdinateIsNext) == false)
                 return false;
             // Test reasonable upper bound
-            if (GetOrdinate(1 - 1E-4d).OrdinateValid(ordinateToCompare.GetOrdinate(1 - 1E-4d), strictX, strictY, xOrder, yOrder, compareOrdinateIsNext) == false)
+            if (GetOrdinate(1 - minPercentile).OrdinateValid(ordinateToCompare.GetOrdinate(1 - minPercentile), strictX, strictY, xOrder, yOrder, compareOrdinateIsNext) == false)
                 return false;
             // Passed the test
             return true;
@@ -202,12 +205,14 @@ namespace Numerics.Data
             // 
             if (IsValid == true && ordinateToCompare.IsValid == true)
             {
+                double minPercentile = Y.Type == UnivariateDistributionType.PertPercentile || Y.Type == UnivariateDistributionType.PertPercentileZ ? 0.05 : 1E-5;
+
                 // Test reasonable lower bound
-                result.AddRange(GetOrdinate(1E-4d).OrdinateErrors(ordinateToCompare.GetOrdinate(1E-4d), strictX, strictY, xOrder, yOrder, compareOrdinateIsNext));
+                result.AddRange(GetOrdinate(minPercentile).OrdinateErrors(ordinateToCompare.GetOrdinate(minPercentile), strictX, strictY, xOrder, yOrder, compareOrdinateIsNext));
                 // Test central tendency
                 result.AddRange(GetOrdinate(0.5d).OrdinateErrors(ordinateToCompare.GetOrdinate(0.5d), strictX, strictY, xOrder, yOrder, compareOrdinateIsNext));
                 // Test reasonable upper bound
-                result.AddRange(GetOrdinate(1 - 1E-4d).OrdinateErrors(ordinateToCompare.GetOrdinate(1 - 1E-4d), strictX, strictY, xOrder, yOrder, compareOrdinateIsNext));
+                result.AddRange(GetOrdinate(1 - minPercentile).OrdinateErrors(ordinateToCompare.GetOrdinate(1 - minPercentile), strictX, strictY, xOrder, yOrder, compareOrdinateIsNext));
             }
             // Finished Checking
             return result;

@@ -23,13 +23,13 @@ namespace Numerics.Distributions
     [Serializable]
     public sealed class Gumbel : UnivariateDistributionBase, IColesTawn, IEstimation, IMaximumLikelihoodEstimation, ILinearMomentEstimation, IStandardError, IBootstrappable
     {
- 
+
         /// <summary>
-        /// Constructs a standard Gumbel (Extreme Value Type I) distribution with mean of 0 and standard deviation of 1.
+        /// Constructs a Gumbel (Extreme Value Type I) distribution with a location of 100 and scale of 10.
         /// </summary>
         public Gumbel()
         {
-            SetParameters(0d, 1d);
+            SetParameters(100d, 10d);
         }
 
         /// <summary>
@@ -42,13 +42,22 @@ namespace Numerics.Distributions
             SetParameters(location, scale);
         }
 
-        private double _alpha; // scale
         private bool _parametersValid = true;
+        private double _xi; // location
+        private double _alpha; // scale
 
         /// <summary>
         /// Gets and sets the location parameter ξ (Xi).
         /// </summary>
-        public double Xi { get; set; }
+        public double Xi
+        {
+            get { return _xi; }
+            set
+            {
+                _parametersValid = ValidateParameters(new[] { value, Alpha }, false) is null;
+                _xi = value;
+            }
+        }
 
         /// <summary>
         /// Gets and sets the scale parameter α (alpha).
@@ -58,7 +67,7 @@ namespace Numerics.Distributions
             get { return _alpha; }
             set
             {
-                _parametersValid = ValidateParameters(Xi, value, false) is null;
+                _parametersValid = ValidateParameters(new[] { Xi, value }, false) is null;
                 _alpha = value;
             }
         }
@@ -258,6 +267,8 @@ namespace Numerics.Distributions
             var newDistribution = new Gumbel(Xi, Alpha);
             var sample = newDistribution.GenerateRandomValues(seed, sampleSize);
             newDistribution.Estimate(sample, estimationMethod);
+            if (newDistribution.ParametersValid == false)
+                throw new Exception("Bootstrapped distribution parameters are invalid.");
             return newDistribution;
         }
 
@@ -292,7 +303,13 @@ namespace Numerics.Distributions
         /// <param name="throwException">Determines whether to throw an exception or not.</param>
         public ArgumentOutOfRangeException ValidateParameters(double location, double scale, bool throwException)
         {
-            if (scale <= 0.0d)
+            if (double.IsNaN(location) || double.IsInfinity(location))
+            {
+                if (throwException)
+                    throw new ArgumentOutOfRangeException(nameof(Xi), "The the location parameter ξ (Xi) must be a number.");
+                return new ArgumentOutOfRangeException(nameof(Xi), "The the location parameter ξ (Xi) must be a number.");
+            }
+            if (double.IsNaN(scale) || double.IsInfinity(scale) || scale <= 0.0d)
             {
                 if (throwException)
                     throw new ArgumentOutOfRangeException(nameof(Alpha), "The scale parameter α (alpha) must be positive.");
@@ -398,6 +415,7 @@ namespace Numerics.Distributions
                 return GUM.LogLikelihood(sample);
             }
             var solver = new NelderMead(logLH, NumberOfParameters, Initials, Lowers, Uppers);
+            solver.ReportFailure = true;
             solver.Maximize();
             return solver.BestParameterSet.Values;
         }

@@ -971,7 +971,7 @@ namespace Numerics.Data.Statistics
         }
 
         /// <summary>
-        /// Returns a list of exclusive probabilities of multiple events occurring assuming independence.
+        /// Returns an array of exclusive probabilities of multiple events using the inclusion-exclusion method. Dependence between events is captured with the multivariate normal distribution.
         /// </summary>
         /// <param name="probabilities">An array of probabilities for each event.</param>
         /// <param name="binomialCombinations">An array of binomial combinations.</param>
@@ -1197,6 +1197,131 @@ namespace Numerics.Data.Statistics
 
             return result;
         }
+
+
+        /// <summary>
+        /// Returns an array of exclusive probabilities of multiple events using the inclusion-exclusion method. Dependence between events is captured with the multivariate normal distribution.
+        /// </summary>
+        /// <param name="probabilities">An array of probabilities for each event.</param>
+        /// <param name="binomialCombinations">An array of binomial combinations.</param>
+        /// <param name="indicators">An 2D array of indicators, 0 means the event did not occur, 1 means the event did occur.</param>
+        /// <param name="multivariateNormal">The multivariate normal distribution used to compute the joint probabilities.</param>
+        /// <param name="eventProbabilities">Output. A list of exclusive event probabilities.</param>
+        /// <param name="eventIndicators">Output. A list of exclusive event indicators that were evaluated.</param>
+        /// <param name="absoluteTol">The absolute tolerance for evaluation convergence of the inclusion-exclusion algorithm. Default = 1E-8.</param>
+        /// <param name="relativeTol">The realtive tolerance for evaluation convergence of the inclusion-exclusion algorithm. Default = 1E-4.</param>
+        public static void Exclusive(IList<double> probabilities, int[] binomialCombinations, int[,] indicators, MultivariateNormal multivariateNormal, out List<double> eventProbabilities, out List<int[]> eventIndicators, double absoluteTol = 1E-8, double relativeTol = 1E-4)
+        {
+
+
+            // Get number of unique combinations by subset
+            int N = probabilities.Count;
+            var cumCombos = new int[N - 1];
+            cumCombos[0] = binomialCombinations[0];
+            for (int i = 1; i < N - 1; i++)
+            {
+                cumCombos[i] = cumCombos[i - 1] + binomialCombinations[i];
+            }
+
+            var jointProbabilities = new List<double>();
+            eventProbabilities = new List<double>();
+            eventIndicators = new List<int[]>();
+
+            double union = 0;
+            double s = 1;
+            int j = 0;
+            int c = binomialCombinations[j];
+            double inc = double.NaN;
+            double exc = double.NaN;
+
+            for (int i = 0; i < indicators.GetLength(0); i++)
+            {
+                if (i == c)
+                {
+                    if (j > 0 && s == 1)
+                    {
+                        inc = union;
+                    }
+                    else if (j > 0 && s == -1)
+                    {
+                        exc = union;
+                    }
+
+                    // Check for convergence
+                    // Add the tolerance to the last joint event
+                    double diff = Math.Abs(inc - exc);
+                    double tol = absoluteTol + relativeTol * Math.Min(inc, exc);
+                    if (j > 0 && j < binomialCombinations.Length && diff <= tol)
+                    {
+                        eventIndicators.Add(indicators.GetRow(indicators.GetLength(0) - 1));
+                        jointProbabilities.Add(0.5 * diff);
+                        goto Exclusive;
+                    }
+
+                    s *= -1;
+                    j++;
+                    if (j < binomialCombinations.Length)
+                    {
+                        c += binomialCombinations[j];
+                    }
+
+                }
+
+                // Record indicators
+                eventIndicators.Add(indicators.GetRow(i));
+
+                // Compute the union
+                if (i < probabilities.Count)
+                {
+                    jointProbabilities.Add(probabilities[i]);
+                    union += s * jointProbabilities.Last();
+                }
+                else
+                {
+                    jointProbabilities.Add(JointProbability(probabilities, eventIndicators.Last(), multivariateNormal));
+                    union += s * jointProbabilities.Last();
+                }
+
+            }
+
+        Exclusive:
+
+            j = 0;
+            c = binomialCombinations[j];
+
+            for (int i = 0; i < eventIndicators.Count; i++)
+            {
+                if (i == c)
+                {
+                    j++;
+                    if (j < binomialCombinations.Length) c += binomialCombinations[j];
+                }
+
+                double prob = jointProbabilities[i];
+                s = 1;
+                for (int k = j; k < cumCombos.Length; k++)
+                {
+                    s *= -1;
+                    int c1 = cumCombos[k];
+                    int c2 = k == cumCombos.Length - 1 ? cumCombos[k] + 1 : cumCombos[k + 1];
+                    if (c2 >= eventIndicators.Count - 1)
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        var sP = SumSearch(jointProbabilities, eventIndicators[i], eventIndicators, c1, c2);
+                        prob += s * sP;
+                    }
+
+                }
+                // Due to floating point issues, this can sometimes be very small, but negative. 
+                if (prob < 0d) prob = 0d;
+                eventProbabilities.Add(prob);
+            }
+        }
+
+
 
         /// <summary>
         /// 

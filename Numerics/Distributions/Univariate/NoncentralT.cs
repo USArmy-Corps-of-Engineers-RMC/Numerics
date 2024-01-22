@@ -42,6 +42,7 @@ namespace Numerics.Distributions
 
         private bool _parametersValid = true;
         private int _degreesOfFreedom;
+        private double _noncentrality;
        
         /// <summary>
         /// Gets and sets the degrees of freedom ν (nu) of the distribution.
@@ -59,7 +60,15 @@ namespace Numerics.Distributions
         /// <summary>
         /// Gets and sets the noncentrality parameter μ (mu) of the distribution.
         /// </summary>
-        public double Noncentrality { get; set; }
+        public double Noncentrality
+        {
+            get { return _noncentrality; }
+            set
+            {
+                _parametersValid = ValidateParameters(DegreesOfFreedom, value, false) is null;
+                _noncentrality = value;
+            }
+        }
 
         /// <summary>
         /// Returns the number of distribution parameters.
@@ -312,6 +321,12 @@ namespace Numerics.Distributions
                 if (throwException)
                     throw new ArgumentOutOfRangeException(nameof(DegreesOfFreedom), "The degrees of freedom ν (nu) must greater than or equal to one.");
                 return new ArgumentOutOfRangeException(nameof(DegreesOfFreedom), "The degrees of freedom ν (nu) must greater than or equal to one.");
+            }
+            if (double.IsNaN(mu) || double.IsInfinity(mu))
+            {
+                if (throwException)
+                    throw new ArgumentOutOfRangeException(nameof(Noncentrality), "The noncentrality parameter μ (mu) must be a number.");
+                return new ArgumentOutOfRangeException(nameof(Noncentrality), "The noncentrality parameter μ (mu) must be a number.");
             }
             return null;
         }

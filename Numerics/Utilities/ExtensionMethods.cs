@@ -244,5 +244,16 @@ namespace Numerics
                 array[i] = value;
         }
 
+
+        /// <summary>
+        /// Determines if the values are almost equal to each other.
+        /// </summary>
+        /// <param name="a">The left-side value.</param>
+        /// <param name="b">The right-side value.</param>
+        /// <param name="epsilon">The absolue tolerance level. Default = 1E-15.</param>
+        public static bool AlmostEquals(this double a, double b, double epsilon = 1E-15)
+        {
+            return Math.Abs(a - b) < epsilon;
+        }
     }
 }

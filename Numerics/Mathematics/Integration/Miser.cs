@@ -1,4 +1,5 @@
-﻿using Numerics.Sampling;
+﻿using Numerics.Distributions;
+using Numerics.Sampling;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -152,8 +153,6 @@ namespace Numerics.Mathematics.Integration
 
         private void miser(Func<double[], double> function, double[] regn, int npts, double dith, ref double ave, ref double var)
         {
-            //if (Status == IntegrationStatus.Success) return;
-
             // Monte Carlo samples a user-supplied ndim-dimensional function func in a rectangular volume
             // specified by regn[0..2 * ndim - 1], a vector consisting of ndim “lower - left” coordinates of the
             // region followed by ndim “upper - right” coordinates. The function is sampled a total of npts

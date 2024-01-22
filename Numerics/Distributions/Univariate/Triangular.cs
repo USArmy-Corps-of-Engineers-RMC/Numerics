@@ -301,6 +301,8 @@ namespace Numerics.Distributions
             var newDistribution = (Triangular)Clone();
             var sample = newDistribution.GenerateRandomValues(seed, sampleSize);
             newDistribution.Estimate(sample, estimationMethod);
+            if (newDistribution.ParametersValid == false)
+                throw new Exception("Bootstrapped distribution parameters are invalid.");
             return newDistribution;
         }
 
@@ -338,13 +340,14 @@ namespace Numerics.Distributions
         /// <param name="throwException">Determines whether to throw an exception or not.</param>
         private ArgumentOutOfRangeException ValidateParameters(double min, double mode, double max, bool throwException)
         {
-            if (min > max)
+            if (double.IsNaN(min) || double.IsInfinity(min) ||
+                double.IsNaN(max) || double.IsInfinity(max) || min > max)
             {
                 if (throwException)
                     throw new ArgumentOutOfRangeException(nameof(Min), "The min cannot be greater than the max.");
                 return new ArgumentOutOfRangeException(nameof(Min), "The min cannot be greater than the max.");
             }
-            else if (mode < min || mode > max)
+            else if (double.IsNaN(mode) || double.IsInfinity(mode) || mode < min || mode > max)
             {
                 if (throwException)
                     throw new ArgumentOutOfRangeException(nameof(MostLikely), "The mode (most likely) must be between the min and max.");

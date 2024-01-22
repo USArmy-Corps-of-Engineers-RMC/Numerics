@@ -49,6 +49,7 @@ namespace Numerics.Distributions
         }
 
         private bool _parametersValid = true;
+        private double _mu;
         private double _sigma;
         private double _min;
         private double _max;
@@ -60,7 +61,15 @@ namespace Numerics.Distributions
         /// <summary>
         /// Gets and sets the location parameter µ (Mu).
         /// </summary>
-        public double Mu { get; set; }
+        public double Mu
+        {
+            get { return _mu; }
+            set
+            {
+                _parametersValid = ValidateParameters(value, Sigma, Min, Max, false) is null;
+                _mu = value;
+            }
+        }
 
         /// <summary>
         /// Gets and sets the scale parameter σ (sigma).
@@ -71,7 +80,7 @@ namespace Numerics.Distributions
             set
             {
                 if (value < 1E-16 && Math.Sign(value) != -1) value = 1E-16;
-                _parametersValid = ValidateParameters(Mu, value, _min, _max, false) is null;
+                _parametersValid = ValidateParameters(Mu, value, Min, Max, false) is null;
                 _sigma = value;
             }
         }
@@ -84,7 +93,7 @@ namespace Numerics.Distributions
             get { return _min; }
             set
             {
-                _parametersValid = ValidateParameters(Mu, _sigma, value, _max, false) is null;
+                _parametersValid = ValidateParameters(Mu, Sigma, value, Max, false) is null;
                 _min = value;
             }
         }
@@ -97,7 +106,7 @@ namespace Numerics.Distributions
             get { return _max; }
             set
             {
-                _parametersValid = ValidateParameters(Mu, _sigma, _min, value, false) is null;
+                _parametersValid = ValidateParameters(Mu, Sigma, Min, value, false) is null;
                 _max = value;
             }
         }
@@ -380,14 +389,19 @@ namespace Numerics.Distributions
         /// <param name="throwException">Determines whether to throw an exception or not.</param>
         public ArgumentOutOfRangeException ValidateParameters(double mean, double standardDeviation, double min, double max, bool throwException)
         {
-
+            if (double.IsNaN(mean) || double.IsInfinity(Mean))
+            {
+                if (throwException)
+                    throw new ArgumentOutOfRangeException(nameof(Mu), "Mean must be a number.");
+                return new ArgumentOutOfRangeException(nameof(Mu), "Mean must be a number.");
+            }
             if (double.IsNaN(standardDeviation) || double.IsInfinity(standardDeviation) || standardDeviation <= 0.0d)
             {
                 if (throwException)
                     throw new ArgumentOutOfRangeException(nameof(Sigma), "Standard deviation must be positive.");
                 return new ArgumentOutOfRangeException(nameof(Sigma), "Standard deviation must be positive.");
             }
-            if (double.IsNaN(min) || double.IsNaN(max) || min > max)
+            if (double.IsNaN(min) || double.IsNaN(max) || double.IsInfinity(min) || double.IsInfinity(max) || min > max)
             {
                 if (throwException)
                     throw new ArgumentOutOfRangeException(nameof(Min), "The min cannot be greater than the max.");

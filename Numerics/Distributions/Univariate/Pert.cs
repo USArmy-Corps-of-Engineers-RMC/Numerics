@@ -53,10 +53,15 @@ namespace Numerics.Distributions
         }
 
         private bool _parametersValid = true;
-        private GeneralizedBeta _generalizedBeta = new GeneralizedBeta();
+        private GeneralizedBeta _beta = new GeneralizedBeta();
         private double _min;
         private double _max;
         private double _mode;
+
+        /// <summary>
+        /// Gets the underlying Generalized Beta distribution.
+        /// </summary>
+        public GeneralizedBeta Beta => _beta;
 
         /// <summary>
         /// Get and set the min of the distribution.
@@ -172,7 +177,11 @@ namespace Numerics.Distributions
         /// </summary>
         public override double Mean
         {
-            get { return (Min + 4 * MostLikely + Max) / 6; }
+            get 
+            {
+                if (_min == _max && _min == _mode) return _min;
+                return (Min + 4 * MostLikely + Max) / 6; 
+            }
         }
 
         /// <summary>
@@ -180,7 +189,11 @@ namespace Numerics.Distributions
         /// </summary>
         public override double Median
         {
-            get { return (Min + 6 * MostLikely + Max) / 8; }
+            get 
+            {
+                if (_min == _max && _min == _mode) return _min;
+                return (Min + 6 * MostLikely + Max) / 8; 
+            }
         }
 
         /// <summary>
@@ -204,7 +217,7 @@ namespace Numerics.Distributions
         /// </summary>
         public override double Skew
         {
-            get { return _generalizedBeta.Skew; }
+            get { return _beta.Skew; }
         }
 
         /// <summary>
@@ -212,7 +225,7 @@ namespace Numerics.Distributions
         /// </summary>
         public override double Kurtosis
         {
-            get { return _generalizedBeta.Kurtosis; }
+            get { return _beta.Kurtosis; }
         }
 
         /// <summary>
@@ -284,7 +297,7 @@ namespace Numerics.Distributions
             _mode = mode;
             _max = max;
             // Return PERT
-            if (_parametersValid == true) _generalizedBeta = GeneralizedBeta.PERT(_min, _mode, _max);
+            if (_parametersValid == true) _beta = GeneralizedBeta.PERT(_min, _mode, _max);
         }
 
         /// <summary>
@@ -305,12 +318,13 @@ namespace Numerics.Distributions
         /// <param name="throwException">Determines whether to throw an exception or not.</param>
         private ArgumentOutOfRangeException ValidateParameters(double min, double mode, double max, bool throwException)
         {
-            if (min > max)
+            if (double.IsNaN(min) || double.IsInfinity(min) ||
+                double.IsNaN(max) || double.IsInfinity(max) || min > max)
             {
                 if (throwException) throw new ArgumentOutOfRangeException(nameof(Min), "The min cannot be greater than the max.");
                 return new ArgumentOutOfRangeException(nameof(Min), "The min cannot be greater than the max.");
             }
-            else if (mode < min || mode > max)
+            else if (double.IsNaN(mode) || double.IsInfinity(mode) || mode < min || mode > max)
             {
                 if (throwException) throw new ArgumentOutOfRangeException(nameof(MostLikely), "The mode (most likely) must be between the min and max.");
                 return new ArgumentOutOfRangeException(nameof(MostLikely), "The mode (most likely) must be between the min and max.");
@@ -340,7 +354,7 @@ namespace Numerics.Distributions
             // user inputs min = max = mode
             if (_min == _max && _min == _mode) return 0.0d;
             if (double.IsNaN(_mode)) return 0.0d;
-            return _generalizedBeta.PDF(x);
+            return _beta.PDF(x);
         }
 
         /// <summary>
@@ -359,7 +373,7 @@ namespace Numerics.Distributions
             // user inputs min = max = mode
             if (_min == _max && _min == _mode) return 1d;
             if (double.IsNaN(_mode)) return 1;
-            return _generalizedBeta.CDF(x);
+            return _beta.CDF(x);
         }
 
         /// <summary>
@@ -382,7 +396,7 @@ namespace Numerics.Distributions
             // user inputs min = max = mode
             if (_min == _max && _min == _mode) return Min;
             if (double.IsNaN(_mode)) return Min;
-            return _generalizedBeta.InverseCDF(probability);
+            return _beta.InverseCDF(probability);
         }
 
         /// <summary>

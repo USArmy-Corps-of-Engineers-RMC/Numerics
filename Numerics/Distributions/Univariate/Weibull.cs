@@ -53,7 +53,7 @@ namespace Numerics.Distributions
             get { return _lambda; }
             set
             {
-                _parametersValid = ValidateParameters(value, _kappa, false) is null;
+                _parametersValid = ValidateParameters(value, Kappa, false) is null;
                 _lambda = value;
             }
         }
@@ -66,7 +66,7 @@ namespace Numerics.Distributions
             get { return _kappa; }
             set
             {
-                _parametersValid = ValidateParameters(_lambda, value, false) is null;
+                _parametersValid = ValidateParameters(Lambda, value, false) is null;
                 _kappa = value;
             }
         }
@@ -290,6 +290,8 @@ namespace Numerics.Distributions
             var newDistribution = new Weibull(Lambda, Kappa);
             var sample = newDistribution.GenerateRandomValues(seed, sampleSize);
             newDistribution.Estimate(sample, estimationMethod);
+            if (newDistribution.ParametersValid == false)
+                throw new Exception("Bootstrapped distribution parameters are invalid.");
             return newDistribution;
         }
 
@@ -321,13 +323,13 @@ namespace Numerics.Distributions
         /// <param name="throwException">Determines whether to throw an exception or not.</param>
         public ArgumentOutOfRangeException ValidateParameters(double scale, double shape, bool throwException)
         {
-            if (scale <= 0.0d)
+            if (double.IsNaN(scale) || double.IsInfinity(scale) || scale <= 0.0d)
             {
                 if (throwException)
                     throw new ArgumentOutOfRangeException(nameof(Lambda), "The scale parameter λ (lambda) must be positive.");
                 return new ArgumentOutOfRangeException(nameof(Lambda), "The scale parameter λ (lambda) must be positive.");
             }
-            if (shape <= 0.0d)
+            if (double.IsNaN(shape) || double.IsInfinity(shape) || shape <= 0.0d)
             {
                 if (throwException)
                     throw new ArgumentOutOfRangeException(nameof(Kappa), "The shape parameter κ (kappa) must be positive.");
@@ -387,6 +389,7 @@ namespace Numerics.Distributions
                 return W.LogLikelihood(sample);
             }
             var solver = new NelderMead(logLH, NumberOfParameters, Initials, Lowers, Uppers);
+            solver.ReportFailure = true;
             solver.Maximize();
             return solver.BestParameterSet.Values;
         }

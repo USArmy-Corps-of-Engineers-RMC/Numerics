@@ -52,14 +52,23 @@ namespace Numerics.Distributions
         {
             SetParameters(mean, standardDeviation);
         }
- 
+
+        private double _mu;
         private double _sigma;
         private bool _parametersValid = true;
 
         /// <summary>
         /// Gets and sets the location parameter µ (Mu).
         /// </summary>
-        public double Mu { get; set; }
+        public double Mu
+        {
+            get { return _mu; }
+            set
+            {
+                _parametersValid = ValidateParameters(value, Sigma, false) is null;
+                _mu = value;
+            }
+        }
 
         /// <summary>
         /// Gets and sets the scale parameter σ (sigma).
@@ -280,6 +289,8 @@ namespace Numerics.Distributions
             var newDistribution = new LnNormal() { Mu = Mu, Sigma = Sigma };
             var sample = newDistribution.GenerateRandomValues(seed, sampleSize);
             newDistribution.Estimate(sample, estimationMethod);
+            if (newDistribution.ParametersValid == false)
+                throw new Exception("Bootstrapped distribution parameters are invalid.");
             return newDistribution;
         }
 
@@ -317,11 +328,17 @@ namespace Numerics.Distributions
         /// <param name="throwException">Determines whether to throw an exception or not.</param>
         public ArgumentOutOfRangeException ValidateParameters(double mean, double standardDeviation, bool throwException)
         {
-            if (double.IsNaN(standardDeviation) || standardDeviation <= 0.0d)
+            if (double.IsNaN(mean) || double.IsInfinity(mean))
             {
                 if (throwException)
-                    throw new ArgumentOutOfRangeException(nameof(Sigma), "Standard deviation must be positive.");
-                return new ArgumentOutOfRangeException(nameof(Sigma), "Standard deviation must be positive.");
+                    throw new ArgumentOutOfRangeException(nameof(Mu), "Mu must be a number.");
+                return new ArgumentOutOfRangeException(nameof(Mu), "Mu must be a number.");
+            }
+            if (double.IsNaN(standardDeviation) || double.IsInfinity(standardDeviation) || standardDeviation <= 0.0d)
+            {
+                if (throwException)
+                    throw new ArgumentOutOfRangeException(nameof(Sigma), "Sigma must be positive.");
+                return new ArgumentOutOfRangeException(nameof(Sigma), "Sigma must be positive.");
             }
             return null;
         }
@@ -437,7 +454,7 @@ namespace Numerics.Distributions
             initialVals[0] = moments[0];
             initialVals[1] = moments[1];
             // Get bounds of mean
-            lowerVals[0] = Tools.DoubleMachineEpsilon; //-Math.Pow(10d, Math.Ceiling(Math.Log10(initialVals[0]) + 1d));
+            lowerVals[0] = -Math.Pow(10d, Math.Ceiling(Math.Log10(initialVals[0]) + 1d));
             upperVals[0] = Math.Pow(10d, Math.Ceiling(Math.Log10(initialVals[0]) + 1d));
             // Get bounds of standard deviation
             lowerVals[1] = Tools.DoubleMachineEpsilon;
@@ -465,6 +482,7 @@ namespace Numerics.Distributions
                 return LN.LogLikelihood(sample);
             }
             var solver = new NelderMead(logLH, NumberOfParameters, Initials, Lowers, Uppers);
+            solver.ReportFailure = true;
             solver.Maximize();
             return solver.BestParameterSet.Values;
         }
