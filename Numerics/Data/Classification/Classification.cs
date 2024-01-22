@@ -461,7 +461,6 @@ namespace Numerics
             return results;
         }
 
-
         /// <summary>
         /// Determines classification range break values for intervals with natural breaks. Returns an array of upper bound break values.
         /// Several sources were used before finally landing on a combination of methods.
@@ -535,8 +534,16 @@ namespace Numerics
             if (distinctValues.Length <= nClasses)
             {
                 if (breakCounts is null || breakCounts.Length != distinctValues.Length) breakCounts = new int[distinctValues.Length];
-                for (int i = 0; i <= breakCounts.Length - 1; i++)
-                    breakCounts[i] = 1;
+                int binIdx = 0;
+                for (int i = 0; i < sortedData.Length; i++)
+                {
+                    if (sortedData[i] <= distinctValues[binIdx]) { breakCounts[binIdx] += 1; }
+                    else
+                    {
+                        i -= 1;
+                        binIdx += 1;
+                    }
+                }
                 return distinctValues;
             }
             // 

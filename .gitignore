@@ -48,13 +48,13 @@ Thumbs.db
 *.mov
 *.wmv
 
+/.vs
+/packages
+/Test_Numerics/.vs
 /Test_Numerics/obj
 /Test_Numerics/bin
-/packages
-/Numerics/packages
+/Test_Numerics/packages
+/Numerics/.vs
 /Numerics/obj
 /Numerics/bin
-/Numerics/.vs/Numerics/v16
-/.vs
-/Numerics/.vs/Numerics/FileContentIndex/508ef513-edfe-44a2-9d0d-72a5ba52d382.vsidx
-/Numerics/.vs/Numerics
+/Numerics/packages

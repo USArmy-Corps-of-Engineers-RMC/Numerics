@@ -165,18 +165,18 @@ namespace Numerics.Data
             var result = new List<string>();
             // Check the ordinate itself
             result.AddRange(OrdinateErrors());
- 
+
+            string orderY = (yOrder == SortOrder.Descending ? "decreasing" : "increasing");
+            string orderX = (xOrder == SortOrder.Descending ? "decreasing" : "increasing");
             // Check for monotonicity.
             if (strictY && yOrder != SortOrder.None)
             {
-                if (ordinateToCompare.Y == Y)
-                    result.Add("Ordinate Y values must be a strictly monotonic.");
+                if (ordinateToCompare.Y == Y) { result.Add($"Y values must be strictly {orderY}."); }
             } 
 
             if (strictX && xOrder != SortOrder.None)
             {
-                if (ordinateToCompare.X == X)
-                    result.Add("Ordinate X values must be a strictly monotonic.");
+                if (ordinateToCompare.X == X) { result.Add($"X values must be strictly {orderX}."); }
             } 
 
             if (compareOrdinateIsNext == true)
@@ -184,24 +184,20 @@ namespace Numerics.Data
                 // Looking forward
                 if (yOrder == SortOrder.Descending)
                 {
-                    if (ordinateToCompare.Y > Y)
-                        result.Add("Ordinate Y values must be monotonically decreasing."); 
+                    if (ordinateToCompare.Y > Y) { result.Add("Y values must decrease."); }
                 }
                 else if (yOrder == SortOrder.Ascending)
                 {
-                    if (ordinateToCompare.Y < Y)
-                        result.Add("Ordinate Y values must be monotonically increasing."); 
+                    if (ordinateToCompare.Y < Y) { result.Add("Y values must increase."); }
                 }
 
                 if (xOrder == SortOrder.Descending)
                 {
-                    if (ordinateToCompare.X > X)
-                        result.Add("Ordinate X values must be monotonically decreasing."); 
+                    if (ordinateToCompare.X > X) { result.Add("X values must decrease."); }
                 }
                 else if (xOrder == SortOrder.Ascending)
                 {
-                    if (ordinateToCompare.X < X)
-                        result.Add("Ordinate X values must be monotonically increasing."); 
+                    if (ordinateToCompare.X < X) { result.Add("X values must increase."); }
                 }
             }
             else
@@ -209,24 +205,20 @@ namespace Numerics.Data
                 // Looking back
                 if (yOrder == SortOrder.Descending)
                 {
-                    if (Y > ordinateToCompare.Y)
-                        result.Add("Ordinate Y values must be monotonically decreasing."); 
+                    if (Y > ordinateToCompare.Y) { result.Add("Y values must decrease."); }
                 }
                 else if (yOrder == SortOrder.Ascending)
                 {
-                    if (Y < ordinateToCompare.Y)
-                        result.Add("Ordinate Y values must be monotonically increasing."); 
+                    if (Y < ordinateToCompare.Y) { result.Add("Y values must increase."); }
                 }
 
                 if (xOrder == SortOrder.Descending)
                 {
-                    if (X > ordinateToCompare.X)
-                        result.Add("Ordinate X values must be monotonically decreasing.");
+                    if (X > ordinateToCompare.X) { result.Add("X values must decrease."); }
                 }
                 else if (xOrder == SortOrder.Ascending)
                 {
-                    if (X < ordinateToCompare.X)
-                        result.Add("Ordinate X values must be monotonically increasing."); 
+                    if (X < ordinateToCompare.X) { result.Add("X values must increase."); }
                 }
             }
             // Done testing
@@ -242,13 +234,13 @@ namespace Numerics.Data
             if (IsValid == false)
             {
                 if (double.IsInfinity(X))
-                    result.Add("Ordinate X value can not be infinity.");
+                    result.Add("X value can not be infinity.");
                 if (double.IsNaN(X))
-                    result.Add("Ordinate X value must be a valid number.");
+                    result.Add("X value must be a valid number.");
                 if (double.IsInfinity(Y))
-                    result.Add("Ordinate Y value can not be infinity.");
+                    result.Add("Y value can not be infinity.");
                 if (double.IsNaN(Y))
-                    result.Add("Ordinate Y value must be a valid number.");
+                    result.Add("Y value must be a valid number.");
             }
             return result;
         }

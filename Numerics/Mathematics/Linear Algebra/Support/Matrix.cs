@@ -59,6 +59,17 @@ namespace Numerics.Mathematics.LinearAlgebra
         }
 
         /// <summary>
+        /// Constructs a new matrix based on a single column array.
+        /// </summary>
+        /// <param name="initialArray">Initializing array.</param>
+        public Matrix(float[] initialArray)
+        {
+            _matrix = new double[initialArray.Length, 1];
+            for (int i = 0; i < _matrix.Length; i++)
+                _matrix[i, 0] = initialArray[i];
+        }
+
+        /// <summary>
         /// Constructs a new matrix based on a vector.
         /// </summary>
         /// <param name="initialVector">Initializing vector.</param>

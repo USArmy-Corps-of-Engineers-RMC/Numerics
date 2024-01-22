@@ -51,7 +51,36 @@ namespace Numerics.MachineLearning
             SortedData = sortedData;
             NumberOfClusters = numberOfClusters;
             Estimate();
+        }
 
+        /// <summary>
+        /// Creates a new Jenks natural breaks optimization.
+        /// </summary>
+        /// <param name="data">The input data array to be classified.</param>
+        /// <param name="numberOfClusters">The number of desired clusters (or classes).</param>
+        /// <param name="isDataSorted">Determines if the data array is sorted. Default = false.</param>
+        public JenksNaturalBreaks(IList<float> data, int numberOfClusters, bool isDataSorted = false)
+        {
+            if (data == null) throw new ArgumentNullException(nameof(data), "The data array is null.");
+            if (data.Count == 0) throw new ArgumentException("The data array is empty.", nameof(data));
+            if (numberOfClusters <= 0) throw new ArgumentNullException(nameof(numberOfClusters), "The number of clusters must be greater than zero.");
+            if (numberOfClusters > data.Count) throw new ArgumentException("The number of clusters cannot be greater than the length of the data array.", nameof(numberOfClusters));
+
+            // Sort the data in numerical order
+            float[] sortedData = data.ToArray();
+            if (isDataSorted == false)
+            {
+                Array.Sort(sortedData);
+            }
+
+            SortedData = new double[sortedData.Length];
+            for (int i = 0; i < sortedData.Length; i++)
+            {
+                SortedData[i] = sortedData[i];
+            }
+
+            NumberOfClusters = numberOfClusters;
+            Estimate();
         }
 
         /// <summary>
