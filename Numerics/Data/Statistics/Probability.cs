@@ -193,7 +193,7 @@ namespace Numerics.Data.Statistics
         /// <param name="probabilities">An array of probabilities for each event.</param>
         /// <param name="indicators">An array of indicators, 0 means the event did not occur, 1 means the event did occur.</param>
         /// <param name="multivariateNormal">The multivariate normal distribution for computing the joint probability.</param>
-        public static double JointProbabilityPCM(IList<double> probabilities, int[] indicators, MultivariateNormal multivariateNormal)
+        public static double JointProbabilityPCM(IList<double> probabilities, int[] indicators, MultivariateNormal multivariateNormal, double[] conditionalProbabilities = null)
         {
             // Get z-values
             var R = multivariateNormal.Covariance;
@@ -204,7 +204,7 @@ namespace Numerics.Data.Statistics
             {
                 if (indicators[i] == 0)
                 {
-                    R[i, i] = Normal.StandardZ(1d - Tools.DoubleMachineEpsilon);
+                    R[i, i] = Normal.StandardZ(1);
                 }
                 else
                 {
@@ -247,11 +247,16 @@ namespace Numerics.Data.Statistics
             }
             // Calculate the product of conditional marginals (PCM)
             double jp = Math.Log(Normal.StandardCDF(R[0, 0]));
+            if (conditionalProbabilities != null && conditionalProbabilities.Length == n) 
+                conditionalProbabilities[0] = Normal.StandardCDF(R[0, 0]);
             for (i = 1; i < n; i++)
             {
                 jp += Math.Log(Normal.StandardCDF(R[i, i - 1]));
+                if (conditionalProbabilities != null && conditionalProbabilities.Length == n) 
+                    conditionalProbabilities[i] = Normal.StandardCDF(R[i, i - 1]);
             }
             jp = Math.Exp(jp);
+            jp = Math.Min(1, Math.Max(0, jp));
             if (double.IsNaN(jp)) jp = 0;
             return jp;
         }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Numerics.Mathematics.LinearAlgebra;
 using Numerics.Sampling;
 
@@ -20,6 +21,7 @@ namespace Numerics.Distributions
     /// </remarks>
     public class MultivariateNormal : MultivariateDistribution
     {
+        private MultivariateNormal() { }
 
         /// <summary>
         /// Constructs a multivariate Gaussian distribution with zero mean vector and identity covariance matrix.
@@ -52,25 +54,26 @@ namespace Numerics.Distributions
 
         private bool _parametersValid = true;
         private int _dimension = 0;
-        private double[] _mean = null;
+        private double[] _mean;
         private Matrix _covariance;
         
         private CholeskyDecomposition _cholesky;
         private SingularValueDecomposition _svd;
-        private double _lnconstant = default;
-        private double[] _variance = null;
-        private double[] _standardDeviation = null;
+        private double _lnconstant;
+        private double[] _variance;
+        private double[] _standardDeviation;
 
         // variables required for the multivariate CDF
         private Matrix _correlation;
         private double[] _correl;
         private Random _MVNUNI = new MersenneTwister();
-        private int _maxEvaluations = 25000;
-        private double _absoluteError = 1E-3;
-        private double _relativeError = 1E-8;
+        private int _maxEvaluations = 100000;
+        private double _absoluteError = 1E-4;
+        private double _relativeError = 1E-4;
         private double[] _lower;
         private double[] _upper;
         private int[] _infin;
+        private bool _correlationMatrixCreated = false;
         private bool _covSRTed = false;
 
         /// <summary>
@@ -179,7 +182,7 @@ namespace Numerics.Distributions
         {
             get
             {
-                if (_variance is null)
+                if (_variance == null)
                     _variance = _covariance.Diagonal();
                 return _variance;
             }
@@ -192,7 +195,7 @@ namespace Numerics.Distributions
         {
             get
             {
-                if (_standardDeviation is null)
+                if (_standardDeviation == null)
                 {
                     _standardDeviation = new double[Dimension];
                     for (int i = 0; i < Dimension; i++)
@@ -224,6 +227,7 @@ namespace Numerics.Distributions
             _dimension = mean.Length;      
             _mean = mean;
             _covariance = new Matrix(covariance);
+            CreateCorrelationMatrix();
 
             // Set up parameters for mvn CDF
             _maxEvaluations = 1000 * _dimension;
@@ -241,8 +245,6 @@ namespace Numerics.Distributions
             try
             {
                 _cholesky = new CholeskyDecomposition(_covariance);
-
-
             }
             catch (Exception ex)
             {
@@ -258,9 +260,9 @@ namespace Numerics.Distributions
             
             double lndet = (_cholesky != null) ? _cholesky.LogDeterminant() : _svd.LogPseudoDeterminant();
             _lnconstant = -(Math.Log(2d * Math.PI) * _mean.Length + lndet) * 0.5d;
+
         }
 
-        private bool _correlationMatrixCreated = false;
 
         private void CreateCorrelationMatrix()
         {
@@ -405,6 +407,9 @@ namespace Numerics.Distributions
             double ERROR = 0;
             double VAL = 0;
             int INFORM = 0;
+
+            if (_correlationMatrixCreated == false)
+                CreateCorrelationMatrix();
             MVNDST(Dimension, lower, upper, infin, _correl, _maxEvaluations, _absoluteError, _relativeError, ref ERROR, ref VAL, ref INFORM);
             return VAL;
         }
@@ -1815,7 +1820,35 @@ namespace Numerics.Distributions
         /// </summary>
         public override MultivariateDistribution Clone()
         {
-            return new MultivariateNormal(Mean, Covariance);
+            var mvn = new MultivariateNormal()
+            {
+                _parametersValid = this.ParametersValid,
+                _dimension = this.Dimension,
+                _mean = this.Mean.ToArray(),
+                _covariance = this._covariance.Clone(),
+
+                _cholesky = this._cholesky,
+                _svd = this._svd,
+                _lnconstant = this._lnconstant,
+                _variance = this.Variance.ToArray(),
+                _standardDeviation = this.StandardDeviation.ToArray(),
+                
+                _correlation = this._correlation.Clone(),
+                _correl = this._correl.ToArray(),
+                _MVNUNI = this._MVNUNI,
+                _maxEvaluations = this._maxEvaluations,
+                _absoluteError = this._absoluteError,
+                _relativeError = this._relativeError,
+                _lower = this._lower.ToArray(),
+                _upper = this._upper.ToArray(),
+                _infin = this._infin.ToArray(),
+                _covSRTed = this._covSRTed,
+                _correlationMatrixCreated = this._correlationMatrixCreated,
+            };
+
+            return mvn;
+
+           //return new MultivariateNormal(Mean, Covariance);
         }
 
     }

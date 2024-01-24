@@ -6,7 +6,11 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
+using System.Windows.Forms;
 using System.Xml.Linq;
+using static Numerics.Data.Statistics.Histogram;
 
 namespace Numerics.Distributions
 {
@@ -63,7 +67,7 @@ namespace Numerics.Distributions
         /// <summary>
         /// Determines the interpolation transform for the Probability-values.
         /// </summary>
-        public Transform ProbabilityTransform { get; set; } = Transform.None;
+        public Transform ProbabilityTransform { get; set; } = Transform.NormalZ;
 
         /// <summary>
         /// If true, the competing risks model computes the minimum of the random variables. If false, it computes the maximum of random variables. 
@@ -578,6 +582,211 @@ namespace Numerics.Distributions
             return x < min ? min : x > max ? max : x;
         }
 
+        /// <summary>
+        /// Returns a list of cumulative incidence functions. 
+        /// </summary>
+        /// <param name="bins">Optional. The stratificaton bins to integrate over. Default is 200 bins.</param>
+        public List<EmpiricalDistribution> CumulativeIncidenceFunctions(List<StratificationBin> bins = null)
+        {
+            // Get stratification bins
+            if (bins == null)
+            {
+                double minP = 1E-16;
+                double maxP = 1 - 1E-16;
+                double minX = Distributions.Min(d => d.InverseCDF(minP));
+                double maxX = Distributions.Max(d => d.InverseCDF(maxP));
+                bins = Stratify.XValues(new StratificationOptions(minX, maxX, 200, false), XTransform == Transform.Logarithmic ? true : false);
+            }
+
+            var D = Distributions.Count();
+            var mu = new double[D];
+            var sigma = new double[D, D];
+
+            if (Dependency == Probability.DependencyType.Independent)
+            {
+                var CIFs = new List<EmpiricalDistribution>();
+                for (int i = 0; i < D; i++)
+                {
+                    var x = new double[bins.Count + 1];
+                    var dF = new double[bins.Count + 1];
+                    var p = new double[bins.Count + 1];
+
+                    x[0] = bins[0].LowerBound;
+                    double product = Distributions[i].CDF(bins[0].LowerBound);
+                    for (int k = 0; k < D; k++)
+                        product *= k == i ? 1 : Distributions[k].CCDF(bins[0].LowerBound);
+                    dF[0] = product;
+                    p[0] = product;
+
+                    Parallel.For(0, bins.Count, (j) =>
+                    {
+                        x[j + 1] = bins[j].UpperBound;
+                        double product = Distributions[i].CDF(bins[j].UpperBound) - Distributions[i].CDF(bins[j].LowerBound);
+                        for (int k = 0; k < D; k++)
+                            product *= k == i ? 1 : Distributions[k].CCDF(bins[j].Midpoint);
+                        dF[j + 1] = product;
+                    });
+
+                    // Get cumulative 
+                    for (int j = 1; j <= bins.Count; j++)
+                        p[j] = p[j - 1] + dF[j];
+                    
+                    CIFs.Add(new EmpiricalDistribution(x, p));
+                }
+                return CIFs;
+
+            }
+            if (Dependency == Probability.DependencyType.PerfectlyPositive)
+            {
+                double rho = 1d - Math.Sqrt(Tools.DoubleMachineEpsilon);
+                for (int i = 0; i < D; i++)
+                {
+                    mu[i] = 0d;
+                    for (int j = 0; j < D; j++)
+                        sigma[i, j] = i == j ? 1d : rho;
+                }
+            }
+            if (Dependency == Probability.DependencyType.PerfectlyNegative)
+            {
+                double rho = -1d / (D - 1d) + Math.Sqrt(Tools.DoubleMachineEpsilon);
+                for (int i = 0; i < D; i++)
+                {
+                    mu[i] = 0d;
+                    for (int j = 0; j < D; j++)
+                        sigma[i, j] = i == j ? 1d : rho;
+                }
+            }
+            var mvn = new MultivariateNormal(mu, sigma);
+            return CumulativeIncidenceFunctions(mvn, bins);
+        }
+
+        /// <summary>
+        /// Returns a list of cumulative incidence functions. 
+        /// </summary>
+        /// <param name="multivariateNormal">The multivariate normal distribution used for dependency.</param>
+        /// <param name="bins">Optional. The stratificaton bins to integrate over. Default is 200 bins.</param>
+        public List<EmpiricalDistribution> CumulativeIncidenceFunctions(MultivariateNormal multivariateNormal, List<StratificationBin> bins = null)
+        {
+            var D = Distributions.Count();
+            if (multivariateNormal.Dimension != D)
+                throw new ArgumentException("The number of dimensions in the Multivariate Normal is not the same as the number of distributions.", nameof(multivariateNormal));
+
+            // Get stratification bins
+            if (bins == null)
+            {
+                double minP = 1E-16;
+                double maxP = 1 - 1E-16;
+                double minX = Distributions.Min(d => d.InverseCDF(minP));
+                double maxX = Distributions.Max(d => d.InverseCDF(maxP));
+                bins = Stratify.XValues(new StratificationOptions(minX, maxX, 200, false), XTransform == Transform.Logarithmic ? true : false);
+            }
+
+            var lower = new double[D];
+            var upper = new double[D];
+            var CIFs = new List<EmpiricalDistribution>();
+
+            //var trueCorr = multivariateNormal.Covariance;
+
+            for (int i = 0; i < D; i++)
+            {
+
+                //// Reorder the Correlation matrix
+                //var newCorr = new double[D,D];
+                //Array.Copy(trueCorr, newCorr, trueCorr.Length);
+                //if (D > 2)
+                //{
+                //    newCorr.SetRow(i, trueCorr.GetRow(D - 1));
+                //    newCorr.SetColumn(i, trueCorr.GetColumn(D - 1));
+                //    newCorr.SetRow(D - 1, trueCorr.GetRow(i));
+                //    newCorr.SetColumn(D - 1, trueCorr.GetColumn(i));
+                //}
+                //var mvn = new MultivariateNormal(multivariateNormal.Mean, newCorr);
+
+                //// Reorder distributions
+                //var dists = Distributions.ToList();
+                //dists[i] = Distributions[D-1];
+                //dists[D - 1] = Distributions[i];
+
+                //var zp = new double[D];
+                //var zl = new double[D];
+                //var zu = new double[D];
+                //var ind = new int[D];
+
+                //var x = new List<double>();
+                //var p = new List<double>();
+
+                //x.Add(bins[0].LowerBound);
+                //for (int k = 0; k < D; k++)
+                //{
+                //    zp[k] = Distributions[k].CCDF(bins[0].LowerBound);
+                //    zl[k] = Distributions[k].CCDF(bins[0].LowerBound);
+                //    zu[k] = Distributions[k].CCDF(bins[0].UpperBound);
+                //}
+                //var cp = new double[D];
+                //var Sc = Probability.JointProbabilityPCM(zp, ind, mvn, cp);
+                //var Sn = cp[D - 1];
+                //var Su = Probability.JointProbabilityPCM(zu, ind, mvn, cp);
+                //var Snu = cp[D - 1];
+                //var Sl = Probability.JointProbabilityPCM(zl, ind, mvn, cp);
+                //var Snl = cp[D - 1];
+                //var df = Snl / Sn * Sc;
+                //p.Add(df);
+
+
+                //for (int j = 0; j < bins.Count; j++)
+                //{
+                //    x.Add(bins[j].UpperBound);
+                //    for (int k = 0; k < D; k++)
+                //    {
+                //        zp[k] = Distributions[k].CCDF(bins[j].Midpoint);
+                //        zl[k] = Distributions[k].CCDF(bins[j].LowerBound);
+                //        zu[k] = Distributions[k].CCDF(bins[j].UpperBound);
+                //    }
+                //    cp = new double[D];
+                //    Sc = Probability.JointProbabilityPCM(zp, ind, mvn, cp);
+                //    Sn = cp[D - 1];
+                //    Su = Probability.JointProbabilityPCM(zu, ind, mvn, cp);
+                //    Snu = cp[D - 1];
+                //    Sl = Probability.JointProbabilityPCM(zl, ind, mvn, cp);
+                //    Snl = cp[D - 1];
+                //    df = (Snl - Snu) / Sn * Sc;
+                //    p.Add(p.Last() + df);
+                //}
+                //CIFs.Add(new EmpiricalDistribution(x, p));
+
+
+
+
+
+
+                /////// Genz Method that works! Do not delete //////
+                var x = new List<double>();
+                var p = new List<double>();
+                x.Add(bins[0].LowerBound);
+                for (int k = 0; k < D; k++)
+                {
+                    lower[k] = k == i ? Normal.StandardZ(1E-16) : Normal.StandardZ(Distributions[k].CDF(bins[0].LowerBound));
+                    upper[k] = k == i ? Normal.StandardZ(Distributions[i].CDF(bins[0].LowerBound)) : Normal.StandardZ(1 - 1E-16);
+                }
+                p.Add(multivariateNormal.Interval(lower, upper));
+
+                for (int j = 0; j < bins.Count; j++)
+                {
+                    x.Add(bins[j].UpperBound);
+                    for (int k = 0; k < D; k++)
+                    {
+                        lower[k] = k == i ? Normal.StandardZ(Distributions[i].CDF(bins[j].LowerBound)) : Normal.StandardZ(Distributions[k].CDF(bins[j].Midpoint));
+                        upper[k] = k == i ? Normal.StandardZ(Distributions[i].CDF(bins[j].UpperBound)) : Normal.StandardZ(1 - 1E-16);
+                    }
+                    p.Add(p.Last() + multivariateNormal.Interval(lower, upper));
+                }
+                CIFs.Add(new EmpiricalDistribution(x, p));
+            }
+
+            return CIFs;
+        }
+
+        
         /// <summary>
         /// Create empirical distribution for the inverse CDF.
         /// </summary>

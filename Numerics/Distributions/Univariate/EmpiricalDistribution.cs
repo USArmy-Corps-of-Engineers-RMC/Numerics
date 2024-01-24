@@ -161,7 +161,7 @@ namespace Numerics.Distributions
         /// <summary>
         /// Determines the interpolation transform for the Probability-values.
         /// </summary>
-        public Transform ProbabilityTransform { get; set; } = Transform.None;
+        public Transform ProbabilityTransform { get; set; } = Transform.NormalZ;
 
         /// <summary>
         /// Returns the number of distribution parameters.
