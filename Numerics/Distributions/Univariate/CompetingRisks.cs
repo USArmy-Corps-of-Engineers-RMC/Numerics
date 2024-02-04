@@ -585,7 +585,7 @@ namespace Numerics.Distributions
         /// <summary>
         /// Returns a list of cumulative incidence functions. 
         /// </summary>
-        /// <param name="bins">Optional. The stratificaton bins to integrate over. Default is 200 bins.</param>
+        /// <param name="bins">Optional. The stratification bins to integrate over. Default is 200 bins.</param>
         public List<EmpiricalDistribution> CumulativeIncidenceFunctions(List<StratificationBin> bins = null)
         {
             // Get stratification bins
@@ -664,7 +664,7 @@ namespace Numerics.Distributions
         /// Returns a list of cumulative incidence functions. 
         /// </summary>
         /// <param name="multivariateNormal">The multivariate normal distribution used for dependency.</param>
-        /// <param name="bins">Optional. The stratificaton bins to integrate over. Default is 200 bins.</param>
+        /// <param name="bins">Optional. The stratification bins to integrate over. Default is 200 bins.</param>
         public List<EmpiricalDistribution> CumulativeIncidenceFunctions(MultivariateNormal multivariateNormal, List<StratificationBin> bins = null)
         {
             var D = Distributions.Count();

@@ -434,8 +434,10 @@ namespace Numerics.Data.Statistics
                     // Check convergence and early exit
                     // The tolerance is that each inclusion-exclusion step have less than 
                     // 1E-8 difference between them.
-                    if (j > 0 && Math.Abs(inc - exc) <= tolerance)
-                        return result;
+                    double diff = Math.Abs(inc - exc);
+                    double tol = tolerance * Math.Min(inc, exc);
+                    if (j > 0 && diff <= tolerance)
+                        return result + 0.5 * diff;
                     
                     s *= -1;
                     j++;
@@ -1424,6 +1426,21 @@ namespace Numerics.Data.Statistics
             double numerator = UnionPCM(probabilities, multivariateNormal);
             double denominator = Tools.Sum(probabilities);
             if (denominator == 0) return 1d;
+            return numerator / denominator;
+        }
+
+        /// <summary>
+        /// Returns the mutually exclusive adjustment factor.
+        /// </summary>
+        /// <param name="probabilities">List of probabilities.</param>
+        public static double MutuallyExclusiveAdjustment(IList<double> probabilities)
+        {
+            if (probabilities.Count == 1) return 1d;
+            double numerator = 1d;
+            double denominator = 0d;
+            for (int i = 0; i < probabilities.Count; i++)
+                denominator += probabilities[i];
+            if (denominator <= 1) return 1d;
             return numerator / denominator;
         }
 
