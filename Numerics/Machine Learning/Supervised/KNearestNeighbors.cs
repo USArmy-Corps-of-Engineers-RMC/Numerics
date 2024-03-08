@@ -25,7 +25,7 @@ namespace Numerics.MachineLearning
     public class KNearestNeighbors
     {
 
-        #region Contruction
+        #region Construction
 
         /// <summary>
         /// Create new k-NN method.

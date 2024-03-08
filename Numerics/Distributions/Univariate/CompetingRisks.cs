@@ -586,7 +586,7 @@ namespace Numerics.Distributions
         /// Returns a list of cumulative incidence functions. 
         /// </summary>
         /// <param name="bins">Optional. The stratification bins to integrate over. Default is 200 bins.</param>
-        public List<EmpiricalDistribution> CumulativeIncidenceFunctions(List<StratificationBin> bins = null)
+        public List<EmpiricalDistribution> CumulativeIncidenceFunctions(List<StratificationBin> bins = null, double[,] correlationMatrix = null)
         {
             // Get stratification bins
             if (bins == null)
@@ -602,50 +602,25 @@ namespace Numerics.Distributions
             var mu = new double[D];
             var sigma = new double[D, D];
 
-            if (Dependency == Probability.DependencyType.Independent)
-            {
-                var CIFs = new List<EmpiricalDistribution>();
-                for (int i = 0; i < D; i++)
-                {
-                    var x = new double[bins.Count + 1];
-                    var dF = new double[bins.Count + 1];
-                    var p = new double[bins.Count + 1];
-
-                    x[0] = bins[0].LowerBound;
-                    double product = Distributions[i].CDF(bins[0].LowerBound);
-                    for (int k = 0; k < D; k++)
-                        product *= k == i ? 1 : Distributions[k].CCDF(bins[0].LowerBound);
-                    dF[0] = product;
-                    p[0] = product;
-
-                    Parallel.For(0, bins.Count, (j) =>
-                    {
-                        x[j + 1] = bins[j].UpperBound;
-                        double product = Distributions[i].CDF(bins[j].UpperBound) - Distributions[i].CDF(bins[j].LowerBound);
-                        for (int k = 0; k < D; k++)
-                            product *= k == i ? 1 : Distributions[k].CCDF(bins[j].Midpoint);
-                        dF[j + 1] = product;
-                    });
-
-                    // Get cumulative 
-                    for (int j = 1; j <= bins.Count; j++)
-                        p[j] = p[j - 1] + dF[j];
-                    
-                    CIFs.Add(new EmpiricalDistribution(x, p));
-                }
-                return CIFs;
-
-            }
-            if (Dependency == Probability.DependencyType.PerfectlyPositive)
-            {
-                double rho = 1d - Math.Sqrt(Tools.DoubleMachineEpsilon);
-                for (int i = 0; i < D; i++)
-                {
-                    mu[i] = 0d;
-                    for (int j = 0; j < D; j++)
-                        sigma[i, j] = i == j ? 1d : rho;
-                }
-            }
+            //if (Dependency == Probability.DependencyType.Independent)
+            //{
+            //    for (int i = 0; i < D; i++)
+            //    {
+            //        mu[i] = 0d;
+            //        for (int j = 0; j < D; j++)
+            //            sigma[i, j] = i == j ? 1d : 0d;
+            //    }
+            //}
+            //if (Dependency == Probability.DependencyType.PerfectlyPositive)
+            //{
+            //    double rho = 1d - Math.Sqrt(Tools.DoubleMachineEpsilon);
+            //    for (int i = 0; i < D; i++)
+            //    {
+            //        mu[i] = 0d;
+            //        for (int j = 0; j < D; j++)
+            //            sigma[i, j] = i == j ? 1d : rho;
+            //    }
+            //}
             if (Dependency == Probability.DependencyType.PerfectlyNegative)
             {
                 double rho = -1d / (D - 1d) + Math.Sqrt(Tools.DoubleMachineEpsilon);
@@ -656,8 +631,125 @@ namespace Numerics.Distributions
                         sigma[i, j] = i == j ? 1d : rho;
                 }
             }
-            var mvn = new MultivariateNormal(mu, sigma);
-            return CumulativeIncidenceFunctions(mvn, bins);
+            else if (correlationMatrix != null)
+            {
+                for (int i = 0; i < D; i++)
+                {
+                    mu[i] = 0d;
+                    for (int j = 0; j < D; j++)
+                        sigma[i, j] = correlationMatrix[i, j];
+                }
+            }
+
+
+            // *** Haden PCM Method ( 2-16-2024) *** //
+            double SF1 = 0, SF2 = 0;
+            var pm = new double[D];
+            var pl = new double[D];
+            var pu = new double[D];
+            var ind = new int[D];
+            ind.Fill(1);
+            var x = new List<double[]>();
+            var p = new List<double[]>();
+            var dF = new List<double[]>();
+
+            for (int i = 0; i < D; i++)
+            {
+                x.Add(new double[bins.Count + 1]);
+                p.Add(new double[bins.Count + 1]);
+                dF.Add(new double[bins.Count + 1]);
+
+                // Record first bin
+                x[i][0] = bins[0].LowerBound;
+                for (int k = 0; k < D; k++)
+                {
+                    pm[k] = Distributions[k].CCDF(bins[0].Midpoint);
+                    pu[k] = k == i ? Distributions[k].CCDF(bins[0].LowerBound) : pm[k];
+                }
+                if (Dependency == Probability.DependencyType.Independent || Dependency == Probability.DependencyType.PerfectlyPositive)
+                {
+                    dF[i][0] = 1 - Probability.JointProbability(pu, Dependency);
+                }
+                else if (Dependency == Probability.DependencyType.PerfectlyNegative || correlationMatrix != null)
+                {
+                    dF[i][0] = 1 - Probability.JointProbabilityHPCM(pu, ind, sigma);
+                }
+                if (double.IsNaN(dF[i][0])) dF[i][0] = 0;
+                dF[i][0] = Math.Max(0, Math.Min(1, dF[i][0]));
+                p[i][0] = dF[i][0];
+
+                // Record remaining bins
+                for (int j = 0; j < bins.Count; j++)
+                {
+                    x[i][j + 1] = bins[j].UpperBound;
+                    for (int k = 0; k < D; k++)
+                    {
+                        pm[k] = Distributions[k].CCDF(bins[j].Midpoint);
+                        pl[k] = k == i ? Distributions[k].CCDF(bins[j].UpperBound) : pm[k];
+                        pu[k] = k == i ? Distributions[k].CCDF(bins[j].LowerBound) : pm[k];
+                    }
+                    if (Dependency == Probability.DependencyType.Independent || Dependency == Probability.DependencyType.PerfectlyPositive)
+                    {
+                        SF1 = Probability.JointProbability(pl, Dependency);
+                        SF2 = Probability.JointProbability(pu, Dependency);
+                    }
+                    else if (Dependency == Probability.DependencyType.PerfectlyNegative || correlationMatrix != null)
+                    {
+                        SF1 = Probability.JointProbabilityHPCM(pl, ind, sigma);
+                        SF2 = Probability.JointProbabilityHPCM(pu, ind, sigma);
+                    }
+
+                    dF[i][j + 1] = SF2 - SF1;
+                    if (double.IsNaN(dF[i][j + 1])) dF[i][j + 1] = 0;
+                    dF[i][j + 1] = Math.Max(0, Math.Min(1, dF[i][j + 1]));
+                }
+
+            }
+
+            // Get cumulative probabilities and make sure they sum <= 1 across D
+            bool fixDF = false;
+            var sum = new double[bins.Count + 1];
+            for (int j = 1; j <= bins.Count; j++)
+            {
+                for (int i = 0; i < D; i++)
+                {
+                    sum[j] += p[i][j - 1] + dF[i][j];
+                    p[i][j] = Math.Max(0, Math.Min(1, p[i][j - 1] + dF[i][j]));
+                }
+                if (sum[j] > 1 && sum[j] != sum[j - 1] && fixDF == false)
+                {
+                    double s = 0;
+                    for (int i = 0; i < D; i++)
+                    {
+                        dF[i][j] *= (1 - sum[j - 1]) / (sum[j] - sum[j - 1]);
+                        s += p[i][j - 1] + dF[i][j];
+
+                        p[i][j] = Math.Max(0, Math.Min(1, p[i][j - 1] + dF[i][j]));
+                    }
+                    sum[j] = s;
+                    fixDF = true;
+                }
+                else if (fixDF == true)
+                {
+                    for (int i = 0; i < D; i++)
+                    {
+                        dF[i][j] = 0;
+                        p[i][j] = Math.Max(0, Math.Min(1, p[i][j - 1] + dF[i][j]));
+                    }
+                }
+            }
+
+            // Return CIFs
+            var CIFs = new List<EmpiricalDistribution>();
+            for (int i = 0; i < D; i++)
+                CIFs.Add(new EmpiricalDistribution(x[i], p[i]));
+
+
+            return CIFs;
+
+
+            //var mvn = new MultivariateNormal(mu, sigma);
+            //return CumulativeIncidenceFunctions(mvn, bins);
         }
 
         /// <summary>
@@ -681,107 +773,168 @@ namespace Numerics.Distributions
                 bins = Stratify.XValues(new StratificationOptions(minX, maxX, 200, false), XTransform == Transform.Logarithmic ? true : false);
             }
 
-            var lower = new double[D];
-            var upper = new double[D];
-            var CIFs = new List<EmpiricalDistribution>();
+            // *** Haden PCM Method ( 2-16-2024) *** //
+            var corrMat = multivariateNormal.Covariance;
+            double SF1, SF2;
+            var pm = new double[D];
+            var pl = new double[D];
+            var pu = new double[D];
+            var ind = new int[D];
+            ind.Fill(1);
+            var x = new List<double[]>();
+            var p = new List<double[]>();
+            var dF = new List<double[]>();
 
-            //var trueCorr = multivariateNormal.Covariance;
 
             for (int i = 0; i < D; i++)
             {
+                x.Add(new double[bins.Count + 1]);
+                p.Add(new double[bins.Count + 1]);
+                dF.Add(new double[bins.Count + 1]);
 
-                //// Reorder the Correlation matrix
-                //var newCorr = new double[D,D];
-                //Array.Copy(trueCorr, newCorr, trueCorr.Length);
-                //if (D > 2)
-                //{
-                //    newCorr.SetRow(i, trueCorr.GetRow(D - 1));
-                //    newCorr.SetColumn(i, trueCorr.GetColumn(D - 1));
-                //    newCorr.SetRow(D - 1, trueCorr.GetRow(i));
-                //    newCorr.SetColumn(D - 1, trueCorr.GetColumn(i));
-                //}
-                //var mvn = new MultivariateNormal(multivariateNormal.Mean, newCorr);
-
-                //// Reorder distributions
-                //var dists = Distributions.ToList();
-                //dists[i] = Distributions[D-1];
-                //dists[D - 1] = Distributions[i];
-
-                //var zp = new double[D];
-                //var zl = new double[D];
-                //var zu = new double[D];
-                //var ind = new int[D];
-
-                //var x = new List<double>();
-                //var p = new List<double>();
-
-                //x.Add(bins[0].LowerBound);
-                //for (int k = 0; k < D; k++)
-                //{
-                //    zp[k] = Distributions[k].CCDF(bins[0].LowerBound);
-                //    zl[k] = Distributions[k].CCDF(bins[0].LowerBound);
-                //    zu[k] = Distributions[k].CCDF(bins[0].UpperBound);
-                //}
-                //var cp = new double[D];
-                //var Sc = Probability.JointProbabilityPCM(zp, ind, mvn, cp);
-                //var Sn = cp[D - 1];
-                //var Su = Probability.JointProbabilityPCM(zu, ind, mvn, cp);
-                //var Snu = cp[D - 1];
-                //var Sl = Probability.JointProbabilityPCM(zl, ind, mvn, cp);
-                //var Snl = cp[D - 1];
-                //var df = Snl / Sn * Sc;
-                //p.Add(df);
-
-
-                //for (int j = 0; j < bins.Count; j++)
-                //{
-                //    x.Add(bins[j].UpperBound);
-                //    for (int k = 0; k < D; k++)
-                //    {
-                //        zp[k] = Distributions[k].CCDF(bins[j].Midpoint);
-                //        zl[k] = Distributions[k].CCDF(bins[j].LowerBound);
-                //        zu[k] = Distributions[k].CCDF(bins[j].UpperBound);
-                //    }
-                //    cp = new double[D];
-                //    Sc = Probability.JointProbabilityPCM(zp, ind, mvn, cp);
-                //    Sn = cp[D - 1];
-                //    Su = Probability.JointProbabilityPCM(zu, ind, mvn, cp);
-                //    Snu = cp[D - 1];
-                //    Sl = Probability.JointProbabilityPCM(zl, ind, mvn, cp);
-                //    Snl = cp[D - 1];
-                //    df = (Snl - Snu) / Sn * Sc;
-                //    p.Add(p.Last() + df);
-                //}
-                //CIFs.Add(new EmpiricalDistribution(x, p));
-
-
-
-
-
-
-                /////// Genz Method that works! Do not delete //////
-                var x = new List<double>();
-                var p = new List<double>();
-                x.Add(bins[0].LowerBound);
+                // Record first bin
+                x[i][0] = bins[0].LowerBound;
                 for (int k = 0; k < D; k++)
                 {
-                    lower[k] = k == i ? Normal.StandardZ(1E-16) : Normal.StandardZ(Distributions[k].CDF(bins[0].LowerBound));
-                    upper[k] = k == i ? Normal.StandardZ(Distributions[i].CDF(bins[0].LowerBound)) : Normal.StandardZ(1 - 1E-16);
+                    pm[k] = Distributions[k].CCDF(bins[0].Midpoint);
+                    pu[k] = k == i ? Distributions[k].CCDF(bins[0].LowerBound) : pm[k];
                 }
-                p.Add(multivariateNormal.Interval(lower, upper));
+                dF[i][0] = 1 - Probability.JointProbabilityHPCM(pu, ind, corrMat);
+                if (double.IsNaN(dF[i][0])) dF[i][0] = 0;
+                dF[i][0] = Math.Max(0, Math.Min(1, dF[i][0]));
+                p[i][0] = dF[i][0];
 
+                // Record remaining bins
                 for (int j = 0; j < bins.Count; j++)
                 {
-                    x.Add(bins[j].UpperBound);
+                    x[i][j + 1] = bins[j].UpperBound;
                     for (int k = 0; k < D; k++)
                     {
-                        lower[k] = k == i ? Normal.StandardZ(Distributions[i].CDF(bins[j].LowerBound)) : Normal.StandardZ(Distributions[k].CDF(bins[j].Midpoint));
-                        upper[k] = k == i ? Normal.StandardZ(Distributions[i].CDF(bins[j].UpperBound)) : Normal.StandardZ(1 - 1E-16);
+                        pm[k] = Distributions[k].CCDF(bins[j].Midpoint);
+                        pl[k] = k == i ? Distributions[k].CCDF(bins[j].UpperBound) : pm[k];
+                        pu[k] = k == i ? Distributions[k].CCDF(bins[j].LowerBound) : pm[k];
                     }
-                    p.Add(p.Last() + multivariateNormal.Interval(lower, upper));
+                    SF1 = Probability.JointProbabilityHPCM(pl, ind, corrMat);
+                    SF2 = Probability.JointProbabilityHPCM(pu, ind, corrMat);
+                    dF[i][j + 1] = SF2 - SF1;
+                    if (double.IsNaN(dF[i][j + 1])) dF[i][j + 1] = 0;
+                    dF[i][j + 1] = Math.Max(0, Math.Min(1, dF[i][j + 1]));
                 }
-                CIFs.Add(new EmpiricalDistribution(x, p));
+
             }
+
+            // Get cumulative probabilities and make sure they sum <= 1 across D
+            bool fixDF = false;
+            var sum = new double[bins.Count + 1];
+            for (int j = 1; j <= bins.Count; j++)
+            {
+                for (int i = 0; i < D; i++)
+                {
+                    sum[j] += p[i][j - 1] + dF[i][j];
+                    p[i][j] = Math.Max(0, Math.Min(1, p[i][j - 1] + dF[i][j]));
+                }
+                if (sum[j] > 1 && sum[j] != sum[j - 1] && fixDF == false)
+                {
+                    double s = 0;
+                    for (int i = 0; i < D; i++)
+                    {
+                        dF[i][j] *= (1 - sum[j - 1]) / (sum[j] - sum[j - 1]);
+                        s += p[i][j - 1] + dF[i][j];
+
+                        p[i][j] = Math.Max(0, Math.Min(1, p[i][j - 1] + dF[i][j]));
+                    }
+                    sum[j] = s;
+                    fixDF = true;
+                }
+                else if (fixDF == true)
+                {
+                    for (int i = 0; i < D; i++)
+                    {
+                        dF[i][j] = 0;
+                        p[i][j] = Math.Max(0, Math.Min(1, p[i][j - 1] + dF[i][j]));
+                    }
+                }
+            }
+
+            // Return CIFs
+            var CIFs = new List<EmpiricalDistribution>();
+            for (int i = 0; i < D; i++)
+                CIFs.Add(new EmpiricalDistribution(x[i], p[i]));
+
+
+
+
+
+
+            //// Add the first bin
+            //for (int i = 0; i < D; i++)
+            //{
+            //    // Create CIFs
+            //    //var x = new List<double>();
+            //    //var p = new List<double>();
+            //    //x.Add(bins[0].LowerBound);
+
+            //    //for (int k = 0; k < D; k++)
+            //    //{
+            //    //    pm[k] = Distributions[k].CCDF(bins[0].LowerBound);
+            //    //    pu[k] = k == i ? Distributions[k].CCDF(bins[0].LowerBound) : pm[k];
+            //    //}
+            //    //cifi = 1 - Probability.JointProbabilityHPCM(pu, ind, corrMat);
+            //    //if (double.IsNaN(cifi)) cifi = 0;
+            //    //cifi = Math.Max(0, Math.Min(1, cifi));
+            //    //p.Add(cifi);
+
+
+
+            //    for (int j = 0; j < bins.Count; j++)
+            //    {
+            //        x.Add(bins[j].UpperBound);
+
+            //        for (int k = 0; k < D; k++)
+            //        {
+            //            pm[k] = Distributions[k].CCDF(bins[j].Midpoint);
+            //            pl[k] = k == i ? Distributions[k].CCDF(bins[j].UpperBound) : pm[k];
+            //            pu[k] = k == i ? Distributions[k].CCDF(bins[j].LowerBound) : pm[k];
+            //        }
+
+            //        SF1 = Probability.JointProbabilityHPCM(pl, ind, corrMat);
+            //        SF2 = Probability.JointProbabilityHPCM(pu, ind, corrMat);
+            //        cifi = SF2 - SF1;
+            //        if (double.IsNaN(cifi)) cifi = 0;
+            //        cifi = Math.Max(0, cifi);
+            //        cifi = Math.Max(0, Math.Min(1, p.Last() + cifi));
+            //        p.Add(cifi);
+            //    }
+            //    CIFs.Add(new EmpiricalDistribution(x, p));
+            //}
+
+            //// *** Genz Method that works as well. Do not delete *** //
+            //var lower = new double[D];
+            //var upper = new double[D];
+            //for (int i = 0; i < D; i++)
+            //{
+            //    var x = new List<double>();
+            //    var p = new List<double>();
+            //    x.Add(bins[0].LowerBound);
+            //    for (int k = 0; k < D; k++)
+            //    {
+            //        lower[k] = k == i ? Normal.StandardZ(1E-16) : Normal.StandardZ(Distributions[k].CDF(bins[0].LowerBound));
+            //        upper[k] = k == i ? Normal.StandardZ(Distributions[i].CDF(bins[0].LowerBound)) : Normal.StandardZ(1 - 1E-16);
+            //    }
+            //    p.Add(multivariateNormal.Interval(lower, upper));
+
+            //    for (int j = 0; j < bins.Count; j++)
+            //    {
+            //        x.Add(bins[j].UpperBound);
+            //        for (int k = 0; k < D; k++)
+            //        {
+            //            lower[k] = k == i ? Normal.StandardZ(Distributions[i].CDF(bins[j].LowerBound)) : Normal.StandardZ(Distributions[k].CDF(bins[j].Midpoint));
+            //            upper[k] = k == i ? Normal.StandardZ(Distributions[i].CDF(bins[j].UpperBound)) : Normal.StandardZ(1 - 1E-16);
+            //        }
+            //        p.Add(p.Last() + multivariateNormal.Interval(lower, upper));
+            //    }
+            //    CIFs.Add(new EmpiricalDistribution(x, p));
+            //}
 
             return CIFs;
         }

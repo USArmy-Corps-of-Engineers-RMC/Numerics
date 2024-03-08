@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Numerics.Distributions;
 
@@ -42,6 +43,16 @@ namespace Distributions.Univariate
             Assert.AreEqual(p, 0.868731, 1E-5);
             Assert.AreEqual(q, 4.5, 1E-5);
 
+
+            var KDE = new PearsonTypeIII(-2.372978, 0.338314, -1.5);
+            var graph = KDE.CreatePDFGraph();
+            for (int i = 0; i < graph.GetLength(0); i++)
+            {
+                Debug.Print(graph[ i, 0] + ", " + graph[i, 1]);
+            }
+
+
+            var cdf = KDE.CDF(-2);
         }
     }
 }
