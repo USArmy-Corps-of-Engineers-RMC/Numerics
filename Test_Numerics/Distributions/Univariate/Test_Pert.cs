@@ -67,5 +67,27 @@ namespace Distributions.Univariate
                 Assert.AreEqual(x[i], pert.InverseCDF(p[i]), 1E-7);
             }
         }
+
+        [TestMethod]
+        public void Test_Pert_MOM()
+        {
+            var dist = new Pert(-2, 10, 35);
+            var sample = dist.GenerateRandomValues(12345, 1000);
+            dist.Estimate(sample, ParameterEstimationMethod.MethodOfMoments);
+            Assert.AreEqual(-2, dist.Min, 1);
+            Assert.AreEqual(10, dist.MostLikely, 1);
+            Assert.AreEqual(35, dist.Max, 5);
+        }
+
+        [TestMethod]
+        public void Test_Pert_MLE()
+        {
+            var dist = new Pert(-2, 10, 35);
+            var sample = dist.GenerateRandomValues(12345, 1000);
+            dist.Estimate(sample, ParameterEstimationMethod.MaximumLikelihood);
+            Assert.AreEqual(-2, dist.Min, 1);
+            Assert.AreEqual(10, dist.MostLikely, 1);
+            Assert.AreEqual(35, dist.Max, 1);
+        }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Numerics.Data.Statistics;
+using Numerics.Mathematics.Optimization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -30,7 +31,7 @@ namespace Numerics.Distributions
     /// </para>
     /// </remarks>
     [Serializable]
-    public class Pert : UnivariateDistributionBase, IEstimation
+    public class Pert : UnivariateDistributionBase, IEstimation, IMaximumLikelihoodEstimation, IBootstrappable
     {
 
         /// <summary>
@@ -279,6 +280,39 @@ namespace Numerics.Distributions
                 var pert = pertP.ToPert();
                 SetParameters(pert.Min, pert.Mode, pert.Max);
             }
+            else if (estimationMethod == ParameterEstimationMethod.MethodOfMoments)
+            {
+                var min = Tools.Min(sample);
+                var max = Tools.Max(sample);
+                var mean = Tools.Mean(sample);
+                var mode = (mean * 6d - max - min) / 4d;
+                mode = Math.Max(min, mode);
+                mode = Math.Min(max, mode);
+                SetParameters(min, mode, max);
+            }
+            else if (estimationMethod == ParameterEstimationMethod.MaximumLikelihood)
+            {
+                SetParameters(MLE(sample));
+            }
+        }
+
+        /// <summary>
+        /// Bootstrap the distribution based on a sample size and parameter estimation method.
+        /// </summary>
+        /// <param name="estimationMethod">The parameter estimation method.</param>
+        /// <param name="sampleSize">Size of the random sample to generate.</param>
+        /// <param name="seed">Optional. Seed for random number generator. Default = 12345.</param>
+        /// <returns>
+        /// Returns a bootstrapped distribution.
+        /// </returns>
+        public IUnivariateDistribution Bootstrap(ParameterEstimationMethod estimationMethod, int sampleSize, int seed = 12345)
+        {
+            var newDistribution = (Pert)Clone();
+            var sample = newDistribution.GenerateRandomValues(seed, sampleSize);
+            newDistribution.Estimate(sample, estimationMethod);
+            if (newDistribution.ParametersValid == false)
+                throw new Exception("Bootstrapped distribution parameters are invalid.");
+            return newDistribution;
         }
 
         /// <summary>
@@ -340,6 +374,62 @@ namespace Numerics.Distributions
         public override ArgumentOutOfRangeException ValidateParameters(IList<double> parameters, bool throwException)
         {
             return ValidateParameters(parameters[0], parameters[1], parameters[2], throwException);
+        }
+
+        /// <summary>
+        /// Get the initial, lower, and upper values for the distribution parameters for constrained optimization.
+        /// </summary>
+        /// <param name="sample">The array of sample data.</param>
+        /// <returns>Returns a Tuple of initial, lower, and upper values.</returns>
+        public Tuple<double[], double[], double[]> GetParameterConstraints(IList<double> sample)
+        {
+            var initialVals = new double[NumberOfParameters];
+            var lowerVals = new double[NumberOfParameters];
+            var upperVals = new double[NumberOfParameters];
+            // Estimate initial values using the method of moments (a.k.a product moments).
+            var min = Tools.Min(sample);
+            var max = Tools.Max(sample);
+            var mean = Tools.Mean(sample);
+            var mode = (mean * 6d - max - min) / 4d;
+            initialVals[0] = min - Tools.DoubleMachineEpsilon;
+            initialVals[1] = mode;
+            initialVals[2] = max + Tools.DoubleMachineEpsilon;
+            // Get bounds of min
+            lowerVals[0] = -Math.Pow(10d, Math.Ceiling(Math.Log10(Math.Abs(min)) + 1d));
+            upperVals[0] = min;
+            // Get bounds of mode
+            lowerVals[1] = min;
+            upperVals[1] = max;
+            // Get bounds of max
+            lowerVals[2] = max;
+            upperVals[2] = Math.Pow(10d, Math.Ceiling(Math.Log10(Math.Abs(max)) + 1d));
+
+            return new Tuple<double[], double[], double[]>(initialVals, lowerVals, upperVals);
+        }
+
+        /// <summary>
+        /// Estimate the distribution parameters using the method of maximum likelihood estimation.
+        /// </summary>
+        /// <param name="sample">The array of sample data.</param>
+        public double[] MLE(IList<double> sample)
+        {
+            // Set constraints
+            var tuple = GetParameterConstraints(sample);
+            var Initials = tuple.Item1;
+            var Lowers = tuple.Item2;
+            var Uppers = tuple.Item3;
+
+            // Solve using Nelder-Mead (Downhill Simplex)
+            double logLH(double[] x)
+            {
+                var N = new Pert();
+                N.SetParameters(x);
+                return N.LogLikelihood(sample);
+            }
+            var solver = new NelderMead(logLH, NumberOfParameters, Initials, Lowers, Uppers);
+            solver.ReportFailure = true;
+            solver.Maximize();
+            return solver.BestParameterSet.Values;
         }
 
         /// <summary>

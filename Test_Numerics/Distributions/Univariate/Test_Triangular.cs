@@ -54,5 +54,27 @@ namespace Distributions.Univariate
                 Assert.AreEqual(x[i], tri.InverseCDF(p[i]), 1E-7);
             }
         }
+
+        [TestMethod]
+        public void Test_Triangular_MOM()
+        {
+            var dist = new Triangular(-2, 10, 35);
+            var sample = dist.GenerateRandomValues(12345, 1000);
+            dist.Estimate(sample, ParameterEstimationMethod.MethodOfMoments);
+            Assert.AreEqual(-2, dist.Min, 1);
+            Assert.AreEqual(10, dist.MostLikely, 1);
+            Assert.AreEqual(35, dist.Max, 1);
+        }
+
+        [TestMethod]
+        public void Test_Triangular_MLE()
+        {
+            var dist = new Triangular(-2, 10, 35);
+            var sample = dist.GenerateRandomValues(12345, 1000);
+            dist.Estimate(sample, ParameterEstimationMethod.MaximumLikelihood);
+            Assert.AreEqual(-2, dist.Min, 1);
+            Assert.AreEqual(10, dist.MostLikely, 1);
+            Assert.AreEqual(35, dist.Max, 1);
+        }
     }
 }
