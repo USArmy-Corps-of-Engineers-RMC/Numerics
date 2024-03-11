@@ -601,26 +601,6 @@ namespace Numerics.Distributions
             var D = Distributions.Count();
             var mu = new double[D];
             var sigma = new double[D, D];
-
-            //if (Dependency == Probability.DependencyType.Independent)
-            //{
-            //    for (int i = 0; i < D; i++)
-            //    {
-            //        mu[i] = 0d;
-            //        for (int j = 0; j < D; j++)
-            //            sigma[i, j] = i == j ? 1d : 0d;
-            //    }
-            //}
-            //if (Dependency == Probability.DependencyType.PerfectlyPositive)
-            //{
-            //    double rho = 1d - Math.Sqrt(Tools.DoubleMachineEpsilon);
-            //    for (int i = 0; i < D; i++)
-            //    {
-            //        mu[i] = 0d;
-            //        for (int j = 0; j < D; j++)
-            //            sigma[i, j] = i == j ? 1d : rho;
-            //    }
-            //}
             if (Dependency == Probability.DependencyType.PerfectlyNegative)
             {
                 double rho = -1d / (D - 1d) + Math.Sqrt(Tools.DoubleMachineEpsilon);
@@ -640,7 +620,6 @@ namespace Numerics.Distributions
                         sigma[i, j] = correlationMatrix[i, j];
                 }
             }
-
 
             // *** Haden PCM Method ( 2-16-2024) *** //
             double SF1 = 0, SF2 = 0;
@@ -664,15 +643,15 @@ namespace Numerics.Distributions
                 for (int k = 0; k < D; k++)
                 {
                     pm[k] = Distributions[k].CCDF(bins[0].Midpoint);
-                    pu[k] = k == i ? Distributions[k].CCDF(bins[0].LowerBound) : pm[k];
+                    pu[k] = k == i ? Distributions[k].CDF(bins[0].LowerBound) : pm[k];
                 }
                 if (Dependency == Probability.DependencyType.Independent || Dependency == Probability.DependencyType.PerfectlyPositive)
                 {
-                    dF[i][0] = 1 - Probability.JointProbability(pu, Dependency);
+                    dF[i][0] = Probability.JointProbability(pu, Dependency);
                 }
                 else if (Dependency == Probability.DependencyType.PerfectlyNegative || correlationMatrix != null)
                 {
-                    dF[i][0] = 1 - Probability.JointProbabilityHPCM(pu, ind, sigma);
+                    dF[i][0] = Probability.JointProbabilityHPCM(pu, ind, sigma);
                 }
                 if (double.IsNaN(dF[i][0])) dF[i][0] = 0;
                 dF[i][0] = Math.Max(0, Math.Min(1, dF[i][0]));
@@ -688,12 +667,12 @@ namespace Numerics.Distributions
                         pl[k] = k == i ? Distributions[k].CCDF(bins[j].UpperBound) : pm[k];
                         pu[k] = k == i ? Distributions[k].CCDF(bins[j].LowerBound) : pm[k];
                     }
-                    if (Dependency == Probability.DependencyType.Independent || Dependency == Probability.DependencyType.PerfectlyPositive)
+                    if (correlationMatrix == null && (Dependency == Probability.DependencyType.Independent || Dependency == Probability.DependencyType.PerfectlyPositive))
                     {
                         SF1 = Probability.JointProbability(pl, Dependency);
                         SF2 = Probability.JointProbability(pu, Dependency);
                     }
-                    else if (Dependency == Probability.DependencyType.PerfectlyNegative || correlationMatrix != null)
+                    else if (correlationMatrix != null || Dependency == Probability.DependencyType.PerfectlyNegative)
                     {
                         SF1 = Probability.JointProbabilityHPCM(pl, ind, sigma);
                         SF2 = Probability.JointProbabilityHPCM(pu, ind, sigma);
@@ -744,12 +723,8 @@ namespace Numerics.Distributions
             for (int i = 0; i < D; i++)
                 CIFs.Add(new EmpiricalDistribution(x[i], p[i]));
 
-
             return CIFs;
 
-
-            //var mvn = new MultivariateNormal(mu, sigma);
-            //return CumulativeIncidenceFunctions(mvn, bins);
         }
 
         /// <summary>
@@ -862,51 +837,6 @@ namespace Numerics.Distributions
                 CIFs.Add(new EmpiricalDistribution(x[i], p[i]));
 
 
-
-
-
-
-            //// Add the first bin
-            //for (int i = 0; i < D; i++)
-            //{
-            //    // Create CIFs
-            //    //var x = new List<double>();
-            //    //var p = new List<double>();
-            //    //x.Add(bins[0].LowerBound);
-
-            //    //for (int k = 0; k < D; k++)
-            //    //{
-            //    //    pm[k] = Distributions[k].CCDF(bins[0].LowerBound);
-            //    //    pu[k] = k == i ? Distributions[k].CCDF(bins[0].LowerBound) : pm[k];
-            //    //}
-            //    //cifi = 1 - Probability.JointProbabilityHPCM(pu, ind, corrMat);
-            //    //if (double.IsNaN(cifi)) cifi = 0;
-            //    //cifi = Math.Max(0, Math.Min(1, cifi));
-            //    //p.Add(cifi);
-
-
-
-            //    for (int j = 0; j < bins.Count; j++)
-            //    {
-            //        x.Add(bins[j].UpperBound);
-
-            //        for (int k = 0; k < D; k++)
-            //        {
-            //            pm[k] = Distributions[k].CCDF(bins[j].Midpoint);
-            //            pl[k] = k == i ? Distributions[k].CCDF(bins[j].UpperBound) : pm[k];
-            //            pu[k] = k == i ? Distributions[k].CCDF(bins[j].LowerBound) : pm[k];
-            //        }
-
-            //        SF1 = Probability.JointProbabilityHPCM(pl, ind, corrMat);
-            //        SF2 = Probability.JointProbabilityHPCM(pu, ind, corrMat);
-            //        cifi = SF2 - SF1;
-            //        if (double.IsNaN(cifi)) cifi = 0;
-            //        cifi = Math.Max(0, cifi);
-            //        cifi = Math.Max(0, Math.Min(1, p.Last() + cifi));
-            //        p.Add(cifi);
-            //    }
-            //    CIFs.Add(new EmpiricalDistribution(x, p));
-            //}
 
             //// *** Genz Method that works as well. Do not delete *** //
             //var lower = new double[D];

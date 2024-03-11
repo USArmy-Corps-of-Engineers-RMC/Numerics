@@ -26,7 +26,7 @@ namespace Data.Statistics
             var cdf5 = new Normal(160, 15);
 
             var cr = new CompetingRisks(new[] { cdf1, cdf2, cdf3, cdf4, cdf5 });
-            cr.Dependency = Probability.DependencyType.Independent;
+            cr.Dependency = Probability.DependencyType.PerfectlyPositive;
 
 
             var corr = new double[,] {{1, 0.03, 0.29, -0.04, 0.85},
@@ -37,7 +37,7 @@ namespace Data.Statistics
 
             var mvn = new MultivariateNormal(new double[] { 0, 0, 0, 0, 0 }, corr);
 
-            var cif = cr.CumulativeIncidenceFunctions(mvn);
+            var cif = cr.CumulativeIncidenceFunctions();
             for (int i = 0; i < cif[0].ProbabilityValues.Count; i++)
             {
                 Debug.Print(cif[0].XValues[i].ToString() + "," + cif[0].ProbabilityValues[i].ToString() + "," + cif[1].ProbabilityValues[i].ToString() + "," + cif[2].ProbabilityValues[i].ToString() + "," + cif[3].ProbabilityValues[i].ToString() + "," + cif[4].ProbabilityValues[i].ToString());
@@ -113,7 +113,7 @@ namespace Data.Statistics
             {
                 for (int j = 0; j < D; j++)
                 {
-                    corr2[i, j] = i == j ? 1 : 0.99;
+                    corr2[i, j] = i == j ? 1 : 1-Tools.DoubleMachineEpsilon;
                 }
             }
 
@@ -128,11 +128,11 @@ namespace Data.Statistics
                 Debug.Print(R[i, 0] + "," + R[i, 1] + "," + R[i, 2] + "," + R[i, 3] + "," + R[i, 4]);
             }
 
-            var mvn = new MultivariateNormal(new double[] { 0, 0, 0, 0, 0 }, corr2) { MVNUNI = new Random(12345), AbsoluteError = 1E-15, RelativeError = 1E-15, MaxEvaluations = 1000000000 };
+            var mvn = new MultivariateNormal(new double[] { 0, 0, 0, 0, 0 }, corr2) { MVNUNI = new Random(12345), AbsoluteError = 1E-8, RelativeError = 1E-8, MaxEvaluations = 1000000000 };
             //var mvn2 = new MultivariateNormal(new double[] { 0, 0, 0, 0 }, corr2) { MVNUNI = new Random(12345), AbsoluteError = 1E-15, RelativeError = 1E-15, MaxEvaluations = 1000000000 };
             var cpp = mvn.CDF(zin);// / mvn.CDF(zin));
 
-            int M = 100000000;
+            int M = 10000000;
             var z = mvn.GenerateRandomValues(M, 12345);
             var Iz = new double[M, D];
             var I = new double[D];
