@@ -8,7 +8,9 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Runtime.InteropServices.ComTypes;
 using System.Threading.Tasks;
+using System.Windows.Markup;
 using System.Xml.Linq;
 
 namespace Numerics.Data
@@ -567,6 +569,25 @@ namespace Numerics.Data
         }
 
         /// <summary>
+        /// Converts the time interval to hours.
+        /// </summary>
+        public static double TimeIntervalInHours(TimeInterval timeInterval)
+        {
+            if (timeInterval == TimeInterval.OneMinute) return 1d / 60d;
+            if (timeInterval == TimeInterval.FiveMinute) return 5d / 60d;
+            if (timeInterval == TimeInterval.FifteenMinute) return 15d / 60d;
+            if (timeInterval == TimeInterval.ThirtyMinute) return 30d / 60d;
+            if (timeInterval == TimeInterval.OneHour) return 1d;
+            if (timeInterval == TimeInterval.SixHour) return 6d;
+            if (timeInterval == TimeInterval.TwelveHour) return 12d;
+            if (timeInterval == TimeInterval.OneDay) return 24d;
+            if (timeInterval == TimeInterval.SevenDay) return 24d * 7d;
+            return double.NaN;
+        }
+
+
+
+        /// <summary>
         /// Determines if the minimum step between events has been exceeded. 
         /// </summary>
         /// <param name="startTime">Start time of the starting event.</param>
@@ -784,10 +805,74 @@ namespace Numerics.Data
         /// Convert the current time-series to a new time interval.
         /// </summary>
         /// <param name="timeInterval">The new time interval.</param>
-        public TimeSeries ConvertTimeInterval(TimeInterval timeInterval)
+        /// <param name="average">Determines if values should be average or cumulated for larger time steps.</param>
+        public TimeSeries ConvertTimeInterval(TimeInterval timeInterval, bool average = true)
         {
+            var TS = TimeSeries.TimeIntervalInHours(TimeInterval); // The time step in hours
+            var newTS = TimeSeries.TimeIntervalInHours(timeInterval); // The new time step in hours
+            int blockDuration = (int)Math.Floor(newTS / TS);
+            double N = EndDate.Subtract(StartDate).TotalHours / newTS + 1;
+
+            if (newTS == TS)
+            {
+                return Clone();
+            }
+            else if (newTS < TS && average == true)
+            {
+                // Create interpolater with existing data set.
+                double t = 0, value = 0;
+                var x = new double[Count];
+                var y = new double[Count];
+                for (int i = 0; i < Count; i++)
+                {
+                    x[i] = t;
+                    y[i] = this[i].Value;
+                    t += TS;
+                }
+                var linInt = new Linear(x, y);
+                //
+                // Now Interpolate values for a smaller time step
+                t = 0;
+                var timeSeries = new TimeSeries(timeInterval);
+                timeSeries.Add(new SeriesOrdinate<DateTime, double>(StartDate, this[0].Value));
+                for (int i = 1; i < N; i++)
+                {
+                    t += newTS;
+                    value = linInt.Interpolate(t);
+                    timeSeries.Add(new SeriesOrdinate<DateTime, double>(AddTimeInterval(timeSeries[i - 1].Index, timeInterval), value));
+                }
+                return timeSeries;   
+
+            }
+            else if (newTS > TS && average == true)
+            {
+                // Calculate block average
+                int t = 0;
+                var timeSeries = new TimeSeries(timeInterval);
+                for (int i = 0; i < N; i++)
+                {
+                    double avg = 0;
+                    for (int j = t; j < Math.Min(t + blockDuration, Count); j++)
+                        avg += this[j].Value;  
+                    avg /= Math.Min(t + blockDuration, Count) - t;
+                    t += blockDuration;
+                    timeSeries.Add(new SeriesOrdinate<DateTime, double>(i == 0 ? StartDate : AddTimeInterval(timeSeries[i - 1].Index, timeInterval), avg));
+                }
+                return timeSeries;
+            }
+            else if (newTS < TS && average == false)
+            {
+
+            }
+            else if (newTS > TS && average == false)
+            {
+                // Calculate block sum
+            }
+
             return null;
         }
+
+
 
         #region Summary Statistics
 

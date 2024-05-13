@@ -403,7 +403,6 @@ namespace Numerics.Data
             }
             else if (xTransform == Data.Transform.Logarithmic)
             {
-
                 x = Tools.Log10(x);
                 x1 = Tools.Log10(_ordinates[lo].X);
                 x2 = Tools.Log10(_ordinates[hi].X);
@@ -437,7 +436,16 @@ namespace Numerics.Data
             // interpolate
             if (givenX)
             {
-                y = y1 + (x - x1) / (x2 - x1) * (y2 - y1);
+                // Check for division by zero
+                if ((x2 - x1) == 0)
+                {
+                    y = y1;
+                }
+                else
+                {
+                    y = y1 + (x - x1) / (x2 - x1) * (y2 - y1);
+                }
+                //
                 if (yTransform == Data.Transform.None)
                 {
                     return y;
@@ -453,7 +461,16 @@ namespace Numerics.Data
             }
             else
             {
-                x = x1 + (y - y1) / (y2 - y1) * (x2 - x1);
+                // Check for division by zero
+                if ((y2 - y1) == 0)
+                {
+                    x = x1;
+                }
+                else
+                {
+                    x = x1 + (y - y1) / (y2 - y1) * (x2 - x1);
+                }
+                //
                 if (xTransform == Data.Transform.None)
                 {
                     return x;

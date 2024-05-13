@@ -203,7 +203,6 @@ namespace Numerics.Data.Statistics
             // Get z-values
             int n = probabilities.Count;
             var R = new double[n, n];
-            //var Bp = new double[n, n];
             Array.Copy(correlationMatrix, R, correlationMatrix.Length);
             int i, j, k, ir, ic;
             double pdf, cdf, A, B, z1, z2, r12, z21, p21, jp;
@@ -234,25 +233,6 @@ namespace Numerics.Data.Statistics
                 p21 = Math.Max(0, Math.Min(1, p21));
                 z21 = Normal.StandardZ(p21);
                 R[k, 0] = z21;
-
-                //B = r12 != 0 && z1 > 0 && z2 > 0 ? (1 - Math.Pow((z2 + r12 * A) / z21, 2)) / (r12 * r12) : A * (z1 + A);
-
-                ////Solve for z1' that gives the same z2|z1
-                //if (k == 1 && r12 != 0)
-                //{
-                //    try
-                //    {
-                //        var z1p = Brent.Solve((z) =>
-                //        {
-                //            var a = Normal.StandardPDF(z) / Normal.StandardCDF(z);
-                //            var b = a * (z + a);
-                //            return z21 - (z2 + r12 * a) / Math.Sqrt(1d - r12 * r12 * b);
-                //        }, -9, 9);
-                //        var ap = Normal.StandardPDF(z1p) / Normal.StandardCDF(z1p);
-                //        B = ap * (z1p + ap);
-                //    }
-                //    catch { }
-                //}
             }
             // update condition correlation r[ir|ic] and store them in R[ir,ic]
             for (ir = 1; ir < n - 1; ir++)
@@ -260,7 +240,6 @@ namespace Numerics.Data.Statistics
                 for (ic = ir + 1; ic < n; ic++)
                 {
                    R[ir, ic] = (R[ir, ic] - R[0, ir] * R[0, ic] * B) / Math.Sqrt((1d - R[0, ir] * R[0, ir] * B) * (1d - R[0, ic] * R[0, ic] * B));
-                   //R[ir, ic] = (R[ir, ic] - R[0, ir] * R[0, ic] * Bp[0,ic]) / Math.Sqrt((1d - R[0, ir] * R[0, ir] * Bp[0, ic]) * (1d - R[0, ic] * R[0, ic] * Bp[0, ic]));
                 }
             }
             // Remaining cycles
@@ -281,32 +260,12 @@ namespace Numerics.Data.Statistics
                     z21 = Normal.StandardZ(p21);
                     R[k, j] = z21;
 
-                    //B = r12 != 0 && z1 > 0 && z2 > 0 ? (1 - Math.Pow((z2 + r12 * A) / z21, 2)) / (r12 * r12) : A * (z1 + A);
-
-                    ////Solve for z1' that gives the same z2|z1
-                    //if (k == j + 1 && r12 != 0)
-                    //{
-                    //    try
-                    //    {
-                    //        var z1p = Brent.Solve((z) =>
-                    //        {
-                    //            var a = Normal.StandardPDF(z) / Normal.StandardCDF(z);
-                    //            var b = a * (z + a);
-                    //            return z21 - (z2 + r12 * a) / Math.Sqrt(1d - r12 * r12 * b);
-                    //        }, -9, 9);
-                    //        var ap = Normal.StandardPDF(z1p) / Normal.StandardCDF(z1p);
-                    //        B = ap * (z1p + ap);
-                    //    }
-                    //    catch { }
-                    //}
-
                 }
                 for (ir = j + 1; ir < n - 1; ir++)
                 {
                     for (ic = ir + 1; ic < n; ic++)
                     {
                         R[ir, ic] = (R[ir, ic] - R[j, ir] * R[j, ic] * B) / Math.Sqrt((1d - R[j, ir] * R[j, ir] * B) * (1d - R[j, ic] * R[j, ic] * B));
-                        //R[ir, ic] = (R[ir, ic] - R[j, ir] * R[j, ic] * Bp[j, ic]) / Math.Sqrt((1d - R[j, ir] * R[j, ir] * Bp[j, ic]) * (1d - R[j, ic] * R[j, ic] * Bp[j, ic]));
                     }
                 }
             }

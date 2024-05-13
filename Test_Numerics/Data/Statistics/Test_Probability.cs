@@ -46,14 +46,67 @@ namespace Data.Statistics
 
         }
 
+        [TestMethod]
+        public void Test_JointProbability_PCM_10_CDFs()
+        {
+            var cdf1 = new Normal(0, 1);
+            var cdf2 = new Normal(0, 1);
+            var cdf3 = new Normal(0, 1);
+            var cdf4 = new Normal(0, 1);
+            var cdf5 = new Normal(0, 1);
+            var cdf6 = new Normal(0, 1);
+            var cdf7 = new Normal(0, 1);
+            var cdf8 = new Normal(0, 1);
+            var cdf9 = new Normal(0, 1);
+            var cdf10 = new Normal(1, 1);
+
+            var cr = new CompetingRisks(new[] { cdf1, cdf2, cdf3, cdf4, cdf5, cdf6, cdf7, cdf8, cdf9, cdf10 });
+            cr.Dependency = Probability.DependencyType.Independent;
+
+
+ 
+
+            var cif = cr.CumulativeIncidenceFunctions();
+            for (int i = 0; i < cif[0].ProbabilityValues.Count; i++)
+            {
+                Debug.Print(cif[0].XValues[i].ToString() + "," + 
+                    cif[0].ProbabilityValues[i].ToString() + "," + 
+                    cif[1].ProbabilityValues[i].ToString() + "," + 
+                    cif[2].ProbabilityValues[i].ToString() + "," + 
+                    cif[3].ProbabilityValues[i].ToString() + "," + 
+                    cif[4].ProbabilityValues[i].ToString() + "," +
+                    cif[5].ProbabilityValues[i].ToString()+"," +
+                    cif[6].ProbabilityValues[i].ToString() + "," +
+                    cif[7].ProbabilityValues[i].ToString() + "," +
+                    cif[8].ProbabilityValues[i].ToString() + "," +
+                    cif[9].ProbabilityValues[i].ToString());
+            }
+
+            var h = new Normal(-4, 1);
+            var rnd = new Random(12345);
+            double pf = 0;
+            for (int i = 0;i < 1E8; i++)
+            {
+                var x = h.InverseCDF(rnd.NextDouble());
+                var z = rnd.NextDouble();
+                if (z<= cif[9].CDF(x))
+                {
+                    pf += 1;
+                }
+            }
+            pf /= 1E8;
+        }
+
 
         [TestMethod]
         public void Test_JointProbability_PCM_Sensitivity()
         {
             int D = 5;
-            double Z = 3;
+            double Z = -3;
             var probabilities = new double[D];
             probabilities.Fill(Normal.StandardCDF(Z));
+
+            probabilities = new double[] { Normal.StandardCDF(-3), Normal.StandardCDF(-2), Normal.StandardCDF(-1), Normal.StandardCDF(1), Normal.StandardCDF(2) };
             var indicators = new int[D];
             indicators.Fill(1);
 

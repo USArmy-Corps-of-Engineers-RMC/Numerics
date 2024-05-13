@@ -476,6 +476,12 @@ namespace Numerics
             return max + Math.Log(exp);
         }
 
+        /// <summary>
+        /// Returns a sequence of integers.
+        /// </summary>
+        /// <param name="start">The starting value.</param>
+        /// <param name="end">The ending value.</param>
+        /// <param name="step">The step size.</param>
         public static int[] IntegerSequence(int start, int end, int step = 1)
         {
             var result = new List<int>();
@@ -487,6 +493,7 @@ namespace Numerics
             };
             return result.ToArray();
         }
+
 
         /// <summary>
         /// Returns a compressed a byte array.

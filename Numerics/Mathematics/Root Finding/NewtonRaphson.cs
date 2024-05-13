@@ -55,7 +55,7 @@ namespace Numerics.Mathematics.RootFinding
             double yPrime;
             double x0;
             double x1;
-            double eps = 0.00000000000001d; // Don't want to divide by a number smaller than this
+            double eps = Tools.DoubleMachineEpsilon; // Don't want to divide by a number smaller than this
 
             // Newton-Raphson loop
             for (int i = 1; i <= maxIterations; i++)
@@ -125,8 +125,8 @@ namespace Numerics.Mathematics.RootFinding
             double y;
             double yPrime;
             double x0;
-            var x1 = default(double);
-            double eps = 0.00000000000001d; // Don't want to divide by a number smaller than this
+            double x1 = 0;
+            double eps = Tools.DoubleMachineEpsilon; // Don't want to divide by a number smaller than this
 
             // validate inputs
             if (upperBound < lowerBound)

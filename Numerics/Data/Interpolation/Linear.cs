@@ -87,9 +87,18 @@ namespace Numerics.Data
                 y1 = Normal.StandardZ(YValues[xlo]);
                 y2 = Normal.StandardZ(YValues[xhi]);
             }
-    
-            // interpolate
-            y = y1 + (x - x1) / (x2 - x1) * (y2 - y1);
+
+            // Interpolate
+            // Check for division by zero
+            if ((x2 - x1) == 0)
+            {
+                y = y1;
+            }
+            else
+            {
+                y = y1 + (x - x1) / (x2 - x1) * (y2 - y1);
+            }
+            //
             if (YTransform == Transform.None)
             {
                 return y;
@@ -161,8 +170,17 @@ namespace Numerics.Data
                 y2 = Normal.StandardZ(y2);
             }
 
-            // extrapolate
-            y = y1 - (x1 - x) * (y2 - y1) / (x2 - x1);
+            // Extrapolate
+            // Check for division by zero
+            if ((y2 - y1) == 0)
+            {
+                y = y1;
+            }
+            else
+            {
+                y = y1 - (x1 - x) * (y2 - y1) / (x2 - x1);
+            }
+            //
             if (YTransform == Transform.None)
             {
                 return y;

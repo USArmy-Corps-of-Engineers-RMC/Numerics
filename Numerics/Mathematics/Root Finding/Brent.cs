@@ -144,18 +144,19 @@ namespace Numerics.Mathematics.RootFinding
         }
 
         /// <summary>
-        /// Bracket the objective function minimum.
+        /// Bracket the root by expanding outward.
         /// </summary>
-        /// <param name="s">Starting step size. Default = 1E-2.</param>
-        /// <param name="k">Expansion factor. Default = 2.</param>
-        public static bool Bracket(Func<double, double> f, ref double lowerBound, ref double upperBound, double s = 1E-2, double k = 2d)
+        /// <param name="f">The function to solve.</param>
+        /// <param name="lowerBound">The lower bound (a) of the interval containing the root.</param>
+        /// <param name="upperBound">The upper bound (b) of the interval containing the root.</param>
+        /// <param name="maxIterations">Optional. Maximum number of iterations. Default = 1000.</param>
+        public static bool Bracket(Func<double, double> f, ref double lowerBound, ref double upperBound, out double f1, out double f2, int maxIterations = 10)
         {
-            int NTRY = 50;
             double FACTOR = 1.6;
             if (lowerBound == upperBound) throw new Exception("Bad initial range in zbrac");
-            double f1 = f(lowerBound);
-            double f2 = f(lowerBound);
-            for (int j = 0; j < NTRY; j++)
+            f1 = f(lowerBound);
+            f2 = f(upperBound);
+            for (int j = 0; j < maxIterations; j++)
             {
                 if (f1 * f2 < 0.0) return true;
                 if (Math.Abs(f1) < Math.Abs(f2))
