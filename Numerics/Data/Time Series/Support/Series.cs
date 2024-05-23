@@ -183,17 +183,17 @@ namespace Numerics.Data
         }
 
         /// <summary>
-        /// Returns the list of series indices as a list.
+        /// Returns the list of series indexes as a list.
         /// </summary>
-        public List<TIndex> IndicesToList()
+        public List<TIndex> IndexesToList()
         {
             return _seriesOrdinates.Select(x => x.Index).ToList();
         }
 
         /// <summary>
-        /// Returns the list of series indices as an array.
+        /// Returns the list of series indexes as an array.
         /// </summary>
-        public TIndex[] IndicesToArray()
+        public TIndex[] IndexesToArray()
         {
             return _seriesOrdinates.Select(x => x.Index).ToArray();
         }

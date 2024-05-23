@@ -116,24 +116,27 @@ namespace Numerics.Distributions
         public XElement ToXElement()
         {
             var result = new XElement(nameof(UncertaintyAnalysisResults));         
-            result.Add(ParentDistribution.ToXElement());
+            if (ParentDistribution != null) result.Add(ParentDistribution.ToXElement());
             result.SetAttributeValue(nameof(AIC), AIC.ToString());
             result.SetAttributeValue(nameof(BIC), BIC.ToString());
             result.SetAttributeValue(nameof(RMSE), RMSE.ToString());
             result.SetAttributeValue(nameof(ERL), ERL.ToString());
-            result.SetAttributeValue(nameof(ModeCurve), String.Join("|", ModeCurve));
-            result.SetAttributeValue(nameof(MeanCurve), String.Join("|", MeanCurve));
+            if (ModeCurve != null) result.SetAttributeValue(nameof(ModeCurve), String.Join("|", ModeCurve));
+            if (MeanCurve != null) result.SetAttributeValue(nameof(MeanCurve), String.Join("|", MeanCurve));
             // CIs
-            string CIstring = "";
-            for (int i = 0; i < ConfidenceIntervals.GetLength(0); i++)
+            if (ConfidenceIntervals != null)
             {
-                for (int j = 0; j < ConfidenceIntervals.GetLength(1); j++)
+                string CIstring = "";
+                for (int i = 0; i < ConfidenceIntervals.GetLength(0); i++)
                 {
-                    CIstring += ConfidenceIntervals[i, j].ToString() + (j < ConfidenceIntervals.GetLength(1) - 1 ? "," : "");
+                    for (int j = 0; j < ConfidenceIntervals.GetLength(1); j++)
+                    {
+                        CIstring += ConfidenceIntervals[i, j].ToString() + (j < ConfidenceIntervals.GetLength(1) - 1 ? "," : "");
+                    }
+                    CIstring += (i < ConfidenceIntervals.GetLength(0) - 1 ? "|" : "");
                 }
-                CIstring += (i < ConfidenceIntervals.GetLength(0) - 1 ? "|" : "");
+                result.SetAttributeValue(nameof(ConfidenceIntervals), CIstring);
             }
-            result.SetAttributeValue(nameof(ConfidenceIntervals), CIstring);
             return result;
         }
 

@@ -361,8 +361,8 @@ namespace Sampling.MCMC
             double errMu = -0.5 * errSigma2;
 
             var popDist = new Normal(popMU, popSigma);
-            //var errDist = new Normal(errMu, errSigma);
-            var errDist = new Uniform(Math.Log(0.7), Math.Log(1.3));
+            var errDist = new Normal(errMu, errSigma);
+            //var errDist = new Uniform(Math.Log(0.7), Math.Log(1.3));
 
             var sample = popDist.GenerateRandomValues(12345, n);
             var u = new double[n];
@@ -390,9 +390,15 @@ namespace Sampling.MCMC
                 double LH = 0;
                 for (int i = 0; i < sample.Length; i++)
                 {
-                   double a = sample[i] + errDist.InverseCDF(1E-8);
-                    double b = sample[i] + errDist.InverseCDF(1 - 1E-8);
+                    double a = sample[i] + errDist.InverseCDF(1E-16);
+                    double b = sample[i] + errDist.InverseCDF(1 - 1E-16);
                     var ex = Integration.GaussLegendre((q) => { return errDist.PDF(sample[i] - q) * norm.PDF(q); }, a, b);
+
+                    var asr = new AdaptiveSimpsonsRule((q) => { return errDist.PDF(sample[i] - q) * norm.PDF(q); }, a, b);
+                    asr.RelativeTolerance = 1E-4;
+                    asr.Integrate();
+                    var ex2 = asr.Result;
+
                     //var ex = Integration.SimpsonsRule((q) => { return errDist.PDF(sample[i] - q) * norm.PDF(q); }, a, b, 10);
                     LH += Math.Log(ex);
 

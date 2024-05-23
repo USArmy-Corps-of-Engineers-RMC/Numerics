@@ -48,7 +48,7 @@ namespace Numerics.Distributions.Copulas
         private static void MPL(BivariateCopula copula, IList<double> sampleDataX, IList<double> sampleDataY)
         {
             // Get constraints
-            var LU = copula.ParameterContraints(sampleDataX, sampleDataY);
+            var LU = copula.ParameterConstraints(sampleDataX, sampleDataY);
 
             // Solve using Brent method
             Func<double, double> func = (x) =>
@@ -71,7 +71,7 @@ namespace Numerics.Distributions.Copulas
         private static void IFM(BivariateCopula copula, IList<double> sampleDataX, IList<double> sampleDataY)
         {
             // Get constraints
-            var LU = copula.ParameterContraints(sampleDataX, sampleDataY);
+            var LU = copula.ParameterConstraints(sampleDataX, sampleDataY);
 
             // Solve using Brent method
             Func<double, double> func = (x) =>
@@ -83,7 +83,6 @@ namespace Numerics.Distributions.Copulas
             var brent = new BrentSearch(func, LU[0], LU[1]);
             brent.Maximize();
             copula.Theta = brent.BestParameterSet.Values[0];
-
         }
 
         /// <summary>
@@ -109,7 +108,7 @@ namespace Numerics.Distributions.Copulas
 
             // Theta
             // Get constraints
-            var LU = copula.ParameterContraints(sampleDataX, sampleDataY);
+            var LU = copula.ParameterConstraints(sampleDataX, sampleDataY);
             lowers[0] = LU[0];
             uppers[0] = LU[1];
             initials[0] = 0.5 * (uppers[0] - lowers[0]);

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using Numerics.Distributions;
 
 namespace Numerics.Data
@@ -64,6 +65,10 @@ namespace Numerics.Data
 
         #endregion
 
+        private bool _strictX;
+        private bool _strictY;
+        private SortOrder _orderX;
+        private SortOrder _orderY;
         private List<Ordinate> _ordinates;
 
         /// <summary>
@@ -79,24 +84,68 @@ namespace Numerics.Data
         public int Count => _ordinates.Count;
 
         /// <summary>
-        /// Order of the X values.
+        /// Determines whether the sort order is strict on the X variable. 
         /// </summary>
-        public SortOrder OrderX { get; private set; }
+        public bool StrictX
+        {
+            get { return _strictX; }
+            set
+            {
+                if (_strictX != value)
+                {
+                    _strictX = value;
+                    Validate();
+                }
+            }
+        }
 
         /// <summary>
-        /// Order of the Y values.
+        /// Determines whether the sort order is strict on the Y variable. 
         /// </summary>
-        public SortOrder OrderY { get; private set; }
+        public bool StrictY
+        {
+            get { return _strictY; }
+            set
+            {
+                if (_strictY != value)
+                {
+                    _strictY = value;
+                    Validate();
+                }
+            }
+        }
 
         /// <summary>
-        /// If set to True then X values must be strictly increasing or decreasing meaning they cannot be equal.
+        /// Gets or sets the sort order of the X variable. 
         /// </summary>
-        public bool StrictX { get; private set; }
+        public SortOrder OrderX
+        {
+            get { return _orderX; }
+            set
+            {
+                if (_orderX != value)
+                {
+                    _orderX = value;
+                    Validate();
+                }
+            }
+        }
 
         /// <summary>
-        /// If set to True then Y values must be strictly increasing or decreasing meaning they cannot be equal.
+        /// Gets or sets the sort order of the Y variable. 
         /// </summary>
-        public bool StrictY { get; private set; }
+        public SortOrder OrderY
+        {
+            get { return _orderY; }
+            set
+            {
+                if (_orderY != value)
+                {
+                    _orderY = value;
+                    Validate();
+                }
+            }
+        }
 
         /// <summary>
         /// ReadOnly is an implementation of ICollection and not implemented for this class.
@@ -193,6 +242,33 @@ namespace Numerics.Data
             Validate();
         }
 
+
+        /// <summary>
+        /// Create a new instance of the ordered paired data class from an XElement XML object.
+        /// </summary>
+        /// <param name="el">The XElement to deserialize.</param>
+        public OrderedPairedData(XElement el)
+        {
+            // Get Order
+            if (el.Attribute("X_Strict") != null)
+                bool.TryParse(el.Attribute("X_Strict").Value, out _strictX);
+            if (el.Attribute("Y_Strict") != null)
+                bool.TryParse(el.Attribute("Y_Strict").Value, out _strictY);
+            // Get Strictness
+            if (el.Attribute("X_Order") != null)
+                Enum.TryParse(el.Attribute("X_Order").Value, out _orderX);
+            if (el.Attribute("Y_Order") != null)
+                Enum.TryParse(el.Attribute("Y_Order").Value, out _orderY);
+            // Get Ordinates
+            var ordinates = el.Element("Ordinates");
+            _ordinates = new List<Ordinate>();
+            foreach (XElement ord in ordinates.Elements(nameof(Ordinate)))
+                _ordinates.Add(new Ordinate(ord));
+
+
+            Validate();
+        }
+
         /// <summary>
         /// Determines the index of a specific ordinate in the collection.
         /// </summary>
@@ -236,6 +312,7 @@ namespace Numerics.Data
         /// </summary>
         private void Validate()
         {
+            if (_ordinates == null) return;
             IsValid = true;
             for (int i = 0; i < _ordinates.Count; i++)
             {
@@ -1740,7 +1817,28 @@ namespace Numerics.Data
         }
 
 
-
+        /// <summary>
+        /// Converts the ordered paired data set to an XElement for saving to xml.
+        /// </summary>
+        /// <returns>An XElement representation of the data.</returns>
+        public XElement ToXElement()
+        {
+            var result = new XElement("OrderedPairedData");
+            // Order
+            result.SetAttributeValue("X_Strict", StrictX.ToString());
+            result.SetAttributeValue("Y_Strict", StrictY.ToString());
+            // Get Strictness
+            result.SetAttributeValue("X_Order", OrderX.ToString());
+            result.SetAttributeValue("Y_Order", OrderY.ToString());
+            // Ordinates
+            var ordinates = new XElement("Ordinates");
+            for (int i = 0; i < Count; i++) 
+            { 
+                ordinates.Add(this[i].ToXElement()); 
+            }
+            result.Add(ordinates);
+            return result;
+        }
 
 
 

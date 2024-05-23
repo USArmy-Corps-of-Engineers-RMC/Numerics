@@ -188,7 +188,7 @@ namespace Numerics.Distributions.Copulas
         /// </summary>
         /// <param name="sampleDataX">The sample data for the X variable.</param>
         /// <param name="sampleDataY">The sample data for the Y variable.</param>
-        public override double[] ParameterContraints(IList<double> sampleDataX, IList<double> sampleDataY)
+        public override double[] ParameterConstraints(IList<double> sampleDataX, IList<double> sampleDataY)
         {
             var tau = Correlation.KendallsTau(sampleDataX, sampleDataY);
             double L = tau > 0 ? 0.001d : -1d + Tools.DoubleMachineEpsilon;

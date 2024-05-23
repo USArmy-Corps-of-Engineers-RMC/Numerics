@@ -136,12 +136,9 @@ namespace Numerics.Distributions.Copulas
         /// </summary>
         /// <param name="sampleDataX">The sample data for the X variable.</param>
         /// <param name="sampleDataY">The sample data for the Y variable.</param>
-        public override double[] ParameterContraints(IList<double> sampleDataX, IList<double> sampleDataY)
+        public override double[] ParameterConstraints(IList<double> sampleDataX, IList<double> sampleDataY)
         {
-            var rho = Correlation.Pearson(sampleDataX, sampleDataY);
-            double L = rho > 0 ? 0.001d : -1d;
-            double U = rho > 0 ? 1d : -0.001d;
-            return new[] { L, U };
+            return new double[] { -1 + Tools.DoubleMachineEpsilon, 1 - Tools.DoubleMachineEpsilon };
         }
 
         /// <summary>
@@ -168,7 +165,7 @@ namespace Numerics.Distributions.Copulas
         {
             // Validate parameters
             if (_parametersValid == false) ValidateParameter(Theta, true);
-            return MultivariateNormal.BivariateCDF(Normal.StandardZ(u), Normal.StandardZ(v), _theta);
+            return MultivariateNormal.BivariateCDF(Normal.StandardZ(1 - u), Normal.StandardZ(1 - v), _theta);
         }
 
         /// <summary>

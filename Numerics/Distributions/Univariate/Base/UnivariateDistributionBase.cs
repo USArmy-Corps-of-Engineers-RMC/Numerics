@@ -223,21 +223,21 @@ namespace Numerics.Distributions
         /// <summary>
         /// The log likelihood function for left censored data.
         /// </summary>
-        /// <param name="perceptionThreshold">The perception threshold.</param>
+        /// <param name="threshold">The threshold.</param>
         /// <param name="numberBelow">The number of data points below the threshold.</param>
-        public double LogLikelihood_LeftCensored(double perceptionThreshold, long numberBelow)
+        public double LogLikelihood_LeftCensored(double threshold, long numberBelow)
         {
-            return numberBelow * LogCDF(perceptionThreshold);
+            return numberBelow * LogCDF(threshold);
         }
 
         /// <summary>
         /// The log likelihood function for right censored data.
         /// </summary>
-        /// <param name="perceptionThreshold">The perception threshold.</param>
+        /// <param name="threshold">The threshold.</param>
         /// <param name="numberAbove">The number of data points above the threshold.</param>
-        public double LogLikelihood_RightCensored(double perceptionThreshold, long numberAbove)
+        public double LogLikelihood_RightCensored(double threshold, long numberAbove)
         {
-            return numberAbove * LogCCDF(perceptionThreshold);
+            return numberAbove * LogCCDF(threshold);
         }
 
         /// <summary>

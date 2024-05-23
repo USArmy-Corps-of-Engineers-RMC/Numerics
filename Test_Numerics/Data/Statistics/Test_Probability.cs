@@ -63,10 +63,19 @@ namespace Data.Statistics
             var cr = new CompetingRisks(new[] { cdf1, cdf2, cdf3, cdf4, cdf5, cdf6, cdf7, cdf8, cdf9, cdf10 });
             cr.Dependency = Probability.DependencyType.Independent;
 
+            var mu = new double[10];
+            var corr = new double[10, 10];
+            for (int i = 0; i < 10; i++)
+            {
+                mu[i] = 0;
+                for (int j = 0; j < 10; j++)
+                {
+                    corr[i,j] = i == j ? 1 : 0.8;
+                }
+            }
+            var mvn = new MultivariateNormal(mu, corr);
 
- 
-
-            var cif = cr.CumulativeIncidenceFunctions();
+            var cif = cr.CumulativeIncidenceFunctions(mvn);
             for (int i = 0; i < cif[0].ProbabilityValues.Count; i++)
             {
                 Debug.Print(cif[0].XValues[i].ToString() + "," + 
