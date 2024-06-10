@@ -136,15 +136,13 @@ namespace Numerics.Mathematics.Optimization
                     var fitness = Evaluate(u, ref cancel);
                     if (cancel == true) return;
 
-                    Xp[i].ParameterSet.Values = u.ToArray();
-                    Xp[i].ParameterSet.Fitness = fitness;
+                    Xp[i].ParameterSet = new ParameterSet(u, fitness);
                     Xp[i].Velocity = v.ToArray();
 
                     // Update population
                     if (fitness <= Xp[i].BestParameterSet.Fitness)
                     {
-                        Xp[i].BestParameterSet.Values = u.ToArray();
-                        Xp[i].BestParameterSet.Fitness = fitness;
+                        Xp[i].BestParameterSet = new ParameterSet(u, fitness);
                     }
              
                     // Keep running stats of population

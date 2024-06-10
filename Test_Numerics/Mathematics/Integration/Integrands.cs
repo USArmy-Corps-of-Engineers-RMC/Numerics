@@ -71,8 +71,8 @@ namespace Mathematics.Integration
             return A / (1.0 - Math.Cos(x[0]) * Math.Cos(x[1]) * Math.Cos(x[2]));
         }
 
-        private static double[] mu20 = new double[] { 10, 30, 17, 99, 68, 26, 35, 55, 13, 59, 12, 28, 49, 54, 20, 47, 12, 76, 70, 57 };
-        private static double[] sigma20 = new double[] { 2, 15, 5, 14, 7, 24, 29, 22, 22, 1, 3, 28, 19, 18, 4, 24, 23, 26, 26, 19 };
+        public static double[] mu20 = new double[] { 10, 30, 17, 99, 68, 26, 35, 55, 13, 59, 12, 28, 49, 54, 20, 47, 12, 76, 70, 57 };
+        public static double[] sigma20 = new double[] { 2, 15, 5, 14, 7, 24, 29, 22, 22, 1, 3, 28, 19, 18, 4, 24, 23, 26, 26, 19 };
 
         /// <summary>
         /// Test function for the sum of normal distributions. Max D=20.
@@ -85,9 +85,31 @@ namespace Mathematics.Integration
             {
                 result += mu20[i] + sigma20[i] * Normal.StandardZ(p[i]);
             }
-            return result;
+            double sum = 0.25 *result + 0.25 * Math.Pow(result, 2) + 0.25 * Math.Pow(result, 3) + 0.25 * Math.Pow(result, 4);
+            return  sum;
         }
 
+        public static double Volume { get; set; }
+
+        public static double TotalP { get; set; } = 0;
+
+        public static double SumOfNormals2(double[] z, double w)
+        {
+
+            if (w < 0 || w > 1)
+                return 0;
+
+            var p = new double[z.Length];
+            double result = 0;
+            for (int i = 0; i < z.Length; i++)
+            {
+                //var norm = new Normal(mu20[i], sigma20[i]);
+                //p[i] = Normal.StandardCDF(z[i]);
+                //result += mu20[i] + sigma20[i] * Normal.StandardZ(p[i]);
+                result += z[i];
+            }
+            return result / Volume;
+        }
 
         public static double SumOfNormalsZ(double[] z, double w)
         {

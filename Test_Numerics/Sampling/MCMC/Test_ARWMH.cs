@@ -23,7 +23,7 @@ namespace Sampling.MCMC
             var sample = normDist.GenerateRandomValues(12345, n);
             var mu = Statistics.Mean(sample);
             var sigma = Statistics.StandardDeviation(sample);
-            var priors = new List<IUnivariateDistribution> { new Uniform(-1000, 1000), new Uniform(0, 100) };
+            var priors = new List<IUnivariateDistribution> { new Uniform(-10000, 10000), new Uniform(0, 1000) };
 
             var sampler = new ARWMH(priors, x =>
             {
@@ -34,6 +34,7 @@ namespace Sampling.MCMC
             var stopWatch = new Stopwatch();
             stopWatch.Start();
 
+            sampler.InitializeWithMAP = true;
             sampler.Sample();
             var results = new MCMCResults(sampler);
 

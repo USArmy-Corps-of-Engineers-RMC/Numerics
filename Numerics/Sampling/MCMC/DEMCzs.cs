@@ -42,19 +42,19 @@ namespace Numerics.Sampling.MCMC
             LogLikelihoodFunction = logLikelihoodFunction;
             InitialPopulationLength = 100 * NumberOfParameters;
             // DE-MCz options
-            UpdatePopulationMatrix = true;
+            IsPopulationSampler = true;
             // Jump parameter. Default = 2.38/SQRT(2*D)
             Jump = 2.38d / Math.Sqrt(2.0d * NumberOfParameters);
             // Adaptation threshold. Default = 0.1 or 10% of the time. 
             JumpThreshold = 0.1d;
             // Snooker update. Default = 0.1 or 10% of the time.
             SnookerThreshold = 0.1d;
-            _b = new Uniform(-_noise, _noise);
+            _b = new Normal(0, _noise);
             _g = new Uniform(1.2, 2.2);
         }
 
-        private double _noise = 1E-8;
-        private Uniform _b;
+        private double _noise = 1E-3;
+        private Normal _b;
         private Uniform _g;
 
         /// <summary>
@@ -63,7 +63,7 @@ namespace Numerics.Sampling.MCMC
         public double Jump { get; set; }
 
         /// <summary>
-        /// Determines how often the jump parameter switches to 1.0; e.g., 0.10 will result in adaptation 10% of the time.
+        /// Determines how often the jump parameter switches to 1.0; e.g., 0.10 will result in a large jump 10% of the time.
         /// </summary>
         public double JumpThreshold { get; set; }
 
@@ -81,7 +81,7 @@ namespace Numerics.Sampling.MCMC
             set
             {
                 _noise = value;
-                _b = new Uniform(-_noise, _noise);
+                _b = new Normal(0, _noise);
             }
         }
 
@@ -121,21 +121,21 @@ namespace Numerics.Sampling.MCMC
                 var G = _chainPRNGs[index].NextDouble() <= JumpThreshold ? 1.0d : Jump;
 
                 // Sample uniformly at random without replacement two numbers R1 and R2
-                // from the numbers 1, 2, ..., M. M = Population (Z) Length.
-                int r1, r2, Z = PopulationMatrix.Count;
-                r1 = _chainPRNGs[index].Next(0, Z);
-                do r2 = _chainPRNGs[index].Next(0, Z); while (r2 == r1);
+                // from the numbers 1, 2, ..., M. 
+                int r1, r2, M = PopulationMatrix.Count;
+                do r1 = _chainPRNGs[index].Next(0, M); while (r1 == index);
+                do r2 = _chainPRNGs[index].Next(0, M); while (r2 == r1 || r2 == index);
 
                 // Calculate the proposal vector
                 // x* ← xi + γ(zR1 − zR2) + e
-                // where zR1 and zR2 are rows R1 and R2 of Z.
+                // where zR1 and zR2 are rows R1 and R2 of the population matrix.
                 var xp = new double[NumberOfParameters];
                 for (int i = 0; i < NumberOfParameters; i++)
                 {
                     var xi = state.Values[i];
                     var zr1 = PopulationMatrix[r1].Values[i];
                     var zr2 = PopulationMatrix[r2].Values[i];
-                    var e = _b.InverseCDF(_chainPRNGs[index].NextDouble());
+                    var e = Math.Pow(_b.InverseCDF(_chainPRNGs[index].NextDouble()), NumberOfParameters);
                     xp[i] = xi + G * (zr1 - zr2) + e;
 
                     // Check if the parameter is feasible (within the constraints)
@@ -171,6 +171,9 @@ namespace Numerics.Sampling.MCMC
             }
         }
 
+
+
+
         /// <summary>
         /// Returns a proposed MCMC iteration based on the Snooker Update method. 
         /// </summary>
@@ -180,7 +183,8 @@ namespace Numerics.Sampling.MCMC
         {
             // Do snooker update
             // Get Jump -- uniform random number between 1.2 and 2.2         
-            var G = _g.InverseCDF(_chainPRNGs[index].NextDouble());
+            double G = _g.InverseCDF(_chainPRNGs[index].NextDouble());
+            //double G = 1.7;
 
             // Select another chain, which is in state z
             int c = index;
@@ -189,28 +193,25 @@ namespace Numerics.Sampling.MCMC
             int c1 = c, c2 = c;
             do c1 = _chainPRNGs[index].Next(0, NumberOfChains); while (c1 == c);
             do c2 = _chainPRNGs[index].Next(0, NumberOfChains); while (c2 == c1 || c2 == c);
-            int M1 = MarkovChains[c1].Count;
-            int M2 = MarkovChains[c2].Count;
-            int r1, r2;
-            r1 = _chainPRNGs[index].Next(0, M1);
-            do r2 = _chainPRNGs[index].Next(0, M2); while (M2 > 1 && r2 == r1);
 
             // Define z
             var z = new Vector(MarkovChains[c].Last().Values.ToArray());
             var xi = new Vector(state.Values.ToArray());
-            // Define projection vector xi - z
-            var F = xi - z;
-            var D = Math.Max(Vector.DotProduct(F, F), double.Epsilon);
-            // Orthogonally project zR1 and zR2 onto F
+            // Define line xi - z
+            var line = xi - z;
+            // Orthogonally project zR1 and zR2 onto the line xi - z
             var zr1 = new Vector(MarkovChains[c1].Last().Values.ToArray());
             var zr2 = new Vector(MarkovChains[c2].Last().Values.ToArray());
-            var zp = F * (Statistics.Sum(((zr1 - zr2) * F).ToArray()) / D);
+            var zp1 = Vector.Project(zr1, line);
+            var zp2 = Vector.Project(zr2, line);
+
             // Calculate the proposal vector
             // x* ← xi + γ(zP1 − zP2)
             var xp = new Vector(NumberOfParameters);
             for (int i = 0; i < NumberOfParameters; i++)
             {
-                xp[i] = xi[i] + G * zp[i];
+                xp[i] = xi[i] + G * (zp1[i] - zp2[i]);
+
                 // Check if the parameter is feasible (within the constraints)
                 if (xp[i] < PriorDistributions[i].Minimum || xp[i] > PriorDistributions[i].Maximum)
                 {
@@ -225,8 +226,8 @@ namespace Numerics.Sampling.MCMC
             var logLHi = state.Fitness;
 
             // Get the Euclidean distance
-            var logEDp = Math.Log(Math.Pow(Math.Sqrt(Statistics.Sum(((xp - z) ^ 2).ToArray())), NumberOfParameters - 1));
-            var logEDi = Math.Log(Math.Pow(Math.Sqrt(Statistics.Sum(((xi - z) ^ 2).ToArray())), NumberOfParameters - 1));
+            var logEDp = Math.Log(Math.Pow(Vector.Distance(xp, z), NumberOfParameters - 1));
+            var logEDi = Math.Log(Math.Pow(Vector.Distance(xi, z), NumberOfParameters - 1));
 
             // Calculate the Metropolis ratio
             var logRatio = logLHp + logEDp - logLHi - logEDi;

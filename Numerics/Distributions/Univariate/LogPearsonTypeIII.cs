@@ -113,7 +113,7 @@ namespace Numerics.Distributions
         /// </summary>
         public double Alpha
         {
-            get { return 4d / Math.Pow(Gamma, 2d); }
+            get { return 4d / (Gamma * Gamma); }
         }
 
         /// <summary>

@@ -216,6 +216,11 @@ namespace Numerics.Distributions
         }
 
         /// <summary>
+        /// Determines if the covariance matrix is positive definite.
+        /// </summary>
+        public bool IsPositiveDefinite => _cholesky.IsPositiveDefinite;
+
+        /// <summary>
         /// Set the distribution parameters.
         /// </summary>
         /// <param name="mean">The mean vector μ (mu) for the distribution.</param>

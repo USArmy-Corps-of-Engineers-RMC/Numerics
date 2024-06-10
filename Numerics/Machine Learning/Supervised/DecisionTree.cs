@@ -13,7 +13,7 @@ using System.Windows.Documents;
 namespace Numerics.MachineLearning
 {
     /// <summary>
-    /// The Deciion Tree learning algorithm.
+    /// The Decision Tree learning algorithm.
     /// </summary>
     /// <remarks>
     /// <para>
@@ -151,7 +151,7 @@ namespace Numerics.MachineLearning
         #region Methods
        
         /// <summary>
-        /// Train the decison tree. 
+        /// Train the decision tree. 
         /// </summary>
         public void Train()
         {
@@ -235,7 +235,7 @@ namespace Numerics.MachineLearning
         /// </summary>
         /// <param name="xTrain">The matrix of predictor values.</param>
         /// <param name="yTrain">The array of y-values.</param>
-        /// <param name="indices">The feature indices to evaluate.</param>
+        /// <param name="indices">The feature indexes to evaluate.</param>
         /// <param name="bestFeatureIndex">Output. The best feature index.</param>
         /// <param name="bestThreshold">Output. The best threshold for splitting the tree.</param>
         private void BestSplit(Matrix xTrain, double[] yTrain, int[] indices, out int bestFeatureIndex, out double bestThreshold)
@@ -361,8 +361,8 @@ namespace Numerics.MachineLearning
         /// </summary>
         /// <param name="x">The column of x-values.</param>
         /// <param name="threshold">The split threshold.</param>
-        /// <param name="leftIndices">Output. A list of left indices.</param>
-        /// <param name="rightIndices">Output. A list of right indices.</param>
+        /// <param name="leftIndices">Output. A list of left indexes.</param>
+        /// <param name="rightIndices">Output. A list of right indexes.</param>
         private void Split(double[] x, double threshold, out List<int> leftIndices, out List<int> rightIndices)
         {
             leftIndices = new List<int>();

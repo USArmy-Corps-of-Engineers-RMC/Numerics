@@ -156,6 +156,7 @@
     <Compile Include="Mathematics\Linear Algebra\Test_CholeskyDecomp.cs" />
     <Compile Include="Mathematics\Linear Algebra\Test_GaussJordanElimination.cs" />
     <Compile Include="Mathematics\Linear Algebra\Test_SingularValueDecomp.cs" />
+    <Compile Include="Mathematics\Linear Algebra\Test_Vector.cs" />
     <Compile Include="Mathematics\Optimization\TestFunctions.cs" />
     <Compile Include="Mathematics\Optimization\Test_Optimization.cs" />
     <Compile Include="Mathematics\Optimization\Test_GoldenSection.cs" />
@@ -179,6 +180,7 @@
     <Compile Include="Sampling\MCMC\Test_ARWMH.cs" />
     <Compile Include="Sampling\MCMC\Test_DEMCzs.cs" />
     <Compile Include="Sampling\MCMC\Test_HMC.cs" />
+    <Compile Include="Sampling\MCMC\Test_SNIS.cs" />
     <Compile Include="Sampling\Test_LatinHypercube.cs" />
     <Compile Include="Sampling\Test_Stratification.cs" />
     <Compile Include="Sampling\Test_SobolSequence.cs" />

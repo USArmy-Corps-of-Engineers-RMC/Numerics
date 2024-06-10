@@ -5,6 +5,7 @@ using Numerics.Data.Statistics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 
 namespace Numerics.Sampling.MCMC
 {
@@ -36,20 +37,32 @@ namespace Numerics.Sampling.MCMC
             InitialPopulationLength = 100 * NumberOfParameters;
 
             // The optimal scale & adaptive covariance matrix
-            sigmaOpt = 2.38 * 2.38 / NumberOfParameters;
-
+            Scale = 2.38 * 2.38 / NumberOfParameters;
             // The initial scale & identity covariance matrix
-            sigmaInit = 0.1 * 0.1 / NumberOfParameters;
-            covarId = Matrix.Identity(NumberOfParameters) * sigmaInit;
-
+            sigmaIdentity = Matrix.Identity(NumberOfParameters) * (0.1 * 0.1 / NumberOfParameters);
+            Beta = 0.05;
+            CrossoverProbability = 0.1;
         }
 
-        private readonly double sigmaInit;
-        private readonly double sigmaOpt;
-        private readonly Matrix covarId;
-        private readonly double beta = 0.05;
-        private RunningCovarianceMatrix[] covarAdpt;
+
+        private Matrix sigmaIdentity;
+        private RunningCovarianceMatrix[] sigma;
         private MultivariateNormal[] mvn;
+
+        /// <summary>
+        /// The scaling parameter used to scale the adaptive covariance matrix.
+        /// </summary>
+        public double Scale { get; set; }
+
+        /// <summary>
+        /// Determines how often to sample from the small identity covariance matrix; e.g., 0.05 will result in sampling 5% of the time.
+        /// </summary>
+        public double Beta { get; set; }
+
+        /// <summary>
+        /// Determines ho ofter to sample from a different chain; e.g., 0.10 will result in sampling from a different chain 10% of the time.
+        /// </summary>
+        public double CrossoverProbability { get; set; } 
 
         /// <summary>
         /// The covariance matrix Σ (sigma) for the proposal distribution.
@@ -60,10 +73,11 @@ namespace Numerics.Sampling.MCMC
             {
                 var sigmas = new Matrix[NumberOfChains];
                 for (int i = 0; i < NumberOfChains; i++)
-                    sigmas[i] = covarAdpt[i].Covariance * (1d / (covarAdpt[i].N - 1));
+                    sigmas[i] = sigma[i].Covariance * (1d / (sigma[i].N - 1));
                 return sigmas;
             }
         }
+
 
         /// <summary>
         /// Initialize any custom MCMC sampler settings.
@@ -71,13 +85,25 @@ namespace Numerics.Sampling.MCMC
         protected override void InitializeCustomSettings()
         {
             // Set up multivariate Normal distributions and 
-            //adaptive covariance matrix for each chain
+            // adaptive covariance matrix for each chain
             mvn = new MultivariateNormal[NumberOfChains];
-            covarAdpt = new RunningCovarianceMatrix[NumberOfChains];
+            sigma = new RunningCovarianceMatrix[NumberOfChains];
             for (int i = 0; i < NumberOfChains; i++)
             {
                 mvn[i] = new MultivariateNormal(NumberOfParameters);
-                covarAdpt[i] = new RunningCovarianceMatrix(NumberOfParameters);
+                sigma[i] = new RunningCovarianceMatrix(NumberOfParameters);
+
+                if (InitializeWithMAP && _MAPsuccessful)
+                {
+                    // Hot start the covariance matrix
+                    for (int j = 0; j < NumberOfParameters; j++)
+                    {
+                        for (int k = 0; k < NumberOfParameters; k++)
+                        {
+                            sigma[i].Covariance[j, k] = _mvn.Covariance[j, k];
+                        }
+                    }
+                }
             }
         }
 
@@ -92,18 +118,26 @@ namespace Numerics.Sampling.MCMC
             // Update the sample count
             SampleCount[index] += 1;
 
-            // Get proposal vector
-            if (_chainPRNGs[index].NextDouble() <= beta || SampleCount[index] <= 2 * NumberOfParameters)
+            if (_chainPRNGs[index].NextDouble() <= Beta || SampleCount[index] <= 100 * NumberOfParameters)
             {
-                mvn[index].SetParameters(state.Values.ToArray(), covarId.ToArray());          
+                // Use the identity matrix the first 100*D samples
+                mvn[index].SetParameters(state.Values.ToArray(), sigmaIdentity.ToArray());
             }
             else
             {
-                // 10% of the time, sample from a different chain's covariance matrix
-                int c1 = _chainPRNGs[index].NextDouble() <= 0.1 ? _chainPRNGs[index].Next(0, NumberOfChains) : index;
-                mvn[index].SetParameters(state.Values.ToArray(), (covarAdpt[c1].Covariance * (1d / (covarAdpt[c1].N - 1)) * sigmaOpt).ToArray());                          
-            }         
-            var xp = mvn[index].InverseCDF(_chainPRNGs[index].NextDoubles(NumberOfParameters));
+                // Use the adaptive covariance matrix
+                mvn[index].SetParameters(state.Values.ToArray(), (sigma[index].Covariance * (1d / (sigma[index].N - 1)) * Scale).ToArray());
+            }
+
+            int c1 = index;
+            if (SampleCount[index] > 100 * NumberOfParameters && _chainPRNGs[index].NextDouble() <= CrossoverProbability)
+            {
+                // Sample from a different chain's covariance matrix
+                do c1 = _chainPRNGs[index].Next(0, NumberOfChains); while (c1 == index);
+            }
+
+            // Get proposal vector
+            var xp = mvn[c1].InverseCDF(_chainPRNGs[index].NextDoubles(NumberOfParameters));
 
             // Check if the parameter is feasible (within the constraints)
             for (int i = 0; i < NumberOfParameters; i++)
@@ -111,8 +145,9 @@ namespace Numerics.Sampling.MCMC
                 if (xp[i] < PriorDistributions[i].Minimum || xp[i] > PriorDistributions[i].Maximum)
                 {
                     // The proposed parameter vector was infeasible, so leave xi unchanged.
-                    // Adapt Covariance Matrix
-                    covarAdpt[index].Push(state.Values);
+                    // Adapt Covariance Matrix after warmup
+                    if (SampleCount[index] > ThinningInterval * WarmupIterations)
+                        sigma[index].Push(state.Values);
                     return state;
                 }
             }
@@ -132,13 +167,14 @@ namespace Numerics.Sampling.MCMC
                 // The proposal is accepted
                 AcceptCount[index] += 1;
                 // Adapt Covariance Matrix
-                covarAdpt[index].Push(xp);
+                sigma[index].Push(xp);
                 return new ParameterSet(xp, logLHp);
             }
             else
             {
-                // Adapt Covariance Matrix
-                covarAdpt[index].Push(state.Values);
+                // Adapt Covariance Matrix after warmup
+                if (SampleCount[index] > ThinningInterval * WarmupIterations)
+                    sigma[index].Push(state.Values);
                 return state;
             }
         }

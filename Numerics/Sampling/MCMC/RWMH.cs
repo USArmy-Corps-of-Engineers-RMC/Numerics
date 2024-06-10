@@ -1,4 +1,5 @@
-﻿using Numerics.Distributions;
+﻿using Numerics.Data.Statistics;
+using Numerics.Distributions;
 using Numerics.Mathematics.LinearAlgebra;
 using Numerics.Mathematics.Optimization;
 using System;
@@ -62,7 +63,16 @@ namespace Numerics.Sampling.MCMC
             // Set up multivariate Normal distributions for each chain
             _MVN = new MultivariateNormal[NumberOfChains];
             for (int i = 0; i < NumberOfChains; i++)
-                _MVN[i] = new MultivariateNormal(NumberOfParameters);
+            {
+                if (InitializeWithMAP && _MAPsuccessful)
+                {
+                    _MVN[i] = (MultivariateNormal)_mvn.Clone();
+                }
+                else
+                {
+                    _MVN[i] = new MultivariateNormal(NumberOfParameters);
+                }    
+            }  
         }
 
         /// <summary>

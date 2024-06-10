@@ -198,13 +198,10 @@ namespace Numerics.Distributions
         {
             var logLH = default(double);
             for (int i = 0; i < sample.Count; i++)
-            {
-                var f = LogPDF(sample[i]);        
-                logLH += f;
-                if (f == double.MinValue)
-                    break;
+            {        
+                logLH += LogPDF(sample[i]);
             }
-                
+            if (double.IsNaN(logLH) || double.IsInfinity(logLH)) return double.MinValue;
             return logLH;
         }
 
@@ -249,7 +246,7 @@ namespace Numerics.Distributions
         {
             double interval = CDF(upperLimit) - CDF(lowerLimit);
             // If the CDF returns an invalid probability, then return the worst log-probability.
-            if (double.IsNaN(interval) || double.IsInfinity(interval) || interval <= 0d) return double.MinValue;
+            //if (double.IsNaN(interval) || double.IsInfinity(interval) || interval <= 0d) return double.MinValue;
             return Math.Log(interval);
         }
 
@@ -271,7 +268,7 @@ namespace Numerics.Distributions
         {
             double f = PDF(x);
             // If the PDF returns an invalid probability, then return the worst log-probability.
-            if (double.IsNaN(f) || double.IsInfinity(f) || f <= 0d) return double.MinValue;
+            //if (double.IsNaN(f) || double.IsInfinity(f) || f <= 0d) return double.MinValue;
             return Math.Log(f);
         }
 
@@ -302,7 +299,7 @@ namespace Numerics.Distributions
         {
             double F = CDF(x);
             // If the CDF returns an invalid probability, then return the worst log-probability.
-            if (double.IsNaN(F) || double.IsInfinity(F) || F <= 0d) return double.MinValue;
+            //if (double.IsNaN(F) || double.IsInfinity(F) || F <= 0d) return double.MinValue;
             return Math.Log(F);
         }
 
@@ -323,7 +320,7 @@ namespace Numerics.Distributions
         {
             double cF = CCDF(x);
             // If the CCDF returns an invalid probability, then return the worst log-probability.
-            if (double.IsNaN(cF) || double.IsInfinity(cF) || cF <= 0d) return int.MinValue;
+            //if (double.IsNaN(cF) || double.IsInfinity(cF) || cF <= 0d) return int.MinValue;
             return Math.Log(cF);
         }
 

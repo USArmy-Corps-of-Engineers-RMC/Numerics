@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Numerics.Data.Statistics;
 using Numerics.Distributions;
@@ -23,9 +25,10 @@ namespace Sampling.MCMC
             int n = 200;
             var normDist = new Normal(popMU, popSigma);
             var sample = normDist.GenerateRandomValues(12345, n);
+
             var mu = Statistics.Mean(sample);
             var sigma = Statistics.StandardDeviation(sample);
-            var priors = new List<IUnivariateDistribution> { new Uniform(-1000, 1000), new Uniform(0, 100) };
+            var priors = new List<IUnivariateDistribution> { new Uniform(-10000, 10000), new Uniform(0, 1000) };
 
             var stopWatch = new Stopwatch();
             stopWatch.Start();
@@ -43,7 +46,7 @@ namespace Sampling.MCMC
             //for (int j = 0; j < pdf.GetLength(0); j++)
             //    Debug.Print(pdf[j, 0] + ", " + pdf[j, 1]);
 
-            //pdf = results.ParameterResults[1].KernelDensity;
+            //var pdf = results.ParameterResults[1].KernelDensity;
             //for (int j = 0; j < pdf.GetLength(0); j++)
             //    Debug.Print(pdf[j, 0] + ", " + pdf[j, 1]);
 

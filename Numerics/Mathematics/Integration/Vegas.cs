@@ -207,6 +207,8 @@ namespace Numerics.Mathematics.Integration
                 _region[i] = Min[i];
             for (int i = Dimensions; i < 2 * Dimensions; i++)
                 _region[i] = Max[i - Dimensions];
+
+            Iterations = 0;
         }
 
         /// <summary>
@@ -322,6 +324,8 @@ namespace Numerics.Mathematics.Integration
             // Main iteration loop. Can enter here (init >= 3) to do an additional itmx iteration with all other parameters unchanged.
             for (it = 0; it < itmx; it++)
             {
+                Iterations++;
+
                 ti = tsi = 0.0;
                 for (j = 0; j < ndim; j++)
                 {
@@ -400,7 +404,7 @@ namespace Numerics.Mathematics.Integration
                 tsi = Math.Sqrt(tsi);
 
                 // check convergence
-                if ((CheckConvergence && Math.Abs(sd/tgral) < RelativeTolerance) || FunctionEvaluations >= MaxFunctionEvaluations)
+                if ((CheckConvergence && Iterations > 1 && Math.Abs(sd/tgral) < RelativeTolerance) || FunctionEvaluations >= MaxFunctionEvaluations)
                 {
                     break;
                 }
