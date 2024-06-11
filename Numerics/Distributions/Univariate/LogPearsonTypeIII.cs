@@ -657,13 +657,14 @@ namespace Numerics.Distributions
             initialVals = new double[] { mom[0], mom[1], mom[2] };
             // Get bounds of mean
             double real = Math.Exp(initialVals[0] / K);
-            lowerVals[0] = -Math.Ceiling(Math.Log(Math.Pow(10d, Math.Ceiling(Math.Log10(real) + 2d)), Base));
-            upperVals[0] = Math.Ceiling(Math.Log(Math.Pow(10d, Math.Ceiling(Math.Log10(real) + 2d)), Base));
+            lowerVals[0] = -Math.Ceiling(Math.Log(Math.Pow(10d, Math.Ceiling(Math.Log10(real) + 1d)), Base));
+            upperVals[0] = Math.Ceiling(Math.Log(Math.Pow(10d, Math.Ceiling(Math.Log10(real) + 1d)), Base));
             // Get bounds of standard deviation
+            real = Math.Exp(initialVals[1] / K);
             lowerVals[1] = Tools.DoubleMachineEpsilon;
-            upperVals[1] = upperVals[0];
+            upperVals[1] = Math.Ceiling(Math.Log(Math.Pow(10d, Math.Ceiling(Math.Log10(real) + 1d)), Base));
             // Get bounds of skew
-            lowerVals[2] = -2;
+            lowerVals[2] = -2d;
             upperVals[2] = 2d;
             // Correct initial value of skew if necessary
             if (initialVals[2] <= lowerVals[2] || initialVals[2] >= upperVals[2])

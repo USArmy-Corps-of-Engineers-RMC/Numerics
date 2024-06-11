@@ -44,12 +44,12 @@ namespace Numerics.Sampling.MCMC
         /// <summary>
         /// The master pseudo random number generator (PRNG).
         /// </summary>
-        protected Random _masterPRNG;
+        protected MersenneTwister _masterPRNG;
 
         /// <summary>
         /// The PRNG for each Markov Chain.
         /// </summary>
-        protected Random[] _chainPRNGs;
+        protected MersenneTwister[] _chainPRNGs;
 
         /// <summary>
         /// The number of simulations that have been run with this instance of the sampler. 

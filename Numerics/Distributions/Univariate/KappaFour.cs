@@ -716,8 +716,8 @@ namespace Numerics.Distributions
                 upperVals[2] = 10d;
 
                 // Get bounds of shape 2
-                lowerVals[3] = -5d;
-                upperVals[3] = 5d;
+                lowerVals[3] = -2d;
+                upperVals[3] = 2d;
 
                 // Correct initial value of kappa and hondo if necessary
                 if (initialVals[2] <= lowerVals[2] || initialVals[2] >= upperVals[2])
