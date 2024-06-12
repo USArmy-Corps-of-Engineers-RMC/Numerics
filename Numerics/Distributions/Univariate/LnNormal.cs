@@ -27,7 +27,7 @@ namespace Numerics.Distributions
     /// </para>
     /// </remarks>
     [Serializable]
-    public sealed class LnNormal : UnivariateDistributionBase, IColesTawn, IEstimation, IMaximumLikelihoodEstimation, ILinearMomentEstimation, IStandardError, IBootstrappable
+    public sealed class LnNormal : UnivariateDistributionBase, IColesTawn, IEstimation, IMaximumLikelihoodEstimation, IMomentEstimation, ILinearMomentEstimation, IStandardError, IBootstrappable
     {
     
         /// <summary>
@@ -45,7 +45,7 @@ namespace Numerics.Distributions
         /// <param name="standardDeviation">The standard deviation of the distribution.</param>
         /// <remarks>
         /// Enter the real-space mean and standard deviation of the distribution. The two parameters μ and σ are not
-        /// location and scale parameters for a lognormally distributed random variable X, but they are respectively
+        /// location and scale parameters for a log-normally distributed random variable X, but they are respectively
         /// location and scale parameters for the normally distributed logarithm ln(X).
         /// </remarks>
         public LnNormal(double mean, double standardDeviation)
@@ -416,6 +416,38 @@ namespace Numerics.Distributions
         }
 
         /// <summary>
+        /// Returns an array of distribution parameters given the central moments of the sample.
+        /// </summary>
+        /// <param name="moments">The array of sample linear moments.</param>
+        public double[] ParametersFromMoments(IList<double> moments)
+        {
+            var mean = moments[0];
+            var standardDeviation = moments[1];
+            if (standardDeviation <= 0)
+                return new[] { double.NaN, double.NaN };
+            double variance = Math.Pow(standardDeviation, 2d);
+            double mu = Math.Log(Math.Pow(mean, 2d) / Math.Sqrt(variance + Math.Pow(mean, 2d)));
+            double sigma = Math.Sqrt(Math.Log(1.0d + variance / Math.Pow(mean, 2d)));
+            if (sigma < 1E-16 && Math.Sign(sigma) != -1) sigma = Tools.DoubleMachineEpsilon;
+            return new[] { mu, sigma };
+        }
+
+        /// <summary>
+        /// Returns an array of central moments given the distribution parameters.
+        /// </summary>
+        /// <param name="parameters">The list of distribution parameters.</param>
+        public double[] MomentsFromParameters(IList<double> parameters)
+        {
+            var dist = new LnNormal();
+            dist.SetParameters(parameters);
+            var m1 = dist.Mean;
+            var m2 = dist.StandardDeviation;
+            var m3 = dist.Skew;
+            var m4 = dist.Kurtosis;
+            return new[] { m1, m2, m3, m4 };
+        }
+
+        /// <summary>
         /// Returns an array of distribution parameters given the linear moments of the sample.
         /// </summary>
         /// <param name="moments">The array of sample linear moments.</param>
@@ -454,7 +486,7 @@ namespace Numerics.Distributions
             initialVals[0] = moments[0];
             initialVals[1] = moments[1];
             // Get bounds of mean
-            lowerVals[0] = -Math.Pow(10d, Math.Ceiling(Math.Log10(initialVals[0]) + 1d));
+            lowerVals[0] = Tools.DoubleMachineEpsilon;
             upperVals[0] = Math.Pow(10d, Math.Ceiling(Math.Log10(initialVals[0]) + 1d));
             // Get bounds of standard deviation
             lowerVals[1] = Tools.DoubleMachineEpsilon;

@@ -426,8 +426,8 @@ namespace Numerics.Distributions
             if (double.IsNaN(location) || double.IsInfinity(location))
             {
                 if (throwException)
-                    throw new ArgumentOutOfRangeException(nameof(Xi), "The the location parameter ξ (Xi) must be a number.");
-                return new ArgumentOutOfRangeException(nameof(Xi), "The the location parameter ξ (Xi) must be a number.");
+                    throw new ArgumentOutOfRangeException(nameof(Xi), "The location parameter ξ (Xi) must be a number.");
+                return new ArgumentOutOfRangeException(nameof(Xi), "The location parameter ξ (Xi) must be a number.");
             }
             if (double.IsNaN(scale) || double.IsInfinity(scale) || scale <= 0.0d)
             {
@@ -437,8 +437,8 @@ namespace Numerics.Distributions
             if (double.IsNaN(shape) || double.IsInfinity(shape))
             {
                 if (throwException)
-                    throw new ArgumentOutOfRangeException(nameof(Kappa), "The the shape parameter κ (kappa) must be a number.");
-                return new ArgumentOutOfRangeException(nameof(Kappa), "The the shape parameter κ (kappa) must be a number.");
+                    throw new ArgumentOutOfRangeException(nameof(Kappa), "The shape parameter κ (kappa) must be a number.");
+                return new ArgumentOutOfRangeException(nameof(Kappa), "The shape parameter κ (kappa) must be a number.");
             }
             return null;
         }
@@ -478,6 +478,33 @@ namespace Numerics.Distributions
 
             // return parameters
             return new[] { x, a, k };
+        }
+
+        /// <summary>
+        /// Returns an array of distribution parameters given the central moments of the sample.
+        /// </summary>
+        /// <param name="moments">The array of sample linear moments.</param>
+        public double[] ParametersFromMoments(IList<double> moments)
+        {
+            var parms = new double[NumberOfParameters];
+            parms[0] = 1d / (moments[0] / Math.Pow(moments[1], 2d));
+            parms[1] = Math.Pow(moments[0], 2d) / Math.Pow(moments[1], 2d);
+            return parms;
+        }
+
+        /// <summary>
+        /// Returns an array of central moments given the distribution parameters.
+        /// </summary>
+        /// <param name="parameters">The list of distribution parameters.</param>
+        public double[] MomentsFromParameters(IList<double> parameters)
+        {
+            var dist = new GeneralizedPareto();
+            dist.SetParameters(parameters);
+            var m1 = dist.Mean;
+            var m2 = dist.StandardDeviation;
+            var m3 = dist.Skew;
+            var m4 = dist.Kurtosis;
+            return new[] { m1, m2, m3, m4 };
         }
 
         /// <summary>

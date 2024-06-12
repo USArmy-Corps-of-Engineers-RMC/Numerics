@@ -20,7 +20,7 @@ namespace Numerics.Distributions
     /// </para>
     /// </remarks>
     [Serializable]
-    public sealed class Exponential : UnivariateDistributionBase, IColesTawn, IEstimation, IMaximumLikelihoodEstimation, ILinearMomentEstimation, IStandardError, IBootstrappable
+    public sealed class Exponential : UnivariateDistributionBase, IColesTawn, IEstimation, IMaximumLikelihoodEstimation, IMomentEstimation, ILinearMomentEstimation, IStandardError, IBootstrappable
     {
   
         /// <summary>
@@ -240,7 +240,7 @@ namespace Numerics.Distributions
         {
             if (estimationMethod == ParameterEstimationMethod.MethodOfMoments)
             {
-                SetParameters(DirectMethodOfMoments(Statistics.ProductMoments(sample)));
+                SetParameters(ParametersFromMoments(Statistics.ProductMoments(sample)));
             }
             else if (estimationMethod == ParameterEstimationMethod.MethodOfLinearMoments)
             {
@@ -303,8 +303,8 @@ namespace Numerics.Distributions
             if (double.IsNaN(parameters[0]) || double.IsInfinity(parameters[0]))
             {
                 if (throwException)
-                    throw new ArgumentOutOfRangeException(nameof(Xi), "The the location parameter ξ (Xi) must be a number.");
-                return new ArgumentOutOfRangeException(nameof(Xi), "The the location parameter ξ (Xi) must be a number.");
+                    throw new ArgumentOutOfRangeException(nameof(Xi), "The location parameter ξ (Xi) must be a number.");
+                return new ArgumentOutOfRangeException(nameof(Xi), "The location parameter ξ (Xi) must be a number.");
             }
             if (double.IsNaN(parameters[1]) || double.IsInfinity(parameters[1]) || parameters[1] <= 0.0d)
             {
@@ -316,15 +316,30 @@ namespace Numerics.Distributions
         }
 
         /// <summary>
-        /// Gets the parameters using the direct method of moments. Moments are derived from the real-space data.
+        /// Returns an array of distribution parameters given the central moments of the sample.
         /// </summary>
-        /// <param name="moments">The array of sample moments.</param>
-        public double[] DirectMethodOfMoments(IList<double> moments)
+        /// <param name="moments">The array of sample linear moments.</param>
+        public double[] ParametersFromMoments(IList<double> moments)
         {
             var parms = new double[NumberOfParameters];
             parms[0] = moments[0] - moments[1];
             parms[1] = moments[1];
             return parms;
+        }
+
+        /// <summary>
+        /// Returns an array of central moments given the distribution parameters.
+        /// </summary>
+        /// <param name="parameters">The list of distribution parameters.</param>
+        public double[] MomentsFromParameters(IList<double> parameters)
+        {
+            var dist = new Exponential();
+            dist.SetParameters(parameters);
+            var m1 = dist.Mean;
+            var m2 = dist.StandardDeviation;
+            var m3 = dist.Skew;
+            var m4 = dist.Kurtosis;
+            return new[] { m1, m2, m3, m4 };
         }
 
         /// <summary>

@@ -24,7 +24,7 @@ namespace Numerics.Distributions
     /// </para>
     /// </remarks>
     [Serializable]
-    public sealed class LogPearsonTypeIII : UnivariateDistributionBase, IColesTawn, IEstimation, IMaximumLikelihoodEstimation, ILinearMomentEstimation, IStandardError, IBootstrappable
+    public sealed class LogPearsonTypeIII : UnivariateDistributionBase, IColesTawn, IEstimation, IMaximumLikelihoodEstimation, IMomentEstimation, ILinearMomentEstimation, IStandardError, IBootstrappable
     {
       
         /// <summary>
@@ -517,7 +517,7 @@ namespace Numerics.Distributions
                 }
                 else
                 {
-                    transformedSample.Add(Math.Log(0.1d, Base));
+                    transformedSample.Add(Math.Log(0.01d, Base));
                 }
             }
             return Statistics.ProductMoments(transformedSample);
@@ -541,10 +541,34 @@ namespace Numerics.Distributions
                 }
                 else
                 {
-                    transformedSample.Add(Math.Log(0.1d, Base));
+                    transformedSample.Add(Math.Log(0.01d, Base));
                 }
             }
             return Statistics.LinearMoments(transformedSample);
+        }
+
+        /// <summary>
+        /// Returns an array of distribution parameters given the central moments of the sample.
+        /// </summary>
+        /// <param name="moments">The array of sample linear moments.</param>
+        public double[] ParametersFromMoments(IList<double> moments)
+        {
+            return moments.ToArray().Subset(0, 2);
+        }
+
+        /// <summary>
+        /// Returns an array of central moments given the distribution parameters.
+        /// </summary>
+        /// <param name="parameters">The list of distribution parameters.</param>
+        public double[] MomentsFromParameters(IList<double> parameters)
+        {
+            var dist = new LogPearsonTypeIII();
+            dist.SetParameters(parameters);
+            var m1 = dist.Mean;
+            var m2 = dist.StandardDeviation;
+            var m3 = dist.Skew;
+            var m4 = dist.Kurtosis;
+            return new[] { m1, m2, m3, m4 };
         }
 
         /// <summary>

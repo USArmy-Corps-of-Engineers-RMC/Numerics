@@ -379,8 +379,8 @@ namespace Numerics.Distributions
             if (double.IsNaN(location) || double.IsInfinity(location))
             {
                 if (throwException)
-                    throw new ArgumentOutOfRangeException(nameof(Xi), "The the location parameter ξ (Xi) must be a number.");
-                return new ArgumentOutOfRangeException(nameof(Xi), "The the location parameter ξ (Xi) must be a number.");
+                    throw new ArgumentOutOfRangeException(nameof(Xi), "The location parameter ξ (Xi) must be a number.");
+                return new ArgumentOutOfRangeException(nameof(Xi), "The location parameter ξ (Xi) must be a number.");
             }
             if (double.IsNaN(scale) || double.IsInfinity(scale) || scale <= 0.0d)
             {
@@ -390,8 +390,8 @@ namespace Numerics.Distributions
             if (double.IsNaN(shape) || double.IsInfinity(shape))
             {
                 if (throwException)
-                    throw new ArgumentOutOfRangeException(nameof(Kappa), "The the shape parameter κ (kappa) must be a number.");
-                return new ArgumentOutOfRangeException(nameof(Kappa), "The the shape parameter κ (kappa) must be a number.");
+                    throw new ArgumentOutOfRangeException(nameof(Kappa), "The shape parameter κ (kappa) must be a number.");
+                return new ArgumentOutOfRangeException(nameof(Kappa), "The shape parameter κ (kappa) must be a number.");
             }
             return null;
         }
@@ -405,7 +405,6 @@ namespace Numerics.Distributions
         {
             return ValidateParameters(parameters[0], parameters[1], parameters[2], throwException);
         }
-
 
         /// <summary>
         /// Returns an array of distribution parameters given the linear moments of the sample.

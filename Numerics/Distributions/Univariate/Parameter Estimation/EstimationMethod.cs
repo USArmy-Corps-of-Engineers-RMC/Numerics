@@ -25,7 +25,9 @@ namespace Numerics.Distributions
         /// Method of linear moments (or L-moments)
         /// </summary>
         MethodOfLinearMoments,
-
+        /// <summary>
+        /// Method of percentiles (or least squares)
+        /// </summary>
         MethodOfPercentiles
     }
 }

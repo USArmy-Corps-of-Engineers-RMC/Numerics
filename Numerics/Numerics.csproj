@@ -127,6 +127,7 @@
     <Compile Include="Distributions\Univariate\CompetingRisks.cs" />
     <Compile Include="Distributions\Univariate\GeneralizedNormal.cs" />
     <Compile Include="Distributions\Univariate\Mixture.cs" />
+    <Compile Include="Distributions\Univariate\Parameter Estimation\IMomentEstimation.cs" />
     <Compile Include="Distributions\Univariate\PertPercentile.cs" />
     <Compile Include="Distributions\Univariate\Uncertainty Analysis\IBootstrappable.cs" />
     <Compile Include="Distributions\Univariate\Uncertainty Analysis\UncertaintyAnalysisResults.cs" />

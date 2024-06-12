@@ -93,7 +93,7 @@ namespace Numerics.Distributions
     /// </para>
     /// </remarks>
     [Serializable]
-    public sealed class GammaDistribution : UnivariateDistributionBase, IColesTawn, IEstimation, IMaximumLikelihoodEstimation, ILinearMomentEstimation, IStandardError, IBootstrappable
+    public sealed class GammaDistribution : UnivariateDistributionBase, IColesTawn, IEstimation, IMaximumLikelihoodEstimation, IMomentEstimation, ILinearMomentEstimation, IStandardError, IBootstrappable
     {
 
         // There are three different parameterizations in common use:
@@ -340,7 +340,7 @@ namespace Numerics.Distributions
         {
             if (estimationMethod == ParameterEstimationMethod.MethodOfMoments)
             {
-                SetParameters(DirectMethodOfMoments(Statistics.ProductMoments(sample)));
+                SetParameters(ParametersFromMoments(Statistics.ProductMoments(sample)));
             }
             else if (estimationMethod == ParameterEstimationMethod.MethodOfLinearMoments)
             {
@@ -427,15 +427,30 @@ namespace Numerics.Distributions
         }
      
         /// <summary>
-        /// Gets the parameters using the direct method of moments. Moments are derived from the real-space data.
+        /// Returns an array of distribution parameters given the central moments of the sample.
         /// </summary>
-        /// <param name="moments">The array of sample moments.</param>
-        public double[] DirectMethodOfMoments(IList<double> moments)
+        /// <param name="moments">The array of sample linear moments.</param>
+        public double[] ParametersFromMoments(IList<double> moments)
         {
             var parms = new double[NumberOfParameters];
             parms[0] = 1d / (moments[0] / Math.Pow(moments[1], 2d));
             parms[1] = Math.Pow(moments[0], 2d) / Math.Pow(moments[1], 2d);
             return parms;
+        }
+
+        /// <summary>
+        /// Returns an array of central moments given the distribution parameters.
+        /// </summary>
+        /// <param name="parameters">The list of distribution parameters.</param>
+        public double[] MomentsFromParameters(IList<double> parameters)
+        {
+            var dist = new GammaDistribution();
+            dist.SetParameters(parameters);
+            var m1 = dist.Mean;
+            var m2 = dist.StandardDeviation;
+            var m3 = dist.Skew;
+            var m4 = dist.Kurtosis;
+            return new[] { m1, m2, m3, m4 };
         }
 
         /// <summary>
@@ -531,7 +546,7 @@ namespace Numerics.Distributions
             var lowerVals = new double[NumberOfParameters];
             var upperVals = new double[NumberOfParameters];
             // Get initial values
-            initialVals = DirectMethodOfMoments(Statistics.ProductMoments(sample));
+            initialVals = ParametersFromMoments(Statistics.ProductMoments(sample));
             // Get bounds of scale
             lowerVals[0] = Tools.DoubleMachineEpsilon;
             upperVals[0] = Math.Pow(10d, Math.Ceiling(Math.Log10(initialVals[0]) + 1d));

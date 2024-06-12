@@ -262,6 +262,8 @@ namespace Sampling.MCMC
             double errSigma = Math.Sqrt(errSigma2);
             double errMu = -0.5 * errSigma2;
 
+            //var sig = Math.Sqrt((Math.Exp(errSigma2 * errSigma2) - 1.0d) * Math.Exp(2d * errMu + errSigma2 * errSigma2));
+
             var popDist = new Normal(popMU, popSigma);
             var errDist = new Normal(errMu, errSigma);
 
@@ -269,11 +271,15 @@ namespace Sampling.MCMC
             var prng = new MersenneTwister(12345);
             for (int i = 0; i < sample.Length; i++)
             {
-                if (Math.Exp(sample[i]) >= 500)
+                double sig = 0;
+                if (Math.Exp(sample[i]) >= 550)
                 {
                     sample[i] = sample[i] + errDist.InverseCDF(prng.NextDouble());
+                    sig = Math.Sqrt((Math.Exp(errSigma2 * errSigma2) - 1.0d) * Math.Exp(2d * sample[i] + errSigma2 * errSigma2));
                 }             
-                //Debug.Print(Math.Exp(sample[i]).ToString());
+                //Debug.WriteLine(Math.Exp(sample[i]).ToString());
+                
+                Debug.WriteLine(sig.ToString());
             }
 
 
@@ -284,7 +290,7 @@ namespace Sampling.MCMC
             var sampler = new DEMCzs(priors, x =>
             {
                 var norm = new Normal(x[0], x[1]);
-                double w1 = norm.CDF(Math.Log(500));
+                double w1 = norm.CDF(Math.Log(550));
                 double w2 = 1 - w1;
 
                 double LH = 0;
@@ -311,6 +317,11 @@ namespace Sampling.MCMC
 
             sampler.Sample();
             var results = new MCMCResults(sampler);
+
+            var muL = results.MAP.Values[0];
+            var sigmaL = results.MAP.Values[1];
+            var muR = Math.Exp(muL + sigmaL * sigmaL / 2.0d);
+            var sigmaR = Math.Sqrt((Math.Exp(sigmaL * sigmaL) - 1.0d) * Math.Exp(2d * muL + sigmaL * sigmaL));
 
             var probabilities = new double[] { 0.999999, 0.999998, 0.999995, 0.99999, 0.99998, 0.99995, 0.9999, 0.9998, 0.9995, 0.999, 0.998, 0.995, 0.99, 0.98, 0.95, 0.9, 0.8, 0.7, 0.5, 0.3, 0.2, 0.1, 0.05, 0.02, 0.01 };
             var boot = new BootstrapAnalysis(popDist, ParameterEstimationMethod.MaximumLikelihood, n);

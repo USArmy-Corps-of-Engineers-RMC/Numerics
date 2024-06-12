@@ -35,6 +35,9 @@ namespace Numerics.Distributions
         /// <param name="probability">Probability between 0 and 1.</param>
         IList<double> PartialDerivatives(double probability);
 
+
+
+
         /// <summary>
         /// Returns the quantile variance given probability and sample size.
         /// </summary>
