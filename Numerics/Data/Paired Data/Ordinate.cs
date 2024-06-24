@@ -32,26 +32,9 @@ namespace Numerics.Data
             X = xValue;
             Y = yValue;
             IsValid = true;
-            if (double.IsInfinity(X) | double.IsNaN(X) || double.IsInfinity(Y) | double.IsNaN(Y)) IsValid = false;
+            if (double.IsInfinity(X) | double.IsNaN(X) || double.IsInfinity(Y) | double.IsNaN(Y)) { IsValid = false; }
         }
 
-        /// <summary>
-        /// Constructs new ordinate from XElement.
-        /// </summary>
-        /// <param name="xElement">The XElement to deserialize.</param>
-        public Ordinate(XElement xElement)
-        {
-            double x = 0;
-            if (xElement.Attribute(nameof(X)) != null) double.TryParse(xElement.Attribute(nameof(X)).Value, NumberStyles.Any, CultureInfo.InvariantCulture, out x);
-            double y = 0;
-            if (xElement.Attribute(nameof(Y)) != null) double.TryParse(xElement.Attribute(nameof(Y)).Value, NumberStyles.Any, CultureInfo.InvariantCulture, out y);
-
-            // Set values and validate
-            X = x;
-            Y = y;
-            IsValid = true;
-            if (double.IsInfinity(X) | double.IsNaN(X) || double.IsInfinity(Y) | double.IsNaN(Y)) IsValid = false;
-        }
 
         /// <summary>
         /// Constructs new ordinate from XElement.
@@ -66,8 +49,7 @@ namespace Numerics.Data
             X = x;
             Y = y;
             IsValid = true;
-            if (double.IsInfinity(X) || double.IsNaN(X) || double.IsInfinity(Y) || double.IsNaN(Y))
-                IsValid = false;
+            if (double.IsInfinity(X) || double.IsNaN(X) || double.IsInfinity(Y) || double.IsNaN(Y)) { IsValid = false; }
 
         }
         #endregion
