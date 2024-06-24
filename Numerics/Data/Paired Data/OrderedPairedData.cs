@@ -1,9 +1,14 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Windows.Controls;
+using System.Windows.Markup;
+using System.Xml.Linq;
+using Microsoft.VisualBasic;
 using Numerics.Distributions;
 
 namespace Numerics.Data
@@ -23,7 +28,7 @@ namespace Numerics.Data
     /// </para>
     /// </remarks> 
     [Serializable]
-    public class OrderedPairedData : IList<Ordinate>
+    public class OrderedPairedData : IList<Ordinate>, INotifyCollectionChanged
     {
         #region Search Properties
 
@@ -65,6 +70,8 @@ namespace Numerics.Data
         #endregion
 
         private List<Ordinate> _ordinates;
+
+        public event NotifyCollectionChangedEventHandler CollectionChanged;
 
         /// <summary>
         /// Represents if the paired dataset has valid ordinates and order.
@@ -114,8 +121,28 @@ namespace Numerics.Data
             get { return _ordinates[index]; }
             set
             {
-                _ordinates[index] = value;
-                Validate();
+                //_ordinates[index] = value;
+                //Validate();
+
+                if (_ordinates[index] != value)
+                {
+                    var oldvalue = _ordinates[index];
+                    _ordinates[index] = value;
+                    if (IsValid == true)
+                    {
+                        if (OrdinateValid(index) == false) { IsValid = false; }
+                    }
+                    else
+                    {
+                        if (OrdinateValid(index) == true) { Validate(); }
+                    }
+                    ////
+                    //if (SupressCollectionChanged == false)
+                    //{
+                    CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, value, oldvalue));
+                    //}
+                }
+
             }
         }
 
@@ -194,6 +221,46 @@ namespace Numerics.Data
         }
 
         /// <summary>
+        /// Create a new instance of the uncertain ordered paired data class from an XElement XML object.
+        /// </summary>
+        /// <param name="el"></param>
+        public OrderedPairedData(XElement el)
+        {
+            // Get Strictness
+            bool strict = false;
+            if (el.Attribute(nameof(StrictX)) != null) { bool.TryParse(el.Attribute(nameof(StrictX)).Value, out strict); }
+            StrictX = strict;
+
+            strict = false;
+            if (el.Attribute(nameof(StrictY)) != null) { bool.TryParse(el.Attribute(nameof(StrictY)).Value, out strict); }
+            StrictY = strict;
+
+            // Get Order
+            SortOrder order = SortOrder.None;
+            if (el.Attribute(nameof(OrderX)) != null) { Enum.TryParse(el.Attribute(nameof(OrderX)).Value, out order); }
+            OrderX = order;
+
+            order = SortOrder.None;
+            if (el.Attribute(nameof(OrderY)) != null) { Enum.TryParse(el.Attribute(nameof(OrderY)).Value, out order); }
+            OrderY = order;
+
+            // Ordinates
+            var curveEl = el.Element("Ordinates");
+            _ordinates = new List<Ordinate>();
+            if (curveEl != null)
+            {
+                foreach (XElement o in curveEl.Elements(nameof(Ordinate)))
+                {
+                    _ordinates.Add(new Ordinate(o));
+                }
+            }
+
+            Validate();
+        }
+
+
+
+        /// <summary>
         /// Determines the index of a specific ordinate in the collection.
         /// </summary>
         /// <param name="item">The ordinate to locate in the collection.</param>
@@ -217,18 +284,6 @@ namespace Numerics.Data
                 if (Math.Abs(_ordinates[i].X - xValue) <= 0.000000001d && Math.Abs(_ordinates[i].Y - yValue) <= 0.000000001d) return i;
             }
             return -1;
-        }
-
-        /// <summary>
-        /// Inserts an item to the collection of ordinates.
-        /// </summary>
-        /// <param name="index">The zero-based index at which item should be inserted.</param>
-        /// <param name="item">The ordinate to insert into the collection.</param>
-        public void Insert(int index, Ordinate item)
-        {
-            _ordinates.Insert(index, item);
-            // only need to set valid state if it is true..if it is already false then inserting can't make it true.
-            if (IsValid) IsValid = OrdinateValid(index);
         }
 
         /// <summary>
@@ -280,7 +335,7 @@ namespace Numerics.Data
         public List<string> GetErrors()
         {
             var result = new List<string>();
-            if (IsValid) return result;      
+            if (IsValid) return result;
             for (int i = 0; i < _ordinates.Count - 1; i++)
                 // Look forward
                 result.AddRange(_ordinates[i].OrdinateErrors(_ordinates[i + 1], StrictX, StrictY, OrderX, OrderY, true));
@@ -289,13 +344,46 @@ namespace Numerics.Data
         }
 
         /// <summary>
+        /// Removes the first occurrence of a target ordinate from the collection.
+        /// </summary>
+        /// <param name="item">The ordinate to remove from the collection.</param>
+        /// <returns>True if item was successfully removed from the collection; otherwise, False.</returns>
+        public bool Remove(Ordinate item)
+        {
+            int itemIndex = IndexOf(item);
+            if (itemIndex == -1) return false;
+            _ordinates.RemoveAt(itemIndex);
+            Validate();
+            CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, item, itemIndex));
+            return true;
+        }
+
+        /// <summary>
         /// Removes the ordinate from the collection at the specified index.
         /// </summary>
         /// <param name="index">The zero-based index of the item to remove.</param>
         public void RemoveAt(int index)
         {
+            if (index < 0 || index >= _ordinates.Count) { return; }
+            var item = _ordinates[index];
             _ordinates.RemoveAt(index);
             Validate();
+            CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, item, index));
+        }
+
+        /// <summary>
+        /// Removes a range of ordinates from the collection.
+        /// </summary>
+        /// <param name="index">The zero-based starting index of the range of elements to remove.</param>
+        /// <param name="count">The number of elements to remove.</param>
+        public void RemoveRange(int index, int count)
+        {
+            if (index < 0 || (index + count) >= _ordinates.Count) { return; }
+            List<Ordinate> items = new List<Ordinate>();
+            for (int i = index; i < count; i++) { items.Add(_ordinates[i]); }
+            _ordinates.RemoveRange(index, count);
+            Validate();
+            CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, items, index));
         }
 
         /// <summary>
@@ -306,6 +394,20 @@ namespace Numerics.Data
         {
             _ordinates.Add(item);
             IsValid = OrdinateValid(_ordinates.Count - 1);
+            CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item, _ordinates.Count - 1));
+        }
+
+        /// <summary>
+        /// Inserts an item to the collection of ordinates.
+        /// </summary>
+        /// <param name="index">The zero-based index at which item should be inserted.</param>
+        /// <param name="item">The ordinate to insert into the collection.</param>
+        public void Insert(int index, Ordinate item)
+        {
+            _ordinates.Insert(index, item);
+            // only need to set valid state if it is true..if it is already false then inserting can't make it true.
+            if (IsValid) IsValid = OrdinateValid(index);
+            CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item, index));
         }
 
         /// <summary>
@@ -315,17 +417,7 @@ namespace Numerics.Data
         {
             _ordinates.Clear();
             IsValid = true;
-        }
-
-        /// <summary>
-        /// Removes a range of ordinates from the collection.
-        /// </summary>
-        /// <param name="index">The zero-based starting index of the range of elements to remove.</param>
-        /// <param name="count">The number of elements to remove.</param>
-        public void RemoveRange(int index, int count)
-        {
-            _ordinates.RemoveRange(index, count);
-            Validate();
+            CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
         }
 
         /// <summary>
@@ -387,12 +479,12 @@ namespace Numerics.Data
         }
 
         #region Interpolation
-        
+
 
         private double RawInterpolate(double value, int start, bool givenX = true, Transform xTransform = Data.Transform.None, Transform yTransform = Data.Transform.None)
         {
 
-            double x = givenX ? value : 0, y = givenX? 0: value, x1 = 0, x2 = 0, y1 = 0, y2 = 0;
+            double x = givenX ? value : 0, y = givenX ? 0 : value, x1 = 0, x2 = 0, y1 = 0, y2 = 0;
             int lo = start, hi = start + 1;
 
             // Get X transform
@@ -1027,7 +1119,7 @@ namespace Numerics.Data
 
             return new OrderedPairedData(xValues, yValues, strictOnX, orderOnX, strictOnY, orderOnY);
         }
-      
+
         /// <summary>
         /// Searches ordinates in the OrderedPairedData collection
         /// for an ordinate based on X-value and returns the zero-based index of the element.
@@ -1429,19 +1521,7 @@ namespace Numerics.Data
             return new OrderedPairedData(invertedOrdinates, StrictY, OrderY, StrictX, OrderX);
         }
 
-        /// <summary>
-        /// Removes the first occurrence of a target ordinate from the collection.
-        /// </summary>
-        /// <param name="item">The ordinate to remove from the collection.</param>
-        /// <returns>True if item was successfully removed from the collection; otherwise, False.</returns>
-        public bool Remove(Ordinate item)
-        {
-            int itemIndex = IndexOf(item);
-            if (itemIndex == -1) return false;
-            _ordinates.RemoveAt(itemIndex);
-            Validate();
-            return true;
-        }
+
 
         /// <summary>
         /// Returns an enumerator that iterates through the collection.
@@ -1527,7 +1607,7 @@ namespace Numerics.Data
             var ints = DouglasPeuckerReduction(tolerance);
             for (int i = 0; i < ints.Count; i++)
                 ordinates.Add(new Ordinate(_ordinates[ints[i]].X, _ordinates[ints[i]].Y));
-            
+
             return new OrderedPairedData(ordinates, StrictX, OrderX, StrictY, OrderY);
         }
 
@@ -1745,6 +1825,28 @@ namespace Numerics.Data
 
 
         #endregion
+
+        /// <summary>
+        /// Converts the ordered paired data set to an XElement for saving to xml.
+        /// </summary>
+        /// <returns>An XElement representation of the data.</returns>
+        public XElement SaveToXElement()
+        {
+            var result = new XElement(nameof(OrderedPairedData));
+            // 
+            // Order
+            result.SetAttributeValue(nameof(StrictX), StrictX.ToString());
+            result.SetAttributeValue(nameof(StrictY), StrictY.ToString());
+            // Get Strictness
+            result.SetAttributeValue(nameof(OrderX), OrderX.ToString());
+            result.SetAttributeValue(nameof(OrderY), OrderY.ToString());
+            // 
+            var curveElement = new XElement("Ordinates");
+            for (int i = 0; i < Count; i++) { curveElement.Add(this[i].ToXElement()); }
+            // 
+            result.Add(curveElement);
+            return result;
+        }
 
     }
 }

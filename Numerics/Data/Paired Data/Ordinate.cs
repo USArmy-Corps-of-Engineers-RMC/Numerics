@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.Xml.Linq;
 using Numerics.Distributions;
 
 namespace Numerics.Data
@@ -15,7 +17,7 @@ namespace Numerics.Data
     /// </para>
     /// </remarks>
     [Serializable]
-    public class Ordinate
+    public struct Ordinate
     {
 
         #region Construction
@@ -29,6 +31,24 @@ namespace Numerics.Data
         {
             X = xValue;
             Y = yValue;
+            IsValid = true;
+            if (double.IsInfinity(X) | double.IsNaN(X) || double.IsInfinity(Y) | double.IsNaN(Y)) IsValid = false;
+        }
+
+        /// <summary>
+        /// Constructs new ordinate from XElement.
+        /// </summary>
+        /// <param name="xElement">The XElement to deserialize.</param>
+        public Ordinate(XElement xElement)
+        {
+            double x = 0;
+            if (xElement.Attribute(nameof(X)) != null) double.TryParse(xElement.Attribute(nameof(X)).Value, NumberStyles.Any, CultureInfo.InvariantCulture, out x);
+            double y = 0;
+            if (xElement.Attribute(nameof(Y)) != null) double.TryParse(xElement.Attribute(nameof(Y)).Value, NumberStyles.Any, CultureInfo.InvariantCulture, out y);
+
+            // Set values and validate
+            X = x;
+            Y = y;
             IsValid = true;
             if (double.IsInfinity(X) | double.IsNaN(X) || double.IsInfinity(Y) | double.IsNaN(Y)) IsValid = false;
         }
@@ -283,5 +303,38 @@ namespace Numerics.Data
         }
 
         #endregion
+
+        /// <summary>
+        /// Checks if two uncertain ordinates are equal.
+        /// </summary>
+        /// <param name="left">Uncertain ordinate.</param>
+        /// <param name="right">Uncertain ordinate.</param>
+        public static bool operator ==(Ordinate left, Ordinate right)
+        {
+            if (Math.Abs(left.X - right.X) > Tools.DoubleMachineEpsilon) { return false; }
+            if (Math.Abs(left.Y - right.Y) > Tools.DoubleMachineEpsilon) { return false; }
+            return true;
+        }
+
+        /// <summary>
+        /// Checks if two uncertain ordinates are not equal.
+        /// </summary>
+        /// <param name="left">Uncertain ordinate.</param>
+        /// <param name="right">Uncertain ordinate.</param>
+        public static bool operator !=(Ordinate left, Ordinate right)
+        {
+            return !(left == right);
+        }
+
+        /// <summary>
+        /// Returns the ordinate as XEleemnt.
+        /// </summary>
+        public XElement ToXElement()
+        {
+            var result = new XElement(nameof(Ordinate));
+            result.SetAttributeValue(nameof(X), X.ToString("G17", CultureInfo.InvariantCulture));
+            result.SetAttributeValue(nameof(Y), Y.ToString("G17", CultureInfo.InvariantCulture));
+            return result;
+        }
     }
 }
