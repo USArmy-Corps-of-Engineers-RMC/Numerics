@@ -367,7 +367,6 @@ namespace Numerics.Distributions
             get { return new double[] { double.MaxValue, double.MaxValue }; }
         }
 
-
         #region Kernel Distributions
 
         /// <summary>

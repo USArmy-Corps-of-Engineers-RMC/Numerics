@@ -651,7 +651,7 @@ namespace Numerics.Distributions
                 }
                 else if (Dependency == Probability.DependencyType.PerfectlyNegative || correlationMatrix != null)
                 {
-                    dF[i][0] = Probability.JointProbabilityHPCM(pu, ind, sigma);
+                    dF[i][0] = Probability.JointProbabilityPCM(pu, ind, sigma);
                 }
                 if (double.IsNaN(dF[i][0])) dF[i][0] = 0;
                 dF[i][0] = Math.Max(0, Math.Min(1, dF[i][0]));
@@ -674,8 +674,8 @@ namespace Numerics.Distributions
                     }
                     else if (correlationMatrix != null || Dependency == Probability.DependencyType.PerfectlyNegative)
                     {
-                        SF1 = Probability.JointProbabilityHPCM(pl, ind, sigma);
-                        SF2 = Probability.JointProbabilityHPCM(pu, ind, sigma);
+                        SF1 = Probability.JointProbabilityPCM(pl, ind, sigma);
+                        SF2 = Probability.JointProbabilityPCM(pu, ind, sigma);
                     }
 
                     dF[i][j + 1] = SF2 - SF1;
@@ -756,115 +756,115 @@ namespace Numerics.Distributions
             var pu = new double[D];
             var ind = new int[D];
             ind.Fill(1);
-            var x = new List<double[]>();
-            var p = new List<double[]>();
+            //var x = new List<double[]>();
+            //var p = new List<double[]>();
             var dF = new List<double[]>();
 
 
-            for (int i = 0; i < D; i++)
-            {
-                x.Add(new double[bins.Count + 1]);
-                p.Add(new double[bins.Count + 1]);
-                dF.Add(new double[bins.Count + 1]);
-
-                // Record first bin
-                x[i][0] = bins[0].LowerBound;
-                for (int k = 0; k < D; k++)
-                {
-                    pm[k] = Distributions[k].CCDF(bins[0].Midpoint);
-                    pu[k] = k == i ? Distributions[k].CCDF(bins[0].LowerBound) : pm[k];
-                }
-                dF[i][0] = 1 - Probability.JointProbabilityHPCM(pu, ind, corrMat);
-                if (double.IsNaN(dF[i][0])) dF[i][0] = 0;
-                dF[i][0] = Math.Max(0, Math.Min(1, dF[i][0]));
-                p[i][0] = dF[i][0];
-
-                // Record remaining bins
-                for (int j = 0; j < bins.Count; j++)
-                {
-                    x[i][j + 1] = bins[j].UpperBound;
-                    for (int k = 0; k < D; k++)
-                    {
-                        pm[k] = Distributions[k].CCDF(bins[j].Midpoint);
-                        pl[k] = k == i ? Distributions[k].CCDF(bins[j].UpperBound) : pm[k];
-                        pu[k] = k == i ? Distributions[k].CCDF(bins[j].LowerBound) : pm[k];
-                    }
-                    SF1 = Probability.JointProbabilityHPCM(pl, ind, corrMat);
-                    SF2 = Probability.JointProbabilityHPCM(pu, ind, corrMat);
-                    dF[i][j + 1] = SF2 - SF1;
-                    if (double.IsNaN(dF[i][j + 1])) dF[i][j + 1] = 0;
-                    dF[i][j + 1] = Math.Max(0, Math.Min(1, dF[i][j + 1]));
-                }
-
-            }
-
-            // Get cumulative probabilities and make sure they sum <= 1 across D
-            bool fixDF = false;
-            var sum = new double[bins.Count + 1];
-            for (int j = 1; j <= bins.Count; j++)
-            {
-                for (int i = 0; i < D; i++)
-                {
-                    sum[j] += p[i][j - 1] + dF[i][j];
-                    p[i][j] = Math.Max(0, Math.Min(1, p[i][j - 1] + dF[i][j]));
-                }
-                if (sum[j] > 1 && sum[j] != sum[j - 1] && fixDF == false)
-                {
-                    double s = 0;
-                    for (int i = 0; i < D; i++)
-                    {
-                        dF[i][j] *= (1 - sum[j - 1]) / (sum[j] - sum[j - 1]);
-                        s += p[i][j - 1] + dF[i][j];
-
-                        p[i][j] = Math.Max(0, Math.Min(1, p[i][j - 1] + dF[i][j]));
-                    }
-                    sum[j] = s;
-                    fixDF = true;
-                }
-                else if (fixDF == true)
-                {
-                    for (int i = 0; i < D; i++)
-                    {
-                        dF[i][j] = 0;
-                        p[i][j] = Math.Max(0, Math.Min(1, p[i][j - 1] + dF[i][j]));
-                    }
-                }
-            }
-
-            // Return CIFs
-            var CIFs = new List<EmpiricalDistribution>();
-            for (int i = 0; i < D; i++)
-                CIFs.Add(new EmpiricalDistribution(x[i], p[i]));
-
-
-
-            //// *** Genz Method that works as well. Do not delete *** //
-            //var lower = new double[D];
-            //var upper = new double[D];
             //for (int i = 0; i < D; i++)
             //{
-            //    var x = new List<double>();
-            //    var p = new List<double>();
-            //    x.Add(bins[0].LowerBound);
+            //    x.Add(new double[bins.Count + 1]);
+            //    p.Add(new double[bins.Count + 1]);
+            //    dF.Add(new double[bins.Count + 1]);
+
+            //    // Record first bin
+            //    x[i][0] = bins[0].LowerBound;
             //    for (int k = 0; k < D; k++)
             //    {
-            //        lower[k] = k == i ? Normal.StandardZ(1E-16) : Normal.StandardZ(Distributions[k].CDF(bins[0].LowerBound));
-            //        upper[k] = k == i ? Normal.StandardZ(Distributions[i].CDF(bins[0].LowerBound)) : Normal.StandardZ(1 - 1E-16);
+            //        pm[k] = Distributions[k].CCDF(bins[0].Midpoint);
+            //        pu[k] = k == i ? Distributions[k].CCDF(bins[0].LowerBound) : pm[k];
             //    }
-            //    p.Add(multivariateNormal.Interval(lower, upper));
+            //    dF[i][0] = 1 - Probability.JointProbabilityHPCM(pu, ind, corrMat);
+            //    if (double.IsNaN(dF[i][0])) dF[i][0] = 0;
+            //    dF[i][0] = Math.Max(0, Math.Min(1, dF[i][0]));
+            //    p[i][0] = dF[i][0];
 
+            //    // Record remaining bins
             //    for (int j = 0; j < bins.Count; j++)
             //    {
-            //        x.Add(bins[j].UpperBound);
+            //        x[i][j + 1] = bins[j].UpperBound;
             //        for (int k = 0; k < D; k++)
             //        {
-            //            lower[k] = k == i ? Normal.StandardZ(Distributions[i].CDF(bins[j].LowerBound)) : Normal.StandardZ(Distributions[k].CDF(bins[j].Midpoint));
-            //            upper[k] = k == i ? Normal.StandardZ(Distributions[i].CDF(bins[j].UpperBound)) : Normal.StandardZ(1 - 1E-16);
+            //            pm[k] = Distributions[k].CCDF(bins[j].Midpoint);
+            //            pl[k] = k == i ? Distributions[k].CCDF(bins[j].UpperBound) : pm[k];
+            //            pu[k] = k == i ? Distributions[k].CCDF(bins[j].LowerBound) : pm[k];
             //        }
-            //        p.Add(p.Last() + multivariateNormal.Interval(lower, upper));
+            //        SF1 = Probability.JointProbabilityHPCM(pl, ind, corrMat);
+            //        SF2 = Probability.JointProbabilityHPCM(pu, ind, corrMat);
+            //        dF[i][j + 1] = SF2 - SF1;
+            //        if (double.IsNaN(dF[i][j + 1])) dF[i][j + 1] = 0;
+            //        dF[i][j + 1] = Math.Max(0, Math.Min(1, dF[i][j + 1]));
             //    }
-            //    CIFs.Add(new EmpiricalDistribution(x, p));
+
             //}
+
+            //// Get cumulative probabilities and make sure they sum <= 1 across D
+            //bool fixDF = false;
+            //var sum = new double[bins.Count + 1];
+            //for (int j = 1; j <= bins.Count; j++)
+            //{
+            //    for (int i = 0; i < D; i++)
+            //    {
+            //        sum[j] += p[i][j - 1] + dF[i][j];
+            //        p[i][j] = Math.Max(0, Math.Min(1, p[i][j - 1] + dF[i][j]));
+            //    }
+            //    if (sum[j] > 1 && sum[j] != sum[j - 1] && fixDF == false)
+            //    {
+            //        double s = 0;
+            //        for (int i = 0; i < D; i++)
+            //        {
+            //            dF[i][j] *= (1 - sum[j - 1]) / (sum[j] - sum[j - 1]);
+            //            s += p[i][j - 1] + dF[i][j];
+
+            //            p[i][j] = Math.Max(0, Math.Min(1, p[i][j - 1] + dF[i][j]));
+            //        }
+            //        sum[j] = s;
+            //        fixDF = true;
+            //    }
+            //    else if (fixDF == true)
+            //    {
+            //        for (int i = 0; i < D; i++)
+            //        {
+            //            dF[i][j] = 0;
+            //            p[i][j] = Math.Max(0, Math.Min(1, p[i][j - 1] + dF[i][j]));
+            //        }
+            //    }
+            //}
+
+            //// Return CIFs
+            var CIFs = new List<EmpiricalDistribution>();
+            //for (int i = 0; i < D; i++)
+            //    CIFs.Add(new EmpiricalDistribution(x[i], p[i]));
+
+
+
+            // *** Genz Method that works as well. Do not delete *** //
+            var lower = new double[D];
+            var upper = new double[D];
+            for (int i = 0; i < D; i++)
+            {
+                var x = new List<double>();
+                var p = new List<double>();
+                x.Add(bins[0].LowerBound);
+                for (int k = 0; k < D; k++)
+                {
+                    lower[k] = k == i ? Normal.StandardZ(1E-16) : Normal.StandardZ(Distributions[k].CDF(bins[0].LowerBound));
+                    upper[k] = k == i ? Normal.StandardZ(Distributions[i].CDF(bins[0].LowerBound)) : Normal.StandardZ(1 - 1E-16);
+                }
+                p.Add(multivariateNormal.Interval(lower, upper));
+
+                for (int j = 0; j < bins.Count; j++)
+                {
+                    x.Add(bins[j].UpperBound);
+                    for (int k = 0; k < D; k++)
+                    {
+                        lower[k] = k == i ? Normal.StandardZ(Distributions[i].CDF(bins[j].LowerBound)) : Normal.StandardZ(Distributions[k].CDF(bins[j].Midpoint));
+                        upper[k] = k == i ? Normal.StandardZ(Distributions[i].CDF(bins[j].UpperBound)) : Normal.StandardZ(1 - 1E-16);
+                    }
+                    p.Add(p.Last() + multivariateNormal.Interval(lower, upper));
+                }
+                CIFs.Add(new EmpiricalDistribution(x, p));
+            }
 
             return CIFs;
         }

@@ -69,6 +69,10 @@ namespace Numerics.Data
 
         #endregion
 
+        private bool _strictX;
+        private bool _strictY;
+        private SortOrder _orderX;
+        private SortOrder _orderY;
         private List<Ordinate> _ordinates;
 
         public event NotifyCollectionChangedEventHandler CollectionChanged;
@@ -86,24 +90,68 @@ namespace Numerics.Data
         public int Count => _ordinates.Count;
 
         /// <summary>
-        /// Order of the X values.
+        /// Determines whether the sort order is strict on the X variable. 
         /// </summary>
-        public SortOrder OrderX { get; private set; }
+        public bool StrictX
+        {
+            get { return _strictX; }
+            set
+            {
+                if (_strictX != value)
+                {
+                    _strictX = value;
+                    Validate();
+                }
+            }
+        }
 
         /// <summary>
-        /// Order of the Y values.
+        /// Determines whether the sort order is strict on the Y variable. 
         /// </summary>
-        public SortOrder OrderY { get; private set; }
+        public bool StrictY
+        {
+            get { return _strictY; }
+            set
+            {
+                if (_strictY != value)
+                {
+                    _strictY = value;
+                    Validate();
+                }
+            }
+        }
 
         /// <summary>
-        /// If set to True then X values must be strictly increasing or decreasing meaning they cannot be equal.
+        /// Gets or sets the sort order of the X variable. 
         /// </summary>
-        public bool StrictX { get; private set; }
+        public SortOrder OrderX
+        {
+            get { return _orderX; }
+            set
+            {
+                if (_orderX != value)
+                {
+                    _orderX = value;
+                    Validate();
+                }
+            }
+        }
 
         /// <summary>
-        /// If set to True then Y values must be strictly increasing or decreasing meaning they cannot be equal.
+        /// Gets or sets the sort order of the Y variable. 
         /// </summary>
-        public bool StrictY { get; private set; }
+        public SortOrder OrderY
+        {
+            get { return _orderY; }
+            set
+            {
+                if (_orderY != value)
+                {
+                    _orderY = value;
+                    Validate();
+                }
+            }
+        }
 
         /// <summary>
         /// ReadOnly is an implementation of ICollection and not implemented for this class.
@@ -291,6 +339,7 @@ namespace Numerics.Data
         /// </summary>
         private void Validate()
         {
+            if (_ordinates == null) return;
             IsValid = true;
             for (int i = 0; i < _ordinates.Count; i++)
             {

@@ -29,7 +29,7 @@ namespace Numerics.Distributions
     /// </para>
     /// </remarks>
     [Serializable]
-    public sealed class LogNormal : UnivariateDistributionBase, IColesTawn, IEstimation, IMaximumLikelihoodEstimation, ILinearMomentEstimation, IStandardError, IBootstrappable
+    public sealed class LogNormal : UnivariateDistributionBase, IColesTawn, IEstimation, IMaximumLikelihoodEstimation, IMomentEstimation, ILinearMomentEstimation, IStandardError, IBootstrappable
     {
   
         /// <summary>
@@ -429,6 +429,35 @@ namespace Numerics.Distributions
         }
 
         /// <summary>
+        /// Returns an array of distribution parameters given the central moments of the sample.
+        /// </summary>
+        /// <param name="moments">The array of sample linear moments.</param>
+        public double[] ParametersFromMoments(IList<double> moments)
+        {
+            var mean = moments[0];
+            var standardDeviation = moments[1];
+            double variance = Math.Pow(standardDeviation, 2d);
+            double mu = Math.Log(Math.Pow(mean, 2d) / Math.Sqrt(variance + Math.Pow(mean, 2d)), Base);
+            double sigma = Math.Sqrt(Math.Log(1.0d + variance / Math.Pow(mean, 2d), Base));
+            return new[] { mu, sigma };
+        }
+
+        /// <summary>
+        /// Returns an array of central moments given the distribution parameters.
+        /// </summary>
+        /// <param name="parameters">The list of distribution parameters.</param>
+        public double[] MomentsFromParameters(IList<double> parameters)
+        {
+            var dist = new LogNormal();
+            dist.SetParameters(parameters);
+            var m1 = dist.Mean;
+            var m2 = dist.StandardDeviation;
+            var m3 = dist.Skew;
+            var m4 = dist.Kurtosis;
+            return new[] { m1, m2, m3, m4 };
+        }
+
+        /// <summary>
         /// Returns an array of distribution parameters given the linear moments of the sample.
         /// </summary>
         /// <param name="moments">The array of sample linear moments.</param>
@@ -467,11 +496,12 @@ namespace Numerics.Distributions
             initialVals = new double[] { mom[0], mom[1] };
             // Get bounds of mean
             double real = Math.Exp(initialVals[0] / K);
-            lowerVals[0] = -Math.Ceiling(Math.Log(Math.Pow(10d, Math.Ceiling(Math.Log10(real) + 2d)), Base));
-            upperVals[0] = Math.Ceiling(Math.Log(Math.Pow(10d, Math.Ceiling(Math.Log10(real) + 2d)), Base));
+            lowerVals[0] = -Math.Ceiling(Math.Log(Math.Pow(10d, Math.Ceiling(Math.Log10(real) + 1d)), Base));
+            upperVals[0] = Math.Ceiling(Math.Log(Math.Pow(10d, Math.Ceiling(Math.Log10(real) + 1d)), Base));
             // Get bounds of standard deviation
+            real = Math.Exp(initialVals[1] / K);
             lowerVals[1] = Tools.DoubleMachineEpsilon;
-            upperVals[1] = upperVals[0];
+            upperVals[1] = Math.Ceiling(Math.Log(Math.Pow(10d, Math.Ceiling(Math.Log10(real) + 1d)), Base));
             return new Tuple<double[], double[], double[]>(initialVals, lowerVals, upperVals);
         }
 

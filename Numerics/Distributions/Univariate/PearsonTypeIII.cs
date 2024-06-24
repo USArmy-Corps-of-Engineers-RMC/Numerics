@@ -20,7 +20,7 @@ namespace Numerics.Distributions
     /// </para>
     /// </remarks>
     [Serializable]
-    public sealed class PearsonTypeIII : UnivariateDistributionBase, IColesTawn, IEstimation, IMaximumLikelihoodEstimation, ILinearMomentEstimation, IStandardError, IBootstrappable
+    public sealed class PearsonTypeIII : UnivariateDistributionBase, IColesTawn, IEstimation, IMaximumLikelihoodEstimation, IMomentEstimation, ILinearMomentEstimation, IStandardError, IBootstrappable
     {
 
         /// <summary>
@@ -462,31 +462,27 @@ namespace Numerics.Distributions
         }
 
         /// <summary>
-        /// Returns the distribution moments from the parameters.
+        /// Returns an array of distribution parameters given the central moments of the sample.
         /// </summary>
-        /// <param name="xi">The location parameter.</param>
-        /// <param name="beta">The scale parameter.</param>
-        /// <param name="alpha">The shape parameter.</param>
-        public static double[] ProductMomentsFromParameters(double xi, double beta, double alpha)
+        /// <param name="moments">The array of sample linear moments.</param>
+        public double[] ParametersFromMoments(IList<double> moments)
         {
-            double mu =  xi + alpha * beta; // mean
-            double sigma = Math.Sqrt(alpha * beta * beta); // standard deviation
-            double gamma = Math.Sign(beta) * 2d / Math.Sqrt(alpha); // skewness
-            return new double[] { mu, sigma, gamma };
+            return moments.ToArray().Subset(0, 2);
         }
 
         /// <summary>
-        /// Returns the distribution parameters from product moments.
+        /// Returns an array of central moments given the distribution parameters.
         /// </summary>
-        /// <param name="mean">The mean of the distribution.</param>
-        /// <param name="standardDeviation">The standard deviation of the distribution.</param>
-        /// <param name="skew">The skew of the distribution.</param>
-        public static double[] ParametersFromProductMoments(double mean, double standardDeviation, double skew)
+        /// <param name="parameters">The list of distribution parameters.</param>
+        public double[] MomentsFromParameters(IList<double> parameters)
         {
-            double xi = mean - 2.0d * standardDeviation / skew; // location
-            double beta = 0.5d * standardDeviation * skew; // scale
-            double alpha = 4.0d / Math.Pow(skew, 2d); // shape
-            return new double[] { xi, beta, alpha };
+            var dist = new PearsonTypeIII();
+            dist.SetParameters(parameters);
+            var m1 = dist.Mean;
+            var m2 = dist.StandardDeviation;
+            var m3 = dist.Skew;
+            var m4 = dist.Kurtosis;
+            return new[] { m1, m2, m3, m4 };
         }
 
         /// <summary>
@@ -631,9 +627,6 @@ namespace Numerics.Distributions
 
         }
 
-        
-        
-        
         /// <summary>
         /// Gets the Probability Density Function (PDF) of the distribution evaluated at a point X.
         /// </summary>
@@ -651,15 +644,6 @@ namespace Numerics.Distributions
                 double z = (x - Mu) / Sigma;
                 return Math.Exp(-0.5d * z * z) / (Tools.Sqrt2PI * Sigma);
             }
-            //if (Math.Abs(Gamma) <= 0.07)
-            //{
-            //    // Use Wilson-Hilferty 
-            //    double z = (x - Mu) / Sigma;
-            //    double zz = Gamma / 6d + 6d / Gamma * Math.Pow(Gamma / 2d * z + 1, 1d / 3d) - 6d / Gamma;
-            //    double num = Normal.StandardPDF(zz);
-            //    double den = Sigma * Math.Pow(Gamma / 2d * z + 1, 2d / 3d);
-            //    return num / den;
-            //}
             // Use Gamma distribution
             if (Beta > 0d)
             {

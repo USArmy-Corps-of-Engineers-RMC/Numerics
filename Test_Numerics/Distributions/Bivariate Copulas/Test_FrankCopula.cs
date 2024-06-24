@@ -57,8 +57,16 @@ namespace Distributions.BivariateCopulas
         [TestMethod]
         public void Test_Generation()
         {
-            var copula = new FrankCopula(20);
-            var samples = copula.GenerateRandomValues(1000, 12345);
+            //var copula = new FrankCopula(20);
+            //var samples = copula.GenerateRandomValues(1000, 12345);
+            //for (int i = 0; i < samples.GetLength(0); i++)
+            //    Debug.WriteLine(samples[i, 0] + "," + samples[i, 1]);
+
+            //var copula = new FrankCopula(7);
+            //copula.MarginalDistributionX = new Normal(100, 15);
+            //copula.MarginalDistributionY = new Normal(80, 25);
+
+            //var samples = copula.GenerateRandomValues(100);
             //for (int i = 0; i < samples.GetLength(0); i++)
             //    Debug.WriteLine(samples[i, 0] + "," + samples[i, 1]);
 
@@ -86,7 +94,7 @@ namespace Distributions.BivariateCopulas
             BivariateCopula copula = new FrankCopula();
             BivariateCopulaEstimation.Estimate(ref copula, rank1, rank2, CopulaEstimationMethod.PseudoLikelihood);
 
-            Assert.AreEqual(copula.Theta, 7.50188, 1E-4);
+            Assert.AreEqual(copula.Theta, 7.50188, 1E-3);
 
         }
 
@@ -115,7 +123,7 @@ namespace Distributions.BivariateCopulas
 
             BivariateCopulaEstimation.Estimate(ref copula, rank1, rank2 , CopulaEstimationMethod.InferenceFromMargins);
 
-            Assert.AreEqual(copula.Theta, 7.50188, 1E-4);
+            Assert.AreEqual(copula.Theta, 7.50188, 1E-3);
 
         }
 

@@ -24,7 +24,7 @@ namespace Numerics.Distributions
     /// </para>
     /// </remarks>
     [Serializable]
-    public sealed class LogPearsonTypeIII : UnivariateDistributionBase, IColesTawn, IEstimation, IMaximumLikelihoodEstimation, ILinearMomentEstimation, IStandardError, IBootstrappable
+    public sealed class LogPearsonTypeIII : UnivariateDistributionBase, IColesTawn, IEstimation, IMaximumLikelihoodEstimation, IMomentEstimation, ILinearMomentEstimation, IStandardError, IBootstrappable
     {
       
         /// <summary>
@@ -113,7 +113,7 @@ namespace Numerics.Distributions
         /// </summary>
         public double Alpha
         {
-            get { return 4d / Math.Pow(Gamma, 2d); }
+            get { return 4d / (Gamma * Gamma); }
         }
 
         /// <summary>
@@ -517,7 +517,7 @@ namespace Numerics.Distributions
                 }
                 else
                 {
-                    transformedSample.Add(Math.Log(0.1d, Base));
+                    transformedSample.Add(Math.Log(0.01d, Base));
                 }
             }
             return Statistics.ProductMoments(transformedSample);
@@ -541,10 +541,34 @@ namespace Numerics.Distributions
                 }
                 else
                 {
-                    transformedSample.Add(Math.Log(0.1d, Base));
+                    transformedSample.Add(Math.Log(0.01d, Base));
                 }
             }
             return Statistics.LinearMoments(transformedSample);
+        }
+
+        /// <summary>
+        /// Returns an array of distribution parameters given the central moments of the sample.
+        /// </summary>
+        /// <param name="moments">The array of sample linear moments.</param>
+        public double[] ParametersFromMoments(IList<double> moments)
+        {
+            return moments.ToArray().Subset(0, 2);
+        }
+
+        /// <summary>
+        /// Returns an array of central moments given the distribution parameters.
+        /// </summary>
+        /// <param name="parameters">The list of distribution parameters.</param>
+        public double[] MomentsFromParameters(IList<double> parameters)
+        {
+            var dist = new LogPearsonTypeIII();
+            dist.SetParameters(parameters);
+            var m1 = dist.Mean;
+            var m2 = dist.StandardDeviation;
+            var m3 = dist.Skew;
+            var m4 = dist.Kurtosis;
+            return new[] { m1, m2, m3, m4 };
         }
 
         /// <summary>
@@ -657,13 +681,14 @@ namespace Numerics.Distributions
             initialVals = new double[] { mom[0], mom[1], mom[2] };
             // Get bounds of mean
             double real = Math.Exp(initialVals[0] / K);
-            lowerVals[0] = -Math.Ceiling(Math.Log(Math.Pow(10d, Math.Ceiling(Math.Log10(real) + 2d)), Base));
-            upperVals[0] = Math.Ceiling(Math.Log(Math.Pow(10d, Math.Ceiling(Math.Log10(real) + 2d)), Base));
+            lowerVals[0] = -Math.Ceiling(Math.Log(Math.Pow(10d, Math.Ceiling(Math.Log10(real) + 1d)), Base));
+            upperVals[0] = Math.Ceiling(Math.Log(Math.Pow(10d, Math.Ceiling(Math.Log10(real) + 1d)), Base));
             // Get bounds of standard deviation
+            real = Math.Exp(initialVals[1] / K);
             lowerVals[1] = Tools.DoubleMachineEpsilon;
-            upperVals[1] = upperVals[0];
+            upperVals[1] = Math.Ceiling(Math.Log(Math.Pow(10d, Math.Ceiling(Math.Log10(real) + 1d)), Base));
             // Get bounds of skew
-            lowerVals[2] = -2;
+            lowerVals[2] = -2d;
             upperVals[2] = 2d;
             // Correct initial value of skew if necessary
             if (initialVals[2] <= lowerVals[2] || initialVals[2] >= upperVals[2])

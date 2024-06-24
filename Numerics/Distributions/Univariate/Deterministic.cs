@@ -89,7 +89,7 @@ namespace Numerics.Distributions
             get
             {
                 var parmString = new string[1, 2];
-                parmString[0, 0] = "Value";
+                parmString[0, 0] = "Y";
                 parmString[0, 1] = Value.ToString();
                 return parmString;
             }

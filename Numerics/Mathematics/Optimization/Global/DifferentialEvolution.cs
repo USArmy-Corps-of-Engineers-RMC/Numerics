@@ -127,7 +127,7 @@ namespace Numerics.Mathematics.Optimization
                 for (i = 0; i < PopulationSize; i++)
                 {
 
-                    // Randomly select three vectors indices
+                    // Randomly select three vectors indexes
                     int r0 = i, r1 = i, r2 = i;
                     do r0 = (int)Math.Floor(r.NextDouble() * PopulationSize); while (r0 == i);
                     do r1 = (int)Math.Floor(r.NextDouble() * PopulationSize); while (r1 == i || r1 == r0);
@@ -152,14 +152,13 @@ namespace Numerics.Mathematics.Optimization
                     }
 
                     // Evaluate fitness
-                    var fit = Evaluate(u, ref cancel);
+                    var fitness = Evaluate(u, ref cancel);
                     if (cancel == true) return;
 
                     // Update population
-                    if (fit <= Xp[i].Fitness)
+                    if (fitness <= Xp[i].Fitness)
                     {
-                        Xp[i].Values = u.ToArray();
-                        Xp[i].Fitness = fit;
+                        Xp[i] = new ParameterSet(u, fitness);
                     }
               
                     // Keep running stats of population

@@ -165,7 +165,7 @@ namespace Numerics.Mathematics.Optimization
                 // Rank the points in terms of fitness (i.e., order of increasing function value).
                 Dpoints.Sort((x, y) => x.ParameterSet.Fitness.CompareTo(y.ParameterSet.Fitness));
 
-                // Next reset the indeces, so that i = 0 represents the point With the smallest function value.
+                // Next reset the indexes, so that i = 0 represents the point With the smallest function value.
                 for (i = 0; i <= Dpoints.Count - 1; i++)
                     Dpoints[i].Index = i;
 
@@ -271,8 +271,7 @@ namespace Numerics.Mathematics.Optimization
                     // Now, either replace worst point with better point
                     if (fitness < B.Last().ParameterSet.Fitness)
                     {
-                        B.Last().ParameterSet.Values = p.ToArray();
-                        B.Last().ParameterSet.Fitness = fitness;
+                        B.Last().ParameterSet = new ParameterSet(p, fitness);
                     }
                     else
                     {
@@ -285,8 +284,7 @@ namespace Numerics.Mathematics.Optimization
                         // If better than worst point replace worst point
                         if (fitness < B.Last().ParameterSet.Fitness)
                         {
-                            B.Last().ParameterSet.Values = p.ToArray();
-                            B.Last().ParameterSet.Fitness = fitness;
+                            B.Last().ParameterSet = new ParameterSet(p, fitness);
                         }
                         else
                         {
@@ -297,8 +295,7 @@ namespace Numerics.Mathematics.Optimization
                             fitness = Evaluate(p, ref cancel);
                             if (cancel == true) return;
                             // Replace worst point with new point regardless of its value
-                            B.Last().ParameterSet.Values = p.ToArray();
-                            B.Last().ParameterSet.Fitness = fitness;
+                            B.Last().ParameterSet = new ParameterSet(p, fitness);
                         }
                     }
                 }
@@ -317,8 +314,7 @@ namespace Numerics.Mathematics.Optimization
                             }
                         }
                     }
-                    Acomplex[j].ParameterSet.Values = best.ParameterSet.Values;
-                    Acomplex[j].ParameterSet.Fitness = best.ParameterSet.Fitness;
+                    Acomplex[j].ParameterSet = best.ParameterSet.Clone();
                 }
 
                 Acomplex.Sort((x, y) => x.ParameterSet.Fitness.CompareTo(y.ParameterSet.Fitness));
@@ -409,7 +405,7 @@ namespace Numerics.Mathematics.Optimization
         }
 
         /// <summary>
-        /// Class for keeping track of parameter sets with indices. 
+        /// Class for keeping track of parameter sets with indexes. 
         /// </summary>
         private class PointFitness
         {

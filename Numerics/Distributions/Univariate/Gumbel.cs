@@ -21,7 +21,7 @@ namespace Numerics.Distributions
     /// </para>
     /// </remarks>
     [Serializable]
-    public sealed class Gumbel : UnivariateDistributionBase, IColesTawn, IEstimation, IMaximumLikelihoodEstimation, ILinearMomentEstimation, IStandardError, IBootstrappable
+    public sealed class Gumbel : UnivariateDistributionBase, IColesTawn, IEstimation, IMaximumLikelihoodEstimation, IMomentEstimation, ILinearMomentEstimation, IStandardError, IBootstrappable
     {
 
         /// <summary>
@@ -241,7 +241,7 @@ namespace Numerics.Distributions
         {
             if (estimationMethod == ParameterEstimationMethod.MethodOfMoments)
             {
-                SetParameters(DirectMethodOfMoments(Statistics.ProductMoments(sample)));
+                SetParameters(ParametersFromMoments(Statistics.ProductMoments(sample)));
             }
             else if (estimationMethod == ParameterEstimationMethod.MethodOfLinearMoments)
             {
@@ -306,8 +306,8 @@ namespace Numerics.Distributions
             if (double.IsNaN(location) || double.IsInfinity(location))
             {
                 if (throwException)
-                    throw new ArgumentOutOfRangeException(nameof(Xi), "The the location parameter ξ (Xi) must be a number.");
-                return new ArgumentOutOfRangeException(nameof(Xi), "The the location parameter ξ (Xi) must be a number.");
+                    throw new ArgumentOutOfRangeException(nameof(Xi), "The location parameter ξ (Xi) must be a number.");
+                return new ArgumentOutOfRangeException(nameof(Xi), "The location parameter ξ (Xi) must be a number.");
             }
             if (double.IsNaN(scale) || double.IsInfinity(scale) || scale <= 0.0d)
             {
@@ -328,12 +328,11 @@ namespace Numerics.Distributions
             return ValidateParameters(parameters[0], parameters[1], throwException);
         }
 
-        
         /// <summary>
-        /// Gets the parameters using the direct method of moments. Moments are derived from the real-space data.
+        /// Returns an array of distribution parameters given the central moments of the sample.
         /// </summary>
-        /// <param name="moments">The array of sample moments.</param>
-        public double[] DirectMethodOfMoments(IList<double> moments)
+        /// <param name="moments">The array of sample linear moments.</param>
+        public double[] ParametersFromMoments(IList<double> moments)
         {
             // Solve for alpha
             double a = Math.Sqrt(6d) / Math.PI * moments[1];
@@ -341,6 +340,21 @@ namespace Numerics.Distributions
             double x = moments[0] - a * Tools.Euler;
             // return parameters
             return new[] { x, a };
+        }
+
+        /// <summary>
+        /// Returns an array of central moments given the distribution parameters.
+        /// </summary>
+        /// <param name="parameters">The list of distribution parameters.</param>
+        public double[] MomentsFromParameters(IList<double> parameters)
+        {
+            var dist = new Gumbel();
+            dist.SetParameters(parameters);
+            var m1 = dist.Mean;
+            var m2 = dist.StandardDeviation;
+            var m3 = dist.Skew;
+            var m4 = dist.Kurtosis;
+            return new[] { m1, m2, m3, m4 };
         }
 
         /// <summary>
@@ -480,7 +494,7 @@ namespace Numerics.Distributions
             catch (ArgumentException ex)
             {
                 // If the newton method fails to converge, fall back to sample moments
-                SetParameters(DirectMethodOfMoments(Moments));
+                SetParameters(ParametersFromMoments(Moments));
             }
             catch (Exception ex)
             {

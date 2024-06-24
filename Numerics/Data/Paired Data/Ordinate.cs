@@ -53,6 +53,23 @@ namespace Numerics.Data
             if (double.IsInfinity(X) | double.IsNaN(X) || double.IsInfinity(Y) | double.IsNaN(Y)) IsValid = false;
         }
 
+        /// <summary>
+        /// Constructs new ordinate from XElement.
+        /// </summary>
+        /// <param name="xElement">The XElement to deserialize.</param>
+        public Ordinate(XElement xElement)
+        {
+            double x = 0, y = 0;
+            if (xElement.Attribute(nameof(X)) != null) double.TryParse(xElement.Attribute(nameof(X)).Value, NumberStyles.Any, CultureInfo.InvariantCulture, out x);
+            if (xElement.Attribute(nameof(Y)) != null) double.TryParse(xElement.Attribute(nameof(Y)).Value, NumberStyles.Any, CultureInfo.InvariantCulture, out y);
+            //
+            X = x;
+            Y = y;
+            IsValid = true;
+            if (double.IsInfinity(X) || double.IsNaN(X) || double.IsInfinity(Y) || double.IsNaN(Y))
+                IsValid = false;
+
+        }
         #endregion
 
         #region Members
@@ -76,7 +93,6 @@ namespace Numerics.Data
 
         #region Methods
        
-
         /// <summary>
         /// Test if the ordinate is valid given monotonic criteria with the next/previous ordinate in a series.
         /// </summary>

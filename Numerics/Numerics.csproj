@@ -26,6 +26,7 @@
     </NoWarn>
     <WarningsAsErrors>41999,42016,42017,42018,42019,42020,42021,42022,42032,42036</WarningsAsErrors>
     <PlatformTarget>AnyCPU</PlatformTarget>
+    <Optimize>false</Optimize>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -126,6 +127,7 @@
     <Compile Include="Distributions\Univariate\CompetingRisks.cs" />
     <Compile Include="Distributions\Univariate\GeneralizedNormal.cs" />
     <Compile Include="Distributions\Univariate\Mixture.cs" />
+    <Compile Include="Distributions\Univariate\Parameter Estimation\IMomentEstimation.cs" />
     <Compile Include="Distributions\Univariate\PertPercentile.cs" />
     <Compile Include="Distributions\Univariate\Uncertainty Analysis\IBootstrappable.cs" />
     <Compile Include="Distributions\Univariate\Uncertainty Analysis\UncertaintyAnalysisResults.cs" />
@@ -217,6 +219,7 @@
     <Compile Include="Sampling\MCMC\Gibbs.cs" />
     <Compile Include="Sampling\MCMC\HMC.cs" />
     <Compile Include="Sampling\MCMC\RWMH.cs" />
+    <Compile Include="Sampling\MCMC\SNIS.cs" />
     <Compile Include="Sampling\MCMC\Support\MCMCDiagnostics.cs" />
     <Compile Include="Sampling\MCMC\Support\MCMCResults.cs" />
     <Compile Include="Sampling\MCMC\Support\ParameterStatistics.cs" />
@@ -311,6 +314,7 @@
     <Compile Include="Data\Regression\LinearRegression.cs" />
     <Compile Include="Utilities\ExtensionMethods.cs" />
     <Compile Include="Utilities\OptionalOut.cs" />
+    <Compile Include="Utilities\ParallelTaskScheduler.cs" />
     <Compile Include="Utilities\SafeProgressReporter.cs" />
     <Compile Include="Utilities\Tools.cs" />
   </ItemGroup>

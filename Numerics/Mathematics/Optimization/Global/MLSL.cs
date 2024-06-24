@@ -194,8 +194,7 @@ namespace Numerics.Mathematics.Optimization
                     // On the first iteration, add the user-defined initial starting points
                     // This can often be very close to the true minimum
                     var x = new SamplePoint();
-                    x.ParameterSet.Values = InitialValues;
-                    x.ParameterSet.Fitness = Evaluate(InitialValues, ref cancel);
+                    x.ParameterSet = new ParameterSet(InitialValues, Evaluate(InitialValues, ref cancel));
                     x.Minimized = true;
                     SampledPoints.Add(x);
 
@@ -218,8 +217,7 @@ namespace Numerics.Mathematics.Optimization
                         values[j] = uniformDists[j].InverseCDF(r.NextDouble());
                    
                     var x = new SamplePoint();
-                    x.ParameterSet.Values = values;
-                    x.ParameterSet.Fitness = Evaluate(values, ref cancel);
+                    x.ParameterSet = new ParameterSet(values, Evaluate(values, ref cancel));
                     if (cancel) return;
                     SampledPoints.Add(x);
                 }
@@ -293,7 +291,7 @@ namespace Numerics.Mathematics.Optimization
                         Rk[i].Minimized = true;
 
                         var x = new SamplePoint();
-                        x.ParameterSet = solver.BestParameterSet;
+                        x.ParameterSet = solver.BestParameterSet.Clone();
                         x.Minimized = true;
                         LocalMinimums.Add(x);
                     }

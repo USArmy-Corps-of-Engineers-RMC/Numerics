@@ -3,6 +3,11 @@ using Numerics.Mathematics.Optimization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
+using System.Threading;
+using System.Reflection;
+using Numerics.Mathematics.LinearAlgebra;
+using Numerics.Mathematics;
 
 namespace Numerics.Sampling.MCMC
 {
@@ -41,18 +46,18 @@ namespace Numerics.Sampling.MCMC
         {
             PriorDistributions = priorDistributions;
             LogLikelihoodFunction = logLikelihoodFunction;
-            InitialPopulationLength = 100 * NumberOfParameters;
+            InitialPopulationLength = 100 * NumberOfChains;
             // DE-MCz options
-            UpdatePopulationMatrix = true;
+            IsPopulationSampler = true;
             // Jump parameter. Default = 2.38/SQRT(2*D)
             Jump = 2.38d / Math.Sqrt(2.0d * NumberOfParameters);
-            // Adaptation threshold. Default = 0.1 or 10% of the time. 
+            // Jump threshold. Default = 0.1 or 10% of the time. 
             JumpThreshold = 0.1d;
-            _b = new Uniform(-_noise, _noise);
+            _b = new Normal(0, _noise);
         }
 
-        private double _noise = 1E-8;
-        private Uniform _b;
+        private double _noise = 1E-3;
+        private Normal _b;
 
         /// <summary>
         /// The jumping parameter used to jump from one mode region to another in the target distribution.
@@ -60,7 +65,7 @@ namespace Numerics.Sampling.MCMC
         public double Jump { get; set; }
 
         /// <summary>
-        /// Determines how often the jump parameter switches to 1.0; e.g., 0.10 will result in adaptation 10% of the time.
+        /// Determines how often the jump parameter switches to 1.0; e.g., 0.10 will result in a large jump 10% of the time.
         /// </summary>
         public double JumpThreshold { get; set; }
 
@@ -73,7 +78,7 @@ namespace Numerics.Sampling.MCMC
             set
             {
                 _noise = value;
-                _b = new Uniform(-_noise, _noise);
+                _b = new Normal(0, _noise);
             }
         }
 
@@ -84,10 +89,12 @@ namespace Numerics.Sampling.MCMC
         /// </summary>
         protected override void ValidateCustomSettings()
         {
+            if (NumberOfChains < 3) throw new ArgumentException(nameof(NumberOfChains), "There must be at least 3 chains.");
             if (Jump <= 0 || Jump >= 2) throw new ArgumentException(nameof(Jump), "The jump parameter must be between 0 and 2.");
             if (JumpThreshold < 0 || JumpThreshold >= 1) throw new ArgumentException(nameof(JumpThreshold), "The jump threshold must be between 0 and 1.");
-            if (Noise < 0) throw new ArgumentException(nameof(JumpThreshold), "The noise parameter must be greater than 0.");
+            if (Noise < 0) throw new ArgumentException(nameof(JumpThreshold), "The noise parameter must be greater than 0.");            
         }
+
 
         /// <summary>
         /// Returns a proposed MCMC iteration. 
@@ -106,21 +113,21 @@ namespace Numerics.Sampling.MCMC
             var G = _chainPRNGs[index].NextDouble() < JumpThreshold ? 1.0d : Jump;
 
             // Sample uniformly at random without replacement two numbers R1 and R2
-            // from the numbers 1, 2, ..., M. M = Population (Z) Length.
-            int r1, r2, Z = PopulationMatrix.Count;
-            r1 = _chainPRNGs[index].Next(0, Z);
-            do r2 = _chainPRNGs[index].Next(0, Z); while (r2 == r1);
+            // from the numbers 1, 2, ..., M. 
+            int r1, r2, M = PopulationMatrix.Count;
+            do r1 = _chainPRNGs[index].Next(0, M); while (r1 == index);
+            do r2 = _chainPRNGs[index].Next(0, M); while (r2 == r1 || r2 == index);
 
             // Calculate the proposal vector
             // x* ← xi + γ(zR1 − zR2) + e
-            // where zR1 and zR2 are rows R1 and R2 of Z.
+            // where zR1 and zR2 are rows R1 and R2 of the population matrix.
             var xp = new double[NumberOfParameters];
             for (int i = 0; i < NumberOfParameters; i++)
             {
                 var xi = state.Values[i];
                 var zr1 = PopulationMatrix[r1].Values[i];
                 var zr2 = PopulationMatrix[r2].Values[i];
-                var e = _b.InverseCDF(_chainPRNGs[index].NextDouble());
+                var e = Math.Pow(_b.InverseCDF(_chainPRNGs[index].NextDouble()), NumberOfParameters);
                 xp[i] = xi + G * (zr1 - zr2) + e;
 
                 // Check if the parameter is feasible (within the constraints)

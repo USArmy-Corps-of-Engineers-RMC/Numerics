@@ -58,8 +58,16 @@ namespace Distributions.BivariateCopulas
         [TestMethod]
         public void Test_Generation()
         {
-            var copula = new JoeCopula(20);
-            var samples = copula.GenerateRandomValues(1000, 12345);
+            //var copula = new JoeCopula(20);
+            //var samples = copula.GenerateRandomValues(1000, 12345);
+            //for (int i = 0; i < samples.GetLength(0); i++)
+            //    Debug.WriteLine(samples[i, 0] + "," + samples[i, 1]);
+
+            //var copula = new JoeCopula(3);
+            //copula.MarginalDistributionX = new Normal(100, 15);
+            //copula.MarginalDistributionY = new Normal(80, 25);
+
+            //var samples = copula.GenerateRandomValues(100);
             //for (int i = 0; i < samples.GetLength(0); i++)
             //    Debug.WriteLine(samples[i, 0] + "," + samples[i, 1]);
 

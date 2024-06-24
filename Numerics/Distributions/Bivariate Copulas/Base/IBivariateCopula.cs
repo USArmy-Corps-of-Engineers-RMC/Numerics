@@ -65,7 +65,7 @@ namespace Numerics.Distributions.Copulas
         /// </summary>
         /// <param name="sampleDataX">The sample data for the X variable.</param>
         /// <param name="sampleDataY">The sample data for the Y variable.</param>
-        double[] ParameterContraints(IList<double> sampleDataX, IList<double> sampleDataY);
+        double[] ParameterConstraints(IList<double> sampleDataX, IList<double> sampleDataY);
 
         /// <summary>
         /// The probability density function (PDF) of the copula evaluated at reduced variates u and v.

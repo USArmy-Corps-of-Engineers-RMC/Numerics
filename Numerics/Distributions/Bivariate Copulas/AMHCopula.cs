@@ -107,11 +107,11 @@ namespace Numerics.Distributions.Copulas
                 if (throwException) throw new ArgumentOutOfRangeException(nameof(Theta), "The dependency parameter θ (theta) must be less than or equal to " + ThetaMaximum.ToString() + ".");
                 return new ArgumentOutOfRangeException(nameof(Theta), "The dependency parameter θ (theta) must be less than or equal to " + ThetaMaximum.ToString() + ".");
             }
-            if (Math.Abs(parameter) <= 100 * Tools.DoubleMachineEpsilon)
-            {
-                if (throwException) throw new ArgumentOutOfRangeException(nameof(Theta), "The dependency parameter θ (theta) cannot be zero. This is independence.");
-                return new ArgumentOutOfRangeException(nameof(Theta), "The dependency parameter θ (theta) cannot be zero. This is independence.");
-            }
+            //if (Math.Abs(parameter) <= 100 * Tools.DoubleMachineEpsilon)
+            //{
+            //    if (throwException) throw new ArgumentOutOfRangeException(nameof(Theta), "The dependency parameter θ (theta) cannot be zero. This is independence.");
+            //    return new ArgumentOutOfRangeException(nameof(Theta), "The dependency parameter θ (theta) cannot be zero. This is independence.");
+            //}
             return null;
         }
 
@@ -219,17 +219,17 @@ namespace Numerics.Distributions.Copulas
         /// </summary>
         /// <param name="sampleDataX">The sample data for the X variable.</param>
         /// <param name="sampleDataY">The sample data for the Y variable.</param>
-        public override double[] ParameterContraints(IList<double> sampleDataX, IList<double> sampleDataY)
+        public override double[] ParameterConstraints(IList<double> sampleDataX, IList<double> sampleDataY)
         {
-            var tau = Correlation.KendallsTau(sampleDataX, sampleDataY);
+            //var tau = Correlation.KendallsTau(sampleDataX, sampleDataY);
 
-            if ((tau < (5d - 8d * Math.Log(2d)) / 3d) || (tau > 1d/3d))
-                throw new Exception("For the AMH copula, tau must be in [(5 - 8 log 2) / 3, 1 / 3] ~= [-0.1817, 0.3333]. The dependency in the data is too strong to use the AMH copula.");
+            //if ((tau < (5d - 8d * Math.Log(2d)) / 3d) || (tau > 1d/3d))
+            //    throw new Exception("For the AMH copula, tau must be in [(5 - 8 log 2) / 3, 1 / 3] ~= [-0.1817, 0.3333]. The dependency in the data is too strong to use the AMH copula.");
 
-            double L = tau > 0 ? 0.001 : -1d + Tools.DoubleMachineEpsilon;
-            double U = tau > 0 ? 1d - Tools.DoubleMachineEpsilon : -0.001d;
+            //double L = tau > 0 ? 0.001 : -1d + Tools.DoubleMachineEpsilon;
+            //double U = tau > 0 ? 1d - Tools.DoubleMachineEpsilon : -0.001d;
 
-            return new[] { L, U };
+            return new double[] { -1 + Tools.DoubleMachineEpsilon, 1 - Tools.DoubleMachineEpsilon };
         }
 
     }

@@ -1,8 +1,12 @@
 ﻿using Numerics.Distributions;
+using Numerics.Mathematics.LinearAlgebra;
+using Numerics.Mathematics;
 using Numerics.Mathematics.Optimization;
+using Numerics.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -40,12 +44,12 @@ namespace Numerics.Sampling.MCMC
         /// <summary>
         /// The master pseudo random number generator (PRNG).
         /// </summary>
-        protected Random _masterPRNG;
+        protected MersenneTwister _masterPRNG;
 
         /// <summary>
         /// The PRNG for each Markov Chain.
         /// </summary>
-        protected Random[] _chainPRNGs;
+        protected MersenneTwister[] _chainPRNGs;
 
         /// <summary>
         /// The number of simulations that have been run with this instance of the sampler. 
@@ -101,7 +105,32 @@ namespace Numerics.Sampling.MCMC
         /// <summary>
         /// Determines whether to update the population matrix when the chain states are recorded.
         /// </summary>
-        public bool UpdatePopulationMatrix { get; set; } = false;
+        public bool IsPopulationSampler { get; set; } = false;
+
+        /// <summary>
+        /// Determines if the chains should be sampled in parallel. Default = true.
+        /// </summary>
+        public bool ParallelizeChains { get; set; } = true;
+
+        /// <summary>
+        /// Determines if the MCMC simulation should be resumed. Default = false.
+        /// </summary>
+        public bool ResumeSimulation { get; set; } = true;
+
+        /// <summary>
+        /// Determines whether to initialize the chains using the Maximum a Posteriori (MAP) estimate and covariance matrix.
+        /// </summary>
+        public bool InitializeWithMAP { get; set; } = false;
+
+        /// <summary>
+        /// Determines if the Maximum a Posteriori (MAP) estimate was successful.
+        /// </summary>
+        protected bool _MAPsuccessful = false;
+
+        /// <summary>
+        /// The Multivariate Normal proposal distribution set from the MAP estimate.
+        /// </summary>
+        protected MultivariateNormal _mvn;
 
         /// <summary>
         /// The Log-Likelihood function to evaluate. 
@@ -194,11 +223,11 @@ namespace Numerics.Sampling.MCMC
         #region Simulation Methods
 
         /// <summary>
-        /// Validate the MCMC sampler settings.
+        /// Validate the sampler settings.
         /// </summary>
         protected virtual void ValidateSettings()
         {
-            if (NumberOfChains < 1) throw new ArgumentException(nameof(InitialPopulationLength), "There must be at least 1 chain.");
+            if (NumberOfChains < 1) throw new ArgumentException(nameof(NumberOfChains), "There must be at least 1 chain.");
             if (Iterations < 100) throw new ArgumentException(nameof(Iterations), "The number of iterations cannot be less than 100.");
             if (WarmupIterations < 1) throw new ArgumentException(nameof(WarmupIterations), "The number of warm up iterations cannot be less than 1.");
             if (WarmupIterations > (int)(0.5 * Iterations)) throw new ArgumentException(nameof(WarmupIterations), "The number of warm up iterations cannot be greater than half the number of iterations.");
@@ -224,16 +253,72 @@ namespace Numerics.Sampling.MCMC
         /// </summary>
         protected virtual ParameterSet[] InitializeChains()
         {
-            var rnd = new MersenneTwister(PRNGSeed);        
+            var prng = new MersenneTwister(PRNGSeed);
+            var rnds = LatinHypercube.Random(InitialPopulationLength, NumberOfParameters, prng.Next());
             var parameters = new double[NumberOfParameters];
             var tempPopulation = new List<ParameterSet>();       
             var initials = new ParameterSet[NumberOfChains];
+            double logLH = 0;
+
+            if (InitializeWithMAP == true)
+            {
+
+                // Use differential evolution to find a global optimum
+                var lowerBounds = PriorDistributions.Select(x => x.Minimum).ToList();
+                var upperBounds = PriorDistributions.Select(x => x.Maximum).ToList();
+                var DE = new DifferentialEvolution((x) => { return LogLikelihoodFunction(x); }, NumberOfParameters, lowerBounds, upperBounds);
+                DE.ReportFailure = false;
+                DE.Maximize();
+                if (DE.Status == OptimizationStatus.Success)
+                {
+                    try
+                    {
+                        _MAPsuccessful = true;
+                        MAP = DE.BestParameterSet.Clone();
+
+                        // Get Fisher Information Matrix (or Hessian)
+                        Matrix hessian = new Matrix(NumericalDerivative.Hessian((x) => { return LogLikelihoodFunction(x); }, MAP.Values));
+                        Matrix fisher = hessian * -1d;
+                        // Invert it to get the covariance matrix
+                        var B = new Matrix(fisher.NumberOfRows, 0);
+                        GaussJordanElimination.Solve(ref fisher, ref B);
+                        // Scale it to give wider coverage
+                        fisher = fisher * 1.2;
+
+                        // Set up proposal distribution
+                        _mvn = new MultivariateNormal(MAP.Values, fisher.ToArray());
+                        // Then randomly sample from the proposal
+                        for (int i = 0; i < InitialPopulationLength; i++)
+                        {
+                            parameters = _mvn.InverseCDF(rnds.GetRow(i));
+                            logLH = LogLikelihoodFunction(parameters);
+                            if (IsPopulationSampler) PopulationMatrix.Add(new ParameterSet(parameters, logLH));
+                            tempPopulation.Add(new ParameterSet(parameters, logLH));
+                        }
+
+                        // Set the initial vectors randomly from the MVN proposal
+                        for (int i = 0; i < NumberOfChains; i++)
+                            initials[i] = tempPopulation[i].Clone();
+
+                        return initials;
+
+                    }
+                    catch (Exception ex) 
+                    {
+                        // if this fails go to naive initialization below
+                        InitializeWithMAP = false;
+                    }
+                }
+            }
+
+
+            // *** If not using MAP or if MAP fails, then use naive initialization *** //
 
             // First add the mean of the priors
             for (int j = 0; j < NumberOfParameters; j++)
                 parameters[j] = PriorDistributions[j].Mean;
-            var logLH = LogLikelihoodFunction(parameters);
-            PopulationMatrix.Add(new ParameterSet(parameters, logLH));
+            logLH = LogLikelihoodFunction(parameters);
+            if (IsPopulationSampler) PopulationMatrix.Add(new ParameterSet(parameters, logLH));
             tempPopulation.Add(new ParameterSet(parameters, logLH));
 
             // If the initial population and the number of chains is 1, 
@@ -248,12 +333,12 @@ namespace Numerics.Sampling.MCMC
             for (int i = 1; i < InitialPopulationLength; i++)
             {
                 for (int j = 0; j < NumberOfParameters; j++)
-                    parameters[j] = PriorDistributions[j].InverseCDF(rnd.NextDouble());
+                    parameters[j] = PriorDistributions[j].InverseCDF(rnds[i, j]);
                 logLH = LogLikelihoodFunction(parameters);
-                PopulationMatrix.Add(new ParameterSet(parameters, logLH));
+                if (IsPopulationSampler) PopulationMatrix.Add(new ParameterSet(parameters, logLH));
                 tempPopulation.Add(new ParameterSet(parameters, logLH));
             }
-
+            
             // Sort temp population by log-likelihood in descending order
             tempPopulation.Sort((x, y) => -1 * x.Fitness.CompareTo(y.Fitness));
 
@@ -274,33 +359,20 @@ namespace Numerics.Sampling.MCMC
             // Sample until thinning interval, then return the last state.
             for (int j = 1; j <= ThinningInterval; j++)
             {
-                var tempState = ChainIteration(index, state);
-                state = tempState.Clone();
+                state = ChainIteration(index, state).Clone();
             }
             return state;
         }
 
         /// <summary>
-        /// Output the posterior parameter sets.
+        /// Update the population matrix with a new chain state.
         /// </summary>
-        /// <param name="index">The Markov Chain zero-based index</param>
-        /// <param name="state">The initial state.</param>
-        protected virtual void OutputChain(int index, ParameterSet state)
+        /// <param name="state">The chain state.</param>
+        protected virtual void UpdatePopulationMatrix(ParameterSet state)
         {
-            int outputIterations = (int)Math.Ceiling(OutputLength / (double)NumberOfChains);
-
-            for (int i = 1; i <= outputIterations; i++)
-            {
-                // Sample until thinning interval
-                for (int j = 1; j <= ThinningInterval; j++)
-                {
-                    var tempState = ChainIteration(index, state);
-                    state = tempState.Clone();
-                }
-                // Record Output
-                Output[index].Add(state.Clone());
-            }
+            PopulationMatrix.Add(state.Clone());
         }
+
 
         /// <summary>
         /// Returns a proposed MCMC parameter set and its fitness. 
@@ -312,123 +384,110 @@ namespace Numerics.Sampling.MCMC
         /// <summary>
         /// Sample the Markov Chains.
         /// </summary>
-        /// <param name="parallel">Optional. Determines if the chains should be sampled in parallel. Default = true.</param>
-        /// <param name="resume">OPtional. Determines if the MCMC simulation should be resumed. 
-        /// This instance of the sampler must have already run once to be able to resume. Default = false.</param>
-        public virtual void Sample(bool parallel = true, bool resume = false)
+        public virtual void Sample()
         {
             // Validate the input settings
             ValidateSettings();
 
             CancellationTokenSource = new CancellationTokenSource();
 
-            try
+            // Setup the sampler
+            if (ResumeSimulation = false || _simulations < 1)
             {
-                
-                // Setup the sampler
-                if (resume = false || _simulations < 1)
-                {
-                    // Create inputs for the chains
-                    _masterPRNG = new MersenneTwister(PRNGSeed);
-                    _chainPRNGs = new MersenneTwister[NumberOfChains];
-                    PopulationMatrix = new List<ParameterSet>();
-                    MarkovChains = new List<ParameterSet>[NumberOfChains];
-                    for (int i = 0; i < NumberOfChains; i++)
-                    {
-                        _chainPRNGs[i] = new MersenneTwister(_masterPRNG.Next());
-                        MarkovChains[i] = new List<ParameterSet>();
-                    }
-                    
-                    // Create sample & accept counts
-                    AcceptCount = new int[NumberOfChains];
-                    SampleCount = new int[NumberOfChains];
-
-                    // Create mean log-likelihood list
-                    MeanLogLikelihood = new List<double>();
-
-                    // Keeps track of best parameter set
-                    MAP = new ParameterSet(new List<double>(), int.MinValue);
-
-                    // Initialize custom settings
-                    InitializeCustomSettings();
-
-                    // Initialize the chains
-                    _chainStates = InitializeChains();
-
-                }
-
-                // Output settings
-                int outputIterations = (int)Math.Ceiling(OutputLength / (double)NumberOfChains);
-                int totalIterations = Iterations + outputIterations;
-                Output = new List<ParameterSet>[NumberOfChains];
+                // Create inputs for the chains
+                _masterPRNG = new MersenneTwister(PRNGSeed);
+                _chainPRNGs = new MersenneTwister[NumberOfChains];
+                PopulationMatrix = new List<ParameterSet>();
+                MarkovChains = new List<ParameterSet>[NumberOfChains];
                 for (int i = 0; i < NumberOfChains; i++)
-                    Output[i] = new List<ParameterSet>();
-
-                // progress counter
-                int progress = 0;
-
-                // Sample chains
-                for (int i = 1; i <= totalIterations; i++)
                 {
-
-                    if (parallel)
-                    {
-                        Parallel.For(0, NumberOfChains, (j) => { _chainStates[j] = SampleChain(j, _chainStates[j]); });
-                    }
-                    else
-                    {
-                        for (int j = 0; j < NumberOfChains; j++)
-                            _chainStates[j] = SampleChain(j, _chainStates[j]);
-                    }
-
-                    // Save chain states
-                    if (i <= Iterations)
-                        MeanLogLikelihood.Add(0);
-
-                    for (int j = 0; j < NumberOfChains; j++)
-                    {
-                        // Record output
-                        if (UpdatePopulationMatrix == true)
-                            PopulationMatrix.Add(_chainStates[j].Clone());
-
-                        if (i <= Iterations)
-                        {
-                            // Record mean log-likelihood
-                            MeanLogLikelihood[i - 1] += _chainStates[j].Fitness / NumberOfChains;
-
-                            // Save chain state
-                            MarkovChains[j].Add(_chainStates[j].Clone());
-                        }
-                        else if (i > Iterations)
-                        {
-                            Output[j].Add(_chainStates[j].Clone());
-                            if (_chainStates[j].Fitness > MAP.Fitness) MAP = _chainStates[j].Clone();
-                        }
-                    }
-
-                    // Check for cancellation
-                    CancellationTokenSource.Token.ThrowIfCancellationRequested();
-
-                    // Update progress
-                    progress += 1;
-                    if (progress % (int)(totalIterations * ProgressChangedRate) == 0)
-                    {
-                        ReportProgress((double)progress / totalIterations);
-                    }
-
+                    _chainPRNGs[i] = new MersenneTwister(_masterPRNG.Next());
+                    MarkovChains[i] = new List<ParameterSet>();
                 }
-      
-                _simulations += 1;
+                    
+                // Create sample & accept counts
+                AcceptCount = new int[NumberOfChains];
+                SampleCount = new int[NumberOfChains];
+
+                // Create mean log-likelihood list
+                MeanLogLikelihood = new List<double>();
+
+                // Keeps track of best parameter set
+                MAP = new ParameterSet(new double[] { }, double.MinValue);
+
+                // Initialize the chains
+                _chainStates = InitializeChains();
+
+                // Initialize custom settings
+                InitializeCustomSettings();
 
             }
-            catch (OperationCanceledException ex)
+
+            // Output settings
+            int outputIterations = (int)Math.Ceiling(OutputLength / (double)NumberOfChains);
+            int totalIterations = Iterations + outputIterations;
+            Output = new List<ParameterSet>[NumberOfChains];
+            for (int i = 0; i < NumberOfChains; i++)
+                Output[i] = new List<ParameterSet>();
+
+            // progress counter
+            int progress = 0;
+
+            // Sample chains
+            for (int i = 1; i <= totalIterations; i++)
             {
-               // throw ex;
+
+                if (ParallelizeChains)
+                {
+                    Parallel.For(0, NumberOfChains, (j) => { _chainStates[j] = SampleChain(j, _chainStates[j]); });
+                }
+                else
+                {
+                    for (int j = 0; j < NumberOfChains; j++)
+                        _chainStates[j] = SampleChain(j, _chainStates[j]);
+                }
+
+                // Save chain states
+                if (i <= Iterations)
+                    MeanLogLikelihood.Add(0);
+
+                // Record output
+                for (int j = 0; j < NumberOfChains; j++)
+                {
+                    // Update population
+                    if (IsPopulationSampler == true)
+                        UpdatePopulationMatrix(_chainStates[j].Clone());
+
+                    if (i <= Iterations)
+                    {
+                        // Record mean log-likelihood
+                        MeanLogLikelihood[i - 1] += _chainStates[j].Fitness / NumberOfChains;
+
+                        // Save chain state
+                        MarkovChains[j].Add(_chainStates[j].Clone());
+                    }
+                    else if (i > Iterations)
+                    {
+                        Output[j].Add(_chainStates[j].Clone());
+                        if ((InitializeWithMAP == false || _MAPsuccessful == false) && _chainStates[j].Fitness > MAP.Fitness) 
+                            MAP = _chainStates[j].Clone();
+                    }
+                }
+
+                // Check for cancellation
+                CancellationTokenSource.Token.ThrowIfCancellationRequested();
+
+                // Update progress
+                progress += 1;
+                if (progress % (int)(totalIterations * ProgressChangedRate) == 0)
+                {
+                    ReportProgress((double)progress / totalIterations);
+                }
+
             }
-            finally
-            {
-                //CancellationTokenSource.Dispose();
-            }
+      
+            _simulations += 1;
+
         }
 
         /// <summary>

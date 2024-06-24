@@ -33,13 +33,9 @@ namespace Numerics.Sampling.MCMC
         public MCMCResults(MCMCSampler sampler, double alpha = 0.1)
         {
             MarkovChains = sampler.MarkovChains;
-            //MarkovChains = ThinMarkovChains(sampler);
-
             Output = new List<ParameterSet>();
             for (int i = 0; i < sampler.NumberOfChains; i++)
                 Output.AddRange(sampler.Output[i]);
-
-            //Output = ThinOutput(sampler);
 
             AcceptanceRates = sampler.AcceptanceRates;
             MeanLogLikelihood = sampler.MeanLogLikelihood;
@@ -77,8 +73,6 @@ namespace Numerics.Sampling.MCMC
         /// This is referred to as the maximum a posteriori (MAP). 
         /// </summary>
         public ParameterSet MAP { get; private set; }
-
-
 
         private List<ParameterSet>[] ThinMarkovChains(MCMCSampler sampler)
         {
@@ -128,9 +122,6 @@ namespace Numerics.Sampling.MCMC
 
             return output;
         }
-
-
-
 
         /// <summary>
         /// Process the parameter results.

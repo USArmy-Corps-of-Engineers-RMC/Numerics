@@ -106,11 +106,11 @@ namespace Numerics.Distributions.Copulas
                 if (throwException) throw new ArgumentOutOfRangeException(nameof(Theta), "The dependency parameter θ (theta) must be less than or equal to " + ThetaMaximum.ToString() + ".");
                 return new ArgumentOutOfRangeException(nameof(Theta), "The dependency parameter θ (theta) must be less than or equal to " + ThetaMaximum.ToString() + ".");
             }
-            if (Math.Abs(parameter) <= 100 * Tools.DoubleMachineEpsilon)
-            {
-                if (throwException) throw new ArgumentOutOfRangeException(nameof(Theta), "The dependency parameter θ (theta) cannot be zero. This is independence.");
-                return new ArgumentOutOfRangeException(nameof(Theta), "The dependency parameter θ (theta) cannot be zero. This is independence.");
-            }
+            //if (Math.Abs(parameter) <= 100 * Tools.DoubleMachineEpsilon)
+            //{
+            //    if (throwException) throw new ArgumentOutOfRangeException(nameof(Theta), "The dependency parameter θ (theta) cannot be zero. This is independence.");
+            //    return new ArgumentOutOfRangeException(nameof(Theta), "The dependency parameter θ (theta) cannot be zero. This is independence.");
+            //}
             return null;
         }
 
@@ -213,7 +213,7 @@ namespace Numerics.Distributions.Copulas
         /// </summary>
         /// <param name="sampleDataX">The sample data for the X variable.</param>
         /// <param name="sampleDataY">The sample data for the Y variable.</param>
-        public override double[] ParameterContraints(IList<double> sampleDataX, IList<double> sampleDataY)
+        public override double[] ParameterConstraints(IList<double> sampleDataX, IList<double> sampleDataY)
         {
             var tau = Correlation.KendallsTau(sampleDataX, sampleDataY);
             double L = tau > 0 ? 0.001d : -100d;

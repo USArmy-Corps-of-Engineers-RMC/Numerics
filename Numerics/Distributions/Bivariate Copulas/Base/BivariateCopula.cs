@@ -144,7 +144,7 @@ namespace Numerics.Distributions.Copulas
         /// </summary>
         /// <param name="sampleDataX">The sample data for the X variable.</param>
         /// <param name="sampleDataY">The sample data for the Y variable.</param>
-        public abstract double[] ParameterContraints(IList<double> sampleDataX, IList<double> sampleDataY);
+        public abstract double[] ParameterConstraints(IList<double> sampleDataX, IList<double> sampleDataY);
 
         /// <summary>
         /// Test to see if distribution parameters are valid.
@@ -160,17 +160,37 @@ namespace Numerics.Distributions.Copulas
         public abstract BivariateCopula Clone();
 
         /// <summary>
+        /// Returns the OR joint exceedance probability. When either of the variables exceeds a particular threshold value
+        /// </summary>
+        /// <param name="u">The reduced variate between 0 and 1.</param>
+        public double ORJointExceedanceProbability(double u, double v)
+        {
+            return 1 - CDF(u, v);
+        }
+
+        /// <summary>
+        /// Returns the AND joint exceedance probability. When both variables exceed a particular threshold value simultaneously.
+        /// </summary>
+        /// <param name="u">The reduced variate between 0 and 1.</param>
+        public double ANDJointExceedanceProbability(double u, double v)
+        {
+            return 1 - u - v + CDF(u, v);
+        }
+
+        /// <summary>
         /// Generate random values of a distribution given a sample size.
         /// </summary>
         /// <param name="sampleSize"> Size of random sample to generate. </param>
         /// <param name="seed">Optional. The prng seed. If negative or zero, then the computer clock is used as a seed.</param>
         public double[,] GenerateRandomValues(int sampleSize, int seed = -1)
         {
-            var r = seed > 0 ? new MersenneTwister(seed) : new MersenneTwister();
+            //var r = seed > 0 ? new MersenneTwister(seed) : new MersenneTwister();
+            var rand = LatinHypercube.Random(sampleSize, 2, seed);
             var sample = new double[sampleSize, 2];
             for (int i = 0; i < sampleSize; i++)
             {
-                var vals = InverseCDF(r.NextDouble(), r.NextDouble());
+                //var vals = InverseCDF(r.NextDouble(), r.NextDouble());
+                var vals = InverseCDF(rand[i, 0], rand[i, 1]);
                 if (MarginalDistributionX != null && MarginalDistributionY != null)
                 {
                     sample[i, 0] = MarginalDistributionX.InverseCDF(vals[0]);

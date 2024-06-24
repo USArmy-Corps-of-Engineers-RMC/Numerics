@@ -406,8 +406,8 @@ namespace Numerics.Distributions
             if (double.IsNaN(parameters[0]) || double.IsInfinity(parameters[0]))
             {
                 if (throwException)
-                    throw new ArgumentOutOfRangeException(nameof(Xi), "The the location parameter ξ (Xi) must be a number.");
-                return new ArgumentOutOfRangeException(nameof(Xi), "The the location parameter ξ (Xi) must be a number.");
+                    throw new ArgumentOutOfRangeException(nameof(Xi), "The location parameter ξ (Xi) must be a number.");
+                return new ArgumentOutOfRangeException(nameof(Xi), "The location parameter ξ (Xi) must be a number.");
             }
             if (double.IsNaN(parameters[1]) || double.IsInfinity(parameters[1]) || parameters[1] <= 0.0d)
             {
@@ -417,14 +417,14 @@ namespace Numerics.Distributions
             if (double.IsNaN(parameters[2]) || double.IsInfinity(parameters[2]))
             {
                 if (throwException)
-                    throw new ArgumentOutOfRangeException(nameof(Kappa), "The the shape parameter κ (kappa) must be a number.");
-                return new ArgumentOutOfRangeException(nameof(Kappa), "The the shape parameter κ (kappa) must be a number.");
+                    throw new ArgumentOutOfRangeException(nameof(Kappa), "The shape parameter κ (kappa) must be a number.");
+                return new ArgumentOutOfRangeException(nameof(Kappa), "The shape parameter κ (kappa) must be a number.");
             }
             if (double.IsNaN(parameters[3]) || double.IsInfinity(parameters[3]))
             {
                 if (throwException)
-                    throw new ArgumentOutOfRangeException(nameof(Hondo), "The the shape parameter h (hondo) must be a number.");
-                return new ArgumentOutOfRangeException(nameof(Hondo), "The the shape parameter h (hondo) must be a number.");
+                    throw new ArgumentOutOfRangeException(nameof(Hondo), "The shape parameter h (hondo) must be a number.");
+                return new ArgumentOutOfRangeException(nameof(Hondo), "The shape parameter h (hondo) must be a number.");
             }
             return null;
         }
@@ -716,8 +716,8 @@ namespace Numerics.Distributions
                 upperVals[2] = 10d;
 
                 // Get bounds of shape 2
-                lowerVals[3] = -5d;
-                upperVals[3] = 5d;
+                lowerVals[3] = -2d;
+                upperVals[3] = 2d;
 
                 // Correct initial value of kappa and hondo if necessary
                 if (initialVals[2] <= lowerVals[2] || initialVals[2] >= upperVals[2])

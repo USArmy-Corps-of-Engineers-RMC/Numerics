@@ -99,6 +99,37 @@ namespace Numerics.Mathematics.LinearAlgebra
         }
 
         /// <summary>
+        /// Returns the vector Norm.
+        /// </summary>
+        public double Norm()
+        {
+            double d = 0;
+            for (int i = 0; i < Length; i++)
+            {
+                double dx = this[i];
+                d += dx * dx;
+            }
+            return Math.Sqrt(d);
+        }
+
+
+        /// <summary>
+        /// Returns the Euclidean distance between two vectors ||x - y||.
+        /// </summary>
+        /// <param name="A">Left-side vector.</param>
+        /// <param name="B">Right-side vector.</param>
+        public static double Distance(Vector A, Vector B)
+        {
+            double d = 0;
+            for (int i = 0; i < A.Length; i++)
+            {
+                double dx = A[i] - B[i];
+                d += dx * dx;
+            }
+            return Math.Sqrt(d);
+        }
+
+        /// <summary>
         /// Returns the dot product of two vectors.
         /// </summary>
         /// <param name="A">Left-side vector.</param>
@@ -110,6 +141,18 @@ namespace Numerics.Mathematics.LinearAlgebra
             for (int i = 0; i < A.Length; i++)
                 sum += A[i] * B[i];
             return sum;
+        }
+
+        /// <summary>
+        /// Project vector A onto B.
+        /// </summary>
+        /// <param name="A">Left-side vector.</param>
+        /// <param name="B">Right-side vector.</param>
+        public static Vector Project(Vector A, Vector B)
+        {
+            var ab = DotProduct(A, B);
+            var bb = Math.Pow(B.Norm(), 2);
+            return B * (ab / bb);
         }
 
         /// <summary>
