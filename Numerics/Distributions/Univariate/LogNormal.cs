@@ -496,7 +496,7 @@ namespace Numerics.Distributions
             initialVals = new double[] { mom[0], mom[1] };
             // Get bounds of mean
             double real = Math.Exp(initialVals[0] / K);
-            lowerVals[0] = -Math.Ceiling(Math.Log(Math.Pow(10d, Math.Ceiling(Math.Log10(real) + 1d)), Base));
+            lowerVals[0] = Tools.DoubleMachineEpsilon;
             upperVals[0] = Math.Ceiling(Math.Log(Math.Pow(10d, Math.Ceiling(Math.Log10(real) + 1d)), Base));
             // Get bounds of standard deviation
             real = Math.Exp(initialVals[1] / K);
@@ -539,7 +539,7 @@ namespace Numerics.Distributions
         {
             if (_parametersValid == false)
                 ValidateParameters(Mu, Sigma, true);
-            if (x < Minimum) return 0.0d;
+            if (x <= Minimum) return 0.0d;
             //if (x == 0) x = 1E-16;
             double d = (Math.Log(x, Base) - Mu) / Sigma;
             return Math.Exp(-0.5d * d * d) / (Tools.Sqrt2PI * Sigma) * (K / x);

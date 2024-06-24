@@ -1670,9 +1670,9 @@ namespace Numerics.Data
 
             try
             {
-                // Check if there is an internet connection
+                // Check if there is an Internet connection
                 if (IsConnectedToInternet() == false)
-                    throw new Exception("There is no internet connection!");
+                    throw new Exception("There is no Internet connection!");
 
                 // Setup url parameters
                 string timeInterval = "dv";

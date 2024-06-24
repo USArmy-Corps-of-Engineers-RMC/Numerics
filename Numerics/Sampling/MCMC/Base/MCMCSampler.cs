@@ -404,7 +404,7 @@ namespace Numerics.Sampling.MCMC
                     _chainPRNGs[i] = new MersenneTwister(_masterPRNG.Next());
                     MarkovChains[i] = new List<ParameterSet>();
                 }
-                    
+
                 // Create sample & accept counts
                 AcceptCount = new int[NumberOfChains];
                 SampleCount = new int[NumberOfChains];
@@ -469,13 +469,14 @@ namespace Numerics.Sampling.MCMC
                     else if (i > Iterations)
                     {
                         Output[j].Add(_chainStates[j].Clone());
-                        if ((InitializeWithMAP == false || _MAPsuccessful == false) && _chainStates[j].Fitness > MAP.Fitness) 
+                        if ((InitializeWithMAP == false || _MAPsuccessful == false) && _chainStates[j].Fitness > MAP.Fitness)
                             MAP = _chainStates[j].Clone();
                     }
                 }
 
                 // Check for cancellation
-                CancellationTokenSource.Token.ThrowIfCancellationRequested();
+                if (CancellationTokenSource.Token.IsCancellationRequested)
+                    break;
 
                 // Update progress
                 progress += 1;
@@ -485,9 +486,8 @@ namespace Numerics.Sampling.MCMC
                 }
 
             }
-      
-            _simulations += 1;
 
+            _simulations += 1;
         }
 
         /// <summary>

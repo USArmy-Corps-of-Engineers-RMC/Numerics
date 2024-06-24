@@ -528,7 +528,7 @@ namespace Numerics.Distributions
             // Validate parameters
             if (_parametersValid == false)
                 ValidateParameters(Mu, Sigma, true);
-            if (x < Minimum) return 0.0d;
+            if (x <= Minimum) return 0.0d;
             double d = (Math.Log(x) - Mu) / Sigma;
             return Math.Exp(-0.5d * d * d) / (Tools.Sqrt2PI * Sigma * x);
         }
