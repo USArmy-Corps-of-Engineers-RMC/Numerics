@@ -2,7 +2,7 @@
 using Numerics.Mathematics.LinearAlgebra;
 using System;
 
-namespace Mathematics.Linear_Algebra
+namespace Mathematics.LinearAlgebra
 {
     [TestClass]
     public class Test_Vector

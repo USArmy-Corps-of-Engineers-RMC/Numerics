@@ -28,6 +28,8 @@ namespace Distributions.Univariate
         [TestMethod()]
         public void Test_Normal_MOM_Fit()
         {
+            var z = Normal.StandardZ(1-1E-16);
+
             var norm = new Normal();
             norm.Estimate(sample, ParameterEstimationMethod.MethodOfMoments);
             double u1 = norm.Mu;

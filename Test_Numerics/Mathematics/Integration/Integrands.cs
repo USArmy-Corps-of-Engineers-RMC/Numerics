@@ -85,8 +85,7 @@ namespace Mathematics.Integration
             {
                 result += mu20[i] + sigma20[i] * Normal.StandardZ(p[i]);
             }
-            double sum = 0.25 *result + 0.25 * Math.Pow(result, 2) + 0.25 * Math.Pow(result, 3) + 0.25 * Math.Pow(result, 4);
-            return  sum;
+            return  result;
         }
 
         public static double Volume { get; set; }

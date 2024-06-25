@@ -747,11 +747,19 @@ namespace Numerics.Distributions
             return Math.Exp(-0.5d * Z * Z) / Tools.Sqrt2PI;
         }
 
+        /// <summary>
+        /// Returns the log PDF for a standard Normal distribution, where mean of 0 and standard deviation of 1.
+        /// </summary>
+        /// <param name="Z">The Z variate of a standard Normal.</param>
         public static double StandardLogPDF(double Z)
         {
             return -0.5d * Z * Z - Tools.LogSqrt2PI;
         }
 
+        /// <summary>
+        /// Returns the PDF for a standard Normal distribution, where mean of 0 and standard deviation of 1.
+        /// </summary>
+        /// <param name="zValues">A list of Z variates.</param>
         public static double[] StandardPDF(IList<double> zValues)
         {
             var result = new double[zValues.Count];
@@ -770,6 +778,11 @@ namespace Numerics.Distributions
             //return 0.5d * (1.0d + Erf.Function(Z / Math.Sqrt(2.0d)));
         }
 
+        /// <summary>
+        /// Returns the CDF for a standard Normal distribution, where mean of 0 and standard deviation of 1.
+        /// </summary>
+        /// <param name="zValues">A list of Z variates.</param>
+        /// <returns>An array of probabilities.</returns>
         public static double[] StandardCDF(IList<double> zValues)
         {
             var result = new double[zValues.Count];
@@ -789,14 +802,19 @@ namespace Numerics.Distributions
                 throw new ArgumentOutOfRangeException("probability", "Probability must be between 0 and 1.");
             double limit = 1E-16;
             if (probability <= limit)
-               return -8.2220822161304348;
+                return -8.2220822161304348;
             if (probability >= 1d - limit)
-                return 8.2095361516013874;
+                return 8.2095361516013856;
             //return RationalApproximation(probability);
             return r8_normal_01_cdf_inverse(probability);
         }
 
-        public double[] StandardZ(IList<double> probabilities)
+        /// <summary>
+        /// Returns the Z variate for a standard Normal distribution, where mean of 0 and standard deviation of 1.
+        /// </summary>
+        /// <param name="probabilities">A list of probabilities.</param>
+        /// <returns>An array of Z variates.</returns>
+        public static double[] StandardZ(IList<double> probabilities)
         {
             var result = new double[probabilities.Count];
             for (int i = 0; i < probabilities.Count; i++)

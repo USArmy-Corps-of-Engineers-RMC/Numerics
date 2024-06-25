@@ -181,7 +181,7 @@ namespace Data.Statistics
 
             var cp = new double[D];
             var R = new double[D, D];
-            var jpI = Probability.JointProbabilityHPCM(probabilities, indicators, corr2, cp, R);
+            var jpI = Probability.JointProbabilityHPCM(probabilities, indicators, corr2, cp);
 
 
 
@@ -245,7 +245,7 @@ namespace Data.Statistics
             var indicators = new int[] { 1, 1 };
             var jp = Probability.JointProbabilityPCM(probabilities, indicators, covar);
             var jpe = Probability.JointProbability(probabilities, indicators, mvn);
-            var jpI = Probability.JointProbabilityIPCM(probabilities, indicators, covar);
+            //var jpI = Probability.JointProbabilityIPCM(probabilities, indicators, covar);
 
         }
 
@@ -268,7 +268,7 @@ namespace Data.Statistics
             var indicators = new int[] { 1, 1, 1 };
             var jp = Probability.JointProbabilityPCM(probabilities, indicators, covar);
             var jpe = Probability.JointProbability(probabilities, indicators, mvn);
-            var jpI = Probability.JointProbabilityIPCM(probabilities, indicators, covar);
+            //var jpI = Probability.JointProbabilityIPCM(probabilities, indicators, covar);
             var jpH = Probability.JointProbabilityHPCM(probabilities, indicators, covar);
         }
 
@@ -295,7 +295,7 @@ namespace Data.Statistics
             var indicators = new int[] { 1, 1, 1, 1, 1 };
             var jp = Probability.JointProbabilityPCM(probabilities, indicators, covar);
             var jpe = Probability.JointProbability(probabilities, indicators, mvn);
-            var jpI = Probability.JointProbabilityIPCM(probabilities, indicators, covar);
+            //var jpI = Probability.JointProbabilityIPCM(probabilities, indicators, covar);
             var jpH = Probability.JointProbabilityHPCM(probabilities, indicators, covar);
         }
 
@@ -323,7 +323,7 @@ namespace Data.Statistics
             var indicators = new int[] { 1, 1, 1, 1, 1 };
             var jp = Probability.JointProbabilityPCM(probabilities, indicators, covar);
             var jpe = Probability.JointProbability(probabilities, indicators, mvn);
-            var jpI = Probability.JointProbabilityIPCM(probabilities, indicators, covar);
+            //var jpI = Probability.JointProbabilityIPCM(probabilities, indicators, covar);
 
             var jps = Probability.JointProbabilitiesPCM(probabilities, Factorial.AllCombinations(5), covar);
             for (int i = 0; i < jps.Length; i++)

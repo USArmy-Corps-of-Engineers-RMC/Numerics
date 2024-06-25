@@ -26,9 +26,22 @@ namespace Numerics.Data.Statistics
         /// </summary>
         public enum DependencyType
         {
+            /// <summary>
+            /// Statistically independent.
+            /// </summary>
             Independent,
+            /// <summary>
+            /// Perfectly positively dependent.
+            /// </summary>
             PerfectlyPositive,
-            PerfectlyNegative
+            /// <summary>
+            /// Perfectly negatively dependent.
+            /// </summary>
+            PerfectlyNegative,
+            /// <summary>
+            /// User-defined correlation matrix.
+            /// </summary>
+            CorrelationMatrix
         }
 
         #region Basic Probability Rules for Two Random Variables
@@ -106,7 +119,7 @@ namespace Numerics.Data.Statistics
         #region Joint Probability
 
         /// <summary>
-        /// Compute the joint probability.
+        /// Returns the joint probability.
         /// </summary>
         /// <param name="probabilities">List of probabilities.</param>
         /// <param name="dependency">The dependency type. Default = Independent.</param>
@@ -123,6 +136,55 @@ namespace Numerics.Data.Statistics
             else if (dependency == DependencyType.PerfectlyNegative)
             {
                 return NegativeJointProbability(probabilities);
+            }
+            return double.NaN;
+        }
+
+        /// <summary>
+        /// Computes the joint probability of multiple events with dependency, using the Product of Conditional Marginals (PCM) method.
+        /// </summary>
+        /// <param name="probabilities">An array of probabilities for each event.</param>
+        /// <param name="indicators">An array of indicators, 0 means the event did not occur, 1 means the event did occur.</param>
+        /// <param name="correlationMatrix">The correlation matrix defining the dependency.</param>
+        /// <param name="dependency">The dependency type. Default = Correlation matrix.</param>
+        /// <returns>The joint probability.</returns>
+        public static double JointProbability(IList<double> probabilities, int[] indicators, double[,] correlationMatrix = null, DependencyType dependency = DependencyType.CorrelationMatrix)
+        {
+            if (dependency == DependencyType.CorrelationMatrix && correlationMatrix != null)
+            {
+                return JointProbabilityHPCM(probabilities, indicators, correlationMatrix);
+
+                // Add some logic to decide which PCM method to use
+                //if (probabilities.Count == 2)
+                //{
+                //    // Use H-PCM when there are only 2 events
+                //    return JointProbabilityHPCM(probabilities, indicators, correlationMatrix);
+                //}
+                //else
+                //{
+                //    if (Tools.Max(Normal.StandardZ(probabilities)) < 0)
+                //    {
+                //        // Use regular PCM 
+                //        return JointProbabilityPCM(probabilities, indicators, correlationMatrix);
+                //    }
+                //    else
+                //    {
+                //        // Use H-PCM for positive z values
+                //        return JointProbabilityHPCM(probabilities, indicators, correlationMatrix);
+                //    }
+                //}
+            }
+            else if (dependency == DependencyType.Independent)
+            {
+                return IndependentJointProbability(probabilities, indicators);
+            }
+            else if (dependency == DependencyType.PerfectlyPositive)
+            {
+                return PositiveJointProbability(probabilities, indicators);
+            }
+            else if (dependency == DependencyType.PerfectlyNegative)
+            {
+                return NegativeJointProbability(probabilities, indicators);
             }
             return double.NaN;
         }
@@ -190,15 +252,13 @@ namespace Numerics.Data.Statistics
         }
 
         /// <summary>
-        /// 
+        /// Returns the joint probability of multiple events with dependency, using the Product of Conditional Marginals (PCM) method.
         /// </summary>
-        /// <param name="probabilities"></param>
-        /// <param name="indicators"></param>
-        /// <param name="correlationMatrix"></param>
-        /// <param name="conditionalProbabilities"></param>
-        /// <param name="Rout"></param>
-        /// <returns></returns>
-        public static double JointProbabilityHPCM(IList<double> probabilities, int[] indicators, double[,] correlationMatrix, double[] conditionalProbabilities = null, double[,] Rout = null)
+        /// <param name="probabilities">An array of probabilities for each event.</param>
+        /// <param name="indicators">An array of indicators, 0 means the event did not occur, 1 means the event did occur.</param>
+        /// <param name="correlationMatrix">The correlation matrix defining the dependency.</param>
+        /// <param name="conditionalProbabilities">Returns the array of conditional probabilities for each event.</param>
+        public static double JointProbabilityHPCM(IList<double> probabilities, int[] indicators, double[,] correlationMatrix, double[] conditionalProbabilities = null)
         {
             // Get z-values
             int n = probabilities.Count;
@@ -269,8 +329,8 @@ namespace Numerics.Data.Statistics
                     }
                 }
             }
-            if (Rout !=null)
-                Array.Copy(R, Rout, R.Length);
+            //if (Rout !=null)
+            //    Array.Copy(R, Rout, R.Length);
 
             // Calculate the product of conditional marginals (PCM)
             jp = Math.Log(Normal.StandardCDF(R[0, 0]));
@@ -288,6 +348,13 @@ namespace Numerics.Data.Statistics
             return jp;
         }
 
+        /// <summary>
+        /// Returns the joint probability of multiple events with dependency, using the Product of Conditional Marginals (PCM) method.
+        /// </summary>
+        /// <param name="probabilities">An array of probabilities for each event.</param>
+        /// <param name="indicators">An array of indicators, 0 means the event did not occur, 1 means the event did occur.</param>
+        /// <param name="correlationMatrix">The correlation matrix defining the dependency.</param>
+        /// <param name="conditionalProbabilities">Returns the array of conditional probabilities for each event.</param>
         public static double JointProbabilityIPCM(IList<double> probabilities, int[] indicators, double[,] correlationMatrix, double[] conditionalProbabilities = null)
         {
             // Get z-values
@@ -313,13 +380,13 @@ namespace Numerics.Data.Statistics
             pdf = Normal.StandardPDF(z1);
             cdf = Normal.StandardCDF(z1);
             A = pdf / cdf;
-            B = A * (z1 + A);          
+            B = A * (z1 + A);
             // calculate c[k|0] and store them in R[k,0], k = 1,...,n
             for (k = 1; k < n; k++)
             {
                 z2 = R[k, k];
                 r12 = R[0, k];
-                p21 = MultivariateNormal.BivariateCDF(-z1, -z2, r12) / cdf; 
+                p21 = MultivariateNormal.BivariateCDF(-z1, -z2, r12) / cdf;
                 p21 = Math.Max(0, Math.Min(1, p21));
                 z21 = Normal.StandardZ(p21);
                 R[k, 0] = z21;
@@ -478,7 +545,6 @@ namespace Numerics.Data.Statistics
                 else
                 {
                     result[idx] = JointProbabilityPCM(probabilities, indicators.GetRow(idx), correlationMatrix);
-                    //result[idx] = JointProbabilityIPCM(probabilities, indicators.GetRow(idx), multivariateNormal.Covariance);
                 }
             });
             return result;
@@ -670,7 +736,7 @@ namespace Numerics.Data.Statistics
                 }
                 else
                 {
-                    result += s * JointProbabilityIPCM(probabilities, indicators.GetRow(i), correlationMatrix);
+                    result += s * JointProbability(probabilities, indicators.GetRow(i), correlationMatrix);
                 }
 
             }
@@ -742,7 +808,7 @@ namespace Numerics.Data.Statistics
                 }
                 else
                 {
-                    var jp = JointProbabilityIPCM(probabilities, indicators.GetRow(i), correlationMatrix);
+                    var jp = JointProbability(probabilities, indicators.GetRow(i), correlationMatrix);
                     union += s * jp;
                     eventProbabilities.Add(jp);
                 }
@@ -751,8 +817,6 @@ namespace Numerics.Data.Statistics
 
             return union;
         }
-
-
 
         /// <summary>
         /// Returns the probability of union using the inclusion-exclusion method. Dependence between events is captured with the multivariate normal distribution.
@@ -1175,8 +1239,6 @@ namespace Numerics.Data.Statistics
             return result;
         }
 
-
-
         /// <summary>
         /// Returns an array of exclusive probabilities of multiple events using the inclusion-exclusion method. Dependence between events is captured with the multivariate normal distribution.
         /// </summary>
@@ -1188,7 +1250,7 @@ namespace Numerics.Data.Statistics
         /// <param name="eventIndicators">Output. A list of exclusive event indicators that were evaluated.</param>
         /// <param name="absoluteTolerance">The absolute tolerance for evaluation convergence of the inclusion-exclusion algorithm. Default = 1E-8.</param>
         /// <param name="relativeTolerance">The relative tolerance for evaluation convergence of the inclusion-exclusion algorithm. Default = 1E-4.</param>
-        public static void ExclusivePCM(IList<double> probabilities, int[] binomialCombinations, int[,] indicators, double[,] correlationMatrix, out List<double> eventProbabilities, out List<int[]> eventIndicators, double absoluteTolerance = 1E-8, double relativeTolerance = 1E-4)
+        public static void ExclusivePCM(IList<double> probabilities, int[] binomialCombinations, int[,] indicators, double[,] correlationMatrix, out List<double> eventProbabilities, out List<int[]> eventIndicators, double absoluteTolerance = 1E-4, double relativeTolerance = 1E-4)
         {
             var jointProbabilities = new List<double>();
             eventProbabilities = new List<double>();
@@ -1359,7 +1421,7 @@ namespace Numerics.Data.Statistics
         /// <param name="eventIndicators">Output. A list of exclusive event indicators that were evaluated.</param>
         /// <param name="absoluteTol">The absolute tolerance for evaluation convergence of the inclusion-exclusion algorithm. Default = 1E-8.</param>
         /// <param name="relativeTol">The relative tolerance for evaluation convergence of the inclusion-exclusion algorithm. Default = 1E-4.</param>
-        public static void Exclusive(IList<double> probabilities, int[] binomialCombinations, int[,] indicators, MultivariateNormal multivariateNormal, out List<double> eventProbabilities, out List<int[]> eventIndicators, double absoluteTol = 1E-8, double relativeTol = 1E-4)
+        public static void Exclusive(IList<double> probabilities, int[] binomialCombinations, int[,] indicators, MultivariateNormal multivariateNormal, out List<double> eventProbabilities, out List<int[]> eventIndicators, double absoluteTol = 1E-4, double relativeTol = 1E-4)
         {
 
 
@@ -1538,9 +1600,10 @@ namespace Numerics.Data.Statistics
         #region Common Cause Adjustment
 
         /// <summary>
-        /// Returns the common cause adjustment factor.
+        /// Computes the common cause adjustment factor.
         /// </summary>
         /// <param name="probabilities">List of probabilities.</param>
+        /// <returns>The common cause adjustment factor.</returns>
         public static double CommonCauseAdjustment(IList<double> probabilities)
         {
             if (probabilities.Count == 1) return 1d;
@@ -1556,9 +1619,34 @@ namespace Numerics.Data.Statistics
         }
 
         /// <summary>
-        /// Returns the mutually exclusive adjustment factor.
+        /// Computes the common cause adjustment factor.
         /// </summary>
         /// <param name="probabilities">List of probabilities.</param>
+        /// <param name="correlationMatrix">The correlation matrix defining the dependency.</param>
+        /// <param name="dependency">The dependency type. Default = Correlation matrix.</param>
+        /// <returns>The common cause adjustment factor.</returns>
+        public static double CommonCauseAdjustment(IList<double> probabilities, double[,] correlationMatrix = null, DependencyType dependency = DependencyType.CorrelationMatrix)
+        {
+            if (probabilities.Count == 1) return 1d;
+            var indicators = new int[probabilities.Count];
+            var complement = new double[probabilities.Count];
+            double denominator = 0;
+            for (int i = 0;i < probabilities.Count; i++)
+            {
+                indicators[i] = 1;
+                complement[i] = 1 - probabilities[i];
+                denominator += probabilities[i];
+            }
+            if (denominator == 0) return 1d;
+            double numerator = JointProbability(complement, indicators, correlationMatrix, dependency);
+            return (1d - numerator) / denominator;
+        }
+
+        /// <summary>
+        /// Computes the mutually exclusive adjustment factor.
+        /// </summary>
+        /// <param name="probabilities">List of probabilities.</param>
+        /// <returns>The mutually exclusive adjustment factor.</returns> 
         public static double MutuallyExclusiveAdjustment(IList<double> probabilities)
         {
             if (probabilities.Count == 1) return 1d;
