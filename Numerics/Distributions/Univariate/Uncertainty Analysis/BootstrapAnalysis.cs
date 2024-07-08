@@ -350,7 +350,7 @@ namespace Numerics.Distributions
                 }
             }
 
-            Linear linint = new Linear(xVals, yVals) { XTransform = Transform.Logarithmic, YTransform = Transform.Logarithmic };
+            Linear linint = new Linear(xVals, yVals) { XTransform = Transform.NormalZ, YTransform = Transform.Logarithmic };
             for (int i = 0; i < probs.Length; i++)
             {
                 output[i] = linint.Interpolate(probs[i]);

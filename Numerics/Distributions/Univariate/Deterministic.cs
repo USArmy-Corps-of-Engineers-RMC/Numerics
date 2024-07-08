@@ -300,8 +300,7 @@ namespace Numerics.Distributions
         /// </remarks>
         public override double CDF(double X)
         {
-            if (X <= Value)
-                return 0;
+            if (X < Value) return 0;
             return 1d;
         }
 

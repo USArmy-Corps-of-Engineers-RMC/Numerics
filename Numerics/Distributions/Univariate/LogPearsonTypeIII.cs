@@ -683,10 +683,13 @@ namespace Numerics.Distributions
             double real = Math.Exp(initialVals[0] / K);
             lowerVals[0] = Tools.DoubleMachineEpsilon;
             upperVals[0] = Math.Ceiling(Math.Log(Math.Pow(10d, Math.Ceiling(Math.Log10(real) + 1d)), Base));
+            upperVals[0] = double.IsNaN(upperVals[0]) ? 5 : upperVals[0];
             // Get bounds of standard deviation
             real = Math.Exp(initialVals[1] / K);
             lowerVals[1] = Tools.DoubleMachineEpsilon;
             upperVals[1] = Math.Ceiling(Math.Log(Math.Pow(10d, Math.Ceiling(Math.Log10(real) + 1d)), Base));
+            upperVals[1] = double.IsNaN(upperVals[1]) ? 4 : upperVals[1];
+
             // Get bounds of skew
             lowerVals[2] = -2d;
             upperVals[2] = 2d;
@@ -736,7 +739,6 @@ namespace Numerics.Distributions
             // 
             if (x < Minimum || x > Maximum) return 0.0d;
 
-            //if (x == 0) x = 1E-16;
             if (Math.Abs(Gamma) <= NearZero)
             {
                 double d = (Math.Log(x, Base) - Mu) / Sigma;

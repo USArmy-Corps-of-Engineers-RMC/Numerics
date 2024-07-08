@@ -23,7 +23,7 @@ namespace Numerics.Sampling.MCMC
     /// as well as the prior likelihood of the sampler parameters.
     /// </remarks>
     [Serializable]
-    public delegate double LogLikelihood(IList<double> parameters);
+    public delegate double LogLikelihood(double[] parameters);
 
 
     /// <summary>

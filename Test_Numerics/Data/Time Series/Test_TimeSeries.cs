@@ -12,10 +12,22 @@ namespace Data.TimeSeriesAnalysis
     public class Test_TimeSeries
     {
         [TestMethod]
+        public void Test_DownloadFromGHCN()
+        {
+            var t = TimeSeriesDownload.FromGHCN("USC00040741");
+            //t = TimeSeriesDownload.FromGHCN("AG000060611");
+        }
+
+        [TestMethod]
+        public void Test_DownloadFromUSGS()
+        {
+            var t = TimeSeriesDownload.FromUSGS("08133500");
+        }
+
+
+        [TestMethod]
         public void Test_MovingAverage()
         {
-
-            var t = TimeSeries.DownloadfromUSGS("08133500");
 
             // import at-site data
             string filePath = "C:\\Users\\Q0RMCCHS\\Documents\\TimeSeriesData.csv";

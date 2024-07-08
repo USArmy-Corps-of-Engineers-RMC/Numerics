@@ -280,7 +280,7 @@ namespace Numerics.Distributions
         {
             // Validate parameters
             _parametersValid = ValidateParameters(new[] { location, scale }, false) is null;
-            Xi = location;
+            _xi = location;
             _alpha = scale;
         }
 
