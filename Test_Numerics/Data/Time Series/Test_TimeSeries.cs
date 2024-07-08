@@ -14,7 +14,8 @@ namespace Data.TimeSeriesAnalysis
         [TestMethod]
         public void Test_DownloadFromGHCN()
         {
-            var t = TimeSeriesDownload.FromGHCN("USC00040741");
+            //var t = TimeSeriesDownload.FromGHCN("USC00040741");
+            var t = TimeSeriesDownload.FromGHCN("USC00327027");
             //t = TimeSeriesDownload.FromGHCN("AG000060611");
         }
 

@@ -114,6 +114,7 @@ namespace Numerics.Data
                         double.TryParse(line[3], out var value);
                         if ((typeString == "PRCP" && timeSeriesType == GHCNTimeSeriesType.DailyPrecipitation) || (typeString == "SNOW" && timeSeriesType == GHCNTimeSeriesType.DailySnow))
                         {
+                            value /= 10d;
                             if (unit == DepthUnit.Millimeters)
                             {
                                 timeSeries.Add(new SeriesOrdinate<DateTime, double>(dateTime, value));
