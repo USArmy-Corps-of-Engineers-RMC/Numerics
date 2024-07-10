@@ -171,7 +171,11 @@
     <Compile Include="Mathematics\Optimization\Test_ParticleSwarm.cs" />
     <Compile Include="Mathematics\Optimization\Test_AugmentedLagrange.cs" />
     <Compile Include="Mathematics\Optimization\Test_MLSL.cs" />
-    <Compile Include="Mathematics\Root Finding\Test_RootFinding.cs" />
+    <Compile Include="Mathematics\Root Finding\Test_Bracket.cs" />
+    <Compile Include="Mathematics\Root Finding\Test_Bisection.cs" />
+    <Compile Include="Mathematics\Root Finding\Test_Brent.cs" />
+    <Compile Include="Mathematics\Root Finding\Test_Secant.cs" />
+    <Compile Include="Mathematics\Root Finding\Test_NewtonRaphson.cs" />
     <Compile Include="Mathematics\Special Functions\Test_SpecialFunctions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Sampling\MCMC\Test_DEMCz.cs" />
@@ -184,6 +188,8 @@
     <Compile Include="Sampling\Test_LatinHypercube.cs" />
     <Compile Include="Sampling\Test_Stratification.cs" />
     <Compile Include="Sampling\Test_SobolSequence.cs" />
+    <Compile Include="Utilities\Test_Tools.cs" />
+    <Compile Include="Utilities\Test_ExtensionMethods.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -1,4 +1,35 @@
-﻿using System;
+﻿/***
+*NOTICE:
+*The U.S.Army Corps of Engineers, Risk Management Center (USACE-RMC) makes no guarantees about
+* the results, or appropriateness of outputs, obtained from Numerics.
+*
+* LIST OF CONDITIONS:
+*Redistribution and use in source and binary forms, with or without modification, are permitted
+* provided that the following conditions are met:
+* ● Redistributions of source code must retain the above notice, this list of conditions, and the
+* following disclaimer.
+* ● Redistributions in binary form must reproduce the above notice, this list of conditions, and
+* the following disclaimer in the documentation and/or other materials provided with the distribution.
+* ● The names of the U.S. Government, the U.S. Army Corps of Engineers, the Institute for Water
+* Resources, or the Risk Management Center may not be used to endorse or promote products derived
+* from this software without specific prior written permission. Nor may the names of its contributors
+* be used to endorse or promote products derived from this software without specific prior
+* written permission.
+*
+* DISCLAIMER:
+*THIS SOFTWARE IS PROVIDED BY THE U.S. ARMY CORPS OF ENGINEERS RISK MANAGEMENT CENTER
+* (USACE-RMC) "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+* THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+* DISCLAIMED. IN NO EVENT SHALL USACE-RMC BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+* SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+* PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+* INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+* LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+* THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+***/
+
+using Numerics.Distributions;
+using System;
 
 namespace Numerics.Mathematics.LinearAlgebra
 {
@@ -7,12 +38,35 @@ namespace Numerics.Mathematics.LinearAlgebra
     /// </summary>
     /// <remarks>
     /// <para>
-    ///     Authors:
-    ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
+    ///     <b> Authors: </b>
+    ///<list type = "bullet" >
+    ///     <item> Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil </item>
+    ///     <item> Tiki Gonzalez, USACE Risk Management Center, julian.t.gonzalez@usace.army.mil </item>
+    /// </list>
+    /// </para>
+    /// <para>
+    /// <b> Description: </b>
+    /// </para>
+    /// <para>
+    /// Singular value decomposition (SVD) is one of the most useful matrix decomposition methods. Used in:
+    /// <list type="bullet">
+    /// Reducing dimension of large data sets (PCA)
+    /// </list>
+    /// <list type="bullet">
+    /// Separating "signal" from "noise" in real-world data
+    /// </list>
+    /// <list type="bullet">
+    /// Identifying line / low-dim plane of best-fit  to high dimensional data
+    /// </list>
+    /// <list type="bullet">
+    /// Solving/interpreting linear systems of equations
+    /// </list>
+    /// </para>
+    /// <para>
+    /// "Numerical Recipes: The art of Scientific Computing, Third Edition. Press et al. 2017.
     /// </para>
     /// <para>
     /// <see href = "https://en.wikipedia.org/wiki/Singular_value_decomposition" />
-    /// "Numerical Recipes: The art of Scientific Computing, Third Edition. Press et al. 2017.
     /// </para>
     /// </remarks>
     public class SingularValueDecomposition
@@ -166,7 +220,7 @@ namespace Numerics.Mathematics.LinearAlgebra
                 if (W[j] > Threshold) // Nonzero result only if W-j is nonzero.
                 {
                     for (i = 0; i < m; i++) s += U[i,j] * B[i];
-                    s /= W[j]; // This the dived by W-j.
+                    s /= W[j]; // This s is then divided by W-j.
                 }
                 tmp[j] = s;
             }
@@ -466,7 +520,9 @@ namespace Numerics.Mathematics.LinearAlgebra
             return (absa > absb ? absa * Math.Sqrt(1.0 + Math.Pow(absb / absa, 2)) :
                 (absb == 0.0 ? 0.0 : absb * Math.Sqrt(1.0 + Math.Pow(absa / absb, 2))));
         }
-
+        /// <summary>
+        /// Takes Log determinant of the Matrix W
+        /// </summary>
         public double LogDeterminant()
         {
             double det = 0;
@@ -475,6 +531,9 @@ namespace Numerics.Mathematics.LinearAlgebra
             return det;
         }
 
+        /// <summary>
+        /// Takes Log determinant of the Matrix W
+        /// </summary>
         public double LogPseudoDeterminant()
         {
             double det = 0;

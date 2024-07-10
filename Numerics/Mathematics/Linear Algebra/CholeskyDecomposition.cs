@@ -1,4 +1,36 @@
-﻿using System;
+﻿/***
+* NOTICE:
+* The U.S. Army Corps of Engineers, Risk Management Center (USACE-RMC) makes no guarantees about
+* the results, or appropriateness of outputs, obtained from Numerics.
+*
+* LIST OF CONDITIONS:
+* Redistribution and use in source and binary forms, with or without modification, are permitted
+* provided that the following conditions are met:
+* ● Redistributions of source code must retain the above notice, this list of conditions, and the
+* following disclaimer.
+* ● Redistributions in binary form must reproduce the above notice, this list of conditions, and
+* the following disclaimer in the documentation and/or other materials provided with the distribution.
+* ● The names of the U.S. Government, the U.S. Army Corps of Engineers, the Institute for Water
+* Resources, or the Risk Management Center may not be used to endorse or promote products derived
+* from this software without specific prior written permission. Nor may the names of its contributors
+* be used to endorse or promote products derived from this software without specific prior
+* written permission.
+*
+* DISCLAIMER:
+* THIS SOFTWARE IS PROVIDED BY THE U.S. ARMY CORPS OF ENGINEERS RISK MANAGEMENT CENTER
+* (USACE-RMC) "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+* THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+* DISCLAIMED. IN NO EVENT SHALL USACE-RMC BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+* SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+* PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+* INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+* LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+* THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+***/
+using Numerics.Mathematics.Integration;
+using System;
+using System.Diagnostics.CodeAnalysis;
+using System.Security.Principal;
 
 namespace Numerics.Mathematics.LinearAlgebra
 {
@@ -8,14 +40,39 @@ namespace Numerics.Mathematics.LinearAlgebra
     /// </summary>
     /// <remarks>
     /// <para>
-    ///     Authors:
-    ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
+    /// <b> Authors: </b>
+    /// <list type="bullet"> 
+    ///     <item> Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil </item>
+    ///     <item> Tiki Gonzalez, USACE Risk Management Center, julian.t.gonzalez@usace.army.mil </item>
+    /// </list>
+    /// </para>
+    /// <para>
+    /// <b> Description: </b>
+    /// </para>
+    /// <para>
+    /// The Cholesky decomposition or Cholesky factorization is a decomposition of a Hermitian, positive-definite matrix into the product of 
+    /// a lower triangular matrix and its conjugate transpose. The basic idea of this method includes decomposing a square positive-definite
+    /// matrix by symmetrically applying column-clearing operations from Gaussian Elimination. This method is very useful for Monte Carlo 
+    /// simulations that is utilized in TotalRisk. This method is also roughly twice as efficient as the LU decomposition for solving 
+    /// systems of linear equations. 
+    /// </para>
+    /// <para>
+    /// <b> References: </b>
+    /// </para>
+    /// <para>
+    /// "Numerical Recipes: The art of Scientific Computing, Third Edition." Press et al. 2017.
+    /// </para>
+    /// <para>
+    /// "Numerical Methods for Engineers, Second Edition.", D.V. Griffiths and I.M. Smith, Taylor and Francis Group, 2006.
     /// </para>
     /// <para>
     /// <see href = "https://en.wikipedia.org/wiki/Cholesky_decomposition" />
-    /// "Numerical Recipes: The art of Scientific Computing, Third Edition. Press et al. 2017.
+    /// </para>
+    /// <para>
+    /// <see href = "https://www.geeksforgeeks.org/cholesky-decomposition-matrix-decomposition/"/>
     /// </para>
     /// </remarks>
+
     public class CholeskyDecomposition
     {
      
@@ -24,25 +81,29 @@ namespace Numerics.Mathematics.LinearAlgebra
         /// </summary>
         /// <param name="A">The positive-definite symmetric input matrix A [0..n-1][0..n-1] that is to be Cholesky decomposed.</param>
         public CholeskyDecomposition(Matrix A)
+
         {
+
             IsPositiveDefinite = false;
             int i, j, k;
             n = A.NumberOfRows;
             this.A = new Matrix(A.ToArray());
-            L = new Matrix(A.ToArray());
+            L = new Matrix(A.ToArray()); // Lower triangular matrix
             double sum;
             if (A.NumberOfColumns != A.NumberOfRows)
             {
                 throw new ArgumentOutOfRangeException(nameof(A), "The matrix A must be square.");
             }
-
+            
+            //Decomposing a matrix into Lower triangular
             for (i = 0; i < n; i++)
             {
                 for (j = i; j < n; j++)
                 {
                     sum = L[i, j];
+               
                     for (k = i - 1; k >= 0; k -= 1)
-                        sum -= L[i, k] * L[j, k];
+                        sum -= L[i, k] * L[j, k]; // Cholesky formula 
                     if (i == j)
                     {
                         if (sum <= 0d)
@@ -51,11 +112,12 @@ namespace Numerics.Mathematics.LinearAlgebra
                     }
                     else
                     {
-                        L[j, i] = sum / L[i, i];
+                        L[j, i] = sum / L[i, i]; // Upper Triangular matrix
                     }
                 }
             }
-
+            
+            // making sure 0 entries for upper triangular matrix
             for (i = 0; i < n; i++)
             {
                 for (j = 0; j < i; j++)
@@ -84,8 +146,9 @@ namespace Numerics.Mathematics.LinearAlgebra
         public bool IsPositiveDefinite { get; private set; }
 
         /// <summary>
-        /// Solves the set of n linear equations A*x=b using the stored Cholesky decomposition of A.
+        /// Solves the set of n linear equations A*x=b using the stored Cholesky decomposition of A=L*L^T.
         /// </summary>
+        /// <returns> x vector from L*L^T {x} = {y} </returns>
         /// <param name="B">Right-hand side vector b [0..n-1].</param>
         public Vector Solve(Vector B)
         {
@@ -110,33 +173,39 @@ namespace Numerics.Mathematics.LinearAlgebra
         }
 
         /// <summary>
-        /// Multiply L*Y=b where L is the lower triangular matrix in the stored Cholesky decomposition.
+        /// Solving the L^T * x = y equation with backward substitution
         /// </summary>
         /// <param name="y">The input vector y [0..n-1].</param>
-        public double[] Multiply(double[] y)
+
+        public double[] Back(double[] y)
         {
             int i, j;
-            var b = new double[n];
+            var x = new double[n];
+
             if (y.Length != n)
             {
                 throw new ArgumentOutOfRangeException(nameof(y), "The vector y must have the same number of rows as the matrix A.");
             }
 
-            for (i = 0; i < n; i++)
+            for (i = n - 1; i >= 0; --i)
             {
-                b[i] = 0.0d;
-                for (j = 0; j < i; j++)
-                    b[i] += L[i, j] * y[j];
+
+                var sum = y[i];
+                for (j = n - 1; j > i; --j)
+                {
+                    sum -= x[j] * L[j, i];
+                }
+                x[i] = sum / L[i, i];
             }
 
-            return b;
+            return x;
         }
 
         /// <summary>
-        /// Solves L*y=b where L is the lower triangular matrix in the stored Cholesky decomposition.
+        /// Solving the L * y = b equation using Forward substitution
         /// </summary>
         /// <param name="b">The right-hand side vector b [0..n-1].</param>
-        public double[] SolveYGivenB(double[] b)
+        public double[] Forward(double[] b)
         {
             int i, j;
             var y = new double[n];
@@ -157,9 +226,9 @@ namespace Numerics.Mathematics.LinearAlgebra
             return y;
         }
 
-        /// <summary>
-        /// Returns the matrix inverse A^-1 using the stored Cholesky decomposition.
-        /// </summary>
+        /// <returns>
+        /// Matrix inverse A^-1 using the stored Cholesky decomposition.
+        /// </returns>
         public Matrix InverseA()
         {
             int i, j, k;

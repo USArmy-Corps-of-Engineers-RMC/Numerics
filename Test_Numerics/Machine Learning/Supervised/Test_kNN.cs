@@ -1,4 +1,34 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿/***
+* NOTICE:
+* The U.S. Army Corps of Engineers, Risk Management Center (USACE-RMC) makes no guarantees about
+* the results, or appropriateness of outputs, obtained from Numerics.
+*
+* LIST OF CONDITIONS:
+* Redistribution and use in source and binary forms, with or without modification, are permitted
+* provided that the following conditions are met:
+* ● Redistributions of source code must retain the above notice, this list of conditions, and the
+* following disclaimer.
+* ● Redistributions in binary form must reproduce the above notice, this list of conditions, and
+* the following disclaimer in the documentation and/or other materials provided with the distribution.
+* ● The names of the U.S. Government, the U.S. Army Corps of Engineers, the Institute for Water
+* Resources, or the Risk Management Center may not be used to endorse or promote products derived
+* from this software without specific prior written permission. Nor may the names of its contributors
+* be used to endorse or promote products derived from this software without specific prior
+* written permission.
+*
+* DISCLAIMER:
+* THIS SOFTWARE IS PROVIDED BY THE U.S. ARMY CORPS OF ENGINEERS RISK MANAGEMENT CENTER
+* (USACE-RMC) "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+* THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+* DISCLAIMED. IN NO EVENT SHALL USACE-RMC BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+* SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+* PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+* INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+* LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+* THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+**/
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using Numerics.MachineLearning;
 using Numerics.Mathematics.LinearAlgebra;
@@ -7,6 +37,8 @@ using Numerics;
 using System.Diagnostics;
 using Numerics.Data;
 using Numerics.Data.Statistics;
+using System.Runtime.Remoting.Messaging;
+using System.Runtime.InteropServices;
 
 namespace MachineLearning
 {
@@ -57,5 +89,39 @@ namespace MachineLearning
             }
 
         }
+
+        /// <summary>
+        /// Testing classification method in kNN. Expected a classification of 0.
+        /// <para>
+        /// <see cref="https://www.geeksforgeeks.org/k-nearest-neighbours/"/>
+        /// </para>
+        /// </summary>
+        [TestMethod()]
+        public void Test_kNN_Classification()
+        {
+            var val = new double[] { 0, 0, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 0, 0, 1, 0, 0,0,0,0};
+            var xPred = new double[] { 1, 2, 5, 3, 3, 1.5, 7, 6, 3.8, 3, 5.6, 4, 3.5, 2, 2, 1,2.5,2.5,2.5};
+            var yPred = new double[] { 12, 5, 3, 2, 6, 9, 2, 1, 3, 10, 4, 2, 8, 11, 5, 9, 7,7,7,7};
+
+            int tIDX = 16;
+            var list = new List<double[]> { xPred.Subset(0, tIDX), yPred.Subset(0,tIDX) };
+            var Y_training = new Vector(val.Subset(0, tIDX));
+            var X_training = new Matrix(list);
+
+
+            // Create test data
+            list = new List<double[]> { xPred.Subset(tIDX,tIDX + 2), yPred.Subset(tIDX,tIDX+2) };
+            var Y_test = new Vector(val.Subset(tIDX + 1));
+            var X_test = new Matrix(list);
+
+            var knn = new KNearestNeighbors(X_training, Y_training, 3);
+            knn.IsRegression = false;
+            var test = knn.Predict(X_test.ToArray());
+            var boot = knn.PredictionIntervals(X_test.ToArray());
+
+            for (int i = 0; i < test.Length; i++)
+                Debug.WriteLine(test[i] + "," + Y_test[i] + "," + boot[i,0] +"," + boot[i,1]);
+        }
+
     }
 }
