@@ -1,7 +1,38 @@
-﻿using Numerics.Sampling;
+﻿/**
+* NOTICE:
+* The U.S. Army Corps of Engineers, Risk Management Center (USACE-RMC) makes no guarantees about
+* the results, or appropriateness of outputs, obtained from Numerics.
+*
+* LIST OF CONDITIONS:
+* Redistribution and use in source and binary forms, with or without modification, are permitted
+* provided that the following conditions are met:
+* ● Redistributions of source code must retain the above notice, this list of conditions, and the
+* following disclaimer.
+* ● Redistributions in binary form must reproduce the above notice, this list of conditions, and
+* the following disclaimer in the documentation and/or other materials provided with the distribution.
+* ● The names of the U.S. Government, the U.S. Army Corps of Engineers, the Institute for Water
+* Resources, or the Risk Management Center may not be used to endorse or promote products derived
+* from this software without specific prior written permission. Nor may the names of its contributors
+* be used to endorse or promote products derived from this software without specific prior
+* written permission.
+*
+* DISCLAIMER:
+* THIS SOFTWARE IS PROVIDED BY THE U.S. ARMY CORPS OF ENGINEERS RISK MANAGEMENT CENTER
+* (USACE-RMC) "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+* THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+* DISCLAIMED. IN NO EVENT SHALL USACE-RMC BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+* SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+* PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+* INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+* LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+* THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+* **/
+
+using Numerics.Sampling;
 using System;
 using System.Collections.Generic;
 using System.Windows.Documents;
+using static System.Net.WebRequestMethods;
 
 namespace Numerics.Mathematics.Integration
 {
@@ -11,9 +42,21 @@ namespace Numerics.Mathematics.Integration
     /// </summary>
     /// <remarks>
     /// <para>
-    ///     Authors:
+    ///     <b> Authors: </b>
     ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
     /// </para>
+    /// <para>
+    /// <b> Description: </b>
+    /// Adaptive Simpson's rule uses an estimate of the error that comes from calculating a definite integral with Simpson's rule. If the error between the previous
+    /// evaluation of the rule and the current evaluation of the rule exceeds a certain specified tolerance, the rule calls for subdividing the interval. Adaptive Simpson's
+    /// rule is applied to each subinterval in a recursive manner until the error qualifications are met.
+    /// <code>
+    ///             | S(a, b) - S(a, m) + S(m, b) | &lt; epsilon
+    /// </code>
+    /// where a and b are the bounds of integration and m is the midpoint between them.
+    /// </para>
+    /// <b> References: </b>
+    /// <see href="https://en.wikipedia.org/wiki/Adaptive_Simpson%27s_method"/>
     /// </remarks>
     public class AdaptiveSimpsonsRule : Integrator
     {
@@ -146,7 +189,19 @@ namespace Numerics.Mathematics.Integration
             }
         }
 
-
+        /// <summary>
+        /// A helper function to the Integrate() function
+        /// </summary>
+        /// <param name="f"> The unidimensional function to integrate </param>
+        /// <param name="a"> The minimum value under which the integral must be computed </param>
+        /// <param name="fa"> The function evaluated at a </param>
+        /// <param name="b"> The maximum value under which the integral must be computed </param>
+        /// <param name="fb"> The function evaluated at b </param>
+        /// <param name="m"> The midpoint between a and b </param>
+        /// <param name="fm"> The function evaluated at m </param>
+        /// <returns>
+        /// A three point Simpsons Rule evaluation on [a,b]
+        /// </returns>
         private double Simpsons(Func<double, double> f, double a, double fa, double b, double fb, ref double m, ref double fm)
         {
             m = (a + b) / 2d;
@@ -155,6 +210,23 @@ namespace Numerics.Mathematics.Integration
             return Math.Abs(b - a) / 6d * (fa + 4d * fm + fb);
         }
 
+        /// <summary>
+        /// A helper function to the Integrate() function
+        /// </summary>
+        /// <param name="f"> The unidimensional function to integrate </param>
+        /// <param name="a"> The minimum value under which the integral must be computed </param>
+        /// <param name="fa"> The function evaluated at a </param>
+        /// <param name="b"> The maximum value under which the integral must be computed </param>
+        /// <param name="fb"> The function evaluated at b </param>
+        /// <param name="epsilon"> Machine epsilon </param>
+        /// <param name="depth"> Less than or equal to 0 (max recursions have been reached) </param>
+        /// <param name="whole"> The original whole three point Simpson's Rule evaluation on [a,b] </param>
+        /// <param name="m"> The midpoint between a and b </param>
+        /// <param name="fm"> The function evaluated at m </param>
+        /// <returns>
+        /// An evaluation of Simpson's Rule with the error less than a certain tolerance. This is accomplished but subdividing the interval the rule is
+        /// evaluated on until the error between the last evaluation and the current evaluation is sufficiently small.
+        /// </returns>
         private double AdaptiveSimpsons(Func<double, double> f, double a, double fa, double b, double fb, double epsilon, int depth, double whole, double m, double fm)
         {
 

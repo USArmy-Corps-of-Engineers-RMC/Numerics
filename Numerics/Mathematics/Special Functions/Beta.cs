@@ -1,6 +1,33 @@
-﻿// Since I use functions from the Accord Math Library, here is the required license header:
-// Haden Smith (November 2018)
-// 
+﻿/**
+* NOTICE:
+* The U.S. Army Corps of Engineers, Risk Management Center (USACE-RMC) makes no guarantees about
+* the results, or appropriateness of outputs, obtained from Numerics.
+*
+* LIST OF CONDITIONS:
+* Redistribution and use in source and binary forms, with or without modification, are permitted
+* provided that the following conditions are met:
+* ● Redistributions of source code must retain the above notice, this list of conditions, and the
+* following disclaimer.
+* ● Redistributions in binary form must reproduce the above notice, this list of conditions, and
+* the following disclaimer in the documentation and/or other materials provided with the distribution.
+* ● The names of the U.S. Government, the U.S. Army Corps of Engineers, the Institute for Water
+* Resources, or the Risk Management Center may not be used to endorse or promote products derived
+* from this software without specific prior written permission. Nor may the names of its contributors
+* be used to endorse or promote products derived from this software without specific prior
+* written permission.
+*
+* DISCLAIMER:
+* THIS SOFTWARE IS PROVIDED BY THE U.S. ARMY CORPS OF ENGINEERS RISK MANAGEMENT CENTER
+* (USACE-RMC) "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+* THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+* DISCLAIMED. IN NO EVENT SHALL USACE-RMC BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+* SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+* PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+* INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+* LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+* THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+* **/
+
 // Accord Math Library
 // The Accord.NET Framework
 // http://accord-framework.net
@@ -27,69 +54,94 @@ using Numerics.Distributions;
 
 namespace Numerics.Mathematics.SpecialFunctions
 {
-
     /// <summary>
     /// A class for Beta functions.
     /// </summary>
-    /// <remarks>
+    /// <remarks>  
     /// <para>
-    ///     Authors:
+    ///     <b> Authors: </b>
     ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
     /// </para>
     /// <para>
-    /// References:
+    /// <b> Description: </b>
+    /// The beta function is also know as Euler's integral. Denoted with the Greek
+    /// capital beta, it has the following equation:
+    /// <code>
+    ///              1
+    ///     B(a,b) = ∫ t^(a-1)*(t-1)^(b-1) dt
+    ///              0
+    /// </code>
+    /// <para>
+    /// It can also be written in terms of the Gamma function as:
+    /// </para>
+    /// <code>
+    ///     B(a,b) = Γ(a)*Γ(b) / Γ(a+b)
+    ///
+    /// </code>
+    /// </para>
+    /// <para>
+    /// <b> References: </b>
     /// <list type="bullet">
     /// <item><description>
     /// "Numerical Recipes, Routines and Examples in Basic", J.C. Sprott,
     /// Cambridge University Press, 1991.
+    /// https://en.wikipedia.org/wiki/Beta_function
     /// </description></item>
     /// <item><description>
-    /// This class uses beta functions from the Accord Math Library, http://accord-framework.net.
+    /// This class uses beta functions from the Accord Math Library
+    /// <see href = "http://accord-framework.net" />
     /// </description></item>
     /// </list>
     /// </para>
     /// </remarks>
     public sealed class Beta
     {
-
         private const double LogMin = -745.13321910194122d;
         private const double LogMax = 709.782712893384d;
         private const double GammaMax = 171.62437695630271d;
 
         /// <summary>
-        /// The Beta function.
+        /// The Beta function
         /// </summary>
         /// <remarks>
-        /// The beta function is also know as Euler's integral.
-        /// <para>
-        /// References: "Numerical Recipes, Routines and Examples in Basic", J.C. Sprott,
+        /// References:
+        /// <list type="bullet">
+        /// <item><description> 
+        /// "Numerical Recipes, Routines and Examples in Basic", J.C. Sprott,
         /// Cambridge University Press, 1991.
-        /// </para>
+        ///  </description></item>
+        /// </list>
         /// </remarks>
-        /// <param name="a">The lower limit.</param>
-        /// <param name="b">The upper limit.</param>
+        /// <param name="a">The lower limit </param>
+        /// <param name="b">The upper limit </param>
+        /// <returns>
+        /// The beta function evaluated at the given upper and lower limit
+        /// </returns>
         public static double Function(double a, double b)
         {
             return Math.Exp(Gamma.LogGamma(a) + Gamma.LogGamma(b) - Gamma.LogGamma(a + b));
         }
 
         /// <summary>
-        /// The Incomplete (regularized) Beta function Ix(a, b).
+        /// The Incomplete (regularized) Beta function Ix(a, b)
         /// </summary>
         /// <remarks>
         /// <para>
-        /// References:
         /// This code was copied from the Accord Math Library.
+        /// </para>
+        /// References:
         /// <list type="bullet">
         /// <item><description>
-        /// Accord Math Library, http://accord-framework.net
+        /// Accord Math Library, <see href = "http://accord-framework.net" />
         /// </description></item>
         /// </list>
-        /// </para>
         /// </remarks>
-        /// <param name="a">The lower limit.</param>
-        /// <param name="b">The upper limit.</param>
-        /// <param name="x">The value to be evaluated.</param>
+        /// <param name="a">The lower limit </param>
+        /// <param name="b">The upper limit </param>
+        /// <param name="x">The value to be evaluated </param> 
+        /// <returns>
+        /// The incomplete beta function evaluated at the given x, given an upper and lower limit
+        /// </returns>
         public static double Incomplete(double a, double b, double x)
         {
             double aa, bb, t, xx, xc, w, y;
@@ -221,19 +273,25 @@ namespace Numerics.Mathematics.SpecialFunctions
         }
 
         /// <summary>
-        /// Continued fraction expansion #1 for incomplete beta integral.
+        /// Continued fraction expansion #1 for incomplete beta integral
         /// </summary>
         /// <remarks>
-        /// <para>
-        /// References:
         /// This code was copied from the Accord Math Library.
+        /// <para>
+        /// </para>
+        /// References:
         /// <list type="bullet">
         /// <item><description>
-        /// Accord Math Library, http://accord-framework.net
+        /// Accord Math Library, <see href = "http://accord-framework.net" />
         /// </description></item>
         /// </list>
-        /// </para>
         /// </remarks>
+        /// <param name="a">The lower limit </param>
+        /// <param name="b">The upper limit </param>
+        /// <param name="x">The value to be evaluated </param> 
+        /// <returns>
+        /// The continue fraction expansion #1 for the incomplete beta integral evaluated at the given x, given a lower and upper limit
+        /// </returns>
         public static double Incbcf(double a, double b, double x)
         {
             double xk, pk, pkm1, pkm2, qk, qkm1, qkm2;
@@ -315,19 +373,25 @@ namespace Numerics.Mathematics.SpecialFunctions
         }
 
         /// <summary>
-        /// Continued fraction expansion #2 for incomplete beta integral.
+        /// Continued fraction expansion #2 for incomplete beta integral
         /// </summary>
         /// <remarks>
-        /// <para>
-        /// References:
         /// This code was copied from the Accord Math Library.
+        /// <para>
+        /// </para>
+        /// References:
         /// <list type="bullet">
         /// <item><description>
-        /// Accord Math Library, http://accord-framework.net
+        /// Accord Math Library, <see href = "http://accord-framework.net" />
         /// </description></item>
         /// </list>
-        /// </para>
         /// </remarks>
+        /// <param name="a">The lower limit </param>
+        /// <param name="b">The upper limit </param>
+        /// <param name="x">The value to be evaluated </param> 
+        /// <returns>
+        /// The continue fraction expansion #2 for the incomplete beta integral evaluated at the given x, given a lower and upper limit
+        /// </returns>
         public static double Incbd(double a, double b, double x)
         {
             double xk, pk, pkm1, pkm2, qk, qkm1, qkm2;
@@ -410,22 +474,27 @@ namespace Numerics.Mathematics.SpecialFunctions
         }
 
         /// <summary>
-        /// Inverse of incomplete beta integral.
+        /// Inverse of incomplete beta integral
         /// </summary>
         /// <remarks>
-        /// <para>
-        /// References:
         /// This code was copied from the Accord Math Library.
+        /// <para>
+        /// </para>
+        /// References:
         /// <list type="bullet">
         /// <item><description>
-        /// Accord Math Library, http://accord-framework.net
+        /// Accord Math Library, <see href = "http://accord-framework.net" />
         /// </description></item>
         /// </list>
-        /// </para>
         /// </remarks>
+        /// <param name="aa"> must be positive </param>
+        /// <param name="bb"> must positive </param>
+        /// <param name="yy0"> the value to be evaluated by the inverse (such that y = Ix(aa, bb)) </param>
+        /// <returns>
+        /// The inverse of the incomplete beta integral at the given y
+        /// </returns>
         public static double IncompleteInverse(double aa, double bb, double yy0)
         {
-
             const double LogMin = -745.13321910194122d;
             double a, b, y0, d, y, x, x0, x1, lgm, yp, di, dithresh, yl, yh;
             int i, dir;
@@ -643,19 +712,26 @@ namespace Numerics.Mathematics.SpecialFunctions
         }
 
         /// <summary>
-        /// Power series for incomplete beta integral. Use when b*x is small and x not too close to 1.
+        /// Power series for incomplete beta integral
         /// </summary>
         /// <remarks>
+        /// Use when b*x is small and x not too close to 1.
         /// <para>
-        /// References:
         /// This code was copied from the Accord Math Library.
+        /// </para>
+        /// References:
         /// <list type="bullet">
         /// <item><description>
-        /// Accord Math Library, http://accord-framework.net
+        /// Accord Math Library, <see href = "http://accord-framework.net" />
         /// </description></item>
         /// </list>
-        /// </para>
         /// </remarks>
+        /// <param name="a">The lower limit </param>
+        /// <param name="b">The upper limit </param>
+        /// <param name="x">The value to be evaluated </param> 
+        /// <returns>
+        /// The power series for the incomplete beta integral evaluated at the given x, given an upper and lower limit
+        /// </returns>
         public static double PowerSeries(double a, double b, double x)
         {
             double s, t, u, v, n, t1, z, ai;
@@ -701,19 +777,24 @@ namespace Numerics.Mathematics.SpecialFunctions
         }
 
         /// <summary>
-        /// Computes incomplete beta function ratio.
+        /// Computes incomplete beta function ratio
         /// </summary>
         /// <remarks>
-        /// <para>
-        /// References: Algorithm as 63 applied statistics (1973), vol.22, no.3.
+        /// References:
+        /// <list type="bullet">
+        /// <item><description>
+        /// Algorithm as 63 applied statistics (1973), vol.22, no.3.
         /// <see href = "http://people.sc.fsu.edu/~jburkardt/f77_src/asa243/asa243.f" />
-        /// </para>
+        /// </description></item>
+        /// </list>
         /// </remarks>
-        /// <param name="x">The argument, between 0 and 1.</param>
-        /// <param name="p"> must be positive.</param>
-        /// <param name="q"> must be positive.</param>
-        /// <param name="beta">The logarithm of the complete beta function.</param>
-        /// <returns></returns>
+        /// <param name="x">The argument, between 0 and 1 </param>
+        /// <param name="p"> must be positive </param>
+        /// <param name="q"> must be positive </param>
+        /// <param name="beta">The logarithm of the complete beta function </param> 
+        /// <returns>
+        /// The incomplete beta function ratio (incomplete / complete)
+        /// </returns>
         public static double IncompleteRatio(double x, double p, double q, double beta)
         {
 

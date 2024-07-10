@@ -1,4 +1,34 @@
-﻿using System;
+﻿/**
+* NOTICE:
+* The U.S. Army Corps of Engineers, Risk Management Center (USACE-RMC) makes no guarantees about
+* the results, or appropriateness of outputs, obtained from Numerics.
+*
+* LIST OF CONDITIONS:
+* Redistribution and use in source and binary forms, with or without modification, are permitted
+* provided that the following conditions are met:
+* ● Redistributions of source code must retain the above notice, this list of conditions, and the
+* following disclaimer.
+* ● Redistributions in binary form must reproduce the above notice, this list of conditions, and
+* the following disclaimer in the documentation and/or other materials provided with the distribution.
+* ● The names of the U.S. Government, the U.S. Army Corps of Engineers, the Institute for Water
+* Resources, or the Risk Management Center may not be used to endorse or promote products derived
+* from this software without specific prior written permission. Nor may the names of its contributors
+* be used to endorse or promote products derived from this software without specific prior
+* written permission.
+*
+* DISCLAIMER:
+* THIS SOFTWARE IS PROVIDED BY THE U.S. ARMY CORPS OF ENGINEERS RISK MANAGEMENT CENTER
+* (USACE-RMC) "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+* THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+* DISCLAIMED. IN NO EVENT SHALL USACE-RMC BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+* SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+* PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+* INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+* LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+* THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+* **/
+
+using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
 
@@ -10,16 +40,17 @@ namespace Numerics.Mathematics.ODESolvers
     /// </summary>
     /// <remarks>
     /// <para>
-    ///     Authors:
+    ///     <b> Authors: </b>
     ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
     /// </para>
     /// <para>
+    /// <b> Description: </b>
     /// In numerical analysis, the Runge–Kutta methods are a family of implicit and explicit iterative methods,
     /// which include the well-known routine called the Euler Method,
     /// used in temporal discretization for the approximate solutions of ordinary differential equations.
     /// </para>
     /// <para>
-    /// References:
+    /// <b> References: </b>
     /// </para>
     /// <para>
     /// <see href="https://en.wikipedia.org/wiki/Runge%E2%80%93Kutta_methods"/>
@@ -36,7 +67,9 @@ namespace Numerics.Mathematics.ODESolvers
         /// <param name="startTime">Start time.</param>
         /// <param name="endTime">End time.</param>
         /// <param name="timeSteps">The number of time steps between the start and end time.</param>
-        /// <returns></returns>
+        /// <returns>
+        /// An array of the ODE function solved at the number of time steps specified, equally spaced between the start and end time.
+        /// </returns>
         public static double[] SecondOrder(Func<double, double, double> f, double initialValue, double startTime, double endTime, int timeSteps)
         {
             double dt = (endTime - startTime) / (timeSteps - 1);
@@ -66,6 +99,9 @@ namespace Numerics.Mathematics.ODESolvers
         /// <param name="startTime">Start time.</param>
         /// <param name="endTime">End time.</param>
         /// <param name="timeSteps">The number of time steps between the start and end time.</param>
+        /// <returns>
+        /// An array of the ODE function solved at the number of time steps specified, equally space between the start and end time.
+        /// </returns>
         public static double[] FourthOrder(Func<double, double, double> f, double initialValue, double startTime, double endTime, int timeSteps)
         {
             double dt = (endTime - startTime) / (timeSteps - 1);
@@ -97,6 +133,9 @@ namespace Numerics.Mathematics.ODESolvers
         /// <param name="initialValue">Initial value of Y.</param>
         /// <param name="startTime">Start time.</param>
         /// <param name="dt">The time step size.</param>
+        /// <returns>
+        /// The ODE solved at the given time step (i.e. the ODE solved at startTime + dt)
+        /// </returns>
         public static double FourthOrder(Func<double, double, double> f, double initialValue, double startTime, double dt)
         {
             double t = startTime;
@@ -118,11 +157,15 @@ namespace Numerics.Mathematics.ODESolvers
         /// <param name="dtMin">The minimum step size.</param>
         /// <param name="tolerance">The absolute tolerance. Default = 1E-3.</param>
         /// <remarks>
-        /// <list>
+        /// References:
+        /// <list type="bullet">
         /// <item>Runge–Kutta–Fehlberg: <see href="https://en.wikipedia.org/wiki/Runge%E2%80%93Kutta%E2%80%93Fehlberg_method"/></item>
         /// <item>Adaptive step size: <see href="https://en.wikipedia.org/wiki/Adaptive_step_size"/></item>
         /// </list>
         /// </remarks>
+        /// <returns>
+        /// The ODE solved at the given time step (i.e. the ODE solved at startTime + dt)
+        /// </returns>
         public static double Fehlberg(Func<double, double, double> f, double initialValue, double startTime, double dt, double dtMin, double tolerance = 1E-3)
         {
             double t = startTime;
@@ -181,11 +224,15 @@ namespace Numerics.Mathematics.ODESolvers
         /// <param name="dtMin">The minimum step size.</param>
         /// <param name="tolerance">The absolute tolerance. Default = 1E-3.</param>
         /// <remarks>
-        /// <list>
+        /// References:
+        /// <list type="bullet">
         /// <item>Runge–Kutta–Cash-Karp: <see href="https://en.wikipedia.org/wiki/Cash%E2%80%93Karp_method"/></item>
         /// <item>Adaptive step size: <see href="https://en.wikipedia.org/wiki/Adaptive_step_size"/></item>
         /// </list>
         /// </remarks>
+        /// <returns>
+        /// The ODE solved at the given time step (i.e. the ODE solved at startTime + dt)
+        /// </returns>
         public static double CashKarp(Func<double, double, double> f, double initialValue, double startTime, double dt, double dtMin, double tolerance = 1E-3)
         {
             double t = startTime;

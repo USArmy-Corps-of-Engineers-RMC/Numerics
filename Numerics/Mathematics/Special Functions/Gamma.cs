@@ -1,6 +1,33 @@
-﻿// Since I use functions from the Accord Math Library, here is the required license header:
-// Haden Smith (November 2017)
-// 
+﻿/**
+* NOTICE:
+* The U.S. Army Corps of Engineers, Risk Management Center (USACE-RMC) makes no guarantees about
+* the results, or appropriateness of outputs, obtained from Numerics.
+*
+* LIST OF CONDITIONS:
+* Redistribution and use in source and binary forms, with or without modification, are permitted
+* provided that the following conditions are met:
+* ● Redistributions of source code must retain the above notice, this list of conditions, and the
+* following disclaimer.
+* ● Redistributions in binary form must reproduce the above notice, this list of conditions, and
+* the following disclaimer in the documentation and/or other materials provided with the distribution.
+* ● The names of the U.S. Government, the U.S. Army Corps of Engineers, the Institute for Water
+* Resources, or the Risk Management Center may not be used to endorse or promote products derived
+* from this software without specific prior written permission. Nor may the names of its contributors
+* be used to endorse or promote products derived from this software without specific prior
+* written permission.
+*
+* DISCLAIMER:
+* THIS SOFTWARE IS PROVIDED BY THE U.S. ARMY CORPS OF ENGINEERS RISK MANAGEMENT CENTER
+* (USACE-RMC) "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+* THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+* DISCLAIMED. IN NO EVENT SHALL USACE-RMC BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+* SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+* PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+* INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+* LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+* THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+* **/
+
 // Accord Math Library
 // The Accord.NET Framework
 // http://accord-framework.net
@@ -33,17 +60,11 @@ namespace Numerics.Mathematics.SpecialFunctions
     /// </summary>
     /// <remarks>
     /// <para>
-    /// <list type="bullet">
-    /// <item><description>
-    ///     First created in November 2017 by Haden Smith. Contains base functionality.
-    /// </description></item>
-    /// <item><description>
-    ///     Modified in July of 2018 by Haden Smith. The Digamma and LogGamma functions were rewritten based on
-    ///     FORTRAN code from Hosking.
-    /// </description></item>
-    /// </list>
+    ///     <b> Authors: </b>
+    ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
     /// </para>
     /// <para>
+    /// <b> Description </b>
     ///     In mathematics, the gamma function (represented by the capital Greek
     ///     letter Γ) is an extension of the factorial function, with its argument
     ///     shifted down by 1, to real and complex numbers. That is, if <c>n</c> is
@@ -69,29 +90,27 @@ namespace Numerics.Mathematics.SpecialFunctions
     ///     complex numbers except the non-positive integers (where the function
     ///     has simple poles), yielding the meromorphic function we call the gamma
     ///     function.
-    /// </para>
-    /// <para>
     ///     The gamma function is a component in various probability-distribution
     ///     functions, and as such it is applicable in the fields of probability
     ///     and statistics, as well as combinatorics.
     /// </para>
     /// <para>
-    /// References:
+    /// <b> References: </b>
     ///     This code was copied and modified from two primary sources: 1) THe LMOMENTS FORTAN package from J. R. M. Hosking;
     ///     and 2) the Accord Math Library.
     /// <list type="bullet">
     /// <item><description>
-    ///     LMOMENTS package. Available at: http://ftp.uni-bayreuth.de/math/statlib/general/lmoments
+    ///     LMOMENTS package. Available at: <see href = "http://ftp.uni-bayreuth.de/math/statlib/general/lmoments"/>
     /// </description></item>
     /// <item><description>
-    ///     Accord Math Library, http://accord-framework.net
+    ///     Accord Math Library, <see href="http://accord-framework.net"/>
     /// </description></item>
     /// <item><description>
     ///     Wikipedia contributors, "Gamma function,". Wikipedia, The Free
-    ///     Encyclopedia. Available at: http://en.wikipedia.org/wiki/Gamma_function
+    ///     Encyclopedia. Available at: <see href = "http://en.wikipedia.org/wiki/Gamma_function"/>
     /// </description></item>
     /// <item><description>
-    ///     Cephes Math Library, http://www.netlib.org/cephes/
+    ///     Cephes Math Library, <see href = "http://www.netlib.org/cephes/"/>
     /// </description></item>
     /// </list>
     /// </para>
@@ -135,17 +154,24 @@ namespace Numerics.Mathematics.SpecialFunctions
 
 
         /// <summary>
-        /// The Gamma Function.
+        /// The Stirling approximation
         /// </summary>
         /// <remarks>
-        /// <para>
-        /// References: https://en.wikipedia.org/wiki/Stirling%27s_approximation
-        /// </para>
         /// <para>
         /// In mathematics, Stirling's approximation (or Stirling's formula) is an approximation for factorials.
         /// It is a good approximation, leading to accurate results even for small values of n.
         /// </para>
+        /// References: 
+        /// <list type="bullet">
+        /// <item><description>
+        /// <see href = "https://en.wikipedia.org/wiki/Stirling%27s_approximation"/>
+        /// </description></item>
+        /// </list>
         /// </remarks>
+        /// <param name="x">  The value to be evaluated </param>
+        /// <returns>
+        /// The Stirling approximation for the given x
+        /// </returns>
         public static double Stirling(double x)
         {
             double MAXSTIR = 143.01608;
@@ -153,7 +179,7 @@ namespace Numerics.Mathematics.SpecialFunctions
             double w = 1.0 / x;
             double y = Math.Exp(x);
 
-            w = 1.0 + w * Evaluate.Polynomial(STIR, w, 4);
+            w = 1.0 + w * Evaluate.PolynomialRev(STIR, w, 4);
 
             if (x > MAXSTIR)
             {
@@ -177,19 +203,26 @@ namespace Numerics.Mathematics.SpecialFunctions
         }
 
         /// <summary>
-        /// The Gamma function.
+        /// The Lancoz approximation
         /// </summary>
         /// <remarks>
-        /// <para>
-        /// References: https://en.wikipedia.org/wiki/Lanczos_approximation
-        /// </para>
         /// <para>
         /// In mathematics, the Lanczos approximation is a method for computing the gamma function numerically,
         /// published by Cornelius Lanczos in 1964. It is a practical alternative to the more popular
         /// Stirling's approximation for calculating the gamma function with fixed precision.
         /// </para>
+        ///  References: 
+        /// <list type="bullet">
+        /// <item><description>
+        /// <see herf = "https://en.wikipedia.org/wiki/Lanczos_approximation"/>
+        /// </description></item>
+        /// </list>
         /// </remarks>
-        public static double Lanczos(double x)
+        /// <param name="x"> The value to be evaluated </param>
+        /// <returns>
+        /// The Lancoz approximation of the Gamma function evaluated at the given x
+        /// </returns>
+        public static double Lanczos(double x) 
         {
             int g = 7;
             if (x < 0.5d)
@@ -212,18 +245,14 @@ namespace Numerics.Mathematics.SpecialFunctions
         /// </summary>
         /// <remarks>
         /// <para>
-        /// References: https://en.wikipedia.org/wiki/Lanczos_approximation
-        /// </para>
-        /// <para>
-        /// In mathematics, the Lanczos approximation is a method for computing the gamma function numerically,
-        /// published by Cornelius Lanczos in 1964. It is a practical alternative to the more popular
-        /// Stirling's approximation for calculating the gamma function with fixed precision.
         /// </para>
         /// </remarks>
-        /// <param name="X"></param>
+        /// <param name="x"> The value to be evaluated </param>
+        /// <returns>
+        /// The Gamma function evaluated at the given x
+        /// </returns>
         public static double Function(double x)
         {
-
             double p, z;
             double q = Math.Abs(x);
 
@@ -298,8 +327,8 @@ namespace Numerics.Mathematics.SpecialFunctions
                 return z;
 
             x -= 2.0;
-            p = Evaluate.Polynomial(gamma_P, x, 6);
-            q = Evaluate.Polynomial(gamma_Q, x, 7);
+            p = Evaluate.PolynomialRev(gamma_P, x, 6);
+            q = Evaluate.PolynomialRev(gamma_Q, x, 7);
             return z * p / q;
         }
 
@@ -309,10 +338,15 @@ namespace Numerics.Mathematics.SpecialFunctions
         /// <remarks>
         /// The digamma function is also know as Euler's PSI function.
         /// <para>
-        /// References: Based algorithm AS103, Applied Statistics, 1976, Vol. 25, No. 3.
+        /// References:
+        /// <list type="bullet">
+        /// <item><description>
+        /// Based algorithm AS103, Applied Statistics, 1976, Vol. 25, No. 3.
+        /// </description></item>
+        /// </list>
         /// </para>
         /// </remarks>
-        /// <param name="X"></param>
+        /// <param name="X"> The value to be evaluated </param>
         /// <returns>
         /// The first derivative of LogGamma given X.
         /// </returns>
@@ -361,15 +395,20 @@ namespace Numerics.Mathematics.SpecialFunctions
         /// </summary>
         /// <remarks>
         /// <para>
-        /// References: Based algorithm AS121, Applied Statistics, 1978, Vol. 27, No. 1.
-        /// </para>
-        /// <para>
+        /// References: 
+        /// <list type="bullet">
+        /// <item><description>
+        /// Based algorithm AS121, Applied Statistics, 1978, Vol. 27, No. 1.
+        /// </description></item>
+        /// <item><description>
         /// This code has been adapted from the FORTRAN77 and subsequent
         /// C code by B. E. Schneider and John Burkardt. The code had been
         /// made public under the GNU LGPL license.
+        /// </description></item>
+        /// </list>
         /// </para>
         /// </remarks>
-        /// <param name="X"></param>
+        /// <param name="X"> The value to be evaluated </param>
         /// <returns>
         /// Calculates Trigamma(x) = d^2 logGamma(x) / dx^2
         /// </returns>
@@ -413,11 +452,20 @@ namespace Numerics.Mathematics.SpecialFunctions
         }
 
         /// <summary>
-        /// Natural logarithm of the gamma function.
+        /// Natural logarithm of the Gamma function.
         /// </summary>
-        /// <para>
-        /// References: Based algorithm ACM291, Commun. Assoc. Comput. Mach. (1966)
-        /// </para>
+        /// <remarks>
+        /// References: 
+        /// <list type="bullet">
+        /// <item><description>
+        /// Based algorithm ACM291, Commun. Assoc. Comput. Mach. (1966)
+        /// </description></item>
+        /// </list>
+        /// </remarks>
+        /// <param name="X"> The value to be evaluated </param>
+        /// <returns>
+        /// The natural logarithm of the Gamma function evaluated at the given x
+        /// </returns>
         public static double LogGamma(double X)
         {
             double SMALL = 0.0000001d;
@@ -508,13 +556,21 @@ namespace Numerics.Mathematics.SpecialFunctions
         /// <summary>
         /// The incomplete gamma integral.
         /// </summary>
-        /// <references>
+        /// <remarks>
+        /// References:
+        /// <list type="bullet">
+        /// <item><description>
         /// Based on algorithm AS239, Applied Statistics, 1988, Vol. 37, No. 3.
-        /// </references>
+        /// </description></item>
+        /// <item><description>
+        /// N.L. Johnson And S. Kotz, "Continuous Univariate Distributions 1", P.180
+        /// </description></item>
+        /// </list>
+        /// </remarks>
         /// <param name="X">Argument of function (upper limit of integration).</param>
         /// <param name="alpha">The shape parameter.</param>
         /// <returns>
-        /// The incomplete gamma integral.
+        /// The incomplete gamma integral evaluated with the given upper limit x
         /// </returns>
         public static double Incomplete(double X, double alpha)
         {
@@ -721,8 +777,13 @@ namespace Numerics.Mathematics.SpecialFunctions
         /// (a.k.a the incomplete complemented Gamma function)
         /// </summary>
         /// <remarks>
-        /// This function is equivalent to Q(x) = Γ(s, x) / Γ(s).
+        /// This function is equivalent to Q(x) = Γ(a, x) / Γ(s).
         /// </remarks>
+        /// <param name="x"> The value to be evaluated (lower limit of integration) </param>
+        /// <param name="a">  complex parameter, such that the real part of a is positive </param>
+        /// <returns>
+        /// The upper incomplete Gamma function evaluated with the lower limit x
+        /// </returns>
         public static double UpperIncomplete(double a, double x)
         {
             const double LogMax = 709.782712893384d;
@@ -815,8 +876,13 @@ namespace Numerics.Mathematics.SpecialFunctions
         /// (a.k.a. the incomplete Gamma function).
         /// </summary>
         /// <remarks>
-        /// This function is equivalent to P(x) = γ(s, x) / Γ(s).
+        /// This function is equivalent to P(x) = γ(a, x) / Γ(s).
         /// </remarks>
+        /// <param name="a">  complex parameter, such that the real part of a is positive </param>
+        /// <param name="x"> The value to be evaluated (upper limit of integration) </param>
+        /// <returns>
+        /// The lower incomplete Gamma function evaluated with the upper limit x
+        /// </returns>
         public static double LowerIncomplete(double a, double x)
         {
             const double LogMax = 709.782712893384d;
@@ -860,6 +926,11 @@ namespace Numerics.Mathematics.SpecialFunctions
         /// Inverse of the <see cref="LowerIncomplete">
         /// incomplete Gamma integral (LowerIncomplete, P)</see>.
         /// </summary>
+        /// <param name="a">  complex parameter, such that the real part of a is positive </param>
+        /// <param name="y">  the value to evaluate the inverse at </param>
+        /// <returns>
+        /// The inverse of the lower incomplete Gamma function evaluated at y
+        /// </returns>
         public static double InverseLowerIncomplete(double a, double y)
         {
             return Inverse(a, 1d - y);
@@ -869,11 +940,25 @@ namespace Numerics.Mathematics.SpecialFunctions
         /// Inverse of the <see cref="UpperIncomplete">complemented
         /// incomplete Gamma integral (UpperIncomplete, Q)</see>.
         /// </summary>
+        /// /// <param name="a">  complex parameter, such that the real part of a is positive </param>
+        /// <param name="y"> the value to evaluate the inverse at </param>
+        /// <returns>
+        /// The inverse of the upper incomplete Gamma function evaluated at y
+        /// </returns>
         public static double InverseUpperIncomplete(double a, double y)
         {
             return Inverse(a, y);
         }
 
+        /// <summary>
+        /// Inverse of the <see cref="Function">complemented
+        /// Gamma function (Function, P)</see>.
+        /// </summary>
+        /// <param name="a">  complex parameter, such that the real part of a is positive </param>
+        /// <param name="y"> the value to evaluate the inverse at </param>
+        /// <returns>
+        /// The inverse of the Gamma function evaluated at y
+        /// </returns>
         private static double Inverse(double a, double y)
         {
             const double LogMax = 709.782712893384d;
