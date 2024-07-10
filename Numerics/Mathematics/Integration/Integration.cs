@@ -74,7 +74,6 @@ namespace Numerics.Mathematics.Integration
             return s *= xr;
         }
 
-
         /// <summary>
         /// Numerical integration using the Trapezoidal Rule.
         /// </summary>

@@ -30,9 +30,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data.SqlTypes;
 using System.Windows.Shapes;
 using Numerics.Data.Statistics;
 using Numerics.Distributions;
+using Numerics.Mathematics;
 using Numerics.Mathematics.LinearAlgebra;
 using Numerics.Mathematics.Optimization;
 using Numerics.Mathematics.RootFinding;
@@ -323,15 +325,19 @@ namespace Numerics.Distributions
         {
             get
             {
-                if (Hondo > 0d)
-                {
-                    return Xi + Alpha / Kappa * (1d - Math.Pow(Hondo, -Kappa));
-                }
-                if (Hondo <= 0d && Kappa < -NearZero)
+                if (Hondo <= 0d && Kappa < 0d)
                 {
                     return Xi + Alpha / Kappa;
                 }
-                if (Hondo <= 0d && Kappa >= -NearZero)
+                else if (Hondo > 0d && Kappa != 0d)
+                {
+                    return Xi + Alpha / Kappa * (1d - Math.Pow(Hondo, -Kappa));
+                }
+                else if (Hondo > 0d && Kappa == 0d)
+                {
+                    return Xi + Alpha * Math.Log(Hondo);
+                }
+                else if (Hondo <= 0d && Kappa >= 0d)
                 {
                     return double.NegativeInfinity;
                 }
@@ -346,7 +352,7 @@ namespace Numerics.Distributions
         {
             get
             {
-                if (Kappa <= NearZero)
+                if (Kappa <= 0d)
                 {
                     return double.PositiveInfinity;
                 }
@@ -775,8 +781,8 @@ namespace Numerics.Distributions
 
                     // Get bounds of shape 2
                     initialVals[3] = 0;
-                    lowerVals[3] = -1d;
-                    upperVals[3] = 1d;
+                    lowerVals[3] = -2d;
+                    upperVals[3] = 2d;
                 }
 
             }
@@ -821,19 +827,16 @@ namespace Numerics.Distributions
             // Validate parameters
             if (_parametersValid == false) ValidateParameters(new[] { Xi, Alpha, Kappa, Hondo }, true);
             if (x < Minimum || x > Maximum) return 0.0d;
-            double k = Kappa;
-            if (k == 0.0d) k = Math.Pow(10d, -100);
-            if (1d - k * (x - Xi) / Alpha < 0d) return 0.0d;
-            if (Hondo == 0.0d)
+
+
+            double y = (x - Xi) / Alpha;
+            if (Kappa != 0)
             {
-                double y = (x - Xi) / Alpha;
-                if (Math.Abs(k) > NearZero) y = -Math.Log(1d - k * y) / k;
-                return Math.Exp(-(1d - k) * y - Math.Exp(-y)) / Alpha;
+                y = 1d - Kappa * y;
+                y = (1d - 1d / Kappa) * Math.Log(y);
             }
-            else
-            {
-                return 1d / Alpha * Math.Pow(1d - k * (x - Xi) / Alpha, 1d / k - 1d) * Math.Pow(CDF(x), 1d - Hondo);
-            }
+            y = Math.Exp(-y);
+            return y / Alpha * Math.Pow(CDF(x), 1d - Hondo);
         }
 
         /// <summary>
@@ -843,21 +846,33 @@ namespace Numerics.Distributions
         public override double CDF(double x)
         {
             // Validate parameters
-            if (_parametersValid == false) ValidateParameters(new[] { Xi, Alpha, Kappa, Hondo }, true);
+            if (_parametersValid == false) ValidateParameters(new[] { Xi, Alpha, this.Kappa, this.Hondo }, true);
             if (x <= Minimum) return 0d;
             if (x >= Maximum) return 1d;
-            double k = Kappa;
-            if (k == 0.0d) k = Math.Pow(10d, -100);
-            if (Hondo == 0.0d)
+
+            double y = (x - Xi) / Alpha;
+            double arg = 0;
+            if (Kappa == 0)
             {
-                double y = (x - Xi) / Alpha;
-                if (Math.Abs(Kappa) > NearZero) y = -Math.Log(1d - Kappa * y) / Kappa;
-                return Math.Exp(-Math.Exp(-y));
+                y = Math.Exp(-y);
             }
             else
             {
-                return Math.Pow(1d - Hondo * Math.Pow(1d - k * (x - Xi) / Alpha, 1d / k), 1d / Hondo);
+                arg = 1d - Kappa * y;
+                if (arg > 1E-15)
+                {
+                    y = Math.Exp(-1d * (-Math.Log(arg) / Kappa));
+                }
+                else
+                {
+                    if (Kappa < 0) return 0d;
+                    if (Kappa > 0) return 1d;
+                }             
             }
+            if (Hondo == 0) return Math.Exp(-y);
+            arg = 1d - Hondo * y;
+            if (arg > 1E-15) return Math.Exp(-1d * (-Math.Log(arg) / Hondo));
+            return 0d;
         }
 
         /// <summary>
@@ -869,29 +884,16 @@ namespace Numerics.Distributions
             // Validate probability
             if (probability < 0.0d || probability > 1.0d)
                 throw new ArgumentOutOfRangeException("probability", "Probability must be between 0 and 1.");
-            if (probability == 0.0d)
-                return Minimum;
-            if (probability == 1.0d)
-                return Maximum;
+            if (probability == 0.0d) return Minimum;
+            if (probability == 1.0d) return Maximum;
             // Validate parameters
             if (_parametersValid == false) ValidateParameters(new[] { Xi, Alpha, Kappa, Hondo }, true);
-            double k = Kappa;
-            if (k == 0.0d) k = Math.Pow(10d, -100);
-            if (Hondo == 0.0d)
-            {
-                if (Math.Abs(k) <= NearZero)
-                {
-                    return Xi - Alpha * Math.Log(-Math.Log(probability));
-                }
-                else
-                {
-                    return Xi + Alpha / Kappa * (1d - Math.Pow(-Math.Log(probability), Kappa));
-                }
-            }
-            else
-            {
-                return Xi + Alpha / k * (1d - Math.Pow((1d - Math.Pow(probability, Hondo)) / Hondo, k));
-            }
+
+            double y = -Math.Log(probability);
+            if (Hondo != 0) y = (1d - Math.Exp(-Hondo * y)) / Hondo;
+            y = -Math.Log(y);
+            if (Kappa != 0) y = (1- Math.Exp(-Kappa * y)) / Kappa;
+            return Xi + Alpha * y;
         }
 
         /// <summary>

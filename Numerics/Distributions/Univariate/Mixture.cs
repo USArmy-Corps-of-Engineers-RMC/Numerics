@@ -1,41 +1,20 @@
-﻿/**
-* NOTICE:
-* The U.S. Army Corps of Engineers, Risk Management Center (USACE-RMC) makes no guarantees about
-* the results, or appropriateness of outputs, obtained from Numerics.
-*
-* LIST OF CONDITIONS:
-* Redistribution and use in source and binary forms, with or without modification, are permitted
-* provided that the following conditions are met:
-* ● Redistributions of source code must retain the above notice, this list of conditions, and the
-* following disclaimer.
-* ● Redistributions in binary form must reproduce the above notice, this list of conditions, and
-* the following disclaimer in the documentation and/or other materials provided with the distribution.
-* ● The names of the U.S. Government, the U.S. Army Corps of Engineers, the Institute for Water
-* Resources, or the Risk Management Center may not be used to endorse or promote products derived
-* from this software without specific prior written permission. Nor may the names of its contributors
-* be used to endorse or promote products derived from this software without specific prior
-* written permission.
-*
-* DISCLAIMER:
-* THIS SOFTWARE IS PROVIDED BY THE U.S. ARMY CORPS OF ENGINEERS RISK MANAGEMENT CENTER
-* (USACE-RMC) "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
-* THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-* DISCLAIMED. IN NO EVENT SHALL USACE-RMC BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-* SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-* PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
-* INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-* LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
-* THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-* **/
-
+﻿using Microsoft.VisualBasic.Devices;
 using Numerics.Data;
 using Numerics.Data.Statistics;
 using Numerics.Mathematics.Optimization;
+using Numerics.Mathematics.RootFinding;
 using Numerics.Sampling;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Globalization;
+using System.IO;
 using System.Linq;
+using System.Reflection;
+using System.Runtime.InteropServices.WindowsRuntime;
+using System.Xml.Linq;
+using System.Xml.Xsl;
 
 namespace Numerics.Distributions
 {
@@ -86,12 +65,22 @@ namespace Numerics.Distributions
         /// <summary>
         /// Returns the array of distribution weights.
         /// </summary>
-        public ReadOnlyCollection<double> Weights => new ReadOnlyCollection<double>(_weights);
+        public double[] Weights => _weights;
 
         /// <summary>
         /// Returns the array of univariate probability distributions.
         /// </summary>
-        public ReadOnlyCollection<UnivariateDistributionBase> Distributions => new ReadOnlyCollection<UnivariateDistributionBase>(_distributions);
+        public UnivariateDistributionBase[] Distributions => _distributions;
+
+        /// <summary>
+        /// Determines whether to use assign a weight to all data points less than or equal to zero.
+        /// </summary>
+        public bool IsZeroInflated { get; set; } = false;
+
+        /// <summary>
+        /// The zero-value weight used if the mixture is zero-inflated.
+        /// </summary>
+        public double ZeroWeight { get; set; } = 0.0;
 
         /// <summary>
         /// Determines the interpolation transform for the X-values.
@@ -110,8 +99,9 @@ namespace Numerics.Distributions
         {
             get
             {
-                int sum = Distributions.Count;
-                for (int i = 0; i < Distributions.Count; i++)
+                int sum = IsZeroInflated ? 1 : 0;
+                sum += Distributions.Count();
+                for (int i = 0; i < Distributions.Count(); i++)
                     sum += Distributions[i].NumberOfParameters;
                 return sum;
             }
@@ -142,11 +132,11 @@ namespace Numerics.Distributions
                 var parmString = new string[2, 2];
                 string Wstring = "{";
                 string Dstring = "{";
-                for (int i = 1; i < Weights.Count - 1; i++)
+                for (int i = 1; i < Weights.Count() - 1; i++)
                 {
                     Wstring += Weights[i].ToString();
                     Dstring += Distributions[i].DisplayName;
-                    if (i < Weights.Count - 2)
+                    if (i < Weights.Count() - 2)
                     {
                         Wstring += ",";
                         Dstring += ",";
@@ -170,9 +160,16 @@ namespace Numerics.Distributions
             get
             {
                 var result = new List<string>();
-                for (int i = 0; i < Distributions.Count; i++)
+                for (int i = 1; i <= Distributions.Count(); i++)
                 {
-                    result.AddRange(Distributions[i].ParameterNames);
+                    result.Add("Weight " + i.ToString());
+                }
+                for (int i = 0; i < Distributions.Count(); i++)
+                {
+                    for (int j = 0; j < Distributions[i].ParameterNames.Length; j++)
+                    {
+                        result.Add("D" + (i + 1).ToString() + " " + Distributions[i].ParameterNames[j]);
+                    }
                 }
                 return result.ToArray();
             }
@@ -187,9 +184,16 @@ namespace Numerics.Distributions
             get
             {
                 var result = new List<string>();
-                for (int i = 0; i < Distributions.Count; i++)
+                for (int i = 1; i <= Distributions.Count(); i++)
                 {
-                    result.AddRange(Distributions[i].ParameterNamesShortForm);
+                    result.Add("W" + i.ToString());
+                }
+                for (int i = 0; i < Distributions.Count(); i++)
+                {
+                    for (int j = 0; j < Distributions[i].ParameterNamesShortForm.Length; j++)
+                    {
+                        result.Add("D" + (i + 1).ToString() + " " + Distributions[i].ParameterNamesShortForm[j]);
+                    }
                 }
                 return result.ToArray();
             }
@@ -204,7 +208,7 @@ namespace Numerics.Distributions
             {
                 var result = new List<double>();
                 result.AddRange(Weights);
-                for (int i = 0; i < Distributions.Count; i++)
+                for (int i = 0; i < Distributions.Count(); i++)
                 {
                     result.AddRange(Distributions[i].GetParameters);
                 }                  
@@ -248,7 +252,8 @@ namespace Numerics.Distributions
         {
             get
             {
-                if (!_momentsComputed) ComputeMoments();
+                if (!_momentsComputed) 
+                    ComputeMoments();
                 return u1;
             }
         }
@@ -276,7 +281,8 @@ namespace Numerics.Distributions
         {
             get
             {
-                if (!_momentsComputed) ComputeMoments();
+                if (!_momentsComputed) 
+                    ComputeMoments();
                 return u2;
             }
         }
@@ -288,7 +294,8 @@ namespace Numerics.Distributions
         {
             get
             {
-                if (!_momentsComputed) ComputeMoments();
+                if (!_momentsComputed) 
+                    ComputeMoments();
                 return u3;
             }
         }
@@ -300,7 +307,8 @@ namespace Numerics.Distributions
         {
             get
             {
-                if (!_momentsComputed) ComputeMoments();
+                if (!_momentsComputed) 
+                    ComputeMoments();
                 return u4;
             }
         }
@@ -325,8 +333,21 @@ namespace Numerics.Distributions
         /// Gets the minimum values allowable for each parameter.
         /// </summary>
         public override double[] MinimumOfParameters
-        {
-            get { return new double[] { 0, double.NaN }; }
+        { 
+            get 
+            {
+                var result = new List<double>();
+                if (IsZeroInflated) { result.Add(0.0); }
+                for (int i = 0; i < Distributions.Count(); i++)
+                {
+                    result.Add(0.0);
+                }
+                for (int i = 0; i < Distributions.Count(); i++)
+                {
+                    result.AddRange(Distributions[i].MinimumOfParameters);
+                }
+                return result.ToArray(); 
+            }
         }
 
         /// <summary>
@@ -334,7 +355,20 @@ namespace Numerics.Distributions
         /// </summary>
         public override double[] MaximumOfParameters
         {
-            get { return new double[] { 1, double.NaN }; }
+            get
+            {
+                var result = new List<double>();
+                if (IsZeroInflated) { result.Add(1.0); }
+                for (int i = 0; i < Distributions.Count(); i++)
+                {
+                    result.Add(1.0);
+                }
+                for (int i = 0; i < Distributions.Count(); i++)
+                {
+                    result.AddRange(Distributions[i].MaximumOfParameters);
+                }
+                return result.ToArray();
+            }
         }
 
         /// <summary>
@@ -415,32 +449,130 @@ namespace Numerics.Distributions
         /// <param name="parameters">A list of parameters.</param>
         public override void SetParameters(IList<double> parameters)
         {
-            if (Distributions == null || Distributions.Count == 0) return;
+            SetParametersFromArray(parameters.ToArray());
+            //if (Distributions == null || Distributions.Count() == 0) return;
+            //if (Distributions.Count() == 1 && parameters.Count() == Distributions[0].NumberOfParameters)
+            //{
+            //    if (IsZeroInflated)
+            //    {
+            //        Weights[0] = 1 - ZeroWeight;
+            //    }
+            //    else
+            //    {
+            //        Weights[0] = 1;
+            //    }
+            //    Distributions[0].SetParameters(parameters);
+            //}
+            //else if (Distributions.Count() == 2)
+            //{
+            //    // Get the weights
+            //    int k = Distributions.Count();
+            //    int t = 1; // keep track of parameter index
 
-            double sum = 0;
-            int t = 0;
-            for (int i = 0; i < Distributions.Count; i++)
-            {
-                _weights[i] = parameters[i];
-                sum += parameters[i];
-                t += 1;
-            }
-            for (int i = 0; i < Distributions.Count; i++)
-            {
-                _weights[i] /= sum;
-            }
-            //_weights[Distributions.Count - 1] = 1 - sum;
+            //    // Get weights
+            //    if (IsZeroInflated)
+            //    {
+            //        Weights[0] = parameters[0];
+            //        Weights[1] = 1d - parameters[0];
+            //        Weights[0] *= (1d - ZeroWeight);
+            //        Weights[1] *= (1d - ZeroWeight);
+            //        parameters[0] = Weights[0];
+            //    }
+            //    else
+            //    {
+            //        Weights[0] = parameters[0];
+            //        Weights[1] = 1d - parameters[0];
+            //    }
 
-            for (int i = 0; i < Distributions.Count; i++)
+            //    // Set distribution parameters
+            //    for (int i = 0; i < Distributions.Count(); i++)
+            //    {
+            //        var parms = new List<double>();
+            //        for (int j = t; j < t + Distributions[i].NumberOfParameters; j++)
+            //        {
+            //            parms.Add(parameters[j]);
+            //        }
+            //        Distributions[i].SetParameters(parms);
+            //        t += Distributions[i].NumberOfParameters;
+            //    }
+            //}
+
+            //// Validate parameters
+            //_parametersValid = ValidateParameters(parameters, false) is null;
+            //_momentsComputed = false;
+            //_inverseCDFCreated = false;
+        }
+
+
+        public void SetParametersFromArray(double[] parameters)
+        {
+            if (Distributions == null || Distributions.Count() == 0) return;
+            if (Distributions.Count() == 1 && parameters.Length == Distributions[0].NumberOfParameters)
             {
-                var parms = new List<double>();
-                for (int j = t; j < t + Distributions[i].NumberOfParameters; j++)
+                if (IsZeroInflated)
                 {
-                    parms.Add(parameters[j]);
+                    Weights[0] = 1 - ZeroWeight;
                 }
-                Distributions[i].SetParameters(parms);
-                t += Distributions[i].NumberOfParameters;
+                else
+                {
+                    Weights[0] = 1;
+                }
+                Distributions[0].SetParameters(parameters);
             }
+            else
+            {
+                // Get the weights
+                int k = Distributions.Count();
+                int t = 0; // keep track of parameter index
+
+                // Get weights
+                double c = 0;
+                for (int i = 0; i < k; i++)
+                {
+                    Weights[i] = parameters[i];
+                    c += Weights[i];
+                    t++;
+                }
+
+                if (c > 0)
+                {
+                    // Get normalization constant
+                    c = IsZeroInflated ? (1d - ZeroWeight) / c : 1d / c;
+                    // Normalize weights
+                    for (int i = 0; i < k; i++)
+                    {
+                        Weights[i] *= c;
+                        parameters[i] = Weights[i];
+                    }
+                }
+                else
+                {
+                    // If weights sum to 0, reset to be uniformly distributed
+                    double w = IsZeroInflated ? (1d - ZeroWeight) / k : 1d / k;
+                    for (int i = 0; i < k; i++)
+                    {
+                        Weights[i] = w;
+                        parameters[i] = Weights[i];
+                    }
+                }
+
+                // Set distribution parameters
+                for (int i = 0; i < Distributions.Count(); i++)
+                {
+                    var parms = new List<double>();
+                    for (int j = t; j < t + Distributions[i].NumberOfParameters; j++)
+                    {
+                        parms.Add(parameters[j]);
+                    }
+                    Distributions[i].SetParameters(parms);
+                    t += Distributions[i].NumberOfParameters;
+                }
+            }
+
+            // Validate parameters
+            _parametersValid = ValidateParameters(parameters, false) is null;
+            _momentsComputed = false;
+            _inverseCDFCreated = false;
         }
 
         /// <summary>
@@ -450,22 +582,40 @@ namespace Numerics.Distributions
         /// <param name="throwException">Determines whether to throw an exception or not.</param>
         public override ArgumentOutOfRangeException ValidateParameters(IList<double> parameters, bool throwException)
         {
-            double w = 0.0;
-            for (int i = 0; i < Distributions.Count; i++)
-                w += Weights[i];
-            if (Math.Abs(w - 1) > Tools.DoubleMachineEpsilon * 2)
+            // Check if weights are between 0 and 1.
+            if (IsZeroInflated && (ZeroWeight < 0.0 || ZeroWeight > 1.0))
+            {
+                if (throwException)
+                    throw new ArgumentOutOfRangeException(nameof(ZeroWeight), "The zero value weight must be between 0 and 1.");
+                return new ArgumentOutOfRangeException(nameof(ZeroWeight), "The zero value weight must be between 0 and 1.");
+            }
+            for (int i = 0; i < Distributions.Count(); i++)
+            {
+                if (Weights[i] < 0.0 || Weights[i] > 1.0)
+                {
+                    if (throwException)
+                        throw new ArgumentOutOfRangeException(nameof(Weights), "The weights must be between 0 and 1.");
+                    return new ArgumentOutOfRangeException(nameof(Weights), "The weights must be between 0 and 1.");
+                }
+            }
+            // Check if weights sum to 1.
+            double sum = IsZeroInflated ? ZeroWeight : 0.0;
+            for (int i = 0; i < Distributions.Count(); i++)
+                sum += Weights[i];
+            if (sum.AlmostEquals(1d) == false)
             {
                 if (throwException)
                     throw new ArgumentOutOfRangeException(nameof(Weights), "The weights must sum to 1.0.");
                 return new ArgumentOutOfRangeException(nameof(Weights), "The weights must sum to 1.0.");
             }
-            for (int i = 0; i < Distributions.Count; i++)
+            // Check if distributions are valid
+            for (int i = 0; i < Distributions.Count(); i++)
             {
                 if (Distributions[i].ParametersValid == false)
                 {
                     if (throwException)
-                        throw new ArgumentOutOfRangeException(nameof(Distributions), "One of the distributions have invalid parameters.");
-                    return new ArgumentOutOfRangeException(nameof(Distributions), "One of the distributions have invalid parameters.");
+                        throw new ArgumentOutOfRangeException(nameof(Distributions), "Distribution " + (i + 1).ToString() + " has invalid parameters.");
+                    return new ArgumentOutOfRangeException(nameof(Distributions), "Distribution " + (i + 1).ToString() + " has invalid parameters.");
                 }
             }
             return null;
@@ -478,13 +628,13 @@ namespace Numerics.Distributions
         /// <returns>Returns a Tuple of initial, lower, and upper values.</returns>
         public Tuple<double[], double[], double[]> GetParameterConstraints(IList<double> sample)
         {
-            var initialVals = new double[NumberOfParameters];
-            var lowerVals = new double[NumberOfParameters];
-            var upperVals = new double[NumberOfParameters];
+            var initialVals = new double[NumberOfParameters - 1];
+            var lowerVals = new double[NumberOfParameters - 1];
+            var upperVals = new double[NumberOfParameters - 1];
 
             // Weights are first
             int t = 0;
-            for (int i = 0; i < Distributions.Count; i++)
+            for (int i = 0; i < Distributions.Count() - 1; i++)
             {
                 initialVals[i] = 0.5;
                 lowerVals[i] = 0;
@@ -492,7 +642,7 @@ namespace Numerics.Distributions
                 t += 1;
             }
 
-            for (int i = 0; i < Distributions.Count; i++)
+            for (int i = 0; i < Distributions.Count(); i++)
             {
                 var tuple = ((IMaximumLikelihoodEstimation)Distributions[i]).GetParameterConstraints(sample);
                 var initials = tuple.Item1;
@@ -526,40 +676,8 @@ namespace Numerics.Distributions
             double logLH(double[] parameters)
             {
                 var dist = (Mixture)Clone();
-                //dist.SetParameters(x);
-                //return dist.LogLikelihood(sample);
-
-                // Set distribution parameters
-                int k = dist.Distributions.Count;
-                var weights = new double[k];
-                int t = 0;
-                for (int i = 0; i < k; i++)
-                {
-                    weights[i] = parameters[i];
-                    t += 1;
-                }
-                for (int i = 0; i < k; i++)
-                {
-                    var parms = new List<double>();
-                    for (int j = t; j < t + dist.Distributions[i].NumberOfParameters; j++)
-                    {
-                        parms.Add(parameters[j]);
-                    }
-                    dist.Distributions[i].SetParameters(parms);
-                    t += dist.Distributions[i].NumberOfParameters;
-                }
-
-                double lh = 0;
-                for (int i = 0; i < sample.Count; i++)
-                {
-                    var lnf = new List<double>();
-                    for (int j = 0; j < k; j++)
-                    {
-                        lnf.Add(Math.Log(weights[j]) + dist.Distributions[j].LogPDF(sample[i])) ;
-                    }
-                    lh += Tools.LogSumExp(lnf);
-                }
-
+                dist.SetParameters(parameters);
+                double lh = dist.LogLikelihood(sample);
                 if (double.IsNaN(lh) || double.IsInfinity(lh)) return double.MinValue;
                 return lh;
             }
@@ -574,9 +692,28 @@ namespace Numerics.Distributions
         /// <param name="X">A single point in the distribution range.</param>
         public override double PDF(double x)
         {
+            // Validate parameters
+            if (_parametersValid == false)
+                ValidateParameters(GetParameters, true);
+
             double f = 0.0;
-            for (int i = 0; i < Distributions.Count; i++)
-                f += Weights[i] * Distributions[i].PDF(x);
+            if (IsZeroInflated)
+            {
+                if (x <= 0.0)
+                {
+                    f = ZeroWeight;
+                }
+                else
+                {
+                    for (int i = 0; i < Distributions.Count(); i++)
+                        f += Weights[i] * Distributions[i].PDF(x);
+                }
+            }
+            else
+            {
+                for (int i = 0; i < Distributions.Count(); i++)
+                    f += Weights[i] * Distributions[i].PDF(x);
+            }
             return f < 0d ? 0d : f;
         }
 
@@ -586,14 +723,29 @@ namespace Numerics.Distributions
         /// <param name="x">A single point in the distribution range.</param>
         public override double LogPDF(double x)
         {
+            // Validate parameters
+            if (_parametersValid == false)
+                ValidateParameters(GetParameters, true);
+
             var lnf = new List<double>();
-            for (int i = 0; i < Distributions.Count; i++)
+            if (IsZeroInflated)
             {
-                lnf.Add(Math.Log(Weights[i]) + Distributions[i].LogPDF(x));
+                if (x <= 0.0)
+                {
+                    lnf.Add(Math.Log(ZeroWeight));
+                }
+                else
+                {
+                    for (int i = 0; i < Distributions.Count(); i++)
+                        lnf.Add(Math.Log(Weights[i]) + Distributions[i].LogPDF(x));
+                }
+            }
+            else
+            {
+                for (int i = 0; i < Distributions.Count(); i++)
+                    lnf.Add(Math.Log(Weights[i]) + Distributions[i].LogPDF(x));
             }
             var f = Tools.LogSumExp(lnf);
-            // If the PDF returns an invalid probability, then return the worst log-probability.
-            if (double.IsNaN(f) || double.IsInfinity(f)) return double.MinValue;
             return f;
         }
 
@@ -603,9 +755,25 @@ namespace Numerics.Distributions
         /// <param name="X">A single point in the distribution range.</param>
         public override double CDF(double x)
         {
+            // Validate parameters
+            if (_parametersValid == false)
+                ValidateParameters(GetParameters, true);
+
             double F = 0.0;
-            for (int i = 0; i < Distributions.Count; i++)
-                F += Weights[i] * Distributions[i].CDF(x);
+            if (IsZeroInflated)
+            {
+                F = ZeroWeight;
+                if (x > 0.0)
+                {
+                    for (int i = 0; i < Distributions.Count(); i++)
+                        F += Weights[i] * Distributions[i].CDF(x);
+                }
+            }
+            else
+            {
+                for (int i = 0; i < Distributions.Count(); i++)
+                    F += Weights[i] * Distributions[i].CDF(x);
+            }
             return F < 0d ? 0d : F > 1d ? 1d : F;
         }
 
@@ -615,17 +783,28 @@ namespace Numerics.Distributions
         /// <param name="x">A single point in the distribution range.</param>
         public override double LogCDF(double x)
         {
+            // Validate parameters
+            if (_parametersValid == false)
+                ValidateParameters(GetParameters, true);
+
             var lnF = new List<double>();
-            for (int i = 0; i < Distributions.Count; i++)
+            if (IsZeroInflated)
             {
-                lnF.Add(Math.Log(Weights[i]) + Distributions[i].LogCDF(x));
+                lnF.Add(Math.Log(ZeroWeight));
+                if (x > 0.0)
+                {
+                    for (int i = 0; i < Distributions.Count(); i++)
+                        lnF.Add(Math.Log(Weights[i]) + Distributions[i].LogCDF(x));
+                }             
+            }
+            else
+            {
+                for (int i = 0; i < Distributions.Count(); i++)
+                    lnF.Add(Math.Log(Weights[i]) + Distributions[i].LogCDF(x));
             }
             var F = Tools.LogSumExp(lnF);
-            // If the CDF returns an invalid probability, then return the worst log-probability.
-            if (double.IsNaN(F) || double.IsInfinity(F) || F <= 0d) return double.MinValue;
             return F;
         }
-
 
         /// <summary>
         /// Gets the Inverse Cumulative Distribution Function (ICFD) of the distribution evaluated at a probability.
@@ -646,15 +825,37 @@ namespace Numerics.Distributions
                 throw new ArgumentOutOfRangeException("probability", "Probability must be between 0 and 1.");
             if (probability == 0.0d) return Minimum;
             if (probability == 1.0d) return Maximum;
+            if (IsZeroInflated && probability <= ZeroWeight) return 0;
+
             // Validate parameters
             if (_parametersValid == false)
-                ValidateParameters(new double[] { 0 }, true);
-            if (_inverseCDFCreated == false)
-                CreateInverseCDF();
+                ValidateParameters(GetParameters, true);
 
+            if (Distributions.Count() == 1)
+            {
+                return Distributions[0].InverseCDF(probability);
+            }
+
+            var xVals = Distributions.Select(d => d.InverseCDF(probability));
+            double minX = xVals.Min();
+            double maxX = xVals.Max();
+            double x = 0;
+            try
+            {
+                if (IsZeroInflated)
+                {
+                    Brent.Bracket((y) => { return probability - CDF(y); }, ref minX, ref maxX, out var f1, out var f2);
+                }
+                x = Brent.Solve((y) => { return probability - CDF(y); }, minX, maxX, 1E-4, 100, true);
+            }
+            catch (Exception ex)
+            {
+                if (_inverseCDFCreated == false)
+                    CreateInverseCDF();
+                x = _inverseCDF.InverseCDF(probability);
+            }
             double min = Minimum;
             double max = Maximum;
-            var x = _inverseCDF.InverseCDF(probability);
             return x < min ? min : x > max ? max : x;
         }
     
@@ -676,7 +877,7 @@ namespace Numerics.Distributions
             int order = (int)Math.Floor(Math.Log10(max) - Math.Log10(min));
             int binN = Math.Max(200, 100 * order) - 1;
             // Create bins
-            var bins = Stratify.XValues(new StratificationOptions(minX, maxX, binN, false), XTransform == Transform.Logarithmic ? true : false);
+            var bins = Stratify.XValues(new StratificationOptions(minX, maxX, binN, false), true);
             var xValues = new List<double>();
             var pValues = new List<double>();
             var x = bins.First().LowerBound;
@@ -704,34 +905,42 @@ namespace Numerics.Distributions
             _inverseCDFCreated = true;
         }
 
-
         /// <summary>
         /// Generate random values of a distribution given a sample size.
         /// </summary>
-        /// <param name="samplesize"> Size of random sample to generate. </param>
+        /// <param name="sampleSize"> Size of random sample to generate. </param>
         /// <returns>
         /// Array of random values.
         /// </returns>
         /// <remarks>
         /// The random number generator seed is based on the current date and time according to your system.
         /// </remarks>
-        public override double[] GenerateRandomValues(int samplesize)
+        public override double[] GenerateRandomValues(int sampleSize)
         {
             // Create seed based on date and time
-            // Create PRNG for generating random numbers
             var r = new MersenneTwister();
-            var sample = new double[samplesize];
+            var weights = new List<double>();
+            var distributions = new List<UnivariateDistributionBase>();
+            if (IsZeroInflated)
+            {
+                weights.Add(ZeroWeight);
+                distributions.Add(new Deterministic(0.0));
+            }
+            weights.AddRange(Weights);
+            distributions.AddRange(Distributions);
+
+            var sample = new double[sampleSize];
             // Generate values
-            for (int i = 0; i < samplesize; i++)
+            for (int i = 0; i < sampleSize; i++)
             {
                 var u = r.NextDouble();
-                var cdfW = new double[Distributions.Count];
-                for (int j = 0; j < Distributions.Count; j++)
+                var cdfW = new double[distributions.Count()];
+                for (int j = 0; j < distributions.Count(); j++)
                 {
-                    cdfW[j] = j == 0 ? Weights[j] : cdfW[j - 1] + Weights[j];
+                    cdfW[j] = j == 0 ? weights[j] : cdfW[j - 1] + weights[j];
                     if (u <= cdfW[j])
                     {
-                        sample[i] = Distributions[j].InverseCDF(r.NextDouble());
+                        sample[i] = distributions[j].InverseCDF(r.NextDouble());
                         break;
                     }
                 }
@@ -744,26 +953,36 @@ namespace Numerics.Distributions
         /// Generate random values of a distribution given a sample size based on a user-defined seed.
         /// </summary>
         /// <param name="seed">Seed for random number generator.</param>
-        /// <param name="samplesize"> Size of random sample to generate. </param>
+        /// <param name="sampleSize"> Size of random sample to generate. </param>
         /// <returns>
         /// Array of random values.
         /// </returns>
-        public override double[] GenerateRandomValues(int seed, int samplesize)
+        public override double[] GenerateRandomValues(int seed, int sampleSize)
         {
             // Create PRNG for generating random numbers
             var r = new MersenneTwister(seed);
-            var sample = new double[samplesize];
+            var weights = new List<double>();
+            var distributions = new List<UnivariateDistributionBase>();
+            if (IsZeroInflated)
+            {
+                weights.Add(ZeroWeight);
+                distributions.Add(new Deterministic(0.0));
+            }
+            weights.AddRange(Weights);
+            distributions.AddRange(Distributions);
+
+            var sample = new double[sampleSize];
             // Generate values
-            for (int i = 0; i < samplesize; i++)
+            for (int i = 0; i < sampleSize; i++)
             {
                 var u = r.NextDouble();
-                var cdfW = new double[Distributions.Count];
-                for (int j = 0; j < Distributions.Count; j++)
+                var cdfW = new double[distributions.Count()];
+                for (int j = 0; j < distributions.Count(); j++)
                 {
-                    cdfW[j] = j == 0 ? Weights[j] : cdfW[j - 1] + Weights[j];
+                    cdfW[j] = j == 0 ? weights[j] : cdfW[j - 1] + weights[j];
                     if (u <= cdfW[j])
                     {
-                        sample[i] = Distributions[j].InverseCDF(r.NextDouble());
+                        sample[i] = distributions[j].InverseCDF(r.NextDouble());
                         break;
                     }
                 }
@@ -772,21 +991,116 @@ namespace Numerics.Distributions
             return sample;
         }
 
-
         /// <summary>
         /// Creates a copy of the distribution.
         /// </summary>
         public override UnivariateDistributionBase Clone()
         {
-            var dists = new UnivariateDistributionBase[Distributions.Count];
-            for (int i = 0; i < Distributions.Count; i++)
+            var dists = new UnivariateDistributionBase[Distributions.Count()];
+            for (int i = 0; i < Distributions.Count(); i++)
                 dists[i] = Distributions[i].Clone();
 
             return new Mixture(Weights.ToArray(), dists)
             {
+                IsZeroInflated = IsZeroInflated,
+                ZeroWeight = ZeroWeight,
                 XTransform = XTransform,
                 ProbabilityTransform = ProbabilityTransform
             };
+        }
+
+        /// <summary>
+        /// Returns the distribution as XElement (XML). 
+        /// </summary>
+        public override XElement ToXElement()
+        {
+            var result = new XElement("Distribution");
+            result.SetAttributeValue(nameof(Type), Type.ToString());
+            result.SetAttributeValue(nameof(IsZeroInflated), IsZeroInflated.ToString());
+            result.SetAttributeValue(nameof(ZeroWeight), ZeroWeight.ToString());
+            result.SetAttributeValue(nameof(XTransform), XTransform.ToString());
+            result.SetAttributeValue(nameof(ProbabilityTransform), ProbabilityTransform.ToString());
+            result.SetAttributeValue(nameof(Weights), String.Join("|", Weights));
+            result.SetAttributeValue(nameof(Distributions), String.Join("|", Distributions.Select(x => x.Type)));
+            result.SetAttributeValue("Parameters", String.Join("|", GetParameters));
+            return result;
+        }
+
+        /// <summary>
+        /// Create a mixture distribution from XElement.
+        /// </summary>
+        /// <param name="xElement">The XElement to deserialize.</param>
+        /// <returns>A new mixture distribution.</returns>
+        public static Mixture FromXElement(XElement xElement)
+        {
+            UnivariateDistributionType type = UnivariateDistributionType.Deterministic;
+            if (xElement.Attribute(nameof(UnivariateDistributionBase.Type)) != null)
+            {
+                Enum.TryParse(xElement.Attribute(nameof(UnivariateDistributionBase.Type)).Value, out type);
+
+            }
+            if (type == UnivariateDistributionType.Mixture)
+            {
+                var weights = new List<double>();
+                var distributions = new List<UnivariateDistributionBase>();
+                if (xElement.Attribute(nameof(Weights)) != null)
+                {
+                    var w = xElement.Attribute(nameof(Weights)).Value.Split('|');
+                    for (int i = 0; i < w.Length; i++)
+                    {
+                        double.TryParse(w[i], out var weight);
+                        weights.Add(weight);
+                    }
+                }
+                if (xElement.Attribute(nameof(Distributions)) != null)
+                {
+                    var types = xElement.Attribute(nameof(Distributions)).Value.Split('|');
+                    for (int i = 0; i < types.Length; i++)
+                    {
+                        Enum.TryParse(types[i], out UnivariateDistributionType distType);
+                        distributions.Add(UnivariateDistributionFactory.CreateDistribution(distType));
+                    }
+                }
+                var mixture = new Mixture(weights.ToArray(), distributions.ToArray());
+
+                if (xElement.Attribute(nameof(IsZeroInflated)) != null)
+                {
+                    bool.TryParse(xElement.Attribute(nameof(IsZeroInflated)).Value, out var isZeroInflated);
+                    mixture.IsZeroInflated = isZeroInflated;
+                }
+                if (xElement.Attribute(nameof(ZeroWeight)) != null)
+                {
+                    double.TryParse(xElement.Attribute(nameof(ZeroWeight)).Value, out var zeroWeight);
+                    mixture.ZeroWeight = zeroWeight;
+                }
+                if (xElement.Attribute(nameof(XTransform)) != null)
+                {
+                    Enum.TryParse(xElement.Attribute(nameof(XTransform)).Value, out Transform xTransform);
+                    mixture.XTransform = xTransform;
+                }
+                if (xElement.Attribute(nameof(ProbabilityTransform)) != null)
+                {
+                    Enum.TryParse(xElement.Attribute(nameof(ProbabilityTransform)).Value, out Transform probabilityTransform);
+                    mixture.ProbabilityTransform = probabilityTransform;
+                }
+                if (xElement.Attribute("Parameters") != null)
+                {
+                    var vals = xElement.Attribute("Parameters").Value.Split('|');
+                    var parameters = new List<double>();
+                    for (int i = 0; i < vals.Length; i++)
+                    {
+                        double.TryParse(vals[i], out var parm);
+                        parameters.Add(parm);
+                    }
+                    mixture.SetParameters(parameters);
+                }
+
+                return mixture;
+            }
+            else
+            {
+                return null;
+            }
         }
 
     }

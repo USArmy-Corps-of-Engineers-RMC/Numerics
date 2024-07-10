@@ -212,7 +212,7 @@ namespace Numerics.MachineLearning
                 centroids[i] = new double[Dimension];
                 syncs[i] = new object();
             }
-            var rnd = seed > 0 ? new Random(seed) : new Random();
+            var rnd = seed > 0 ? new MersenneTwister(seed) : new MersenneTwister();
 
             if (kMeansPlusPlus == false)
             {

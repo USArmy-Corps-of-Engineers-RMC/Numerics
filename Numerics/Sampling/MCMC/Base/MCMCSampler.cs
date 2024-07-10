@@ -53,7 +53,7 @@ namespace Numerics.Sampling.MCMC
     /// as well as the prior likelihood of the sampler parameters.
     /// </remarks>
     [Serializable]
-    public delegate double LogLikelihood(IList<double> parameters);
+    public delegate double LogLikelihood(double[] parameters);
 
 
     /// <summary>
@@ -74,12 +74,12 @@ namespace Numerics.Sampling.MCMC
         /// <summary>
         /// The master pseudo random number generator (PRNG).
         /// </summary>
-        protected MersenneTwister _masterPRNG;
+        protected Random _masterPRNG;
 
         /// <summary>
         /// The PRNG for each Markov Chain.
         /// </summary>
-        protected MersenneTwister[] _chainPRNGs;
+        protected Random[] _chainPRNGs;
 
         /// <summary>
         /// The number of simulations that have been run with this instance of the sampler. 
@@ -283,7 +283,7 @@ namespace Numerics.Sampling.MCMC
         /// </summary>
         protected virtual ParameterSet[] InitializeChains()
         {
-            var prng = new MersenneTwister(PRNGSeed);
+            var prng = new Random(PRNGSeed);
             var rnds = LatinHypercube.Random(InitialPopulationLength, NumberOfParameters, prng.Next());
             var parameters = new double[NumberOfParameters];
             var tempPopulation = new List<ParameterSet>();       
@@ -294,9 +294,10 @@ namespace Numerics.Sampling.MCMC
             {
 
                 // Use differential evolution to find a global optimum
-                var lowerBounds = PriorDistributions.Select(x => x.Minimum).ToList();
-                var upperBounds = PriorDistributions.Select(x => x.Maximum).ToList();
-                var DE = new DifferentialEvolution((x) => { return LogLikelihoodFunction(x); }, NumberOfParameters, lowerBounds, upperBounds);
+                var lowerBounds = PriorDistributions.Select(x => x.Minimum).ToArray();
+                var upperBounds = PriorDistributions.Select(x => x.Maximum).ToArray();
+                var inititals = lowerBounds.Add(upperBounds).Divide(2d);
+                var DE = new MLSL((x) => { return LogLikelihoodFunction(x); }, NumberOfParameters, inititals, lowerBounds, upperBounds);
                 DE.ReportFailure = false;
                 DE.Maximize();
                 if (DE.Status == OptimizationStatus.Success)
@@ -403,7 +404,6 @@ namespace Numerics.Sampling.MCMC
             PopulationMatrix.Add(state.Clone());
         }
 
-
         /// <summary>
         /// Returns a proposed MCMC parameter set and its fitness. 
         /// </summary>
@@ -425,13 +425,13 @@ namespace Numerics.Sampling.MCMC
             if (ResumeSimulation = false || _simulations < 1)
             {
                 // Create inputs for the chains
-                _masterPRNG = new MersenneTwister(PRNGSeed);
-                _chainPRNGs = new MersenneTwister[NumberOfChains];
+                _masterPRNG = new Random(PRNGSeed);
+                _chainPRNGs = new Random[NumberOfChains];
                 PopulationMatrix = new List<ParameterSet>();
                 MarkovChains = new List<ParameterSet>[NumberOfChains];
                 for (int i = 0; i < NumberOfChains; i++)
                 {
-                    _chainPRNGs[i] = new MersenneTwister(_masterPRNG.Next());
+                    _chainPRNGs[i] = new Random(_masterPRNG.Next());
                     MarkovChains[i] = new List<ParameterSet>();
                 }
 
@@ -538,6 +538,29 @@ namespace Numerics.Sampling.MCMC
         public void ReportProgress(double percentComplete)
         {
             ProgressChanged?.Invoke(percentComplete, (percentComplete * 100) + "%");
+        }
+
+        /// <summary>
+        /// Clear simulation results.
+        /// </summary>
+        public void ClearResults()
+        {
+            _simulations = 0;
+            // Clear old memory and re-instantiate the result storage
+            _masterPRNG = new Random(PRNGSeed);
+            _chainPRNGs = new Random[NumberOfChains];
+            PopulationMatrix = new List<ParameterSet>();
+            MarkovChains = new List<ParameterSet>[NumberOfChains];
+            for (int i = 0; i < NumberOfChains; i++)
+            {
+                _chainPRNGs[i] = new Random(_masterPRNG.Next());
+                MarkovChains[i] = new List<ParameterSet>();
+            }
+            AcceptCount = new int[NumberOfChains];
+            SampleCount = new int[NumberOfChains];
+            MeanLogLikelihood = new List<double>();
+            MAP = new ParameterSet(new double[] { }, double.MinValue);
+            Output = new List<ParameterSet>[NumberOfChains];
         }
 
         #endregion

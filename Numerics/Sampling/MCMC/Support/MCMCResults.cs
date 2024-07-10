@@ -33,6 +33,7 @@ using Numerics.Mathematics.Optimization;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading.Tasks;
 
@@ -62,14 +63,16 @@ namespace Numerics.Sampling.MCMC
         /// <param name="alpha">The confidence level; Default = 0.1, which will result in the 90% confidence intervals.</param> 
         public MCMCResults(MCMCSampler sampler, double alpha = 0.1)
         {
-            MarkovChains = sampler.MarkovChains;
+            MarkovChains = new List<ParameterSet>[sampler.NumberOfChains];
             Output = new List<ParameterSet>();
             for (int i = 0; i < sampler.NumberOfChains; i++)
-                Output.AddRange(sampler.Output[i]);
-
-            AcceptanceRates = sampler.AcceptanceRates;
-            MeanLogLikelihood = sampler.MeanLogLikelihood;
-            MAP = sampler.MAP;
+            {
+                MarkovChains[i] = sampler.MarkovChains[i].ToList();
+                Output.AddRange(sampler.Output[i].ToList());
+            }
+            AcceptanceRates = sampler.AcceptanceRates.ToArray();
+            MeanLogLikelihood = sampler.MeanLogLikelihood.ToList();
+            MAP = sampler.MAP.Clone();
             ProcessParameterResults(sampler, alpha);
         }
 

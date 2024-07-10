@@ -289,7 +289,7 @@ namespace Numerics.MachineLearning
         /// <param name="seed">Optional. The prng seed. If negative or zero, then the computer clock is used as a seed.</param>
         private double[] kNNBootstrapPredict(Matrix xTrain, Vector yTrain, Matrix xTest, int seed = -1)
         {
-            var rnd = seed > 0 ? new Random(seed) : new Random();
+            var rnd = seed > 0 ? new MersenneTwister(seed) : new MersenneTwister();
             var idxs = rnd.NextIntegers(0, xTrain.NumberOfRows, xTrain.NumberOfRows);
             var bootX = new Matrix(xTrain.NumberOfRows, xTrain.NumberOfColumns);
             var bootY = new Vector(yTrain.Length);
@@ -319,7 +319,7 @@ namespace Numerics.MachineLearning
             var output = new double[xTest.NumberOfRows, 4]; // lower, median, upper, mean
 
             var bootResults = new double[xTest.NumberOfRows, realizations];
-            var rnd = seed > 0 ? new Random(seed) : new Random();
+            var rnd = seed > 0 ? new MersenneTwister(seed) : new MersenneTwister();
             var seeds = rnd.NextIntegers(realizations);
 
             // Bootstrap the predictions

@@ -138,7 +138,7 @@ namespace Numerics.Sampling.MCMC
             SampleCount[index] += 1;
 
             // 10% snooker updates and 90% parallel direction updates.
-            if (_chainPRNGs[index].NextDouble() <= SnookerThreshold && SampleCount[index] > 2 * ThinningInterval)
+            if (_chainPRNGs[index].NextDouble() <= SnookerThreshold && SampleCount[index] > 5 * ThinningInterval)
             {
                 return SnookerUpdate(index, state);
             }
@@ -201,9 +201,6 @@ namespace Numerics.Sampling.MCMC
             }
         }
 
-
-
-
         /// <summary>
         /// Returns a proposed MCMC iteration based on the Snooker Update method. 
         /// </summary>
@@ -225,13 +222,14 @@ namespace Numerics.Sampling.MCMC
             do c2 = _chainPRNGs[index].Next(0, NumberOfChains); while (c2 == c1 || c2 == c);
 
             // Define z
-            var z = new Vector(MarkovChains[c].Last().Values.ToArray());
+            int n = MarkovChains[c].Count();
+            var z = new Vector(MarkovChains[c][n - 1].Values.ToArray());
             var xi = new Vector(state.Values.ToArray());
             // Define line xi - z
             var line = xi - z;
             // Orthogonally project zR1 and zR2 onto the line xi - z
-            var zr1 = new Vector(MarkovChains[c1].Last().Values.ToArray());
-            var zr2 = new Vector(MarkovChains[c2].Last().Values.ToArray());
+            var zr1 = new Vector(MarkovChains[c1][n - 1].Values.ToArray());
+            var zr2 = new Vector(MarkovChains[c2][n - 1].Values.ToArray());
             var zp1 = Vector.Project(zr1, line);
             var zp2 = Vector.Project(zr2, line);
 

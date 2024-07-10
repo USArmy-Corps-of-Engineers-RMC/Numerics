@@ -30,6 +30,7 @@
 
 using Numerics.Data.Statistics;
 using Numerics.Mathematics.LinearAlgebra;
+using Numerics.Sampling;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -68,7 +69,7 @@ namespace Numerics.MachineLearning
             X = new Matrix(x);
             Dimensions = X.NumberOfColumns;
             Features = Math.Max(1, Dimensions - 1);
-            Random = seed > 0 ? new Random(seed) : new Random();
+            Random = seed > 0 ? new MersenneTwister(seed) : new MersenneTwister();
 
             if (Y.Length != X.NumberOfRows) throw new ArgumentException("The y vector must be the same length as the x matrix.");
             if (Y.Length < 10) throw new ArgumentException("There must be at least ten training data points.");
@@ -88,7 +89,7 @@ namespace Numerics.MachineLearning
             X = new Matrix(x);
             Dimensions = X.NumberOfColumns;
             Features = Math.Max(1, Dimensions - 1);
-            Random = seed > 0 ? new Random(seed) : new Random();
+            Random = seed > 0 ? new MersenneTwister(seed) : new MersenneTwister();
 
             if (Y.Length != X.NumberOfRows) throw new ArgumentException("The y vector must be the same length as the x matrix.");
             if (Y.Length < 10) throw new ArgumentException("There must be at least ten training data points.");
@@ -108,7 +109,7 @@ namespace Numerics.MachineLearning
             X = x;
             Dimensions = X.NumberOfColumns;
             Features = Math.Max(1, Dimensions - 1);
-            Random = seed > 0 ? new Random(seed) : new Random();
+            Random = seed > 0 ? new MersenneTwister(seed) : new MersenneTwister();
 
             if (Y.Length != X.NumberOfRows) throw new ArgumentException("The y vector must be the same length as the x matrix.");
             if (Y.Length < 10) throw new ArgumentException("There must be at least ten training data points.");
@@ -204,7 +205,7 @@ namespace Numerics.MachineLearning
         /// <param name="seed">Optional. The prng seed. If negative or zero, then the computer clock is used as a seed.</param>
         private DecisionTree BootstrapDecisionTree(int seed = -1)
         {
-            var rnd = seed > 0 ? new Random(seed) : new Random();
+            var rnd = seed > 0 ? new MersenneTwister(seed) : new MersenneTwister();
             var idxs = rnd.NextIntegers(0, X.NumberOfRows, X.NumberOfRows);
             var bootX = new Matrix(X.NumberOfRows, X.NumberOfColumns);
             var bootY = new Vector(Y.Length);

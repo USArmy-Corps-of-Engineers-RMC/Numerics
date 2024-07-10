@@ -36,6 +36,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Globalization;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using System.Runtime.InteropServices.ComTypes;
@@ -314,6 +315,9 @@ namespace Numerics.Data
             RaiseCollectionChangedReset();
         }
 
+        /// <summary>
+        /// Standardize the time series values. This action is not reversible. 
+        /// </summary>
         public void Standardize()
         {
             SuppressCollectionChanged = true;
@@ -615,8 +619,6 @@ namespace Numerics.Data
             return double.NaN;
         }
 
-
-
         /// <summary>
         /// Determines if the minimum step between events has been exceeded. 
         /// </summary>
@@ -704,7 +706,6 @@ namespace Numerics.Data
             return false;
         }
 
-
         /// <summary>
         /// Returns a moving average time-series based on the specified time period. The average is computed based on the previous n=period ordinates.
         /// </summary>
@@ -784,7 +785,8 @@ namespace Numerics.Data
             for (int i = 0; i < Count; i++)
             {
                 var ordinate = new SeriesOrdinate<DateTime, double>();
-                ordinate.Index = this[i].Index.AddMonths(numberOfMonths);
+                //ordinate.Index = this[i].Index.AddMonths(numberOfMonths);
+                ordinate.Index = this[i].Index.AddDays(numberOfMonths * 30);
                 ordinate.Value = this[i].Value;
                 timeSeries.Add(ordinate);
             }
@@ -902,8 +904,6 @@ namespace Numerics.Data
             return null;
         }
 
-
-
         #region Summary Statistics
 
         /// <summary>
@@ -962,7 +962,7 @@ namespace Numerics.Data
         /// </summary>
         public double StandardDeviation()
         {
-            if (Count == 0) return double.NaN;
+            if (Count < 2) return double.NaN;
             double variance_ = 0d;
             double t = this[0].Value;
             int n = 0;
@@ -1131,11 +1131,11 @@ namespace Numerics.Data
         /// <summary>
         /// Compute the monthly frequency of occurrence.
         /// </summary>
-        public int[] MonthlyFrequency()
+        public double[] MonthlyFrequency()
         {
-            var frequencies = new int[12];
+            var frequencies = new double[12];
             for (int i = 1; i <= 12; i++)
-                frequencies[i - 1] = _seriesOrdinates.Where(x => x.Index.Month == i).ToList().Count;
+                frequencies[i - 1] =(double)_seriesOrdinates.Where(x => x.Index.Month == i).ToList().Count;
             return frequencies;
         }
 
@@ -1239,7 +1239,7 @@ namespace Numerics.Data
                 smoothedSeries = Difference(period);
             }
 
-            for (int i = StartDate.Year; i <= EndDate.Year; i++)
+            for (int i = smoothedSeries.StartDate.Year; i <= smoothedSeries.EndDate.Year; i++)
             {
                 var blockData = smoothedSeries.Where(x => x.Index.Year == i).ToList();
                 var ordinate = new SeriesOrdinate<DateTime, double>() { Value = double.NaN };
@@ -1309,7 +1309,9 @@ namespace Numerics.Data
             // Shift series
             int shift = startMonth != 1 ? 12 - startMonth + 1 : startMonth;
             var shiftedSeries = startMonth != 1 ? ShiftDatesByMonth(shift) : this;
-            return shiftedSeries.CalendarYearSeries(blockFunction, smoothingFunction, period);
+            var wySeries = shiftedSeries.CalendarYearSeries(blockFunction, smoothingFunction, period);
+            var shiftedBackSeries = startMonth != 1 ? wySeries.ShiftDatesByMonth(-shift) : wySeries;
+            return shiftedBackSeries;
         }
 
         /// <summary>
@@ -1357,7 +1359,7 @@ namespace Numerics.Data
                 smoothedSeries = Difference(period);
             }
 
-            for (int i = StartDate.Year; i <= EndDate.Year; i++)
+            for (int i = smoothedSeries.StartDate.Year; i <= smoothedSeries.EndDate.Year; i++)
             {
 
                 var blockData = new List<SeriesOrdinate<DateTime, double>>();
@@ -1450,7 +1452,7 @@ namespace Numerics.Data
                 smoothedSeries = Difference(period);
             }
 
-            for (int i = StartDate.Year; i <= EndDate.Year; i++)
+            for (int i = smoothedSeries.StartDate.Year; i <= smoothedSeries.EndDate.Year; i++)
             {
 
                 for (int k = 1; k <= 12; k++)
@@ -1546,7 +1548,7 @@ namespace Numerics.Data
                 smoothedSeries = Difference(period);
             }
 
-            for (int i = StartDate.Year; i <= EndDate.Year; i++)
+            for (int i = smoothedSeries.StartDate.Year; i <= smoothedSeries.EndDate.Year; i++)
             {
 
                 for (int q = 0; q < qEnd.Length; q++)
@@ -1661,13 +1663,13 @@ namespace Numerics.Data
 
 
             var result = new TimeSeries(TimeInterval.Irregular);       
-            for (int i = 0; i < Count; i++)
+            for (int i = 0; i < smoothedSeries.Count; i++)
             {
                 if (!double.IsNaN(smoothedSeries[i].Value) && smoothedSeries[i].Value > threshold)
                 {
                     result.Add(smoothedSeries[i].Clone());
 
-                    for (int j = i + 1; j < Count; j++)
+                    for (int j = i + 1; j < smoothedSeries.Count; j++)
                     {
                         if (!double.IsNaN(smoothedSeries[i].Value) && smoothedSeries[j].Value <= threshold && CheckIfMinStepsExceeded(result.Last().Index, smoothedSeries[j].Index, minStepsBetweenEvents))
                         {
@@ -1686,166 +1688,6 @@ namespace Numerics.Data
         }
 
         #endregion
-
-
-
-        /// <summary>
-        /// Download time series data from USGS
-        /// </summary>
-        /// <param name="siteNumber">USGS site number.</param>
-        /// <param name="timeSeriesType">The time series type.</param>
-        public static TimeSeries DownloadfromUSGS(string siteNumber, USGSTimeSeriesType timeSeriesType = USGSTimeSeriesType.DailyDischarge)
-        {
-            var timeSeries = new TimeSeries();
-
-            try
-            {
-                // Check if there is an Internet connection
-                if (IsConnectedToInternet() == false)
-                    throw new Exception("There is no Internet connection!");
-
-                // Setup url parameters
-                string timeInterval = "dv";
-                string startDate = "1800-01-01";
-                string endDate = DateTime.Now.ToString("yyyy-MM-dd");
-                string statCode = "&statCd=00003"; 
-                string parameterCode = "00060";      
-                string url = "";
-
-                if (timeSeriesType == USGSTimeSeriesType.DailyDischarge || timeSeriesType == USGSTimeSeriesType.DailyStage)
-                {
-                    timeInterval = "dv";
-                    statCode = "&statCd=00003";
-                    parameterCode = timeSeriesType == USGSTimeSeriesType.DailyDischarge ? "00060" : "00065";
-                    timeSeries = new TimeSeries(TimeInterval.OneDay);
-                    url = "https://waterservices.usgs.gov/nwis/" + timeInterval + "/?format=waterml,2.0&sites=" + siteNumber + "&startDT=" + startDate + "&endDT=" + endDate + statCode + "&parameterCd=" + parameterCode + "&siteStatus=all";
-                }
-                else if (timeSeriesType == USGSTimeSeriesType.InstantaneousDischarge || timeSeriesType == USGSTimeSeriesType.InstantaneousStage)
-                {
-                    timeInterval = "iv";
-                    statCode = "";
-                    parameterCode = timeSeriesType == USGSTimeSeriesType.InstantaneousDischarge ? "00060" : "00065";
-                    timeSeries = new TimeSeries(TimeInterval.FifteenMinute);
-                    url = "https://waterservices.usgs.gov/nwis/" + timeInterval + "/?format=waterml,2.0&sites=" + siteNumber + "&startDT=" + startDate + "&endDT=" + endDate + statCode + "&parameterCd=" + parameterCode + "&siteStatus=all";
-                }
-                else if (timeSeriesType == USGSTimeSeriesType.PeakDischarge || timeSeriesType == USGSTimeSeriesType.PeakStage)
-                {
-                    timeInterval = "peak";
-                    statCode = "";
-                    timeSeries = new TimeSeries(TimeInterval.Irregular);
-                    url = "https://nwis.waterdata.usgs.gov/nwis/peak?site_no="+ siteNumber + "&agency_cd=USGS&format=rdb";
-                }
-                            
-                // Download data
-                string textDownload;
-                using (var client = new WebClient())
-                    textDownload = client.DownloadString(url);
-
-                if (timeSeriesType == USGSTimeSeriesType.DailyDischarge ||  timeSeriesType == USGSTimeSeriesType.DailyStage )
-                {
-                    // Convert to XElement and check if the download was valid
-                    var xElement = XElement.Parse(textDownload);
-                    var points = xElement.Descendants("{http://www.opengis.net/waterml/2.0}point");
-
-                    // Create time series
-                    foreach (XElement point in points.Elements())
-                    {
-                        if (point.Element("{http://www.opengis.net/waterml/2.0}time") != null && point.Element("{http://www.opengis.net/waterml/2.0}value") != null)
-                        {
-                            // Get date
-                            DateTime index = DateTime.Now;
-                            DateTime.TryParse(point.Element("{http://www.opengis.net/waterml/2.0}time").Value, out index);
-
-                            // See if this date is 
-                            if (timeSeries.Count > 0 && index != AddTimeInterval(timeSeries.Last().Index, TimeInterval.OneDay))
-                            {
-                                while (timeSeries.Last().Index < SubtractTimeInterval(index, TimeInterval.OneDay))
-                                    timeSeries.Add(new SeriesOrdinate<DateTime, double>(AddTimeInterval(timeSeries.Last().Index, TimeInterval.OneDay), double.NaN));
-                            }
-
-                            // Get value
-                            double value = 0;
-                            string valueStg = point.Element("{http://www.opengis.net/waterml/2.0}value").Value;
-                            if (valueStg == "" || valueStg == " " || valueStg == "  " || string.IsNullOrEmpty(valueStg))
-                                value = double.NaN;
-                            else
-                            {
-                                double.TryParse(valueStg, out value);
-                            }
-                            timeSeries.Add(new SeriesOrdinate<DateTime, double>(index, value));
-                        }
-                    }
-                }
-                else if (timeSeriesType == USGSTimeSeriesType.PeakDischarge || timeSeriesType == USGSTimeSeriesType.PeakStage)
-                {
-                    var delimiters = new char[] { '\t' };
-                    var lines = textDownload.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);        
-                    foreach (string line in lines)
-                    {
-                        var segments = line.Split(delimiters, StringSplitOptions.RemoveEmptyEntries);
-                        if (segments.Count() >= 4 && segments.First() == "USGS")
-                        {
-                            // Get date
-                            DateTime index = DateTime.Now;
-                            var dateString = segments[2].Split('-');
-                            if (dateString[1] == "00")
-                            {
-                                int year = 2000;
-                                int.TryParse(dateString[0], out year);
-                                index = new DateTime(year, 1, 1, 0, 0, 0);
-                            }
-                            else
-                            {
-                                DateTime.TryParse(segments[2], out index);
-                            }
-                            
-
-                            // Get value
-                            double value = 0;
-
-                            // see if the 4th column has a time
-                            int offset = 0;
-                            var timeString = segments[3].Split(':');
-                            if (timeString.Length == 2)
-                                offset = 1;
-
-                            int idx = timeSeriesType == USGSTimeSeriesType.PeakDischarge ? 3 + offset : 4 + offset;
-                            if (segments[idx] == "" || segments[idx] == " " || segments[idx] == "  " || string.IsNullOrEmpty(segments[idx]))
-                                value = double.NaN;
-                            else
-                            {
-                                double.TryParse(segments[idx], out value);
-                            }
-                            timeSeries.Add(new SeriesOrdinate<DateTime, double>(index, value));
-                        }
-                    }
-                }
-
-
-               
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-
-            return timeSeries;
-        }
-
-        /// <summary>
-        /// Checks if there is an Internet connection.
-        /// </summary>
-        public static bool IsConnectedToInternet()
-        {
-            try
-            {
-                using (var client = new WebClient())
-                using (client.OpenRead("http://google.com/generate_204"))
-                    return true;
-            }
-            catch { }
-            return false;
-        }
 
         /// <summary>
         /// Returns an XElement of a series ordinate.
@@ -1869,7 +1711,8 @@ namespace Numerics.Data
         /// </summary>
         public TimeSeries Clone()
         {
-            return new TimeSeries(TimeInterval, StartDate, ValuesToArray());          
+            return new TimeSeries(TimeInterval, StartDate, ValuesToArray());
         }
+
     }
 }

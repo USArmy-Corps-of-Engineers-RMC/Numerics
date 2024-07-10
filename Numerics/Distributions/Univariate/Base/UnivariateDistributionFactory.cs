@@ -222,7 +222,17 @@ namespace Numerics.Distributions
             if (xElement.Attribute(nameof(UnivariateDistributionBase.Type)) != null)
             {
                 Enum.TryParse(xElement.Attribute(nameof(UnivariateDistributionBase.Type)).Value, out type);
-                dist = CreateDistribution(type);
+
+                if (type == UnivariateDistributionType.Mixture)
+                {
+                    dist = Mixture.FromXElement(xElement);
+                    return dist;
+                }
+                else
+                {
+                    dist = CreateDistribution(type);
+                }
+
             }
             var names = dist.GetParameterPropertyNames;
             var parms = dist.GetParameters;
