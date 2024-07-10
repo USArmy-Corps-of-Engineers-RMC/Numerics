@@ -268,7 +268,7 @@ namespace Numerics.Mathematics.Optimization
                     p[i] *= stpmax / sum;
             for (i = 0; i < n; i++)
                 slope += g[i] * p[i];
-            if (slope == 0.0) return;// throw new Exception("Roundoff problem in line search.");
+            if (slope == 0.0) return; // If the slope is zero, it is on a flat spit. Exit the routine
             if (slope > 0.0)  throw new Exception("Roundoff problem in line search.");
             test = 0.0;
             for (i = 0; i < n; i++)

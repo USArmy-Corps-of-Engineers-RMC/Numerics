@@ -32,7 +32,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Numerics.Distributions;
-using Numerics.Sampling;
 
 namespace Numerics.Mathematics.Optimization
 {

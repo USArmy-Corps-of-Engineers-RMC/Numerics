@@ -29,8 +29,6 @@
 * **/
 
 using System;
-using System.Collections.Generic;
-using System.Windows.Forms;
 
 namespace Numerics.Mathematics.ODESolvers
 {
@@ -277,8 +275,6 @@ namespace Numerics.Mathematics.ODESolvers
                     h /= 2d;
                 }
 
-                // Update step size
-                //h = 0.95 * h * Math.Pow(tolerance / error, 0.2);
             }
 
             return y;

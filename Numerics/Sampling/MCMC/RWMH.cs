@@ -28,7 +28,6 @@
 * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 * **/
 
-using Numerics.Data.Statistics;
 using Numerics.Distributions;
 using Numerics.Mathematics.LinearAlgebra;
 using Numerics.Mathematics.Optimization;

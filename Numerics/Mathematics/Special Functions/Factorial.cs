@@ -30,7 +30,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Numerics.Mathematics.SpecialFunctions
 {
@@ -133,7 +132,7 @@ namespace Numerics.Mathematics.SpecialFunctions
         /// Computes the binomial coefficient.
         /// </summary>
         /// <remarks>
-        /// The equation for the binomal coefficient is :
+        /// The equation for the binomial coefficient is :
         /// <code>
         ///     n chose k = n! / k!(n-k)!
         /// </code>
@@ -181,27 +180,6 @@ namespace Numerics.Mathematics.SpecialFunctions
         {
             return FindCombosRecursive(new int[m], 0, 0, n);
         }
-
-        /// <summary>
-        /// Finds all combinations of m within n without replacement.
-        /// </summary>
-        /// <param name="n">The overall count.</param>
-        //public static List<int[]> AllCombinations(int n)
-        //{
-        //    var output = new List<int[]>();
-        //    for (int i = 1; i <= n; i++)
-        //    {
-        //        foreach (int[] c in FindCombinations(i, n))
-        //        {
-        //            output.Add(new int[n]);
-        //            for (int j = 0; j < c.Length; j++)
-        //            {
-        //                output.Last()[c[j]] = 1;
-        //            }
-        //        }
-        //    }
-        //    return output;
-        //}
 
         /// <summary>
         /// Finds all combinations of m within n without replacement.           

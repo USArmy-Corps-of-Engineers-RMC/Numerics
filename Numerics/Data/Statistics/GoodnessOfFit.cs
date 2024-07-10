@@ -31,7 +31,6 @@
 using Numerics.Distributions;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 
 namespace Numerics.Data.Statistics

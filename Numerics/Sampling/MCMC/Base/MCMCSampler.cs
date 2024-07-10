@@ -32,11 +32,9 @@ using Numerics.Distributions;
 using Numerics.Mathematics.LinearAlgebra;
 using Numerics.Mathematics;
 using Numerics.Mathematics.Optimization;
-using Numerics.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 

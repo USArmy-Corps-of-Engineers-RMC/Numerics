@@ -32,12 +32,6 @@ using Numerics.Distributions;
 using Numerics.Mathematics.Optimization;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Threading;
-using System.Reflection;
-using Numerics.Mathematics.LinearAlgebra;
-using Numerics.Mathematics;
 
 namespace Numerics.Sampling.MCMC
 {

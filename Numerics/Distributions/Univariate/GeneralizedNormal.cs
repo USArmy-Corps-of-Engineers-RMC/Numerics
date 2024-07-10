@@ -34,8 +34,6 @@ using System.Linq;
 using Numerics.Data.Statistics;
 using Numerics.Mathematics;
 using Numerics.Mathematics.Optimization;
-using Numerics.Mathematics.RootFinding;
-using Numerics.Mathematics.SpecialFunctions;
 
 namespace Numerics.Distributions
 {

@@ -159,7 +159,6 @@
     <Compile Include="Mathematics\Linear Algebra\Test_Vector.cs" />
     <Compile Include="Mathematics\ODE Solvers\Test_RungeKutta.cs" />
     <Compile Include="Mathematics\Optimization\TestFunctions.cs" />
-    <Compile Include="Mathematics\Optimization\Test_Optimization.cs" />
     <Compile Include="Mathematics\Optimization\Test_GoldenSection.cs" />
     <Compile Include="Mathematics\Optimization\Test_BrentSearch.cs" />
     <Compile Include="Mathematics\Optimization\Test_Powell.cs" />

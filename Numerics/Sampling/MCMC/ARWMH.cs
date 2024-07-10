@@ -35,7 +35,6 @@ using Numerics.Data.Statistics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 
 namespace Numerics.Sampling.MCMC
 {

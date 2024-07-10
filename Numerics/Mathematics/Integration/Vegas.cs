@@ -28,16 +28,10 @@
 * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 * **/
 
-using Numerics.Distributions;
 using Numerics.Sampling;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Security.Permissions;
-using System.Text;
-using System.Threading.Tasks;
-using static System.Net.WebRequestMethods;
 
 namespace Numerics.Mathematics.Integration
 {
@@ -288,7 +282,7 @@ namespace Numerics.Mathematics.Integration
         }
 
         /// <summary>
-        /// Helper funciton for Integrate(), the actual Vegas algorithm
+        /// Helper function for Integrate(), the actual Vegas algorithm
         /// </summary>
         /// <param name="fxn"> The function being evaluated </param>
         /// <param name="regn"> A vector consisting of ndim “lower left”coordinates of the region followed by ndim “upper right”
@@ -495,6 +489,10 @@ namespace Numerics.Mathematics.Integration
         /// <summary>
         /// Utility routine used by Vegas to rebin a vector of densities contained in row j of xi into new bins defined by a vector r.
         /// </summary>
+        /// <remarks>
+        /// This method refine the grid. Consult references to understand the subtlety of this procedure. The refinement is damped.
+        /// to avoid rapid, destabilizing changes, and also compressed in range by the exponent ALPH.
+        /// </remarks>
         private void rebin(double rc, int nd, double[] r, double[] xin, double[,] xi, int j)
         {
             int i, k = 0;

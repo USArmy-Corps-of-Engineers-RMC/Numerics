@@ -31,8 +31,6 @@
 using System;
 using Numerics.Mathematics.RootFinding;
 using System.Collections.Generic;
-using System.Linq;
-using Numerics.Data.Statistics;
 
 namespace Numerics.Distributions.Copulas
 {

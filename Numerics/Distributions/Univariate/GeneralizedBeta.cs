@@ -28,7 +28,6 @@
 * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 * **/
 
-using Numerics.Mathematics.SpecialFunctions;
 using System;
 using System.Collections.Generic;
 

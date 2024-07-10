@@ -29,13 +29,11 @@
 * **/
 
 using Numerics.Data.Statistics;
-using Numerics.Distributions;
 using Numerics.Mathematics.LinearAlgebra;
 using Numerics.Sampling;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using static System.Net.WebRequestMethods;
 
 namespace Numerics.Mathematics.Optimization
 {
@@ -163,9 +161,6 @@ namespace Numerics.Mathematics.Optimization
             double fx = Evaluate(x.ToArray(), ref cancel);
             double fxp, df; 
             
-            // Keep track of fitness statistics to assess convergence
-            var statistics = new RunningStatistics();
-
             // variables for corona update
             var acceptances = new int[D];
             acceptances.Fill(0);
@@ -173,8 +168,6 @@ namespace Numerics.Mathematics.Optimization
             v.Fill(1d / InitialTemperature);
             var c = new double[D];
             c.Fill(2);
-
-           // Iterations += 1;
 
             // Perform adaptive simulated annealing
             while (Iterations < MaxIterations)
@@ -239,26 +232,10 @@ namespace Numerics.Mathematics.Optimization
 
                 Iterations += 1;
 
-                //statistics.Push(fx);
-
                 // Set current point to the optimum.           
                 x = new Vector(BestParameterSet.Values);
                 fx = BestParameterSet.Fitness;
                 
-
-                //// Number of successive temperature reductions to test for termination
-                //if (statistics.Count >= ToleranceSteps)
-                //{
-                //    // Test for convergence
-                //    if (statistics.StandardDeviation < AbsoluteTolerance + RelativeTolerance * Math.Abs(statistics.Mean))
-                //    {
-                //        UpdateStatus(OptimizationStatus.Success);
-                //        return;
-                //    }
-
-                //    statistics = new RunningStatistics();
-                //}
-
             }
 
             // If we made it to here, the maximum iterations were reached.

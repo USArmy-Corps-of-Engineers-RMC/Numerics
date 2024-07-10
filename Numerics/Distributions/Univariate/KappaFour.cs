@@ -30,14 +30,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Data.SqlTypes;
-using System.Windows.Shapes;
 using Numerics.Data.Statistics;
-using Numerics.Distributions;
-using Numerics.Mathematics;
 using Numerics.Mathematics.LinearAlgebra;
 using Numerics.Mathematics.Optimization;
-using Numerics.Mathematics.RootFinding;
 using Numerics.Mathematics.SpecialFunctions;
 
 namespace Numerics.Distributions

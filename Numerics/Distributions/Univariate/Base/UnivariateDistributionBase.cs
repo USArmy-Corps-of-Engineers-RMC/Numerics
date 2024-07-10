@@ -28,7 +28,6 @@
 * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 * **/
 
-using Numerics.Data;
 using Numerics.Mathematics;
 using Numerics.Mathematics.Integration;
 using Numerics.Sampling;

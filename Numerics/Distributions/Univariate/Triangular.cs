@@ -28,9 +28,7 @@
 * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 * **/
 
-using Numerics.Data.Statistics;
 using Numerics.Mathematics.Optimization;
-using Numerics.Mathematics.RootFinding;
 using System;
 using System.Collections.Generic;
 

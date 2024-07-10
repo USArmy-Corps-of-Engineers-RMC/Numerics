@@ -30,7 +30,6 @@
 
 using System;
 using System.Collections.Generic;
-using Numerics.Data;
 using Numerics.Distributions;
 
 namespace Numerics.Data.Statistics

@@ -34,7 +34,6 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
 using System.Xml.Linq;
-using Microsoft.VisualBasic.CompilerServices;
 using Numerics.Distributions;
 
 namespace Numerics.Data
@@ -288,12 +287,17 @@ namespace Numerics.Data
                 {
                     foreach (XElement o in curveEl.Elements("Ordinate"))
                     {
-                        xData.Add(Conversions.ToDouble(o.Attribute("X").Value));
+                        double.TryParse(o.Attribute("X").Value, out var xout);
+                        xData.Add(xout);
                         var dist = UnivariateDistributionFactory.CreateDistribution(Distribution);
                         var props = dist.GetParameterPropertyNames;
                         var paramVals = new double[(props.Count())];
                         for (int i = 0; i < props.Count(); i++)
-                            paramVals[i] = Conversions.ToDouble(o.Attribute(props[i]).Value);
+                        {
+                            double.TryParse(o.Attribute(props[i]).Value, out var result);
+                            paramVals[i] = result;
+                        }
+
                         dist.SetParameters(paramVals);
                         yData.Add(dist);
                     }

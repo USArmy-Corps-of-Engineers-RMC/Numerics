@@ -30,7 +30,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Drawing.Drawing2D;
 
 namespace Numerics.Mathematics.LinearAlgebra
 {

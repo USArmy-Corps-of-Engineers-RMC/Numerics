@@ -29,8 +29,6 @@
 * **/
 
 using Numerics.Distributions;
-using Numerics.Mathematics.Integration;
-using Numerics.Mathematics.RootFinding;
 using Numerics.Mathematics.SpecialFunctions;
 using System;
 using System.Collections.Generic;

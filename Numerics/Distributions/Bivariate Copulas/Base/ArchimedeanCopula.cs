@@ -28,10 +28,8 @@
 * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 * **/
 
-using Numerics.Mathematics.Optimization;
-using Numerics.Sampling;
+
 using System;
-using System.Collections.Generic;
 
 namespace Numerics.Distributions.Copulas
 {

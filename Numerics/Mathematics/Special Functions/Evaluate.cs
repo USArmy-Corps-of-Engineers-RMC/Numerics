@@ -29,6 +29,7 @@
 * **/
 
 using System;
+
 namespace Numerics.Mathematics.SpecialFunctions
 {
 
