@@ -1,12 +1,40 @@
-﻿using Numerics.Distributions;
+﻿/**
+* NOTICE:
+* The U.S. Army Corps of Engineers, Risk Management Center (USACE-RMC) makes no guarantees about
+* the results, or appropriateness of outputs, obtained from Numerics.
+*
+* LIST OF CONDITIONS:
+* Redistribution and use in source and binary forms, with or without modification, are permitted
+* provided that the following conditions are met:
+* ● Redistributions of source code must retain the above notice, this list of conditions, and the
+* following disclaimer.
+* ● Redistributions in binary form must reproduce the above notice, this list of conditions, and
+* the following disclaimer in the documentation and/or other materials provided with the distribution.
+* ● The names of the U.S. Government, the U.S. Army Corps of Engineers, the Institute for Water
+* Resources, or the Risk Management Center may not be used to endorse or promote products derived
+* from this software without specific prior written permission. Nor may the names of its contributors
+* be used to endorse or promote products derived from this software without specific prior
+* written permission.
+*
+* DISCLAIMER:
+* THIS SOFTWARE IS PROVIDED BY THE U.S. ARMY CORPS OF ENGINEERS RISK MANAGEMENT CENTER
+* (USACE-RMC) "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+* THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+* DISCLAIMED. IN NO EVENT SHALL USACE-RMC BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+* SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+* PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+* INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+* LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+* THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+* **/
+
+using Numerics.Distributions;
 using Numerics.Mathematics.LinearAlgebra;
 using Numerics.Mathematics;
 using Numerics.Mathematics.Optimization;
-using Numerics.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -23,7 +51,7 @@ namespace Numerics.Sampling.MCMC
     /// as well as the prior likelihood of the sampler parameters.
     /// </remarks>
     [Serializable]
-    public delegate double LogLikelihood(IList<double> parameters);
+    public delegate double LogLikelihood(double[] parameters);
 
 
     /// <summary>
@@ -44,12 +72,12 @@ namespace Numerics.Sampling.MCMC
         /// <summary>
         /// The master pseudo random number generator (PRNG).
         /// </summary>
-        protected MersenneTwister _masterPRNG;
+        protected Random _masterPRNG;
 
         /// <summary>
         /// The PRNG for each Markov Chain.
         /// </summary>
-        protected MersenneTwister[] _chainPRNGs;
+        protected Random[] _chainPRNGs;
 
         /// <summary>
         /// The number of simulations that have been run with this instance of the sampler. 
@@ -253,7 +281,7 @@ namespace Numerics.Sampling.MCMC
         /// </summary>
         protected virtual ParameterSet[] InitializeChains()
         {
-            var prng = new MersenneTwister(PRNGSeed);
+            var prng = new Random(PRNGSeed);
             var rnds = LatinHypercube.Random(InitialPopulationLength, NumberOfParameters, prng.Next());
             var parameters = new double[NumberOfParameters];
             var tempPopulation = new List<ParameterSet>();       
@@ -264,9 +292,10 @@ namespace Numerics.Sampling.MCMC
             {
 
                 // Use differential evolution to find a global optimum
-                var lowerBounds = PriorDistributions.Select(x => x.Minimum).ToList();
-                var upperBounds = PriorDistributions.Select(x => x.Maximum).ToList();
-                var DE = new DifferentialEvolution((x) => { return LogLikelihoodFunction(x); }, NumberOfParameters, lowerBounds, upperBounds);
+                var lowerBounds = PriorDistributions.Select(x => x.Minimum).ToArray();
+                var upperBounds = PriorDistributions.Select(x => x.Maximum).ToArray();
+                var inititals = lowerBounds.Add(upperBounds).Divide(2d);
+                var DE = new MLSL((x) => { return LogLikelihoodFunction(x); }, NumberOfParameters, inititals, lowerBounds, upperBounds);
                 DE.ReportFailure = false;
                 DE.Maximize();
                 if (DE.Status == OptimizationStatus.Success)
@@ -373,7 +402,6 @@ namespace Numerics.Sampling.MCMC
             PopulationMatrix.Add(state.Clone());
         }
 
-
         /// <summary>
         /// Returns a proposed MCMC parameter set and its fitness. 
         /// </summary>
@@ -395,13 +423,13 @@ namespace Numerics.Sampling.MCMC
             if (ResumeSimulation = false || _simulations < 1)
             {
                 // Create inputs for the chains
-                _masterPRNG = new MersenneTwister(PRNGSeed);
-                _chainPRNGs = new MersenneTwister[NumberOfChains];
+                _masterPRNG = new Random(PRNGSeed);
+                _chainPRNGs = new Random[NumberOfChains];
                 PopulationMatrix = new List<ParameterSet>();
                 MarkovChains = new List<ParameterSet>[NumberOfChains];
                 for (int i = 0; i < NumberOfChains; i++)
                 {
-                    _chainPRNGs[i] = new MersenneTwister(_masterPRNG.Next());
+                    _chainPRNGs[i] = new Random(_masterPRNG.Next());
                     MarkovChains[i] = new List<ParameterSet>();
                 }
 
@@ -508,6 +536,29 @@ namespace Numerics.Sampling.MCMC
         public void ReportProgress(double percentComplete)
         {
             ProgressChanged?.Invoke(percentComplete, (percentComplete * 100) + "%");
+        }
+
+        /// <summary>
+        /// Clear simulation results.
+        /// </summary>
+        public void ClearResults()
+        {
+            _simulations = 0;
+            // Clear old memory and re-instantiate the result storage
+            _masterPRNG = new Random(PRNGSeed);
+            _chainPRNGs = new Random[NumberOfChains];
+            PopulationMatrix = new List<ParameterSet>();
+            MarkovChains = new List<ParameterSet>[NumberOfChains];
+            for (int i = 0; i < NumberOfChains; i++)
+            {
+                _chainPRNGs[i] = new Random(_masterPRNG.Next());
+                MarkovChains[i] = new List<ParameterSet>();
+            }
+            AcceptCount = new int[NumberOfChains];
+            SampleCount = new int[NumberOfChains];
+            MeanLogLikelihood = new List<double>();
+            MAP = new ParameterSet(new double[] { }, double.MinValue);
+            Output = new List<ParameterSet>[NumberOfChains];
         }
 
         #endregion

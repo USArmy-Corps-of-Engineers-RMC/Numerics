@@ -1,9 +1,42 @@
-﻿using System;
+﻿/**
+* NOTICE:
+* The U.S. Army Corps of Engineers, Risk Management Center (USACE-RMC) makes no guarantees about
+* the results, or appropriateness of outputs, obtained from Numerics.
+*
+* LIST OF CONDITIONS:
+* Redistribution and use in source and binary forms, with or without modification, are permitted
+* provided that the following conditions are met:
+* ● Redistributions of source code must retain the above notice, this list of conditions, and the
+* following disclaimer.
+* ● Redistributions in binary form must reproduce the above notice, this list of conditions, and
+* the following disclaimer in the documentation and/or other materials provided with the distribution.
+* ● The names of the U.S. Government, the U.S. Army Corps of Engineers, the Institute for Water
+* Resources, or the Risk Management Center may not be used to endorse or promote products derived
+* from this software without specific prior written permission. Nor may the names of its contributors
+* be used to endorse or promote products derived from this software without specific prior
+* written permission.
+*
+* DISCLAIMER:
+* THIS SOFTWARE IS PROVIDED BY THE U.S. ARMY CORPS OF ENGINEERS RISK MANAGEMENT CENTER
+* (USACE-RMC) "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+* THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+* DISCLAIMED. IN NO EVENT SHALL USACE-RMC BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+* SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+* PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+* INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+* LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+* THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+* **/
+
+using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Numerics.Mathematics;
 
 namespace Mathematics.Differentiation
 {
+    /// <summary>
+    /// Unit tests for the methods of numerical differentiation
+    /// </summary>
     [TestClass]
     public class Test_Differentiation
     {
@@ -15,6 +48,19 @@ namespace Mathematics.Differentiation
             return Math.Pow(x, 3d);
         }
 
+        public double EX(double x)
+        {
+            return Math.Exp(x);
+        }
+
+        public double LN(double x)
+        {
+            return Math.Log(x);
+        }
+
+        /// <summary>
+        /// Test 2 parameter function
+        /// </summary>
         public double FXY(double[] points)
         {
             double x = points[0];
@@ -58,11 +104,19 @@ namespace Mathematics.Differentiation
         /// Test derivative.
         /// </summary>
         [TestMethod()]
-        public void Test_Derivative()
+        public void Test_Derivative_FX()
         {
-            double deriv = NumericalDerivative.Derivative(FX, 2d);
-            double ans = 12d;
-            Assert.AreEqual(deriv, ans, 0.000001d);
+            double derivFX = NumericalDerivative.Derivative(FX, 2d);
+            double ansFX = 12d;
+            Assert.AreEqual(derivFX, ansFX, 0.000001d);
+        
+            double derivEX = NumericalDerivative.Derivative(EX, 4d);
+            double ansEX = Math.Exp(4);
+            Assert.AreEqual(derivEX, ansEX, 1E-4);
+            
+            double derivLN = NumericalDerivative.Derivative(LN, 2d);
+            double ansLN = 0.5d;
+            Assert.AreEqual(derivLN, ansLN, 1E-4);
         }
 
         /// <summary>
@@ -78,12 +132,12 @@ namespace Mathematics.Differentiation
             Assert.AreEqual(deriv[1], y, 0.000001d);
 
             deriv = NumericalDerivative.Gradient(FXYZ, new[] { 2d, 2d, 2d });
-            x = 3d * Math.Pow(2d, 2d);
-            y = 4d * Math.Pow(2d, 3d);
-            double z = 5d * Math.Pow(2d, 4d);
-            Assert.AreEqual(deriv[0], x, 0.000001d);
-            Assert.AreEqual(deriv[1], y, 0.000001d);
-            Assert.AreEqual(deriv[2], z, 0.000001d);
+            double xx = 3d * Math.Pow(2d, 2d);
+            double yy = 4d * Math.Pow(2d, 3d);
+            double zz = 5d * Math.Pow(2d, 4d);
+            Assert.AreEqual(deriv[0], xx, 0.000001d);
+            Assert.AreEqual(deriv[1], yy, 0.000001d);
+            Assert.AreEqual(deriv[2], zz, 0.000001d);
         }
 
 
@@ -91,11 +145,19 @@ namespace Mathematics.Differentiation
         /// Test Ridders' method.
         /// </summary>
         [TestMethod()]
-        public void Test_RiddersMethod()
+        public void Test_RiddersMethod_FX()
         {
-            double deriv = NumericalDerivative.RiddersMethod(FX, 2d);
-            double ans = 12d;
-            Assert.AreEqual(deriv, ans, 0.000001d);
+            double derivFX = NumericalDerivative.RiddersMethod(FX, 2d);
+            double ansFX = 12d;
+            Assert.AreEqual(derivFX, ansFX, 0.000001d);
+        
+            double derivEX = NumericalDerivative.RiddersMethod(EX, 4d);
+            double ansEX = Math.Exp(4);
+            Assert.AreEqual(derivEX, ansEX, 1E-4);
+        
+            double derivLN = NumericalDerivative.RiddersMethod(LN, 2d);
+            double ansLN = 0.5d;
+            Assert.AreEqual(derivLN, ansLN, 1E-4);
         }
 
         /// <summary>
@@ -104,7 +166,6 @@ namespace Mathematics.Differentiation
         [TestMethod()]
         public void Test_Jacobian()
         {
-
             var jac = NumericalDerivative.Jacobian(FTXYZ, new[] { 4d, 6d, 8d}, new[] { 2d, 2d, 2d });
             var true_jac = new double[,] { { 12d * Math.Pow(2d, 2d), 4d * Math.Pow(2d, 3d), 5d * Math.Pow(2d, 4d) }, 
                                            { 18d * Math.Pow(2d, 2d), 4d * Math.Pow(2d, 3d), 5d * Math.Pow(2d, 4d) }, 
@@ -135,6 +196,5 @@ namespace Mathematics.Differentiation
                     Assert.AreEqual(hess[i, j], true_hess[i, j], 1E-3);
 
         }
-
     }
 }

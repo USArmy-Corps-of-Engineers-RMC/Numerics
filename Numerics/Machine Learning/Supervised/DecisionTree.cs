@@ -1,4 +1,4 @@
-﻿/***
+﻿/**
 * NOTICE:
 * The U.S. Army Corps of Engineers, Risk Management Center (USACE-RMC) makes no guarantees about
 * the results, or appropriateness of outputs, obtained from Numerics.
@@ -26,19 +26,14 @@
 * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
 * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-**/
+* **/
 
 using Numerics.Data.Statistics;
-using Numerics.Distributions;
 using Numerics.Mathematics.LinearAlgebra;
+using Numerics.Sampling;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Documents;
 
 namespace Numerics.MachineLearning
 {
@@ -73,7 +68,7 @@ namespace Numerics.MachineLearning
             Dimensions = X.NumberOfColumns;
             Features = Math.Max(1, Dimensions - 1);
             Root = new DecisionNode();
-            Random = seed > 0 ? new Random(seed) : new Random();
+            Random = seed > 0 ? new MersenneTwister(seed) : new MersenneTwister();
 
             if (Y.Length != X.NumberOfRows) throw new ArgumentException("The y vector must be the same length as the x matrix.");
             if (Y.Length < 10) throw new ArgumentException("There must be at least ten training data points.");
@@ -94,7 +89,7 @@ namespace Numerics.MachineLearning
             Dimensions = X.NumberOfColumns;
             Features = Math.Max(1, Dimensions - 1);
             Root = new DecisionNode();
-            Random = seed > 0 ? new Random(seed) : new Random();
+            Random = seed > 0 ? new MersenneTwister(seed) : new MersenneTwister();
 
             if (Y.Length != X.NumberOfRows) throw new ArgumentException("The y vector must be the same length as the x matrix.");
             if (Y.Length < 10) throw new ArgumentException("There must be at least ten training data points.");
@@ -115,7 +110,7 @@ namespace Numerics.MachineLearning
             Dimensions = X.NumberOfColumns;
             Features = Math.Max(1, Dimensions - 1);
             Root = new DecisionNode();
-            Random = seed > 0 ? new Random(seed) : new Random();
+            Random = seed > 0 ? new MersenneTwister(seed) : new MersenneTwister();
 
             if (Y.Length != X.NumberOfRows) throw new ArgumentException("The y vector must be the same length as the x matrix.");
             if (Y.Length < 10) throw new ArgumentException("There must be at least ten training data points.");

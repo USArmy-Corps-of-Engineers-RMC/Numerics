@@ -1,4 +1,34 @@
-﻿using Numerics.Data.Statistics;
+﻿/**
+* NOTICE:
+* The U.S. Army Corps of Engineers, Risk Management Center (USACE-RMC) makes no guarantees about
+* the results, or appropriateness of outputs, obtained from Numerics.
+*
+* LIST OF CONDITIONS:
+* Redistribution and use in source and binary forms, with or without modification, are permitted
+* provided that the following conditions are met:
+* ● Redistributions of source code must retain the above notice, this list of conditions, and the
+* following disclaimer.
+* ● Redistributions in binary form must reproduce the above notice, this list of conditions, and
+* the following disclaimer in the documentation and/or other materials provided with the distribution.
+* ● The names of the U.S. Government, the U.S. Army Corps of Engineers, the Institute for Water
+* Resources, or the Risk Management Center may not be used to endorse or promote products derived
+* from this software without specific prior written permission. Nor may the names of its contributors
+* be used to endorse or promote products derived from this software without specific prior
+* written permission.
+*
+* DISCLAIMER:
+* THIS SOFTWARE IS PROVIDED BY THE U.S. ARMY CORPS OF ENGINEERS RISK MANAGEMENT CENTER
+* (USACE-RMC) "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+* THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+* DISCLAIMED. IN NO EVENT SHALL USACE-RMC BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+* SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+* PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+* INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+* LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+* THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+* **/
+
+using Numerics.Data.Statistics;
 using Numerics.Sampling;
 using System;
 using System.Collections.Generic;
@@ -11,19 +41,30 @@ namespace Numerics.Mathematics.Optimization
     /// </summary>
     /// <remarks>
     /// <para>
-    ///     Authors:
+    ///     <b> Authors: </b>
     ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
     /// </para>
     /// <para>
-    ///     References:
+    /// <b> Description: </b>
+    /// This method optimizes a problem by iteratively trying to improve a candidate solution with a given measure of quality.
+    /// Using a population of candidate solutions, called particles, these particles move around in the search space. Each 
+    /// particles's movement is influenced by its local best known position. These positions are updated as better positions are 
+    /// found by other particles, and the swarm is expected to move toward the best solutions.
     /// </para>
     /// <para>
-    ///     Implements routine described by Kockenderfer and Wheeler. "Algorithms for Optimization" (2019).
+    ///     <b> References: </b>
+    /// <list type="bullet">
+    /// <item><description>
+    /// Implements routine described by Kockenderfer and Wheeler. "Algorithms for Optimization" (2019).
+    /// </description></item>
+    /// <item><description>
+    /// <see href="https://en.wikipedia.org/wiki/Particle_swarm_optimization"/>
+    /// </description></item>
+    /// </list>
     /// </para>
     /// </remarks>
     public class ParticleSwarm : Optimizer
     {
-
         /// <summary>
         /// Construct a new particle swarm optimization method. 
         /// </summary>
@@ -48,7 +89,6 @@ namespace Numerics.Mathematics.Optimization
             }
             LowerBounds = lowerBounds.ToArray();
             UpperBounds = upperBounds.ToArray();
-
         }
 
         /// <summary>
@@ -74,6 +114,10 @@ namespace Numerics.Mathematics.Optimization
         /// <summary>
         /// Implements the actual optimization algorithm. This method should minimize the objective function. 
         /// </summary>
+        /// <remarks>
+        /// <b> References: </b>
+        /// Alam "Particle Swarm Optimization: Algorithm and its Codes in MATLAB" (2016)
+        /// </remarks>
         protected override void Optimize()
         {
             if (PopulationSize < 1) throw new ArgumentOutOfRangeException(nameof(PopulationSize), "The population size must be greater than 0.");
@@ -173,7 +217,5 @@ namespace Numerics.Mathematics.Optimization
             public ParameterSet BestParameterSet { get; set; }
             public double[] Velocity { get; set; }
         }
-
-
     }
 }

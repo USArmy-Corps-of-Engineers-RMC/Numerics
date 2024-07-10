@@ -1,5 +1,34 @@
-﻿using Numerics.Data.Statistics;
-using Numerics.Distributions;
+﻿/**
+* NOTICE:
+* The U.S. Army Corps of Engineers, Risk Management Center (USACE-RMC) makes no guarantees about
+* the results, or appropriateness of outputs, obtained from Numerics.
+*
+* LIST OF CONDITIONS:
+* Redistribution and use in source and binary forms, with or without modification, are permitted
+* provided that the following conditions are met:
+* ● Redistributions of source code must retain the above notice, this list of conditions, and the
+* following disclaimer.
+* ● Redistributions in binary form must reproduce the above notice, this list of conditions, and
+* the following disclaimer in the documentation and/or other materials provided with the distribution.
+* ● The names of the U.S. Government, the U.S. Army Corps of Engineers, the Institute for Water
+* Resources, or the Risk Management Center may not be used to endorse or promote products derived
+* from this software without specific prior written permission. Nor may the names of its contributors
+* be used to endorse or promote products derived from this software without specific prior
+* written permission.
+*
+* DISCLAIMER:
+* THIS SOFTWARE IS PROVIDED BY THE U.S. ARMY CORPS OF ENGINEERS RISK MANAGEMENT CENTER
+* (USACE-RMC) "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+* THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+* DISCLAIMED. IN NO EVENT SHALL USACE-RMC BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+* SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+* PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+* INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+* LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+* THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+* **/
+
+using Numerics.Data.Statistics;
 using Numerics.Mathematics.LinearAlgebra;
 using Numerics.Sampling;
 using System;
@@ -14,14 +43,26 @@ namespace Numerics.Mathematics.Optimization
     /// </summary>
     /// <remarks>
     /// <para>
-    ///     Authors:
+    ///     <b> Authors: </b>
     ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
     /// </para>
     /// <para>
-    ///     References:
+    /// <b> Description: </b>
+    /// This algorithm is interpreted as a slow decrease in the probability of accepting worse solutions as the solution
+    /// space is explored. Accepting the worse solutions allows for a more extensive search for the global solution.
+    /// At each step, the algorithm randomly selects a solution close to the current one, measures its quality, and 
+    /// probabilistically decides moving between the two states.
     /// </para>
     /// <para>
-    ///     Implements routine described by Corana et al. "Minimizing Multimodal Functions of Continuous Variables with 'Simulated Annealing' Algorithm" (1987).
+    ///     <b> References: </b>
+    /// <list type="bullet">
+    /// <item><description>
+    /// Implements routine described by Corana et al. "Minimizing Multimodal Functions of Continuous Variables with 'Simulated Annealing' Algorithm" (1987).
+    /// </description></item>
+    /// <item><description> 
+    /// <see href="https://en.wikipedia.org/wiki/Simulated_annealing"/>
+    /// </description></item>
+    /// </list>
     /// </para>
     /// </remarks>
     public class SimulatedAnnealing : Optimizer
@@ -120,9 +161,6 @@ namespace Numerics.Mathematics.Optimization
             double fx = Evaluate(x.ToArray(), ref cancel);
             double fxp, df; 
             
-            // Keep track of fitness statistics to assess convergence
-            var statistics = new RunningStatistics();
-
             // variables for corona update
             var acceptances = new int[D];
             acceptances.Fill(0);
@@ -131,12 +169,9 @@ namespace Numerics.Mathematics.Optimization
             var c = new double[D];
             c.Fill(2);
 
-           // Iterations += 1;
-
             // Perform adaptive simulated annealing
             while (Iterations < MaxIterations)
             {
-
                 // Reduce temperature
                 // Temperature annealing schedule
                 T = InitialTemperature / Math.Log((double)Iterations + (Math.Exp(1d) - 1d));
@@ -144,10 +179,8 @@ namespace Numerics.Mathematics.Optimization
 
                 for (i = 1; i <= TemperatureCycles; i++)
                 {
-
                     for (j = 1; j <= UpdateCycles; j++)
                     {
-
                         // Perform a cycle of random moves, each along one coordinate direction. 
                         // Accept or reject each point according to the Metropolis criterion. 
                         // Record the optimum point reached so far.             
@@ -199,26 +232,10 @@ namespace Numerics.Mathematics.Optimization
 
                 Iterations += 1;
 
-                //statistics.Push(fx);
-
                 // Set current point to the optimum.           
                 x = new Vector(BestParameterSet.Values);
                 fx = BestParameterSet.Fitness;
                 
-
-                //// Number of successive temperature reductions to test for termination
-                //if (statistics.Count >= ToleranceSteps)
-                //{
-                //    // Test for convergence
-                //    if (statistics.StandardDeviation < AbsoluteTolerance + RelativeTolerance * Math.Abs(statistics.Mean))
-                //    {
-                //        UpdateStatus(OptimizationStatus.Success);
-                //        return;
-                //    }
-
-                //    statistics = new RunningStatistics();
-                //}
-
             }
 
             // If we made it to here, the maximum iterations were reached.

@@ -1,4 +1,34 @@
-﻿using Numerics.Distributions;
+﻿/**
+* NOTICE:
+* The U.S. Army Corps of Engineers, Risk Management Center (USACE-RMC) makes no guarantees about
+* the results, or appropriateness of outputs, obtained from Numerics.
+*
+* LIST OF CONDITIONS:
+* Redistribution and use in source and binary forms, with or without modification, are permitted
+* provided that the following conditions are met:
+* ● Redistributions of source code must retain the above notice, this list of conditions, and the
+* following disclaimer.
+* ● Redistributions in binary form must reproduce the above notice, this list of conditions, and
+* the following disclaimer in the documentation and/or other materials provided with the distribution.
+* ● The names of the U.S. Government, the U.S. Army Corps of Engineers, the Institute for Water
+* Resources, or the Risk Management Center may not be used to endorse or promote products derived
+* from this software without specific prior written permission. Nor may the names of its contributors
+* be used to endorse or promote products derived from this software without specific prior
+* written permission.
+*
+* DISCLAIMER:
+* THIS SOFTWARE IS PROVIDED BY THE U.S. ARMY CORPS OF ENGINEERS RISK MANAGEMENT CENTER
+* (USACE-RMC) "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+* THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+* DISCLAIMED. IN NO EVENT SHALL USACE-RMC BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+* SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+* PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+* INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+* LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+* THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+* **/
+
+using Numerics.Distributions;
 using Numerics.Sampling;
 using System;
 using System.Collections.Generic;
@@ -11,27 +41,43 @@ namespace Numerics.Mathematics.Optimization
     /// </summary>
     /// <remarks>
     /// <para>
-    ///     Authors:
+    ///     <b> Authors: </b>
+    /// <list type="bullet">
+    /// <item><description>
     ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
+    /// <item><description>
+    /// </description></item>
     ///     Brian Skahill, USACE Engineer Research and Development Center Coastal and Hydraulics Laboratory, brian.e.skahill@usace.army.mil
+    /// </description></item>
+    /// </list>
     /// </para>
+    /// <b> Description: </b>
+    /// 
+    ///     The key optimization steps are as follows:
+    /// <list type="number">
+    /// <item><description>
+    ///     Generate sample points and function values. Add N points, drawn from a uniform distribution over S, to the (initially empty) set of sample points, 
+    ///     and evaluate f(x) at each new sample point.
+    /// </description></item>
+    /// <item><description>
+    ///     Reduce the sample points. Sort the entire sample of kN points in order of increasing object function values.
+    ///     Select the γkN points with the lowest objective function values. This resultant set, Rk, is called the reduced sample.
+    /// </description></item>
+    /// <item><description>
+    ///     Select start points for local searches. Determine a (possibly empty) subset of the sample points from which to start local searches.
+    /// </description></item>
+    /// <item><description>
+    ///     Decide whether to stop. If stopping rule is satisfied, regard the lowest local minimizer as the global minimizer, otherwise go to step 1.
+    /// </description></item>
+    /// </list>
     /// <para>
-    ///     References:
+    ///     <b> References: </b>
     /// </para>
-    /// <para>
+    /// <para> 
     ///     Implements routine described by 
     ///     Kan A.H.G.R., Boender C.G.E., Timmer G.T. (1985) A Stochastic Approach to Global Optimization. 
     ///     In: Schittkowski K. (eds) Computational Mathematical Programming. NATO ASI Series (Series F: Computer and Systems Sciences), 
-    ///     vol 15. Springer, Berlin, Heidelberg. https://doi.org/10.1007/978-3-642-82450-0_10.
-    /// </para>
-    /// <para>
-    ///     The key optimization steps are as follows:
-    ///     Step 1. Generate sample points and function values. Add N points, drawn from a uniform distribution over S, to the (initially empty) set of sample points, 
-    ///     and evaluate f(x) at each new sample point.
-    ///     Step 2. Reduce the sample points. Sort the entire sample of kN points in order of increasing object function values.
-    ///     Select the γkN points with the lowest objective function values. This resultant set, Rk, is called the reduced sample.
-    ///     Step 3. Select start points for local searches. Determine a (possibly empty) subset of the sample points from which to start local searches.
-    ///     Step 4. Decide whether to stop. If stopping rule is satisfied, regard the lowest local minimizer as the global minimizer, otherwise go to step 1.
+    ///     vol 15. Springer, Berlin, Heidelberg. <see href="https://doi.org/10.1007/978-3-642-82450-0_10"/>
     /// </para>
     /// </remarks>
     public class MLSL : Optimizer

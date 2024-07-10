@@ -1,4 +1,34 @@
-﻿using System;
+﻿/**
+* NOTICE:
+* The U.S. Army Corps of Engineers, Risk Management Center (USACE-RMC) makes no guarantees about
+* the results, or appropriateness of outputs, obtained from Numerics.
+*
+* LIST OF CONDITIONS:
+* Redistribution and use in source and binary forms, with or without modification, are permitted
+* provided that the following conditions are met:
+* ● Redistributions of source code must retain the above notice, this list of conditions, and the
+* following disclaimer.
+* ● Redistributions in binary form must reproduce the above notice, this list of conditions, and
+* the following disclaimer in the documentation and/or other materials provided with the distribution.
+* ● The names of the U.S. Government, the U.S. Army Corps of Engineers, the Institute for Water
+* Resources, or the Risk Management Center may not be used to endorse or promote products derived
+* from this software without specific prior written permission. Nor may the names of its contributors
+* be used to endorse or promote products derived from this software without specific prior
+* written permission.
+*
+* DISCLAIMER:
+* THIS SOFTWARE IS PROVIDED BY THE U.S. ARMY CORPS OF ENGINEERS RISK MANAGEMENT CENTER
+* (USACE-RMC) "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+* THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+* DISCLAIMED. IN NO EVENT SHALL USACE-RMC BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+* SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+* PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+* INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+* LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+* THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+* **/
+
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -498,10 +528,12 @@ namespace Numerics.Distributions
             double real = Math.Exp(initialVals[0] / K);
             lowerVals[0] = Tools.DoubleMachineEpsilon;
             upperVals[0] = Math.Ceiling(Math.Log(Math.Pow(10d, Math.Ceiling(Math.Log10(real) + 1d)), Base));
+            upperVals[0] = double.IsNaN(upperVals[0]) ? 5 : upperVals[0];
             // Get bounds of standard deviation
             real = Math.Exp(initialVals[1] / K);
             lowerVals[1] = Tools.DoubleMachineEpsilon;
             upperVals[1] = Math.Ceiling(Math.Log(Math.Pow(10d, Math.Ceiling(Math.Log10(real) + 1d)), Base));
+            upperVals[1] = double.IsNaN(upperVals[1]) ? 4 : upperVals[1];
             return new Tuple<double[], double[], double[]>(initialVals, lowerVals, upperVals);
         }
 
@@ -540,7 +572,6 @@ namespace Numerics.Distributions
             if (_parametersValid == false)
                 ValidateParameters(Mu, Sigma, true);
             if (x <= Minimum) return 0.0d;
-            //if (x == 0) x = 1E-16;
             double d = (Math.Log(x, Base) - Mu) / Sigma;
             return Math.Exp(-0.5d * d * d) / (Tools.Sqrt2PI * Sigma) * (K / x);
         }

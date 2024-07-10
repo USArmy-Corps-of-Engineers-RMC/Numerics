@@ -1,11 +1,38 @@
-﻿using System;
+﻿/**
+* NOTICE:
+* The U.S. Army Corps of Engineers, Risk Management Center (USACE-RMC) makes no guarantees about
+* the results, or appropriateness of outputs, obtained from Numerics.
+*
+* LIST OF CONDITIONS:
+* Redistribution and use in source and binary forms, with or without modification, are permitted
+* provided that the following conditions are met:
+* ● Redistributions of source code must retain the above notice, this list of conditions, and the
+* following disclaimer.
+* ● Redistributions in binary form must reproduce the above notice, this list of conditions, and
+* the following disclaimer in the documentation and/or other materials provided with the distribution.
+* ● The names of the U.S. Government, the U.S. Army Corps of Engineers, the Institute for Water
+* Resources, or the Risk Management Center may not be used to endorse or promote products derived
+* from this software without specific prior written permission. Nor may the names of its contributors
+* be used to endorse or promote products derived from this software without specific prior
+* written permission.
+*
+* DISCLAIMER:
+* THIS SOFTWARE IS PROVIDED BY THE U.S. ARMY CORPS OF ENGINEERS RISK MANAGEMENT CENTER
+* (USACE-RMC) "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+* THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+* DISCLAIMED. IN NO EVENT SHALL USACE-RMC BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+* SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+* PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+* INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+* LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+* THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+* **/
+
+using System;
 using System.Collections.Generic;
-using System.Windows.Shapes;
 using Numerics.Data.Statistics;
-using Numerics.Distributions;
 using Numerics.Mathematics.LinearAlgebra;
 using Numerics.Mathematics.Optimization;
-using Numerics.Mathematics.RootFinding;
 using Numerics.Mathematics.SpecialFunctions;
 
 namespace Numerics.Distributions
@@ -293,15 +320,19 @@ namespace Numerics.Distributions
         {
             get
             {
-                if (Hondo > 0d)
-                {
-                    return Xi + Alpha / Kappa * (1d - Math.Pow(Hondo, -Kappa));
-                }
-                if (Hondo <= 0d && Kappa < -NearZero)
+                if (Hondo <= 0d && Kappa < 0d)
                 {
                     return Xi + Alpha / Kappa;
                 }
-                if (Hondo <= 0d && Kappa >= -NearZero)
+                else if (Hondo > 0d && Kappa != 0d)
+                {
+                    return Xi + Alpha / Kappa * (1d - Math.Pow(Hondo, -Kappa));
+                }
+                else if (Hondo > 0d && Kappa == 0d)
+                {
+                    return Xi + Alpha * Math.Log(Hondo);
+                }
+                else if (Hondo <= 0d && Kappa >= 0d)
                 {
                     return double.NegativeInfinity;
                 }
@@ -316,7 +347,7 @@ namespace Numerics.Distributions
         {
             get
             {
-                if (Kappa <= NearZero)
+                if (Kappa <= 0d)
                 {
                     return double.PositiveInfinity;
                 }
@@ -745,8 +776,8 @@ namespace Numerics.Distributions
 
                     // Get bounds of shape 2
                     initialVals[3] = 0;
-                    lowerVals[3] = -1d;
-                    upperVals[3] = 1d;
+                    lowerVals[3] = -2d;
+                    upperVals[3] = 2d;
                 }
 
             }
@@ -791,19 +822,16 @@ namespace Numerics.Distributions
             // Validate parameters
             if (_parametersValid == false) ValidateParameters(new[] { Xi, Alpha, Kappa, Hondo }, true);
             if (x < Minimum || x > Maximum) return 0.0d;
-            double k = Kappa;
-            if (k == 0.0d) k = Math.Pow(10d, -100);
-            if (1d - k * (x - Xi) / Alpha < 0d) return 0.0d;
-            if (Hondo == 0.0d)
+
+
+            double y = (x - Xi) / Alpha;
+            if (Kappa != 0)
             {
-                double y = (x - Xi) / Alpha;
-                if (Math.Abs(k) > NearZero) y = -Math.Log(1d - k * y) / k;
-                return Math.Exp(-(1d - k) * y - Math.Exp(-y)) / Alpha;
+                y = 1d - Kappa * y;
+                y = (1d - 1d / Kappa) * Math.Log(y);
             }
-            else
-            {
-                return 1d / Alpha * Math.Pow(1d - k * (x - Xi) / Alpha, 1d / k - 1d) * Math.Pow(CDF(x), 1d - Hondo);
-            }
+            y = Math.Exp(-y);
+            return y / Alpha * Math.Pow(CDF(x), 1d - Hondo);
         }
 
         /// <summary>
@@ -813,21 +841,33 @@ namespace Numerics.Distributions
         public override double CDF(double x)
         {
             // Validate parameters
-            if (_parametersValid == false) ValidateParameters(new[] { Xi, Alpha, Kappa, Hondo }, true);
+            if (_parametersValid == false) ValidateParameters(new[] { Xi, Alpha, this.Kappa, this.Hondo }, true);
             if (x <= Minimum) return 0d;
             if (x >= Maximum) return 1d;
-            double k = Kappa;
-            if (k == 0.0d) k = Math.Pow(10d, -100);
-            if (Hondo == 0.0d)
+
+            double y = (x - Xi) / Alpha;
+            double arg = 0;
+            if (Kappa == 0)
             {
-                double y = (x - Xi) / Alpha;
-                if (Math.Abs(Kappa) > NearZero) y = -Math.Log(1d - Kappa * y) / Kappa;
-                return Math.Exp(-Math.Exp(-y));
+                y = Math.Exp(-y);
             }
             else
             {
-                return Math.Pow(1d - Hondo * Math.Pow(1d - k * (x - Xi) / Alpha, 1d / k), 1d / Hondo);
+                arg = 1d - Kappa * y;
+                if (arg > 1E-15)
+                {
+                    y = Math.Exp(-1d * (-Math.Log(arg) / Kappa));
+                }
+                else
+                {
+                    if (Kappa < 0) return 0d;
+                    if (Kappa > 0) return 1d;
+                }             
             }
+            if (Hondo == 0) return Math.Exp(-y);
+            arg = 1d - Hondo * y;
+            if (arg > 1E-15) return Math.Exp(-1d * (-Math.Log(arg) / Hondo));
+            return 0d;
         }
 
         /// <summary>
@@ -839,29 +879,16 @@ namespace Numerics.Distributions
             // Validate probability
             if (probability < 0.0d || probability > 1.0d)
                 throw new ArgumentOutOfRangeException("probability", "Probability must be between 0 and 1.");
-            if (probability == 0.0d)
-                return Minimum;
-            if (probability == 1.0d)
-                return Maximum;
+            if (probability == 0.0d) return Minimum;
+            if (probability == 1.0d) return Maximum;
             // Validate parameters
             if (_parametersValid == false) ValidateParameters(new[] { Xi, Alpha, Kappa, Hondo }, true);
-            double k = Kappa;
-            if (k == 0.0d) k = Math.Pow(10d, -100);
-            if (Hondo == 0.0d)
-            {
-                if (Math.Abs(k) <= NearZero)
-                {
-                    return Xi - Alpha * Math.Log(-Math.Log(probability));
-                }
-                else
-                {
-                    return Xi + Alpha / Kappa * (1d - Math.Pow(-Math.Log(probability), Kappa));
-                }
-            }
-            else
-            {
-                return Xi + Alpha / k * (1d - Math.Pow((1d - Math.Pow(probability, Hondo)) / Hondo, k));
-            }
+
+            double y = -Math.Log(probability);
+            if (Hondo != 0) y = (1d - Math.Exp(-Hondo * y)) / Hondo;
+            y = -Math.Log(y);
+            if (Kappa != 0) y = (1- Math.Exp(-Kappa * y)) / Kappa;
+            return Xi + Alpha * y;
         }
 
         /// <summary>

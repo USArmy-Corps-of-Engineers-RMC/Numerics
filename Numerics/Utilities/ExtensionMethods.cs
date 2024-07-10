@@ -1,4 +1,4 @@
-﻿/***
+﻿/**
 * NOTICE:
 * The U.S. Army Corps of Engineers, Risk Management Center (USACE-RMC) makes no guarantees about
 * the results, or appropriateness of outputs, obtained from Numerics.
@@ -26,12 +26,11 @@
 * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
 * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-**/
+* **/
 
 using Numerics.Sampling;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Numerics
 {
@@ -215,7 +214,64 @@ namespace Numerics
                 array[i, index] = values[i];
         }
 
-    
+        /// <summary>
+        /// Adds corresponding elements of arrays.
+        /// </summary>
+        /// <param name="array">The array</param>
+        /// <param name="values">The values to add.</param>
+        /// <returns>The array after addition.</returns>
+        public static double[] Add(this double[] array, double[] values)
+        {
+            if (array.Length != values.Length) throw new ArgumentException(nameof(array), "The arrays must be the same length.");
+            var result = new double[array.Length];
+            for (int i = 0; i < array.Length; i++)
+                result[i] = array[i] + values[i];
+            return result;
+        }
+
+        /// <summary>
+        /// Subtracts corresponding elements of arrays.
+        /// </summary>
+        /// <param name="array">The array</param>
+        /// <param name="values">The values to subtract.</param>
+        /// <returns>The array after subtraction.</returns>
+        public static double[] Subtract(this double[] array, double[] values)
+        {
+            if (array.Length != values.Length) throw new ArgumentException(nameof(array), "The arrays must be the same length.");
+            var result = new double[array.Length];
+            for (int i = 0; i < array.Length; i++)
+                result[i] = array[i] - values[i];
+            return result;
+        }
+
+        /// <summary>
+        /// Multiplies an array with a scalar.
+        /// </summary>
+        /// <param name="array">The array</param>
+        /// <param name="scalar">The scalar to multiply by.</param>
+        /// <returns>The array after multiplication.</returns>
+        public static double[] Multiply(this double[] array, double scalar)
+        {
+            var result = new double[array.Length];
+            for (int i = 0; i < array.Length; i++)
+                result[i] = array[i] * scalar;
+            return result;
+        }
+
+        /// <summary>
+        /// Divides an array with a scalar.
+        /// </summary>
+        /// <param name="array">The array</param>
+        /// <param name="scalar">The scalar to divide by.</param>
+        /// <returns>The array after division.</returns>
+        public static double[] Divide(this double[] array, double scalar)
+        {
+            var result = new double[array.Length];
+            for (int i = 0; i < array.Length; i++)
+                result[i] = array[i] / scalar;
+            return result;
+        }
+
         /// <summary>
         /// Returns a subset of the array.
         /// </summary>
@@ -280,7 +336,7 @@ namespace Numerics
         /// </summary>
         /// <param name="a">The left-side value.</param>
         /// <param name="b">The right-side value.</param>
-        /// <param name="epsilon">The absolue tolerance level. Default = 1E-15.</param>
+        /// <param name="epsilon">The absolute tolerance level. Default = 1E-15.</param>
         public static bool AlmostEquals(this double a, double b, double epsilon = 1E-15)
         {
             return Math.Abs(a - b) < epsilon;

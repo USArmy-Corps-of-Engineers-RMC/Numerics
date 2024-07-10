@@ -1,4 +1,4 @@
-﻿/***
+﻿/**
 * NOTICE:
 * The U.S. Army Corps of Engineers, Risk Management Center (USACE-RMC) makes no guarantees about
 * the results, or appropriateness of outputs, obtained from Numerics.
@@ -26,7 +26,7 @@
 * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
 * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-**/
+* **/
 
 using System;
 using System.Collections.Generic;
@@ -40,17 +40,8 @@ namespace Numerics.Mathematics.LinearAlgebra
     /// </summary>
     /// <remarks>
     /// <para>
-    ///     <b> Authors: </b>
-    ///    <list type="bullet"> 
-    ///     <item> Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil </item>
-    ///     <item> Tiki Gonzalez, USACE Risk Management Center, julian.t.gonzalez@usace.army.mil </item>
-    /// </list>
-    /// </para>
-    /// <para>
-    /// <b> Description: </b>
-    /// </para>
-    /// <para>
-    /// This class is the basis for all vector operations used by Numerics.
+    ///     Authors:
+    ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
     /// </para>
     /// </remarks>
     public class Vector
@@ -90,6 +81,11 @@ namespace Numerics.Mathematics.LinearAlgebra
 
            
         private double[] _array;
+
+        /// <summary>
+        /// Returns the underlying array as-is.
+        /// </summary>
+        public double[] Array => _array;
 
         /// <summary>
         /// The length of the vector.

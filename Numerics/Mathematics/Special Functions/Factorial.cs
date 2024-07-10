@@ -1,6 +1,35 @@
-﻿using System;
+﻿/**
+* NOTICE:
+* The U.S. Army Corps of Engineers, Risk Management Center (USACE-RMC) makes no guarantees about
+* the results, or appropriateness of outputs, obtained from Numerics.
+*
+* LIST OF CONDITIONS:
+* Redistribution and use in source and binary forms, with or without modification, are permitted
+* provided that the following conditions are met:
+* ● Redistributions of source code must retain the above notice, this list of conditions, and the
+* following disclaimer.
+* ● Redistributions in binary form must reproduce the above notice, this list of conditions, and
+* the following disclaimer in the documentation and/or other materials provided with the distribution.
+* ● The names of the U.S. Government, the U.S. Army Corps of Engineers, the Institute for Water
+* Resources, or the Risk Management Center may not be used to endorse or promote products derived
+* from this software without specific prior written permission. Nor may the names of its contributors
+* be used to endorse or promote products derived from this software without specific prior
+* written permission.
+*
+* DISCLAIMER:
+* THIS SOFTWARE IS PROVIDED BY THE U.S. ARMY CORPS OF ENGINEERS RISK MANAGEMENT CENTER
+* (USACE-RMC) "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+* THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+* DISCLAIMED. IN NO EVENT SHALL USACE-RMC BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+* SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+* PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+* INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+* LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+* THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+* **/
+
+using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Numerics.Mathematics.SpecialFunctions
 {
@@ -10,12 +39,25 @@ namespace Numerics.Mathematics.SpecialFunctions
     /// </summary>
     /// <remarks>
     /// <para>
-    ///     Authors:
+    ///     <b> Authors: </b>
     ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
     /// </para>
     /// <para>
+    /// </para>
+    /// <b> Description: </b>
+    /// A factorial is a non negative integer n, denoted by n!, that is the product of all positive integers 
+    /// less than or equal to n. For example, 5! equals (1 * 2 * 3 * 4 * 5) which is 120. It is also important to note
+    /// that 0! equals 1.
+    /// <para>
+    /// <b> References: </b>
+    /// <list type="bullet">
+    /// <item><description>
     /// <see href = "https://en.wikipedia.org/wiki/Factorial" />
+    /// </description></item>
+    /// <item><description>
     /// <see href = "https://en.wikipedia.org/wiki/Binomial_coefficient" />
+    /// </description></item>
+    /// </list>
     /// </para>
     /// </remarks>
     public class Factorial
@@ -27,7 +69,10 @@ namespace Numerics.Mathematics.SpecialFunctions
         /// <summary>
         /// Computes the factorial of an integer.
         /// </summary>
-        /// <param name="x">An integer greater than 0.</param>
+        /// <param name="x">An integer greater than 0 </param>
+        /// <returns>
+        /// The product of all integers less than or equal to the given x
+        /// </returns>
         public static double Function(int x)
         {
             if (x < 0)
@@ -43,8 +88,11 @@ namespace Numerics.Mathematics.SpecialFunctions
         /// <summary>
         /// Computes the factorial of an integer.
         /// </summary>
-        /// <param name="x">An integer greater than 0.</param>
-        public static double Function(long x)
+        /// <param name="x">An integer greater than 0 </param>
+        /// <returns>
+        /// The product of all integers less than or equal to the given x
+        /// </returns>
+        public static double Function(long x) 
         {
             if (x < 0L)
             {
@@ -62,7 +110,10 @@ namespace Numerics.Mathematics.SpecialFunctions
         /// <summary>
         /// Computes the logarithmic factorial function x = ln(x!) of an integer x > 0.
         /// </summary>
-        /// <param name="x">An integer greater than 0.</param>
+        /// <param name="x">An integer greater than 0 </param>
+        /// <returns>
+        /// The log of the product of all integers less than or equal to the given x
+        /// </returns>
         public static double LogFactorial(int x)
         {
             if (x < 0)
@@ -80,8 +131,17 @@ namespace Numerics.Mathematics.SpecialFunctions
         /// <summary>
         /// Computes the binomial coefficient.
         /// </summary>
-        /// <param name="n">An integer greater than or equal to 0.</param>
-        /// <param name="k">An integer greater than or equal to 0.</param>
+        /// <remarks>
+        /// The equation for the binomial coefficient is :
+        /// <code>
+        ///     n chose k = n! / k!(n-k)!
+        /// </code>
+        /// </remarks>
+        /// <param name="n">An integer greater than or equal to 0 </param>
+        /// <param name="k">An integer greater than or equal to 0 </param>
+        /// <returns>
+        /// The binomial coefficient evaluated at n and k (n chose k)
+        /// </returns>
         public static double BinomialCoefficient(int n, int k)
         {
             if (k < 0 || n < 0 || k > n)
@@ -90,7 +150,13 @@ namespace Numerics.Mathematics.SpecialFunctions
         }
 
        
-
+        /// <summary>
+        /// Helper function for FindCombinations() 
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="done"></param>
+        /// <param name="begin"></param>
+        /// <param name="end"></param>
         private static IEnumerable<int[]> FindCombosRecursive(int[] buffer, int done, int begin, int end)
         {
             for (int i = begin; i < end; i++)
@@ -116,30 +182,13 @@ namespace Numerics.Mathematics.SpecialFunctions
         }
 
         /// <summary>
-        /// Finds all combinations of m within n without replacement.
+        /// Finds all combinations of m within n without replacement.           
         /// </summary>
         /// <param name="n">The overall count.</param>
-        //public static List<int[]> AllCombinations(int n)
-        //{
-        //    var output = new List<int[]>();
-        //    for (int i = 1; i <= n; i++)
-        //    {
-        //        foreach (int[] c in FindCombinations(i, n))
-        //        {
-        //            output.Add(new int[n]);
-        //            for (int j = 0; j < c.Length; j++)
-        //            {
-        //                output.Last()[c[j]] = 1;
-        //            }
-        //        }
-        //    }
-        //    return output;
-        //}
-
-        /// <summary>
-        /// Finds all combinations of m within n without replacement.
-        /// </summary>
-        /// <param name="n">The overall count.</param>
+        /// <returns>
+        /// An array of all possible combinations, represented with 1s and 0s, where 1 is the occurrence
+        /// of an event.
+        /// </returns>
         public static int[,] AllCombinations(int n)
         {
             int f = (int)Math.Pow(2, n) - 1;

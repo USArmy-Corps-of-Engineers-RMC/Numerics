@@ -1,4 +1,34 @@
-﻿using System;
+﻿/**
+* NOTICE:
+* The U.S. Army Corps of Engineers, Risk Management Center (USACE-RMC) makes no guarantees about
+* the results, or appropriateness of outputs, obtained from Numerics.
+*
+* LIST OF CONDITIONS:
+* Redistribution and use in source and binary forms, with or without modification, are permitted
+* provided that the following conditions are met:
+* ● Redistributions of source code must retain the above notice, this list of conditions, and the
+* following disclaimer.
+* ● Redistributions in binary form must reproduce the above notice, this list of conditions, and
+* the following disclaimer in the documentation and/or other materials provided with the distribution.
+* ● The names of the U.S. Government, the U.S. Army Corps of Engineers, the Institute for Water
+* Resources, or the Risk Management Center may not be used to endorse or promote products derived
+* from this software without specific prior written permission. Nor may the names of its contributors
+* be used to endorse or promote products derived from this software without specific prior
+* written permission.
+*
+* DISCLAIMER:
+* THIS SOFTWARE IS PROVIDED BY THE U.S. ARMY CORPS OF ENGINEERS RISK MANAGEMENT CENTER
+* (USACE-RMC) "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+* THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+* DISCLAIMED. IN NO EVENT SHALL USACE-RMC BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+* SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+* PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+* INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+* LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+* THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+* **/
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Numerics.Data.Statistics;
@@ -11,22 +41,32 @@ namespace Numerics.Mathematics
     /// </summary>
     /// <remarks>
     /// <para>
-    ///     Authors:
+    ///     <b> Authors:  </b>
     ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
     /// </para>
     /// <para>
-    /// This class contains shared functions for Fast Fourier Transform.
+    /// <b> Description: </b>
+    /// This class contains shared functions for Fast Fourier Transform (FFT), an algorithm that computes the Discrete Fourier Transform (DFT) which is obtained by 
+    /// decomposing a sequence of values into components of different frequencies. The DFT converts a finite sequence of equally-spaced samples of the discrete-time Fourier 
+    /// transform (DTFT), a complex valued function of frequency. A FFT rapidly computes these transformations by factorizing the DFT matrix into a product of mostly zero factors.
     /// </para>
     /// <para>
-    /// References:
-    /// </para>
-    /// <para>
+    /// <b> References: </b>
+    /// <list type="bullet">
+    /// <item><description>
     /// "Numerical Recipes, Routines and Examples in Basic", J.C. Sprott, Cambridge University Press, 1991.
+    /// </description></item>
+    /// <item><description>
+    /// <see href="https://en.wikipedia.org/wiki/Fast_Fourier_transform"/>
+    /// </description></item>
+    /// <item><description>
+    /// <see href="https://en.wikipedia.org/wiki/Discrete_Fourier_transform"/>
+    /// </description></item>
+    /// </list>
     /// </para>
     /// </remarks>
     public class Fourier
     {
-
         /// <summary>
         /// Performs the fast Fourier transform (FFT) on a complex data array.
         /// </summary>
@@ -191,10 +231,13 @@ namespace Numerics.Mathematics
         /// <param name="data1">Data 1 is a real array of length n. n must be an integer power of 2.</param>
         /// <param name="data2">Data 2 is a real array of length n. n must be an integer power of 2.</param>
         /// <remarks>
-        /// The answer is returned in wraparound order, i.e.,  correlations at increasing negative lags
+        /// The answer is returned in wraparound order, i.e., correlations at increasing negative lags
         /// are in [n-1] on down to  [n/2], while correlations at increasingly positive lags are in [0]
-        /// up to [n2-1].
+        /// up to [n/2-1].
         /// </remarks>
+        /// <returns>
+        /// An array of the correlation between the two datasets
+        /// </returns>
         public static double[] Correlation(double[] data1, double[] data2)
         {
             int no2, i;
@@ -227,11 +270,13 @@ namespace Numerics.Mathematics
         }
 
         /// <summary>
-        /// Computes the autocorrelation function (ACF) given a series of data. Returns a 2-column array with the first column contains the lags,
-        /// and the second the autocorrelation.
+        /// Computes the autocorrelation function (ACF) given a series of data.
         /// </summary>
         /// <param name="series">The series of data to assess.</param>
         /// <param name="lagMax">The maximum lag. The first lag begins at zero.</param>
+        /// <returns>
+        /// A 2-column array with the first column contains the lags, and the second the autocorrelation.
+        /// </returns>
         public static double[,] Autocorrelation(IList<double> series, int lagMax = -1)
         {
             int n = series.Count;
@@ -269,6 +314,9 @@ namespace Numerics.Mathematics
         /// Helper function to determine if integer is power of 2.
         /// </summary>
         /// <param name="n">Integer to test.</param>
+        /// <returns> 
+        /// True if the integer is a power of 2
+        /// </returns>
         private static bool IsPowerOfTwo(int n)
         {
             return (n & n - 1) == 0;
