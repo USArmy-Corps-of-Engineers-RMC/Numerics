@@ -26,7 +26,7 @@ namespace Distributions.Univariate
         public void Test_DEMCz_2D_Mixture()
         {
 
-            var mix = new Mixture(new[] { 0.15, 0.50, 0.35}, new[] { new Normal(0, 1), new Normal(3, 0.1), new Normal(-3, 0.5) });
+            var mix = new Mixture(new[] { 0.7, 0.3 }, new[] { new Normal(0, 1), new Normal(3, 0.1)});
             var sample = mix.GenerateRandomValues(12345, 1000);
 
             var tuple = mix.GetParameterConstraints(sample);

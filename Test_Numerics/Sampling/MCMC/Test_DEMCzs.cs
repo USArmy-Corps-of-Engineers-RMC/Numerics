@@ -331,7 +331,7 @@ namespace Sampling.MCMC
             var normDist = new Normal(popMU, popSigma);
             var epsDist = new Normal(epsMu, epsSigma);
             var sample = normDist.GenerateRandomValues(12345, n);
-            var prng = new MersenneTwister(12345);
+            var prng = new Random(12345);
             for (int i = 0; i < sample.Length; i++)
             {
                 //sample[i] *= epsDist.InverseCDF(prng.NextDouble());
@@ -431,7 +431,7 @@ namespace Sampling.MCMC
             var errDist = new Normal(errMu, errSigma);
 
             var sample = popDist.GenerateRandomValues(12345, n);
-            var prng = new MersenneTwister(12345);
+            var prng = new Random(12345);
             for (int i = 0; i < sample.Length; i++)
             {
                 sample[i] = sample[i] + errDist.InverseCDF(prng.NextDouble());
@@ -527,7 +527,7 @@ namespace Sampling.MCMC
             var errDist = new Normal(errMu, errSigma);
 
             var sample = popDist.GenerateRandomValues(12345, n);
-            var prng = new MersenneTwister(12345);
+            var prng = new Random(12345);
             for (int i = 0; i < sample.Length; i++)
             {
                 double sig = 0;
@@ -637,7 +637,7 @@ namespace Sampling.MCMC
             var sample = popDist.GenerateRandomValues(12345, n);
             var u = new double[n];
             var l = new double[n];
-            var prng = new MersenneTwister(12345);
+            var prng = new Random(12345);
             for (int i = 0; i < sample.Length; i++)
             {
                 //u[i] = sample[i] + errDist.Maximum;

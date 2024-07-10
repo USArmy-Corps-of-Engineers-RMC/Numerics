@@ -40,7 +40,7 @@ namespace Numerics.Mathematics.Optimization
         /// <param name="weight">The weight given to the parameter set.</param>
         public ParameterSet(double[] values, double fitness, double weight)
         {
-            Values = values.ToArray();
+            Values = (double[])values.Clone();
             Fitness = fitness;
             Weight = weight;
         }

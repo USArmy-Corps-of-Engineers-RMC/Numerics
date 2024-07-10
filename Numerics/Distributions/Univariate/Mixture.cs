@@ -1,10 +1,13 @@
-﻿using Numerics.Data;
+﻿using Microsoft.VisualBasic.Devices;
+using Numerics.Data;
 using Numerics.Data.Statistics;
 using Numerics.Mathematics.Optimization;
+using Numerics.Mathematics.RootFinding;
 using Numerics.Sampling;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -446,53 +449,124 @@ namespace Numerics.Distributions
         /// <param name="parameters">A list of parameters.</param>
         public override void SetParameters(IList<double> parameters)
         {
+            SetParametersFromArray(parameters.ToArray());
+            //if (Distributions == null || Distributions.Count() == 0) return;
+            //if (Distributions.Count() == 1 && parameters.Count() == Distributions[0].NumberOfParameters)
+            //{
+            //    if (IsZeroInflated)
+            //    {
+            //        Weights[0] = 1 - ZeroWeight;
+            //    }
+            //    else
+            //    {
+            //        Weights[0] = 1;
+            //    }
+            //    Distributions[0].SetParameters(parameters);
+            //}
+            //else if (Distributions.Count() == 2)
+            //{
+            //    // Get the weights
+            //    int k = Distributions.Count();
+            //    int t = 1; // keep track of parameter index
+
+            //    // Get weights
+            //    if (IsZeroInflated)
+            //    {
+            //        Weights[0] = parameters[0];
+            //        Weights[1] = 1d - parameters[0];
+            //        Weights[0] *= (1d - ZeroWeight);
+            //        Weights[1] *= (1d - ZeroWeight);
+            //        parameters[0] = Weights[0];
+            //    }
+            //    else
+            //    {
+            //        Weights[0] = parameters[0];
+            //        Weights[1] = 1d - parameters[0];
+            //    }
+
+            //    // Set distribution parameters
+            //    for (int i = 0; i < Distributions.Count(); i++)
+            //    {
+            //        var parms = new List<double>();
+            //        for (int j = t; j < t + Distributions[i].NumberOfParameters; j++)
+            //        {
+            //            parms.Add(parameters[j]);
+            //        }
+            //        Distributions[i].SetParameters(parms);
+            //        t += Distributions[i].NumberOfParameters;
+            //    }
+            //}
+
+            //// Validate parameters
+            //_parametersValid = ValidateParameters(parameters, false) is null;
+            //_momentsComputed = false;
+            //_inverseCDFCreated = false;
+        }
+
+
+        public void SetParametersFromArray(double[] parameters)
+        {
             if (Distributions == null || Distributions.Count() == 0) return;
-
-            // Get the weights
-            int k = Distributions.Count();
-            int t = 0; // keep track of parameter index
-
-            // Get weights
-            double c = 0;
-            for (int i = 0; i < k; i++)
+            if (Distributions.Count() == 1 && parameters.Length == Distributions[0].NumberOfParameters)
             {
-                _weights[i] = parameters[i];
-                c += _weights[i];
-                t++;
-            }
-
-            if (c > 0)
-            {
-                // Get normalization constant
-                c = IsZeroInflated ? (1d - ZeroWeight) / c : 1d / c;
-                // Normalize weights
-                for (int i = 0; i < k; i++)
+                if (IsZeroInflated)
                 {
-                    _weights[i] *= c;
-                    parameters[i] *= c;
+                    Weights[0] = 1 - ZeroWeight;
                 }
+                else
+                {
+                    Weights[0] = 1;
+                }
+                Distributions[0].SetParameters(parameters);
             }
             else
             {
-                // If weights sum to 0, reset to be uniformly distributed
-                double w = IsZeroInflated ? (1d - ZeroWeight) / k : 1d / k;
+                // Get the weights
+                int k = Distributions.Count();
+                int t = 0; // keep track of parameter index
+
+                // Get weights
+                double c = 0;
                 for (int i = 0; i < k; i++)
                 {
-                    _weights[i] = w;
-                    parameters[i] = w;
+                    Weights[i] = parameters[i];
+                    c += Weights[i];
+                    t++;
                 }
-            }
 
-            // Set distribution parameters
-            for (int i = 0; i < Distributions.Count(); i++)
-            {
-                var parms = new List<double>();
-                for (int j = t; j < t + Distributions[i].NumberOfParameters; j++)
+                if (c > 0)
                 {
-                    parms.Add(parameters[j]);
+                    // Get normalization constant
+                    c = IsZeroInflated ? (1d - ZeroWeight) / c : 1d / c;
+                    // Normalize weights
+                    for (int i = 0; i < k; i++)
+                    {
+                        Weights[i] *= c;
+                        parameters[i] = Weights[i];
+                    }
                 }
-                Distributions[i].SetParameters(parms);
-                t += Distributions[i].NumberOfParameters;
+                else
+                {
+                    // If weights sum to 0, reset to be uniformly distributed
+                    double w = IsZeroInflated ? (1d - ZeroWeight) / k : 1d / k;
+                    for (int i = 0; i < k; i++)
+                    {
+                        Weights[i] = w;
+                        parameters[i] = Weights[i];
+                    }
+                }
+
+                // Set distribution parameters
+                for (int i = 0; i < Distributions.Count(); i++)
+                {
+                    var parms = new List<double>();
+                    for (int j = t; j < t + Distributions[i].NumberOfParameters; j++)
+                    {
+                        parms.Add(parameters[j]);
+                    }
+                    Distributions[i].SetParameters(parms);
+                    t += Distributions[i].NumberOfParameters;
+                }
             }
 
             // Validate parameters
@@ -554,13 +628,13 @@ namespace Numerics.Distributions
         /// <returns>Returns a Tuple of initial, lower, and upper values.</returns>
         public Tuple<double[], double[], double[]> GetParameterConstraints(IList<double> sample)
         {
-            var initialVals = new double[NumberOfParameters];
-            var lowerVals = new double[NumberOfParameters];
-            var upperVals = new double[NumberOfParameters];
+            var initialVals = new double[NumberOfParameters - 1];
+            var lowerVals = new double[NumberOfParameters - 1];
+            var upperVals = new double[NumberOfParameters - 1];
 
             // Weights are first
             int t = 0;
-            for (int i = 0; i < Distributions.Count(); i++)
+            for (int i = 0; i < Distributions.Count() - 1; i++)
             {
                 initialVals[i] = 0.5;
                 lowerVals[i] = 0;
@@ -751,15 +825,37 @@ namespace Numerics.Distributions
                 throw new ArgumentOutOfRangeException("probability", "Probability must be between 0 and 1.");
             if (probability == 0.0d) return Minimum;
             if (probability == 1.0d) return Maximum;
+            if (IsZeroInflated && probability <= ZeroWeight) return 0;
+
             // Validate parameters
             if (_parametersValid == false)
                 ValidateParameters(GetParameters, true);
-            if (_inverseCDFCreated == false)
-                CreateInverseCDF();
 
+            if (Distributions.Count() == 1)
+            {
+                return Distributions[0].InverseCDF(probability);
+            }
+
+            var xVals = Distributions.Select(d => d.InverseCDF(probability));
+            double minX = xVals.Min();
+            double maxX = xVals.Max();
+            double x = 0;
+            try
+            {
+                if (IsZeroInflated)
+                {
+                    Brent.Bracket((y) => { return probability - CDF(y); }, ref minX, ref maxX, out var f1, out var f2);
+                }
+                x = Brent.Solve((y) => { return probability - CDF(y); }, minX, maxX, 1E-4, 100, true);
+            }
+            catch (Exception ex)
+            {
+                if (_inverseCDFCreated == false)
+                    CreateInverseCDF();
+                x = _inverseCDF.InverseCDF(probability);
+            }
             double min = Minimum;
             double max = Maximum;
-            var x = _inverseCDF.InverseCDF(probability);
             return x < min ? min : x > max ? max : x;
         }
     
@@ -779,7 +875,7 @@ namespace Numerics.Distributions
             double min = minX + shift;
             double max = maxX + shift;
             int order = (int)Math.Floor(Math.Log10(max) - Math.Log10(min));
-            int binN = Math.Max(200, 50 * order) - 1;
+            int binN = Math.Max(200, 100 * order) - 1;
             // Create bins
             var bins = Stratify.XValues(new StratificationOptions(minX, maxX, binN, false), true);
             var xValues = new List<double>();

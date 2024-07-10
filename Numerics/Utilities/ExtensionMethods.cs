@@ -1,7 +1,9 @@
-﻿using Numerics.Sampling;
+﻿using Numerics.Mathematics.LinearAlgebra;
+using Numerics.Sampling;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace Numerics
 {
@@ -185,7 +187,64 @@ namespace Numerics
                 array[i, index] = values[i];
         }
 
-    
+        /// <summary>
+        /// Adds corresponding elements of arrays.
+        /// </summary>
+        /// <param name="array">The array</param>
+        /// <param name="values">The values to add.</param>
+        /// <returns>The array after addition.</returns>
+        public static double[] Add(this double[] array, double[] values)
+        {
+            if (array.Length != values.Length) throw new ArgumentException(nameof(array), "The arrays must be the same length.");
+            var result = new double[array.Length];
+            for (int i = 0; i < array.Length; i++)
+                result[i] = array[i] + values[i];
+            return result;
+        }
+
+        /// <summary>
+        /// Subtracts corresponding elements of arrays.
+        /// </summary>
+        /// <param name="array">The array</param>
+        /// <param name="values">The values to subtract.</param>
+        /// <returns>The array after subtraction.</returns>
+        public static double[] Subtract(this double[] array, double[] values)
+        {
+            if (array.Length != values.Length) throw new ArgumentException(nameof(array), "The arrays must be the same length.");
+            var result = new double[array.Length];
+            for (int i = 0; i < array.Length; i++)
+                result[i] = array[i] - values[i];
+            return result;
+        }
+
+        /// <summary>
+        /// Multiplies an array with a scalar.
+        /// </summary>
+        /// <param name="array">The array</param>
+        /// <param name="scalar">The scalar to multiply by.</param>
+        /// <returns>The array after multiplication.</returns>
+        public static double[] Multiply(this double[] array, double scalar)
+        {
+            var result = new double[array.Length];
+            for (int i = 0; i < array.Length; i++)
+                result[i] = array[i] * scalar;
+            return result;
+        }
+
+        /// <summary>
+        /// Divides an array with a scalar.
+        /// </summary>
+        /// <param name="array">The array</param>
+        /// <param name="scalar">The scalar to divide by.</param>
+        /// <returns>The array after division.</returns>
+        public static double[] Divide(this double[] array, double scalar)
+        {
+            var result = new double[array.Length];
+            for (int i = 0; i < array.Length; i++)
+                result[i] = array[i] / scalar;
+            return result;
+        }
+
         /// <summary>
         /// Returns a subset of the array.
         /// </summary>

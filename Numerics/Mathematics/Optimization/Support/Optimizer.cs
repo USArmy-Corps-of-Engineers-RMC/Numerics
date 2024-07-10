@@ -196,9 +196,9 @@ namespace Numerics.Mathematics.Optimization
         /// </summary>
         /// <param name="values">The parameter values to evaluate.</param>
         /// <param name="cancel">By ref. Determines if the solver should be canceled.</param>
-        protected virtual double Evaluate(IList<double> values, ref bool cancel)
+        protected virtual double Evaluate(double[] values, ref bool cancel)
         {        
-            double fitness = functionScale * ObjectiveFunction(values.ToArray());
+            double fitness = functionScale * ObjectiveFunction(values);
 
             // keep track of best fit parameter set
             if (BestParameterSet.Values == null || fitness <= BestParameterSet.Fitness) BestParameterSet = new ParameterSet(values.ToArray(), fitness);

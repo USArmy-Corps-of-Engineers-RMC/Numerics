@@ -53,6 +53,11 @@ namespace Numerics.Mathematics.LinearAlgebra
         private double[] _array;
 
         /// <summary>
+        /// Returns the underlying array as-is.
+        /// </summary>
+        public double[] Array => _array;
+
+        /// <summary>
         /// The length of the vector.
         /// </summary>
         public int Length {

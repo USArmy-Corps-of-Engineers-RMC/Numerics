@@ -37,12 +37,12 @@ namespace Numerics.Sampling
             var lhs = new double[N, dimension];
 
             // Create random number generators
-            var rndM = seed > 0 ? new MersenneTwister(seed) : new MersenneTwister();
-            var rnd = new MersenneTwister[dimension, 2];
+            var rndM = seed > 0 ? new Random(seed) : new Random();
+            var rnd = new Random[dimension, 2];
             for (int i = 0; i < dimension; i++)
             {
-                rnd[i, 0] = new MersenneTwister(rndM.Next(1, dimension * 10000 + 1));
-                rnd[i, 1] = new MersenneTwister(rndM.Next(1, dimension * 10000 + 1));
+                rnd[i, 0] = new Random(rndM.Next(1, dimension * 10000 + 1));
+                rnd[i, 1] = new Random(rndM.Next(1, dimension * 10000 + 1));
             }
 
             for (int col = 0; col < dimension; col++)
@@ -80,10 +80,10 @@ namespace Numerics.Sampling
             var lhs = new double[N, dimension];
 
             // Create random number generators
-            var rndM = seed > 0 ? new MersenneTwister(seed) : new MersenneTwister();
-            var rnd = new MersenneTwister[dimension];
+            var rndM = seed > 0 ? new Random(seed) : new Random();
+            var rnd = new Random[dimension];
             for (int i = 0; i < dimension; i++)
-                rnd[i] = new MersenneTwister(rndM.Next(1, dimension * 10000 + 1));
+                rnd[i] = new Random(rndM.Next(1, dimension * 10000 + 1));
 
             for (int col = 0; col < dimension; col++)
             {
