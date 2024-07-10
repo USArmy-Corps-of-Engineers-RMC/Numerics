@@ -1,4 +1,34 @@
-﻿using Numerics.Distributions;
+﻿/**
+* NOTICE:
+* The U.S. Army Corps of Engineers, Risk Management Center (USACE-RMC) makes no guarantees about
+* the results, or appropriateness of outputs, obtained from Numerics.
+*
+* LIST OF CONDITIONS:
+* Redistribution and use in source and binary forms, with or without modification, are permitted
+* provided that the following conditions are met:
+* ● Redistributions of source code must retain the above notice, this list of conditions, and the
+* following disclaimer.
+* ● Redistributions in binary form must reproduce the above notice, this list of conditions, and
+* the following disclaimer in the documentation and/or other materials provided with the distribution.
+* ● The names of the U.S. Government, the U.S. Army Corps of Engineers, the Institute for Water
+* Resources, or the Risk Management Center may not be used to endorse or promote products derived
+* from this software without specific prior written permission. Nor may the names of its contributors
+* be used to endorse or promote products derived from this software without specific prior
+* written permission.
+*
+* DISCLAIMER:
+* THIS SOFTWARE IS PROVIDED BY THE U.S. ARMY CORPS OF ENGINEERS RISK MANAGEMENT CENTER
+* (USACE-RMC) "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+* THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+* DISCLAIMED. IN NO EVENT SHALL USACE-RMC BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+* SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+* PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+* INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+* LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+* THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+* **/
+
+using Numerics.Distributions;
 using Numerics.Sampling;
 using System;
 using System.Collections.Generic;
@@ -12,30 +42,41 @@ namespace Numerics.Mathematics.Optimization
     /// </summary>
     /// <remarks>
     /// <para>
-    ///     Authors:
+    ///     <b> Authors: </b>
     ///     Brian Skahill, USACE Engineer Research and Development Center Coastal and Hydraulics Laboratory, brian.e.skahill@usace.army.mil
     /// </para>
+    /// 
     /// <para>
-    ///     References:
+    /// <b> Description: </b>
+    ///     With the Multi-Start (MS) approach, a local search procedure P is applied to each point in the random sample; 
+    ///     the best local minimum found in this way is our candidate for the global minimum
+    /// <list type="number">
+    /// <item><description>
+    ///     Draw a point from the uniform distribution over S.
+    ///     </description></item>
+    /// <item><description>
+    ///     Apply P to the new sample point.
+    ///     </description></item>
+    /// <item><description>
+    ///     The local minimum x* identified with the lowest function value is the
+    ///     candidate value for x^,. Return to Step 1, unless a stopping criterion
+    ///     is satisfied. 
+    /// </description></item>
+    /// </list>
+    /// </para>
+    /// <para>
+    ///     While optimal Bayesian stopping rules can be specified for Multi-Start, the only stopping criterion implemented for this 
+    ///     simple ("folklore") global optimization method is the maximum number of local searches to perform.
+    /// </para>
+    /// 
+    /// <para>
+    ///     <b> References: </b>
     /// </para>
     /// <para>
     ///     Implements routine described by 
     ///     Kan A.H.G.R., Boender C.G.E., Timmer G.T. (1985) A Stochastic Approach to Global Optimization. 
     ///     In: Schittkowski K. (eds) Computational Mathematical Programming. NATO ASI Series (Series F: Computer and Systems Sciences), 
-    ///     vol 15. Springer, Berlin, Heidelberg. https://doi.org/10.1007/978-3-642-82450-0_10.
-    /// </para>
-    /// <para>
-    ///     With the Multi-Start (MS) approach, a local search procedure P is applied to each point in the random sample; 
-    ///     the best local minimum found in this way is our candidate for the global minimum
-    ///     Step 1. Draw a point from the uniform distribution over S.
-    ///     Step 2. Apply P to the new sample point.
-    ///     Step 3. The local minimum x* identified with the lowest function value is the
-    ///     candidate value for x^,. Return to Step 1, unless a stopping criterion
-    ///     is satisfied. 
-    /// </para>
-    /// <para>
-    ///     While optimal Bayesian stopping rules can be specified for Multi-Start, the only stopping criterion implemented for this 
-    ///     simple ("folklore") global optimization method is the maximum number of local searches to perform.
+    ///     vol 15. Springer, Berlin, Heidelberg. <see href="https://doi.org/10.1007/978-3-642-82450-0_10."/>
     /// </para>
     /// </remarks>
     public class MultiStart : Optimizer

@@ -1,4 +1,34 @@
-﻿using System;
+﻿/**
+* NOTICE:
+* The U.S. Army Corps of Engineers, Risk Management Center (USACE-RMC) makes no guarantees about
+* the results, or appropriateness of outputs, obtained from Numerics.
+*
+* LIST OF CONDITIONS:
+* Redistribution and use in source and binary forms, with or without modification, are permitted
+* provided that the following conditions are met:
+* ● Redistributions of source code must retain the above notice, this list of conditions, and the
+* following disclaimer.
+* ● Redistributions in binary form must reproduce the above notice, this list of conditions, and
+* the following disclaimer in the documentation and/or other materials provided with the distribution.
+* ● The names of the U.S. Government, the U.S. Army Corps of Engineers, the Institute for Water
+* Resources, or the Risk Management Center may not be used to endorse or promote products derived
+* from this software without specific prior written permission. Nor may the names of its contributors
+* be used to endorse or promote products derived from this software without specific prior
+* written permission.
+*
+* DISCLAIMER:
+* THIS SOFTWARE IS PROVIDED BY THE U.S. ARMY CORPS OF ENGINEERS RISK MANAGEMENT CENTER
+* (USACE-RMC) "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+* THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+* DISCLAIMED. IN NO EVENT SHALL USACE-RMC BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+* SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+* PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+* INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+* LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+* THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+* **/
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,10 +36,11 @@ using System.Threading.Tasks;
 
 namespace Mathematics.Optimization
 {
-
+    /// <summary>
+    /// Functions designed to test optimization algorithms
+    /// </summary>
     public class TestFunctions
     {
-
         /// <summary>
         /// Test one-dimensional function
         /// </summary>
@@ -22,9 +53,15 @@ namespace Mathematics.Optimization
 
         /// <summary>
         /// The Rastrigin Function.
-        /// https://en.wikipedia.org/wiki/Test_functions_for_optimization
-        /// f(0..0) = 0
         /// </summary>
+        /// <remarks>
+        /// <para>
+        /// <b> Global minimum:</b>
+        /// f(0, 0) = 0
+        /// </para>
+        /// <b> References: </b>
+        /// <see href="https://en.wikipedia.org/wiki/Test_functions_for_optimization" />
+        /// </remarks>
         public static double Rastrigin(double[] parms)
         {
             double A = 10;
@@ -35,12 +72,17 @@ namespace Mathematics.Optimization
             return F;
         }
 
-
         /// <summary>
         /// The Ackley Function.
-        /// https://en.wikipedia.org/wiki/Test_functions_for_optimization
-        /// f(0, 0) = 0
         /// </summary>
+        /// <remarks>
+        /// <para>
+        /// <b> Global minimum:</b>
+        /// f(0, 0) = 0
+        /// </para>
+        /// <b> References: </b>
+        /// <see href="https://en.wikipedia.org/wiki/Test_functions_for_optimization" />
+        /// </remarks>
         public static double Ackley(double[] parms)
         {
             var x = parms[0];
@@ -51,9 +93,15 @@ namespace Mathematics.Optimization
 
         /// <summary>
         /// The Rosenbrock Function.
-        /// https://en.wikipedia.org/wiki/Test_functions_for_optimization
-        /// f(1..1) = 0
         /// </summary>
+        /// <remarks>
+        /// <para>
+        /// <b> Global minimum:</b>
+        /// f(1, 1) = 0
+        /// </para>
+        /// <b> References: </b>
+        /// <see href="https://en.wikipedia.org/wiki/Test_functions_for_optimization" />
+        /// </remarks>
         public static double Rosenbrock(double[] parms)
         {
             int n = parms.Length;
@@ -63,12 +111,17 @@ namespace Mathematics.Optimization
             return F;
         }
 
-
         /// <summary>
         /// The Beale Function.
-        /// https://en.wikipedia.org/wiki/Test_functions_for_optimization
-        /// f(3, 0.5) = 0
         /// </summary>
+        /// <remarks>
+        /// <para>
+        /// <b> Global minimum:</b>
+        /// f(3, 0.5) = 0
+        /// </para>
+        /// <b> References: </b>
+        /// <see href="https://en.wikipedia.org/wiki/Test_functions_for_optimization" />
+        /// </remarks>
         public static double Beale(double[] parms)
         {
             var x = parms[0];
@@ -79,9 +132,15 @@ namespace Mathematics.Optimization
 
         /// <summary>
         /// The Goldstein-Price Function.
-        /// https://en.wikipedia.org/wiki/Test_functions_for_optimization
-        /// f(0, -1) = 3
         /// </summary>
+        /// <remarks>
+        /// <para>
+        /// <b> Global minimum:</b>
+        /// f(0, -1) = 3
+        /// </para>
+        /// <b> References: </b>
+        /// <see href="https://en.wikipedia.org/wiki/Test_functions_for_optimization" />
+        /// </remarks>
         public static double GoldsteinPrice(double[] parms)
         {
             var x = parms[0];
@@ -93,9 +152,15 @@ namespace Mathematics.Optimization
 
         /// <summary>
         /// The Booth Function.
-        /// https://en.wikipedia.org/wiki/Test_functions_for_optimization
-        /// f(1, 3) = 0
         /// </summary>
+        /// <remarks>
+        /// <para>
+        /// <b> Global minimum:</b>
+        /// f(1, 3) = 0
+        /// </para>
+        /// <b> References: </b>
+        /// <see href="https://en.wikipedia.org/wiki/Test_functions_for_optimization" />
+        /// </remarks>
         public static double Booth(double[] parms)
         {
             var x = parms[0];
@@ -106,9 +171,15 @@ namespace Mathematics.Optimization
 
         /// <summary>
         /// The Bukin Function.
-        /// https://en.wikipedia.org/wiki/Test_functions_for_optimization
-        /// f(-10, 1) = 0
         /// </summary>
+        /// <remarks>
+        /// <para>
+        /// <b> Global minimum:</b>
+        /// f(-10, 1) = 0
+        /// </para>
+        /// <b> References: </b>
+        /// <see href="https://en.wikipedia.org/wiki/Test_functions_for_optimization" />
+        /// </remarks>
         public static double Bukin(double[] parms)
         {
             var x = parms[0];
@@ -119,9 +190,15 @@ namespace Mathematics.Optimization
 
         /// <summary>
         /// The Matyas Function.
-        /// https://en.wikipedia.org/wiki/Test_functions_for_optimization
-        /// f(0, 0) = 0
         /// </summary>
+        /// <remarks>
+        /// <para>
+        /// <b> Global minimum:</b>
+        /// f(0, 0) = 0
+        /// </para>
+        /// <b> References: </b>
+        /// <see href="https://en.wikipedia.org/wiki/Test_functions_for_optimization" />
+        /// </remarks>
         public static double Matyas(double[] parms)
         {
             var x = parms[0];
@@ -130,12 +207,17 @@ namespace Mathematics.Optimization
             return F;
         }
 
-
         /// <summary>
         /// The three hump camel Function.
-        /// https://en.wikipedia.org/wiki/Test_functions_for_optimization
-        /// f(0, 0) = 0
         /// </summary>
+        /// <remarks>
+        /// <para>
+        /// <b> Global minimum:</b>
+        /// f(0, 0) = 0
+        /// </para>
+        /// <b> References: </b>
+        /// <see href="https://en.wikipedia.org/wiki/Test_functions_for_optimization" />
+        /// </remarks>
         public static double ThreeHumpCamel(double[] parms)
         {
             var x = parms[0];
@@ -146,9 +228,15 @@ namespace Mathematics.Optimization
 
         /// <summary>
         /// The Eggholder Function.
-        /// https://en.wikipedia.org/wiki/Test_functions_for_optimization
-        /// f(512, 404.2319) = -959.6407
         /// </summary>
+        /// <remarks>
+        /// <para>
+        /// <b> Global minimum:</b>
+        /// f(512, 404.2319) = -959.6407
+        /// </para>
+        /// <b> References: </b>
+        /// <see href="https://en.wikipedia.org/wiki/Test_functions_for_optimization" />
+        /// </remarks>
         public static double Eggholder(double[] parms)
         {
             var x = parms[0];
@@ -159,9 +247,15 @@ namespace Mathematics.Optimization
 
         /// <summary>
         /// The McCormick Function.
-        /// https://en.wikipedia.org/wiki/Test_functions_for_optimization
-        /// f(-0.54719, -1.54719) = -1.9133
         /// </summary>
+        /// <remarks>
+        /// <para>
+        /// <b> Global minimum:</b>
+        /// f(-0.54719, -1.54719) = -1.9133
+        /// </para>
+        /// <b> References: </b>
+        /// <see href="https://en.wikipedia.org/wiki/Test_functions_for_optimization" />
+        /// </remarks>
         public static double McCormick(double[] parms)
         {
             var x = parms[0];
@@ -171,8 +265,14 @@ namespace Mathematics.Optimization
         }
 
         /// <summary>
-        /// Test multidimensional function.
+        /// Multidimensional function.
         /// </summary>
+        /// <remarks>
+        /// <para>
+        /// <b> Global minimum:</b>
+        /// f(0.125, 0.2, 0.35)
+        /// </para>
+        /// </remarks>
         public static double FXYZ(double[] parms)
         {
             double x = parms[0];
@@ -182,14 +282,15 @@ namespace Mathematics.Optimization
             return F;
         }
 
-
-
-
-
         /// <summary>
         /// tp2 function - Multiple local optima and 2 global minimizers, by virtue of symmetry
-        /// f(2/3, 1) = f(1, 2/3) = 0
         /// </summary>
+        /// <remarks>
+        /// <para>
+        /// <b> Global minimum:</b>
+        /// f(2/3, 1) = f(1, 2/3) = 0
+        /// </para>
+        /// </remarks>
         public static double tp2(double[] parms)
         {
             var p1 = parms[0];

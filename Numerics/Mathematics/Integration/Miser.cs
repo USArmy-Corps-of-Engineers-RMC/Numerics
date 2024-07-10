@@ -1,10 +1,41 @@
-﻿using Numerics.Distributions;
+﻿/**
+* NOTICE:
+* The U.S. Army Corps of Engineers, Risk Management Center (USACE-RMC) makes no guarantees about
+* the results, or appropriateness of outputs, obtained from Numerics.
+*
+* LIST OF CONDITIONS:
+* Redistribution and use in source and binary forms, with or without modification, are permitted
+* provided that the following conditions are met:
+* ● Redistributions of source code must retain the above notice, this list of conditions, and the
+* following disclaimer.
+* ● Redistributions in binary form must reproduce the above notice, this list of conditions, and
+* the following disclaimer in the documentation and/or other materials provided with the distribution.
+* ● The names of the U.S. Government, the U.S. Army Corps of Engineers, the Institute for Water
+* Resources, or the Risk Management Center may not be used to endorse or promote products derived
+* from this software without specific prior written permission. Nor may the names of its contributors
+* be used to endorse or promote products derived from this software without specific prior
+* written permission.
+*
+* DISCLAIMER:
+* THIS SOFTWARE IS PROVIDED BY THE U.S. ARMY CORPS OF ENGINEERS RISK MANAGEMENT CENTER
+* (USACE-RMC) "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+* THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+* DISCLAIMED. IN NO EVENT SHALL USACE-RMC BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+* SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+* PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+* INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+* LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+* THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+* **/
+
+using Numerics.Distributions;
 using Numerics.Sampling;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Net.WebRequestMethods;
 
 namespace Numerics.Mathematics.Integration
 {
@@ -13,12 +44,29 @@ namespace Numerics.Mathematics.Integration
     /// </summary>
     /// <remarks>
     /// <para>
-    ///     Authors:
+    ///     <b> Authors: </b>
     ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
     /// </para>
-    /// References:
+    /// <para>
+    /// <b> Description: </b>
+    /// The Miser method aims to reduce overall error by concentrating integration points in the regions of highest variance. The smallest error estimate is
+    /// obtained by allocating sample points in proportion to the standard deviation of the function in each sub-region. This algorithm bisects the integration
+    /// region along one coordinate axis at each step. The direction is chose by examining all possible bisections and selecting whichever will minimize the combined variance.
+    /// This procedure is repeated recursively for each of the two half spaces down to a user-specified depth where each sub-region is integrated using a plain Monte
+    /// Carlo estimate.
+    /// </para>
+    /// <b> References: </b>
+    /// <list type="bullet">
+    /// <item><description>
     /// "Numerical Recipes, Routines and Examples in Basic", J.C. Sprott, Cambridge University Press, 1991.
+    /// </description></item>
+    /// <item><description>
     /// "Numerical Recipes: The art of Scientific Computing, Third Edition. Press et al. 2017.
+    /// </description></item>
+    /// <item><description>
+    /// <see href="https://en.wikipedia.org/wiki/Monte_Carlo_integration"/>
+    /// </description></item>
+    /// </list>
     /// </remarks>
     public class Miser : Integrator
     {
@@ -65,7 +113,7 @@ namespace Numerics.Mathematics.Integration
         public Func<double[], double> Function { get; }
 
         /// <summary>
-        /// The number of dimensions in the function to evaluate./>.
+        /// The number of dimensions in the function to evaluate.
         /// </summary>
         public int Dimensions { get; }
 
@@ -150,7 +198,18 @@ namespace Numerics.Mathematics.Integration
             }
 
         }
-
+        
+        /// <summary>
+        /// Helper function for Integrate() function that includes the Monte Carlo sampler for the method
+        /// </summary>
+        /// <param name="function">n dimensional function being evaluated</param>
+        /// <param name="regn"> A vector consisting of ndim "lower-left" coordinates of the region followed by ndim "upper - right"
+        /// coordinates. Specifies the rectangular volume by regn[0...2 * ndim -1]</param>
+        /// <param name="npts"> Number of times tbe function is sampled </param>
+        /// <param name="dith"> Should be normally set to 0, but can be est to 0.1 if the function's active region falls on the boundary of
+        /// a power-of-two subdivision region. </param>
+        /// <param name="ave"> The mean value of the function in the region </param>
+        /// <param name="var"> An estimate of the statistical uncertainty of ave (square of standard deviation), i.e. variance</param>
         private void miser(Func<double[], double> function, double[] regn, int npts, double dith, ref double ave, ref double var)
         {
             // Monte Carlo samples a user-supplied ndim-dimensional function func in a rectangular volume
@@ -280,6 +339,9 @@ namespace Numerics.Mathematics.Integration
         /// <summary>
         /// Returns a uniformly random point pt in an n-dimensional rectangular region. Used by miser.
         /// </summary>
+        /// <param name="pt"> An array the length of ndim </param>
+        /// <param name="regn">  A vector consisting of ndim "lower-left" coordinates of the region followed by ndim "upper - right"
+        /// coordinates. Specifies the rectangular volume by regn[0...2 * ndim -1] </param>
         private void ranpt(double[] pt, double[] regn)
         {
             int j, n = pt.Length;

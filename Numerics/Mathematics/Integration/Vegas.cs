@@ -1,4 +1,34 @@
-﻿using Numerics.Distributions;
+﻿/**
+* NOTICE:
+* The U.S. Army Corps of Engineers, Risk Management Center (USACE-RMC) makes no guarantees about
+* the results, or appropriateness of outputs, obtained from Numerics.
+*
+* LIST OF CONDITIONS:
+* Redistribution and use in source and binary forms, with or without modification, are permitted
+* provided that the following conditions are met:
+* ● Redistributions of source code must retain the above notice, this list of conditions, and the
+* following disclaimer.
+* ● Redistributions in binary form must reproduce the above notice, this list of conditions, and
+* the following disclaimer in the documentation and/or other materials provided with the distribution.
+* ● The names of the U.S. Government, the U.S. Army Corps of Engineers, the Institute for Water
+* Resources, or the Risk Management Center may not be used to endorse or promote products derived
+* from this software without specific prior written permission. Nor may the names of its contributors
+* be used to endorse or promote products derived from this software without specific prior
+* written permission.
+*
+* DISCLAIMER:
+* THIS SOFTWARE IS PROVIDED BY THE U.S. ARMY CORPS OF ENGINEERS RISK MANAGEMENT CENTER
+* (USACE-RMC) "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+* THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+* DISCLAIMED. IN NO EVENT SHALL USACE-RMC BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+* SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+* PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+* INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+* LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+* THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+* **/
+
+using Numerics.Distributions;
 using Numerics.Sampling;
 using System;
 using System.Collections.Generic;
@@ -7,6 +37,7 @@ using System.Linq;
 using System.Security.Permissions;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Net.WebRequestMethods;
 
 namespace Numerics.Mathematics.Integration
 {
@@ -15,12 +46,26 @@ namespace Numerics.Mathematics.Integration
     /// </summary>
     /// <remarks>
     /// <para>
-    ///     Authors:
+    ///     <b> Authors: </b>
     ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
     /// </para>
-    /// References:
+    /// <para>
+    /// <b> Description: </b>
+    /// This method aims to reduce error in Monte Carlo simulations by using a probability distribution function to concentrate the search
+    /// in those areas of the integrand that make the greatest contribution. 
+    /// </para>
+    /// <b> References: </b>
+    /// <list type="bullet">
+    /// <item><description>
     /// "Numerical Recipes, Routines and Examples in Basic", J.C. Sprott, Cambridge University Press, 1991.
+    /// </description></item>
+    /// <item><description>
     /// "Numerical Recipes: The art of Scientific Computing, Third Edition. Press et al. 2017.
+    /// </description></item>
+    /// <item><description>
+    /// <see href="https://en.wikipedia.org/wiki/VEGAS_algorithm"/>
+    /// </description></item>
+    /// </list>
     /// </remarks>
     public class Vegas : Integrator
     {
@@ -243,11 +288,13 @@ namespace Numerics.Mathematics.Integration
         }
 
         /// <summary>
-        /// 
+        /// Helper funciton for Integrate(), the actual Vegas algorithm
         /// </summary>
-        /// <param name="fxn"></param>
-        /// <param name="regn"></param>
-        /// <param name="init"></param>
+        /// <param name="fxn"> The function being evaluated </param>
+        /// <param name="regn"> A vector consisting of ndim “lower left”coordinates of the region followed by ndim “upper right”
+        /// coordinates. Specifies the rectangular volume by regn[0..2 * ndim - 1] </param>
+        /// <param name="init"> The input flag that signals whether this call is a new start or a subsequent call for
+        /// additional iterations </param>
         /// <param name="ncall">The approximate number of integrand evaluations per iteration.</param>
         /// <param name="itmx">The maximum number of iterations.</param>
         /// <param name="tgral">Output. The integral result.</param>
