@@ -30,9 +30,7 @@
 
 using System;
 using System.Collections.Generic;
-using Numerics.Data;
 using Numerics.Mathematics.Optimization;
-using static Numerics.Data.Statistics.Histogram;
 
 namespace Numerics.Distributions
 {

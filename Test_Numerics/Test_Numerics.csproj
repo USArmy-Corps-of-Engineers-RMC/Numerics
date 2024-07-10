@@ -159,20 +159,23 @@
     <Compile Include="Mathematics\Linear Algebra\Test_Vector.cs" />
     <Compile Include="Mathematics\ODE Solvers\Test_RungeKutta.cs" />
     <Compile Include="Mathematics\Optimization\TestFunctions.cs" />
-    <Compile Include="Mathematics\Optimization\Test_Optimization.cs" />
-    <Compile Include="Mathematics\Optimization\Local\Test_GoldenSection.cs" />
-    <Compile Include="Mathematics\Optimization\Local\Test_BrentSearch.cs" />
-    <Compile Include="Mathematics\Optimization\Local\Test_Powell.cs" />
-    <Compile Include="Mathematics\Optimization\Local\Test_BFGS.cs" />
-    <Compile Include="Mathematics\Optimization\Global\Test_DifferentialEvolution.cs" />
-    <Compile Include="Mathematics\Optimization\Global\Test_ShuffledComplexEvolution.cs" />
-    <Compile Include="Mathematics\Optimization\Local\Test_NelderMead.cs" />
-    <Compile Include="Mathematics\Optimization\Global\Test_MultiStart.cs" />
-    <Compile Include="Mathematics\Optimization\Global\Test_SimulatedAnnealing.cs" />
-    <Compile Include="Mathematics\Optimization\Global\Test_ParticleSwarm.cs" />
-    <Compile Include="Mathematics\Optimization\Constrained\Test_AugmentedLagrange.cs" />
-    <Compile Include="Mathematics\Optimization\Global\Test_MLSL.cs" />
-    <Compile Include="Mathematics\Root Finding\Test_RootFinding.cs" />
+    <Compile Include="Mathematics\Optimization\Test_GoldenSection.cs" />
+    <Compile Include="Mathematics\Optimization\Test_BrentSearch.cs" />
+    <Compile Include="Mathematics\Optimization\Test_Powell.cs" />
+    <Compile Include="Mathematics\Optimization\Test_BFGS.cs" />
+    <Compile Include="Mathematics\Optimization\Test_DifferentialEvolution.cs" />
+    <Compile Include="Mathematics\Optimization\Test_ShuffledComplexEvolution.cs" />
+    <Compile Include="Mathematics\Optimization\Test_NelderMead.cs" />
+    <Compile Include="Mathematics\Optimization\Test_MultiStart.cs" />
+    <Compile Include="Mathematics\Optimization\Test_SimulatedAnnealing.cs" />
+    <Compile Include="Mathematics\Optimization\Test_ParticleSwarm.cs" />
+    <Compile Include="Mathematics\Optimization\Test_AugmentedLagrange.cs" />
+    <Compile Include="Mathematics\Optimization\Test_MLSL.cs" />
+    <Compile Include="Mathematics\Root Finding\Test_Bracket.cs" />
+    <Compile Include="Mathematics\Root Finding\Test_Bisection.cs" />
+    <Compile Include="Mathematics\Root Finding\Test_Brent.cs" />
+    <Compile Include="Mathematics\Root Finding\Test_Secant.cs" />
+    <Compile Include="Mathematics\Root Finding\Test_NewtonRaphson.cs" />
     <Compile Include="Mathematics\Special Functions\Test_SpecialFunctions.cs" />
     <Compile Include="Mathematics\Special Functions\Test_Beta.cs" />
     <Compile Include="Mathematics\Special Functions\Test_Gamma.cs" />
@@ -187,6 +190,8 @@
     <Compile Include="Sampling\Test_LatinHypercube.cs" />
     <Compile Include="Sampling\Test_Stratification.cs" />
     <Compile Include="Sampling\Test_SobolSequence.cs" />
+    <Compile Include="Utilities\Test_Tools.cs" />
+    <Compile Include="Utilities\Test_ExtensionMethods.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

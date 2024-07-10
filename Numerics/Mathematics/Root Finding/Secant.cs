@@ -1,4 +1,4 @@
-﻿/**
+﻿/***
 * NOTICE:
 * The U.S. Army Corps of Engineers, Risk Management Center (USACE-RMC) makes no guarantees about
 * the results, or appropriateness of outputs, obtained from Numerics.
@@ -26,7 +26,7 @@
 * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
 * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-* **/
+**/
 
 using System;
 
@@ -38,18 +38,30 @@ namespace Numerics.Mathematics.RootFinding
     /// </summary>
     /// <remarks>
     /// <para>
-    ///     Authors:
-    ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
+    ///     <b> Authors: </b>
+    ///     <list type="bullet"> 
+    ///     <item> Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil </item>
+    ///     <item> Tiki Gonzalez, USACE Risk Management Center, julian.t.gonzalez@usace.army.mil </item>
+    /// </list>
     /// </para>
     /// <para>
-    /// This class contains a shared function for finding the solution to the equation f(x)=0 using the secant method.
+    /// <para>
+    /// <b> Description: </b>
+    /// </para>
+    /// This class contains a shared function for finding the solution to the equation, where f(x)=0 using the Secant method.
+    /// The secant method is a root-finding procedure in numerical analysis that uses a series of roots of secant lines to
+    /// better approximate a root of a function.
     /// </para>
     /// <para>
-    /// References:
+    /// <b> References: </b>
     /// </para>
     /// <para>
     /// "Numerical Recipes, Routines and Examples in Basic", J.C. Sprott, Cambridge University Press, 1991.
+    /// </para>
+    /// <para>
     /// <see href="https://en.wikipedia.org/wiki/Root-finding_algorithm"/>
+    /// </para>
+    /// <para>
     /// <see href="https://en.wikipedia.org/wiki/Secant_method"/>
     /// </para>
     /// </remarks>
@@ -57,7 +69,7 @@ namespace Numerics.Mathematics.RootFinding
     {
 
         /// <summary>
-        /// Use the secant method to find a solution of the equation f(x)=0.
+        /// Use the secant method to find a solution of the equation where f(x)=0. 
         /// </summary>
         /// <param name="f">The function to solve.</param>
         /// <param name="lowerBound">The lower bound (a) of the interval containing the root.</param>

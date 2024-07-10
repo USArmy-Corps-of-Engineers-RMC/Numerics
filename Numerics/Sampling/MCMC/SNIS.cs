@@ -29,13 +29,11 @@
 * **/
 
 using Numerics.Data;
-using Numerics.Data.Statistics;
 using Numerics.Distributions;
 using Numerics.Mathematics.Optimization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 

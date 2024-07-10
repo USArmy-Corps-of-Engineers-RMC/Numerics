@@ -30,7 +30,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Numerics.Mathematics.SpecialFunctions
 {
@@ -133,7 +132,7 @@ namespace Numerics.Mathematics.SpecialFunctions
         /// Computes the binomial coefficient.
         /// </summary>
         /// <remarks>
-        /// The equation for the binomal coefficient is :
+        /// The equation for the binomial coefficient is :
         /// <code>
         ///     n chose k = n! / k!(n-k)!
         /// </code>
@@ -154,10 +153,10 @@ namespace Numerics.Mathematics.SpecialFunctions
         /// <summary>
         /// Helper function for FindCombinations() 
         /// </summary>
-        /// <param name="buffer"> An array to store the current combination being constructed </param>
-        /// <param name="done"> The index of where the next element of the combination should be placed </param>
-        /// <param name="begin"> Index of where to start adding elements. Ensures each element is only included once. </param>
-        /// <param name="end"> The last index (exclusive) to be included in the current combination </param>
+        /// <param name="buffer"></param>
+        /// <param name="done"></param>
+        /// <param name="begin"></param>
+        /// <param name="end"></param>
         private static IEnumerable<int[]> FindCombosRecursive(int[] buffer, int done, int begin, int end)
         {
             for (int i = begin; i < end; i++)
@@ -181,27 +180,6 @@ namespace Numerics.Mathematics.SpecialFunctions
         {
             return FindCombosRecursive(new int[m], 0, 0, n);
         }
-
-        /// <summary>
-        /// Finds all combinations of m within n without replacement.
-        /// </summary>
-        /// <param name="n">The overall count.</param>
-        //public static List<int[]> AllCombinations(int n)
-        //{
-        //    var output = new List<int[]>();
-        //    for (int i = 1; i <= n; i++)
-        //    {
-        //        foreach (int[] c in FindCombinations(i, n))
-        //        {
-        //            output.Add(new int[n]);
-        //            for (int j = 0; j < c.Length; j++)
-        //            {
-        //                output.Last()[c[j]] = 1;
-        //            }
-        //        }
-        //    }
-        //    return output;
-        //}
 
         /// <summary>
         /// Finds all combinations of m within n without replacement.           

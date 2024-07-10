@@ -31,8 +31,6 @@
 using Numerics.Sampling;
 using System;
 using System.Collections.Generic;
-using System.Windows.Documents;
-using static System.Net.WebRequestMethods;
 
 namespace Numerics.Mathematics.Integration
 {
@@ -73,7 +71,6 @@ namespace Numerics.Mathematics.Integration
             Function = function ?? throw new ArgumentNullException(nameof(function), "The function cannot be null.");
             a = min;
             b = max;
-            //MinFunctionEvaluations = 100;
         }
 
         private double a;
@@ -200,7 +197,7 @@ namespace Numerics.Mathematics.Integration
         /// <param name="m"> The midpoint between a and b </param>
         /// <param name="fm"> The function evaluated at m </param>
         /// <returns>
-        /// A three point Simpsons Rule evaluation on [a,b]
+        /// A three point Simpson's Rule evaluation on [a,b]
         /// </returns>
         private double Simpsons(Func<double, double> f, double a, double fa, double b, double fb, ref double m, ref double fm)
         {

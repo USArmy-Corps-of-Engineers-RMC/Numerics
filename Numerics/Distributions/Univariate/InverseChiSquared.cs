@@ -30,7 +30,6 @@
 
 using System;
 using System.Collections.Generic;
-using Numerics.Mathematics.RootFinding;
 using Numerics.Mathematics.SpecialFunctions;
 
 namespace Numerics.Distributions

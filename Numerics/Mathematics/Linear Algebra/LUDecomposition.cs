@@ -1,4 +1,4 @@
-﻿/**
+﻿/***
 * NOTICE:
 * The U.S. Army Corps of Engineers, Risk Management Center (USACE-RMC) makes no guarantees about
 * the results, or appropriateness of outputs, obtained from Numerics.
@@ -26,7 +26,7 @@
 * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
 * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-* **/
+***/
 
 using System;
 
@@ -38,12 +38,30 @@ namespace Numerics.Mathematics.LinearAlgebra
     /// </summary>
     /// <remarks>
     /// <para>
-    ///     Authors:
-    ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
+    /// <b> Authors: </b>
+    ///    <list type="bullet"> 
+    ///     <item> Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil </item>
+    ///     <item> Tiki Gonzalez, USACE Risk Management Center, julian.t.gonzalez@usace.army.mil </item>
+    /// </list>
+    /// </para>
+    /// <para>
+    /// <b> Description: </b>
+    /// </para>
+    /// <para>
+    /// LU decomposition is a useful method utilizing Gaussian Elimination to decompose a matrix into 
+    /// a lower and upper triangular matrix. 
+    /// </para>
+    /// <para>
+    /// <b> References: </b>
+    /// </para>
+    /// <para>
+    /// "Numerical Recipes: The art of Scientific Computing, Third Edition. Press et al. 2017"
+    /// </para>
+    /// <para>
+    /// "Applied Numerical Methods with MATLAB for Engineers and Scientists, Third Edition.", Steven C. Chapra, McGraw-Hill, 2012.
     /// </para>
     /// <para>
     /// <see href = "https://en.wikipedia.org/wiki/LU_decomposition" />
-    /// "Numerical Recipes: The art of Scientific Computing, Third Edition. Press et al. 2017.
     /// </para>
     /// </remarks>
     public class LUDecomposition
@@ -73,6 +91,7 @@ namespace Numerics.Mathematics.LinearAlgebra
             int imax, i, j, k;
             double big, temp;
             d = 1.0d;
+
             // Loop over rows to get the implicit scaling information.
             for (i = 0; i < n; i++)
             {
@@ -116,14 +135,17 @@ namespace Numerics.Mathematics.LinearAlgebra
                 }
 
                 index[k] = imax;
-                if (LU[k, k] == 0.0d) LU[k, k] = TINY;
+
                 // If the pivot element is zer0, the matrix is singular (at least to the precision of the algorithm.)
                 // For some applications on singular matrices, it is desirable to substitute TINY for zero.
+                if (LU[k, k] == 0.0d) LU[k, k] = TINY;
+                
+                //Perform Gaussian Elimination step
                 for (i = k + 1; i < n; i++)
                 {
-                    LU[i, k] /= LU[k, k];
+                    LU[i, k] /= LU[k, k]; // True Lower triangular matrix
                     for (j = k + 1; j < n; j++)
-                        LU[i, j] -= LU[i, k] * LU[k, j];
+                        LU[i, j] -= LU[i, k] * LU[k, j]; // True Upper triangular matrix
                 }
             }
         }
@@ -195,9 +217,9 @@ namespace Numerics.Mathematics.LinearAlgebra
             }
             for (j = 0; j < m; j++)
             {
-                for (i = 0; i < n; i++) xx[i] = B[i,j];
+                for (i = 0; i < n; i++) { xx[i] = B[i, j]; }
                 xx = Solve(xx);
-                for (i = 0; i < n; i++) x[i,j] = xx[i];
+                for (i = 0; i < n; i++) { x[i, j] = xx[i]; }
             }
             return x;
         }

@@ -209,11 +209,11 @@ namespace Mathematics.Optimization
             var validX = 512d;
             var validY = 404.2319d;
 
-            var z = solver.BestParameterSet.Fitness; // -126.423832142973 (should be -959.6407)
-            
-            // Fails to converge
-            //Assert.AreEqual(x, validX, 1E-3); 
-            //Assert.AreEqual(y, validY, 1E-3); 
+            var z = solver.BestParameterSet.Fitness;
+            // Simulated annealing fails to converge for this test function
+            // -126.423832142973 (should be -959.6407)
+            // This test is still included as an example. 
+
         }
 
         /// <summary>

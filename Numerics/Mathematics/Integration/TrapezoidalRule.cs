@@ -29,7 +29,6 @@
 * **/
 
 using System;
-using static System.Net.WebRequestMethods;
 
 namespace Numerics.Mathematics.Integration
 {
@@ -118,7 +117,6 @@ namespace Numerics.Mathematics.Integration
                     // Check convergence
                     if (i > 2)
                     {
-                        //if ((Math.Abs(s0 - s1) < RelativeTolerance * Math.Abs(s1)) || (s0 == 0.0 && s1 == 0.0))
                         if (EvaluateConvergence(s1, s0) || (s0 == 0.0 && s1 == 0.0))
                         {
                             Result = s0;

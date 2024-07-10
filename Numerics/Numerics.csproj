@@ -140,6 +140,7 @@
     <Compile Include="Machine Learning\Supervised\NaiveBayes.cs" />
     <Compile Include="Machine Learning\Supervised\NeuralNetwork.cs" />
     <Compile Include="Machine Learning\Supervised\RandomForest.cs" />
+    <Compile Include="Machine Learning\Support\ConfusionMatrix.cs" />
     <Compile Include="Machine Learning\Support\JenksCluster.cs" />
     <Compile Include="Machine Learning\Support\KMeansCluster.cs" />
     <Compile Include="Machine Learning\Support\DecisionNode.cs" />
@@ -175,7 +176,6 @@
     <Compile Include="Data\Statistics\Probability.cs" />
     <Compile Include="Sampling\LatinHypercube.cs" />
     <Compile Include="Data\Classification\Classification.cs" />
-    <Compile Include="Data\Classification\JenksBreaksClusters.cs" />
     <Compile Include="Data\Statistics\GoodnessOfFit.cs" />
     <Compile Include="Data\Statistics\Histogram.cs" />
     <Compile Include="Data\Paired Data\OrderedPairedData.cs" />

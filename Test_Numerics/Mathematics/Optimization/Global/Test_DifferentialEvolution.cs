@@ -182,15 +182,14 @@ namespace Mathematics.Optimization
             var solver = new DifferentialEvolution(TestFunctions.Bukin, 2, lower, upper);
             solver.Minimize();
             var solution = solver.BestParameterSet.Values;
-            var x = solution[0]; // -14.81
-            var y = solution[1]; // 2.19
+            var x = solution[0];
+            var y = solution[1]; 
             var validX = -10.0d;
             var validY = 1.0d;
 
-            var z = solver.BestParameterSet.Fitness; // 0.0480820287015078 (should be 0)
-
-            //Assert.AreEqual(x, validX, 1E-4); 
-            //Assert.AreEqual(y, validY, 1E-4); 
+            var z = solver.BestParameterSet.Fitness; 
+            // Differential Evolution fails to solve for this test function
+            // This test is still included as an example. 
         }
 
         /// <summary>

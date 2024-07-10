@@ -1,4 +1,4 @@
-﻿/**
+﻿/***
 * NOTICE:
 * The U.S. Army Corps of Engineers, Risk Management Center (USACE-RMC) makes no guarantees about
 * the results, or appropriateness of outputs, obtained from Numerics.
@@ -26,7 +26,7 @@
 * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
 * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-* **/
+**/
 
 using System;
 
@@ -38,20 +38,37 @@ namespace Numerics.Mathematics.RootFinding
     /// </summary>
     /// <remarks>
     /// <para>
-    ///     Authors:
-    ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
+    ///     <b> Authors: </b>
+    ///     <list type="bullet"> 
+    ///     <item> Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil </item>
+    ///     <item> Tiki Gonzalez, USACE Risk Management Center, julian.t.gonzalez@usace.army.mil </item>
+    /// </list>
     /// </para>
     /// <para>
+    /// <para>
+    /// <b> Description: </b>
+    /// </para>
     /// In numerical analysis, Newton's method (also known as the Newton–Raphson method), named after Isaac Newton and Joseph Raphson,
-    /// is a method for finding successively better approximations to the roots (or zeros) of a real-valued function.
+    /// is a method for finding successively better approximations to the roots (or zeros) of a real-valued function. In this method, 
+    /// one takes an initial guess at the root, then a tangent can be extended from the point evaluated at the inital value. The point
+    /// where this tangent crosses the x axis, usually represents an improved estimate of the root. 
     /// </para>
     /// <para>
-    /// References:
+    /// <b> References: </b>
     /// </para>
     /// <para>
     /// "Numerical Recipes, Routines and Examples in Basic", J.C. Sprott, Cambridge University Press, 1991.
+    /// </para>
+    /// <para>
+    /// "Applied Numerical Methods with MATLAB for Engineers and Scientists, Third Edition.", Steven C. Chapra, McGraw-Hill, 2012.
+    /// </para>
+    /// <para>
     /// <see href="https://en.wikipedia.org/wiki/Root-finding_algorithm"/>
-    /// <see href="https://en.wikipedia.org/wiki/Newton%27s_method"/>
+    /// </para>
+    /// <para>
+    ///  <see href="https://en.wikipedia.org/wiki/Newton%27s_method"/>
+    /// </para>
+    /// <para>
     /// <see href="http://www.m-hikari.com/ams/ams-2017/ams-53-56-2017/p/hahmAMS53-56-2017.pdf"/>
     /// </para>
     /// </remarks>
@@ -62,6 +79,9 @@ namespace Numerics.Mathematics.RootFinding
         /// Use the basic Newton-Raphson method to find a solution of the equation f(x)=0.
         /// </summary>
         /// <remarks>
+        /// <para>
+        /// Remarks:
+        /// </para>
         /// The basic algorithm aborts immediately if the root leaves the bound interval.
         /// </remarks>
         /// <param name="f">The function to find roots from.</param>

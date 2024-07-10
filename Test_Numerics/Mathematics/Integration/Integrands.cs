@@ -120,38 +120,5 @@ namespace Mathematics.Integration
             return  result;
         }
 
-        public static double Volume { get; set; }
-
-        public static double TotalP { get; set; } = 0;
-
-        public static double SumOfNormals2(double[] z, double w)
-        { 
-            if (w < 0 || w > 1)
-                return 0;
-
-            var p = new double[z.Length];
-            double result = 0;
-            for (int i = 0; i < z.Length; i++)
-            {
-                //var norm = new Normal(mu20[i], sigma20[i]);
-                //p[i] = Normal.StandardCDF(z[i]);
-                //result += mu20[i] + sigma20[i] * Normal.StandardZ(p[i]);
-                result += z[i];
-            }
-            return result / Volume;
-        }
-
-        public static double SumOfNormalsZ(double[] z, double w)
-        {
-            var volume = Math.Pow(Normal.StandardZ(1 - 1E-16) - Normal.StandardZ(1E-16), z.Length);
-
-            double result = 0;
-            for (int i = 0; i < z.Length; i++)
-            {
-                result += mu20[i] + sigma20[i] * z[i];
-            }
-            return result / volume;
-        }
-
     }
 }

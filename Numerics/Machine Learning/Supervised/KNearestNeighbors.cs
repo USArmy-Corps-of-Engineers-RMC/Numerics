@@ -1,4 +1,4 @@
-﻿/**
+﻿/***
 * NOTICE:
 * The U.S. Army Corps of Engineers, Risk Management Center (USACE-RMC) makes no guarantees about
 * the results, or appropriateness of outputs, obtained from Numerics.
@@ -26,7 +26,7 @@
 * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
 * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-* **/
+**/
 
 using Numerics.Data.Statistics;
 using Numerics.Mathematics.LinearAlgebra;
@@ -45,8 +45,20 @@ namespace Numerics.MachineLearning
     /// </summary>
     /// <remarks>
     /// <para>
-    ///     Authors:
+    ///     <b> Authors: </b>
     ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
+    /// </para>
+    /// <para>
+    /// <b> Description: </b>
+    /// </para>
+    /// <para>
+    /// k-NN is a simple method for applying supervised learning. When training a k-NN model,
+    /// the model practically memorizes all locations of all the points and their values.
+    /// When it is time to use the model for predictions, the model takes the input data and 
+    /// calculates the k-nearest points to that input. 
+    /// </para>
+    /// <para>
+    /// <b> References: </b>
     /// </para>
     /// <para>
     /// <see href = "https://en.wikipedia.org/wiki/K-nearest_neighbors_algorithm" />
@@ -289,7 +301,7 @@ namespace Numerics.MachineLearning
         /// <param name="seed">Optional. The prng seed. If negative or zero, then the computer clock is used as a seed.</param>
         private double[] kNNBootstrapPredict(Matrix xTrain, Vector yTrain, Matrix xTest, int seed = -1)
         {
-            var rnd = seed > 0 ? new MersenneTwister(seed) : new MersenneTwister();
+            var rnd = seed > 0 ? new Random(seed) : new Random();
             var idxs = rnd.NextIntegers(0, xTrain.NumberOfRows, xTrain.NumberOfRows);
             var bootX = new Matrix(xTrain.NumberOfRows, xTrain.NumberOfColumns);
             var bootY = new Vector(yTrain.Length);
@@ -319,7 +331,7 @@ namespace Numerics.MachineLearning
             var output = new double[xTest.NumberOfRows, 4]; // lower, median, upper, mean
 
             var bootResults = new double[xTest.NumberOfRows, realizations];
-            var rnd = seed > 0 ? new MersenneTwister(seed) : new MersenneTwister();
+            var rnd = seed > 0 ? new Random(seed) : new Random();
             var seeds = rnd.NextIntegers(realizations);
 
             // Bootstrap the predictions

@@ -33,7 +33,6 @@ using Numerics.Distributions;
 using Numerics.Mathematics.Optimization;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Numerics.Sampling.MCMC
 {

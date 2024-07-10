@@ -9,6 +9,15 @@ using System.Collections.Generic;
 namespace Numerics.Data
 {
 
+    /// <summary>
+    /// Download time series from the Internet.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    ///     Authors:
+    ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
+    /// </para>
+    /// </remarks>
     public class TimeSeriesDownload
     {
         /// <summary>
@@ -308,9 +317,5 @@ namespace Numerics.Data
         }
 
     }
-
-
-
-
 
 }

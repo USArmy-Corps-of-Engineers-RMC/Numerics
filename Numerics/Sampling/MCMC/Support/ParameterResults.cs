@@ -30,7 +30,6 @@
 
 using Numerics.Data.Statistics;
 using Numerics.Distributions;
-using Numerics.Mathematics;
 using System;
 using System.Collections.Generic;
 

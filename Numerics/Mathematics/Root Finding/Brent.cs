@@ -1,4 +1,4 @@
-﻿/**
+﻿/***
 * NOTICE:
 * The U.S. Army Corps of Engineers, Risk Management Center (USACE-RMC) makes no guarantees about
 * the results, or appropriateness of outputs, obtained from Numerics.
@@ -26,7 +26,7 @@
 * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
 * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-* **/
+**/
 
 using System;
 
@@ -38,18 +38,30 @@ namespace Numerics.Mathematics.RootFinding
     /// </summary>
     /// <remarks>
     /// <para>
-    ///     Authors:
-    ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
+    ///     <b> Authors: </b>
+    ///     <list type="bullet"> 
+    ///     <item> Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil </item>
+    ///     <item> Tiki Gonzalez, USACE Risk Management Center, julian.t.gonzalez@usace.army.mil </item>
+    /// </list>
     /// </para>
     /// <para>
-    /// This class contains a shared function for finding the solution to the equation f(x)=0 using Brent's method.
+    /// <para>
+    /// <b> Description: </b>
+    /// </para>
+    /// This class contains a shared function for finding the solution to the equation f(x)=0 using Brent's method. Brent's method is a 
+    /// hybrid root-finding method that combines the use of bracketing methods, namely, the bisection method, secant method, and inverse 
+    /// quadratic interpolation. 
     /// </para>
     /// <para>
-    /// References:
+    /// <b> References: </b>
     /// </para>
     /// <para>
     /// "Numerical Recipes, Routines and Examples in Basic", J.C. Sprott, Cambridge University Press, 1991.
+    /// </para>
+    /// <para>
     /// <see href="https://en.wikipedia.org/wiki/Root-finding_algorithm"/>
+    /// </para>
+    /// <para>
     /// <see href="https://en.wikipedia.org/wiki/Brent%27s_method"/>
     /// </para>
     /// </remarks>
@@ -57,7 +69,7 @@ namespace Numerics.Mathematics.RootFinding
     {
 
         /// <summary>
-        /// Use the Brent method to find a solution of the equation f(x)=0.
+        /// Use the Brent method to find a solution of the equation where f(x)=0.
         /// </summary>
         /// <param name="f">The function to solve.</param>
         /// <param name="lowerBound">The lower bound (a) of the interval containing the root.</param>
@@ -86,21 +98,25 @@ namespace Numerics.Mathematics.RootFinding
             bool solutionFound = false;
             double EPS = Tools.DoubleMachineEpsilon;
             double a = lowerBound, b = upperBound, c = upperBound, d = 0, e = 0, fa = f(a), fb = f(b), fc, p, q, r, s, tol1, xm, root = 0;
+            //Verifying opposite sign change in interval
             if ((fa > 0.0 && fb > 0.0) || (fa < 0.0 && fb < 0.0))
             {
                 throw new ArgumentException("Brent's method failed because the root is not bracketed.");
             }
-            fc = fb;
+            fc = fb; 
 
             // Brent's loop
             for (int i = 1; i <= maxIterations; i++)
             {
+                //If both upperbounds are same sign switch c lower bound then rearrange points
                 if ((fb > 0.0 && fc > 0.0) || (fb < 0.0 && fc < 0.0))
                 {
                     c = a;
                     fc = fa;
                     e = d = b - a;
                 }
+
+                //So that c can be regarded as the current approximate solution
                 if (Math.Abs(fc) < Math.Abs(fb))
                 {
                     a = b;
@@ -110,23 +126,28 @@ namespace Numerics.Mathematics.RootFinding
                     fb = fc;
                     fc = fa;
                 }
-                tol1 = 2.0 * EPS * Math.Abs(b) + 0.5 * tolerance;
-                xm = 0.5 * (c - b);
+                tol1 = 2.0 * EPS * Math.Abs(b) + 0.5 * tolerance; 
+                xm = 0.5 * (c - b); //Termination test and possible exit
+
+                //Breaks if b is proven to be root
                 if (Math.Abs(xm) <= tol1 || fb == 0.0)
                 {
                     root = b;
                     solutionFound = true;
                     break;
                 }
+                //Chooses open methods or bisection
                 if (Math.Abs(e) >= tol1 && Math.Abs(fa) > Math.Abs(fb))
                 {
                     s = fb / fa;
+                    // Secant Method
                     if (a == c)
                     {
                         p = 2.0 * xm * s;
                         q = 1.0 - s;
                     }
-                    else
+                    // Inverse quadratic interpolation
+                    else 
                     {
                         q = fa / fc;
                         r = fb / fc;
@@ -153,6 +174,7 @@ namespace Numerics.Mathematics.RootFinding
                     d = xm;
                     e = d;
                 }
+                //Bisection Method
                 a = b;
                 fa = fb;
                 if (Math.Abs(d) > tol1)
@@ -186,6 +208,9 @@ namespace Numerics.Mathematics.RootFinding
             if (lowerBound == upperBound) throw new Exception("Bad initial range in zbrac");
             f1 = f(lowerBound);
             f2 = f(upperBound);
+
+            if (lowerBound == upperBound) throw new Exception("Bad initial range in zbrac");
+            
             for (int j = 0; j < maxIterations; j++)
             {
                 if (f1 * f2 < 0.0) return true;

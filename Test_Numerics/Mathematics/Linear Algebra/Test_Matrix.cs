@@ -1,4 +1,35 @@
-﻿using System;
+﻿/***
+*NOTICE:
+*The U.S.Army Corps of Engineers, Risk Management Center (USACE-RMC) makes no guarantees about
+* the results, or appropriateness of outputs, obtained from Numerics.
+*
+* LIST OF CONDITIONS:
+*Redistribution and use in source and binary forms, with or without modification, are permitted
+* provided that the following conditions are met:
+* ● Redistributions of source code must retain the above notice, this list of conditions, and the
+* following disclaimer.
+* ● Redistributions in binary form must reproduce the above notice, this list of conditions, and
+* the following disclaimer in the documentation and/or other materials provided with the distribution.
+* ● The names of the U.S. Government, the U.S. Army Corps of Engineers, the Institute for Water
+* Resources, or the Risk Management Center may not be used to endorse or promote products derived
+* from this software without specific prior written permission. Nor may the names of its contributors
+* be used to endorse or promote products derived from this software without specific prior
+* written permission.
+*
+* DISCLAIMER:
+*THIS SOFTWARE IS PROVIDED BY THE U.S. ARMY CORPS OF ENGINEERS RISK MANAGEMENT CENTER
+* (USACE-RMC) "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+* THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+* DISCLAIMED. IN NO EVENT SHALL USACE-RMC BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+* SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+* PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+* INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+* LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+* THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+***/
+
+using System;
+using System.Security.Cryptography;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Numerics.Mathematics.LinearAlgebra;
 
@@ -27,18 +58,34 @@ namespace Mathematics.LinearAlgebra
             A[2, 0] = 7d;
             A[2, 1] = 8d;
             A[2, 2] = 9d;
+
+            ///<summary>
+            /// Testing .Row
+            /// </summary>
             var true_row = new[] { 4d, 5d, 6d };
             var row = A.Row(1);
             for (int i = 0; i < row.Length; i++)
                 Assert.AreEqual(row[i], true_row[i]);
+
+            ///<summary>
+            /// Testing .Column
+            /// </summary>
             var true_col = new[] { 2d, 5d, 8d };
             var col = A.Column(1);
             for (int i = 0; i < col.Length; i++)
                 Assert.AreEqual(col[i], true_col[i]);
+
+            ///<summary> 
+            ///Testing .Diagonal
+            /// </summary>
             var true_diag = new[] { 1d, 5d, 9d };
             var diag = A.Diagonal();
             for (int i = 0; i < diag.Length; i++)
                 Assert.AreEqual(diag[i], true_diag[i]);
+
+            ///<summary>
+            ///Testing upper triangular
+            /// </summary>
             var true_upT = new Matrix(3);
             true_upT[0, 0] = 1d;
             true_upT[0, 1] = 2d;
@@ -53,6 +100,9 @@ namespace Mathematics.LinearAlgebra
                     Assert.AreEqual(upT[i, j], true_upT[i, j]);
             }
 
+            ///<summary>
+            ///Testing lower triangular
+            /// </summary>
             var true_lowT = new Matrix(3);
             true_lowT[0, 0] = 1d;
             true_lowT[1, 0] = 4d;
@@ -102,6 +152,92 @@ namespace Mathematics.LinearAlgebra
             Assert.AreEqual(result, true_result);
         }
 
+        ///<summary>
+        /// Testing if matrix is square
+        /// </summary>
+        [TestMethod()]
+        public void Test_IsSquare()
+        {
+            var A = new Matrix(3,4);
+            A[0, 0] = 1d;
+            A[0, 1] = 0d;
+            A[0, 2] = 0d;
+            A[0, 3] = 1d;
+            A[1, 0] = 0d;
+            A[1, 1] = 1d;
+            A[1, 2] = 0d;
+            A[1, 3] = 1d;
+            A[2, 0] = 0d;
+            A[2, 1] = 0d;
+            A[2, 2] = 1d;
+            A[2, 3] = 1d;
+
+            Assert.IsFalse(A.IsSquare);
+        }
+
+        ///<summary>
+        /// Testing if matrix is square
+        /// </summary>
+        [TestMethod()]
+        public void Test_Clone()
+        {
+            var A = new Matrix(3, 4);
+            A[0, 0] = 1d;
+            A[0, 1] = 0d;
+            A[0, 2] = 0d;
+            A[0, 3] = 1d;
+            A[1, 0] = 0d;
+            A[1, 1] = 1d;
+            A[1, 2] = 0d;
+            A[1, 3] = 1d;
+            A[2, 0] = 0d;
+            A[2, 1] = 0d;
+            A[2, 2] = 1d;
+            A[2, 3] = 1d;
+
+           var clone = A.Clone();
+            for (int i = 0; i < A.NumberOfRows; i++)
+            {
+                for (int j = 0; j < A.NumberOfColumns; j++)
+                    Assert.AreEqual(A[i, j], clone[i, j], 0.0001d);
+            }
+        }
+        ///<summary>
+        /// Test Inverse
+        /// </summary>
+        [TestMethod()]
+        public void Test_Inverse()
+        {
+            var A = new Matrix(3);
+            A[0, 0] = 1d;
+            A[0, 1] = 1d;
+            A[0, 2] = 1d;
+            A[1, 0] = 0d;
+            A[1, 1] = 2d;
+            A[1, 2] = 5d;
+            A[2, 0] = 2d;
+            A[2, 1] = 5d;
+            A[2, 2] = -1d;
+
+            //Testing Inverse
+            var true_invA = new Matrix(3);
+            true_invA[0, 0] = -27d / -21d;
+            true_invA[0, 1] = 6d / -21d;
+            true_invA[0, 2] = 3d / -21d;
+            true_invA[1, 0] = 10d / -21d;
+            true_invA[1, 1] = -3d / -21d;
+            true_invA[1, 2] = -5d / -21d;
+            true_invA[2, 0] = -4d / -21d;
+            true_invA[2, 1] = -3d / -21d;
+            true_invA[2, 2] = 2d / -21d;
+            var invA = A.Inverse();
+            for (int i = 0; i < invA.NumberOfRows; i++)
+            {
+                for (int j = 0; j < invA.NumberOfColumns; j++)
+                    Assert.AreEqual(invA[i, j], true_invA[i, j], 0.0001d);
+            }
+        }
+
         /// <summary>
         /// Test identity.
         /// </summary>
@@ -139,6 +275,7 @@ namespace Mathematics.LinearAlgebra
             A[1, 1] = 4d;
             A[2, 0] = 5d;
             A[2, 1] = 6d;
+
             var true_result = new Matrix(2, 3);
             true_result[0, 0] = 1d;
             true_result[0, 1] = 3d;
@@ -146,6 +283,7 @@ namespace Mathematics.LinearAlgebra
             true_result[1, 0] = 2d;
             true_result[1, 1] = 4d;
             true_result[1, 2] = 6d;
+
             var result = Matrix.Transpose(A);
             for (int i = 0; i < result.NumberOfRows; i++)
             {
@@ -155,7 +293,65 @@ namespace Mathematics.LinearAlgebra
         }
 
         /// <summary>
-        /// Add matrices.
+        /// Testing diagonal function
+        /// </summary>
+        [TestMethod()]
+        public void Test_Diagonal()
+        {
+            var A = new Matrix(3);
+            A[0, 0] = 1;
+            A[0, 1] = 2;
+            A[0, 2] = 3;
+            A[1,0] = 4;
+            A[1,1] = 5;
+            A[1,2] = 6;
+            A[2,0] = 7;
+            A[2,1] = 8;
+            A[2,2] = 9;
+
+            var result = Matrix.Diagonal(A);
+
+            var true_result = new Matrix(3);
+            true_result[0, 0] = 1;
+            true_result[0, 1] = 0;
+            true_result[0, 2] = 0;
+            true_result[1,0] = 0;
+            true_result[1, 1] = 5;
+            true_result[1, 2] = 0;
+            true_result[2, 0] = 0;
+            true_result[2, 1] = 0;
+            true_result[2, 2] = 9;
+
+            for (int i = 0; i < result.NumberOfRows; i++)
+            {
+                for (int j = 0; j < result.NumberOfColumns; j++)
+                    Assert.AreEqual(result[i, j], true_result[i, j]);
+            }
+        }
+        
+        /// <summary>
+        /// Sum all elements in the matrix
+        /// </summary>
+        [TestMethod()]
+        public void Test_Sum()
+        {
+            var A = new Matrix(3);
+            A[0,0] = 1;
+            A[0,1] = 2;
+            A[0,2] = 3;
+            A[1,0] = 4;
+            A[1,1] = 5;
+            A[1,2] = 6;
+            A[2,0] = 7;
+            A[2,1] = 8;
+            A[2,2] = 9;
+
+            var sum = A.Sum();
+            Assert.AreEqual(45, sum);
+        }
+
+        /// <summary>
+        /// Add matrices
         /// </summary>
         [TestMethod()]
         public void Test_Add()
@@ -325,11 +521,6 @@ namespace Mathematics.LinearAlgebra
             double true_result = -2.0d;
             double result = A.Determinant();
             Assert.AreEqual(result, true_result);
-
-            //// permanent
-            //true_result = 10d;
-            //result = Matrix.Permanent(A);
-            //Assert.AreEqual(result, true_result);
         }
     }
 }

@@ -30,18 +30,11 @@
 
 using Numerics.Data.Statistics;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
-using System.Globalization;
-using System.IO;
-using System.IO.Compression;
 using System.Linq;
-using System.Net;
-using System.Runtime.InteropServices.ComTypes;
 using System.Threading.Tasks;
-using System.Windows.Markup;
 using System.Xml.Linq;
 
 namespace Numerics.Data

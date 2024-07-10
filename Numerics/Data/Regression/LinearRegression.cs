@@ -33,8 +33,6 @@ using Numerics.Distributions;
 using Numerics.Mathematics.LinearAlgebra;
 using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
-using System.Threading.Tasks;
 
 namespace Numerics.Data
 {

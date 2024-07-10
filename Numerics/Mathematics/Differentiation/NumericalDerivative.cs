@@ -28,9 +28,7 @@
 * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 * **/
 
-using Numerics.Mathematics.LinearAlgebra;
 using System;
-using System.Drawing.Printing;
 
 namespace Numerics.Mathematics
 {
