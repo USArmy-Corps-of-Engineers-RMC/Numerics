@@ -32,9 +32,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.ComponentModel;
 using System.Linq;
-using System.Reflection;
 
 namespace Numerics.Data
 {
@@ -55,12 +53,11 @@ namespace Numerics.Data
         /// Internal list.
         /// </summary>
         protected List<SeriesOrdinate<TIndex, TValue>> _seriesOrdinates = new List<SeriesOrdinate<TIndex, TValue>>();
+
+        /// <inheritdoc/>
         public event NotifyCollectionChangedEventHandler CollectionChanged;
 
-        /// <summary>
-        /// Get and sets the element at the specific index.
-        /// </summary>
-        /// <param name="index">The zero-based index of the element to get or set</param>
+        /// <inheritdoc/>
         public SeriesOrdinate<TIndex, TValue> this[int index]
         {
             get { return _seriesOrdinates[index]; }
@@ -76,10 +73,7 @@ namespace Numerics.Data
             }
         }
 
-        /// <summary>
-        /// Get and sets the element at the specific index.
-        /// </summary>
-        /// <param name="index">The zero-based index of the element to get or set</param>
+        /// <inheritdoc/>
         object IList.this[int index]
         {
             get { return _seriesOrdinates[index]; }
@@ -104,14 +98,10 @@ namespace Numerics.Data
         /// </summary>
         public bool SuppressCollectionChanged { get; set; } = false;
 
-        /// <summary>
-        /// Gets the number of elements contained in the collection.
-        /// </summary>
+        /// <inheritdoc/>
         public int Count => _seriesOrdinates.Count;
 
-        /// <summary>
-        /// Determines if the collection is read only. 
-        /// </summary>
+        /// <inheritdoc/>
         public virtual bool IsReadOnly => false;
 
         /// <inheritdoc/>
@@ -123,11 +113,7 @@ namespace Numerics.Data
         /// <inheritdoc/>
         public bool IsSynchronized => false;
 
-
-        /// <summary>
-        /// Add element to the collection.
-        /// </summary>
-        /// <param name="item">Item to add.</param>
+        /// <inheritdoc/>
         public virtual void Add(SeriesOrdinate<TIndex, TValue> item)
         {
             _seriesOrdinates.Add(item);
@@ -135,10 +121,7 @@ namespace Numerics.Data
                 CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item, _seriesOrdinates.Count - 1));
         }
 
-        /// <summary>
-        /// Add element to the collection.
-        /// </summary>
-        /// <param name="item">Item to add.</param>
+        /// <inheritdoc/>
         public int Add(object item)
         {
             if (item.GetType() == typeof(SeriesOrdinate<TIndex, TValue>))
@@ -149,12 +132,7 @@ namespace Numerics.Data
             return -1;
         }
 
-
-        /// <summary>
-        /// Inserts an element into the collection at the specified index.
-        /// </summary>
-        /// <param name="index">The zero-based index at which the element should be inserted.</param>
-        /// <param name="item">Item to insert.</param>
+        /// <inheritdoc/>
         public virtual void Insert(int index, SeriesOrdinate<TIndex, TValue> item)
         {
             _seriesOrdinates.Insert(index, item);
@@ -162,11 +140,7 @@ namespace Numerics.Data
                 CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item, index));
         }
 
-        /// <summary>
-        /// Inserts an element into the collection at the specified index.
-        /// </summary>
-        /// <param name="index">The zero-based index at which the element should be inserted.</param>
-        /// <param name="item">Item to insert.</param>
+        /// <inheritdoc/>
         public void Insert(int index, object item)
         {
             if (item.GetType() == typeof(SeriesOrdinate<TIndex, TValue>))
@@ -175,10 +149,7 @@ namespace Numerics.Data
             }
         }
 
-        /// <summary>
-        /// Removes the first occurrence of the specified object.
-        /// </summary>
-        /// <param name="item">The object to remove from the collection.</param>
+        /// <inheritdoc/>
         public virtual bool Remove(SeriesOrdinate<TIndex, TValue> item)
         {
             var index = IndexOf(item);
@@ -191,10 +162,7 @@ namespace Numerics.Data
             return false;
         }
 
-        /// <summary>
-        /// Removes the first occurrence of the specified object.
-        /// </summary>
-        /// <param name="item">The object to remove from the collection.</param>
+        /// <inheritdoc/>
         public void Remove(object item)
         {
             if (item.GetType() == typeof(SeriesOrdinate<TIndex, TValue>))
@@ -203,10 +171,7 @@ namespace Numerics.Data
             }
         }
 
-        /// <summary>
-        /// Remove element at the specified index of the collection.
-        /// </summary>
-        /// <param name="index">The zero-based index of the element to remove.</param>
+        /// <inheritdoc/>
         public virtual void RemoveAt(int index)
         {
             Remove(_seriesOrdinates[index]);
@@ -224,19 +189,13 @@ namespace Numerics.Data
             RaiseCollectionChangedReset();
         }
 
-        /// <summary>
-        /// Determines whether an element is in the collection.
-        /// </summary>
-        /// <param name="item">The item to locate.</param>
+        /// <inheritdoc/>
         public bool Contains(SeriesOrdinate<TIndex, TValue> item)
         {
             return _seriesOrdinates.Contains(item);
         }
 
-        /// <summary>
-        /// Determines whether an element is in the collection.
-        /// </summary>
-        /// <param name="item">The item to locate.</param>
+        /// <inheritdoc/>
         public bool Contains(object item)
         {
             if (item.GetType() == typeof(SeriesOrdinate<TIndex, TValue>))
@@ -246,21 +205,13 @@ namespace Numerics.Data
             return false;       
         }
 
-        /// <summary>
-        /// Copies the entire collection to a compatible one-dimensional array starting at the specified index of the target array.
-        /// </summary>
-        /// <param name="array">The one-dimensional array that is the destination of the copied elements.</param>
-        /// <param name="index">The zero-based index in the array at which copying begins.</param>
+        /// <inheritdoc/>
         public void CopyTo(SeriesOrdinate<TIndex, TValue>[] array, int index)
         {
             _seriesOrdinates.CopyTo(array, index);
         }
 
-        /// <summary>
-        /// Copies the entire collection to a compatible one-dimensional array starting at the specified index of the target array.
-        /// </summary>
-        /// <param name="array">The one-dimensional array that is the destination of the copied elements.</param>
-        /// <param name="index">The zero-based index in the array at which copying begins.</param>
+        /// <inheritdoc/>
         public void CopyTo(Array array, int index)
         {
             if (array.GetType() == typeof(SeriesOrdinate<TIndex, TValue>[]))
@@ -269,19 +220,13 @@ namespace Numerics.Data
             }
         }
 
-        /// <summary>
-        /// Searches for the specified object and returns the zero-based index of the first occurrence within the entire collection.
-        /// </summary>
-        /// <param name="item">The object to locate in the collection.</param>
+        /// <inheritdoc/>
         public int IndexOf(SeriesOrdinate<TIndex, TValue> item)
         {
             return _seriesOrdinates.IndexOf(item);
         }
 
-        /// <summary>
-        /// Searches for the specified object and returns the zero-based index of the first occurrence within the entire collection.
-        /// </summary>
-        /// <param name="item">The object to locate in the collection.</param>
+        /// <inheritdoc/>
         public int IndexOf(object item)
         {
             if (item.GetType() == typeof(SeriesOrdinate<TIndex, TValue>))
@@ -291,11 +236,13 @@ namespace Numerics.Data
             return -1;
         }
 
+        /// <inheritdoc/>
         public IEnumerator<SeriesOrdinate<TIndex, TValue>> GetEnumerator()
         {
             return _seriesOrdinates.GetEnumerator();
         }
 
+        /// <inheritdoc/>
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
