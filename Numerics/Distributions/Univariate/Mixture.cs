@@ -542,6 +542,14 @@ namespace Numerics.Distributions
             }
             else
             {
+                bool sortWeights = true;
+                UnivariateDistributionType type = Distributions[0].Type;
+                for (int i = 1; i < Distributions.Count(); i++)
+                {
+                    if (Distributions[i].Type != type) { sortWeights = false; break; }
+                }
+                    
+
                 // Get the weights
                 int k = Distributions.Count();
                 int t = 0; // keep track of parameter index
@@ -573,6 +581,14 @@ namespace Numerics.Distributions
                     for (int i = 0; i < k; i++)
                     {
                         Weights[i] = w;
+                        parameters[i] = Weights[i];
+                    }
+                }
+                if (sortWeights == true)
+                {
+                    Array.Sort(Weights);
+                    for (int i = 0; i < k; i++)
+                    {
                         parameters[i] = Weights[i];
                     }
                 }
@@ -649,13 +665,13 @@ namespace Numerics.Distributions
         /// <returns>Returns a Tuple of initial, lower, and upper values.</returns>
         public Tuple<double[], double[], double[]> GetParameterConstraints(IList<double> sample)
         {
-            var initialVals = new double[NumberOfParameters - 1];
-            var lowerVals = new double[NumberOfParameters - 1];
-            var upperVals = new double[NumberOfParameters - 1];
+            var initialVals = new double[NumberOfParameters];
+            var lowerVals = new double[NumberOfParameters];
+            var upperVals = new double[NumberOfParameters];
 
             // Weights are first
             int t = 0;
-            for (int i = 0; i < Distributions.Count() - 1; i++)
+            for (int i = 0; i < Distributions.Count(); i++)
             {
                 initialVals[i] = 0.5;
                 lowerVals[i] = 0;
@@ -697,12 +713,12 @@ namespace Numerics.Distributions
             double logLH(double[] parameters)
             {
                 var dist = (Mixture)Clone();
-                dist.SetParameters(parameters);
+                dist.SetParametersFromArray(parameters);
                 double lh = dist.LogLikelihood(sample);
                 if (double.IsNaN(lh) || double.IsInfinity(lh)) return double.MinValue;
                 return lh;
             }
-            var solver = new NelderMead(logLH, NumberOfParameters, Initials, Lowers, Uppers);
+            var solver = new DifferentialEvolution(logLH, NumberOfParameters, Lowers, Uppers);
             solver.Maximize();
             return solver.BestParameterSet.Values;
         }

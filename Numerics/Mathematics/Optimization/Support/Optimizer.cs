@@ -230,7 +230,8 @@ namespace Numerics.Mathematics.Optimization
             double fitness = functionScale * ObjectiveFunction(values);
 
             // keep track of best fit parameter set
-            if (BestParameterSet.Values == null || fitness <= BestParameterSet.Fitness) BestParameterSet = new ParameterSet(values.ToArray(), fitness);
+            if (BestParameterSet.Values == null || fitness <= BestParameterSet.Fitness)
+                BestParameterSet = new ParameterSet(values, fitness);
             
             // Update trace. This is tracked every evaluation
             if (ParameterSetTrace == null) ParameterSetTrace = new List<ParameterSet>();

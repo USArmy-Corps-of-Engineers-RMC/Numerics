@@ -48,7 +48,7 @@ namespace Numerics.Functions
     {
 
         /// <summary>
-        /// Construct a new deterministic power function with α=1 and β=1 and ξ=0. 
+        /// Construct a new deterministic power function with α=1 and β=1.5 and ξ=0. 
         /// </summary>
         public PowerFunction()
         {

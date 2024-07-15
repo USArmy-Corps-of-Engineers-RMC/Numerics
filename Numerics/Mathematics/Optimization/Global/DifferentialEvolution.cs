@@ -151,9 +151,9 @@ namespace Numerics.Mathematics.Optimization
             {
                 var values = new double[D];
                 for (j = 0; j < D; j++)
-                    values[j] = LowerBounds[j] + r.NextDouble() * (UpperBounds[j] - LowerBounds[j]); 
-
-                Xp.Add(new ParameterSet(values, Evaluate(values, ref cancel)));
+                    values[j] = LowerBounds[j] + r.NextDouble() * (UpperBounds[j] - LowerBounds[j]);
+                var fitness = Evaluate(values, ref cancel);
+                Xp.Add(new ParameterSet(values, fitness));
                 if (cancel == true) return;
             }
 
