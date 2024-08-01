@@ -68,7 +68,7 @@ namespace Numerics.Data
                     var oldvalue = _seriesOrdinates[index];
                     _seriesOrdinates[index] = value;
                     if (SuppressCollectionChanged == false)
-                        CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, value, oldvalue));               
+                        CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, value, oldvalue));
                 }
             }
         }
@@ -117,36 +117,29 @@ namespace Numerics.Data
         public virtual void Add(SeriesOrdinate<TIndex, TValue> item)
         {
             _seriesOrdinates.Add(item);
-            if (SuppressCollectionChanged == false)
-                CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item, _seriesOrdinates.Count - 1));
+            if (SuppressCollectionChanged == false) { CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item, _seriesOrdinates.Count - 1)); }
         }
 
         /// <inheritdoc/>
         public int Add(object item)
         {
-            if (item.GetType() == typeof(SeriesOrdinate<TIndex, TValue>))
-            {
-                _seriesOrdinates.Add((SeriesOrdinate<TIndex, TValue>)item);
-                return IndexOf(item);
-            }
-            return -1;
+            if (item.GetType() != typeof(SeriesOrdinate<TIndex, TValue>)) { return -1; }
+
+            Add((SeriesOrdinate<TIndex, TValue>)item);
+            return _seriesOrdinates.Count - 1;
         }
 
         /// <inheritdoc/>
         public virtual void Insert(int index, SeriesOrdinate<TIndex, TValue> item)
         {
             _seriesOrdinates.Insert(index, item);
-            if (SuppressCollectionChanged == false)
-                CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item, index));
+            if (SuppressCollectionChanged == false) { CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item, index)); }
         }
 
         /// <inheritdoc/>
         public void Insert(int index, object item)
         {
-            if (item.GetType() == typeof(SeriesOrdinate<TIndex, TValue>))
-            {
-                _seriesOrdinates.Insert(index, (SeriesOrdinate<TIndex, TValue>)item);
-            }
+            if (item.GetType() == typeof(SeriesOrdinate<TIndex, TValue>)) { Insert(index, (SeriesOrdinate<TIndex, TValue>)item); }
         }
 
         /// <inheritdoc/>
@@ -202,7 +195,7 @@ namespace Numerics.Data
             {
                 Contains((SeriesOrdinate<TIndex, TValue>)item);
             }
-            return false;       
+            return false;
         }
 
         /// <inheritdoc/>
@@ -231,7 +224,7 @@ namespace Numerics.Data
         {
             if (item.GetType() == typeof(SeriesOrdinate<TIndex, TValue>))
             {
-                _seriesOrdinates.IndexOf((SeriesOrdinate<TIndex, TValue>)item);
+                return _seriesOrdinates.IndexOf((SeriesOrdinate<TIndex, TValue>)item);
             }
             return -1;
         }

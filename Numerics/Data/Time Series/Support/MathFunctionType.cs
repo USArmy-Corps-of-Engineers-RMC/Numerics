@@ -39,6 +39,8 @@ namespace Numerics.Data
         Divide,
         Logarithm,
         Exponentiate,
-        Inverse
+        Inverse,
+        Replace,
+        Interpolate
     }
 }
