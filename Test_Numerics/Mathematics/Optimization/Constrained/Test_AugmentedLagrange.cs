@@ -114,8 +114,15 @@ namespace Mathematics.Optimization
             {
                 return Math.Pow(x[0] - 6, 2) + Math.Pow(x[1] - 10, 2) + 6;
             };
+
+            // Set up inner solver
+            var initial = new double[] { 5, 5 };
+            var lower = new double[] { 0, 0 };
+            var upper = new double[] { 10, 10 };
+            var innerSolver = new BFGS(primaryFunc, 2, initial, lower, upper);
+            // Set up constraint
             var constraint = new Constraint(secondaryFunc, 2, 13.31, ConstraintType.LesserThanOrEqualTo);
-            var innerSolver = new BFGS(primaryFunc, 2, new double[] { 5, 5 }, new double[] { double.MinValue, double.MinValue }, new double[] { double.MaxValue, double.MaxValue });
+            // Solve
             var solver = new AugmentedLagrange(primaryFunc, innerSolver, new IConstraint[] { constraint });
             solver.Minimize();
 
@@ -143,14 +150,21 @@ namespace Mathematics.Optimization
             {
                 return (x[0] * x[0]) + (x[1] * x[1]);
             };
-            var constraint = new Constraint(cfunc, 2, 2, ConstraintType.LesserThanOrEqualTo);
+
 
             Func<double[], double> func = (double[] x) =>
             {
                 return Math.Pow(1 - x[0], 2) + 100 * Math.Pow(x[1] - x[0] * x[0], 2);
             };
 
-            var innerSolver = new BFGS(func, 2, new double[] { 0d, 0d }, new double[] { -1.5d, -1.5d }, new double[] { 1.5d, 1.5d });
+            // Set up inner solver
+            var initial = new double[] { 0, 0 };
+            var lower = new double[] { -1.5, -1.5 };
+            var upper = new double[] { 1.5, 1.5};
+            var innerSolver = new BFGS(func, 2, initial, lower, upper);
+            // Set up constraint
+            var constraint = new Constraint(cfunc, 2, 2, ConstraintType.LesserThanOrEqualTo);
+            // Solve
             var solver = new AugmentedLagrange(func, innerSolver, new IConstraint[] { constraint });
             solver.Minimize();
 
