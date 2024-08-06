@@ -32,6 +32,7 @@ using Numerics.Mathematics.LinearAlgebra;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Windows.Documents;
 
 namespace Numerics.Mathematics.Optimization
 {
@@ -122,9 +123,7 @@ namespace Numerics.Mathematics.Optimization
         /// </summary>
         public Func<double[], double[]> Gradient;
 
-        /// <summary>
-        /// Implements the actual optimization algorithm. This method should minimize the objective function. 
-        /// </summary>
+        /// <inheritdoc/>
         protected override void Optimize()
         {
             int i, j, D = NumberOfParameters;
@@ -154,47 +153,27 @@ namespace Numerics.Mathematics.Optimization
             stpmax = STPMX * Math.Max(Math.Sqrt(sum), D);
             while (Iterations < MaxIterations)
             {
+                // Perform line search
                 LineSearch(p, fp, g, ref xi, ref pnew, ref fret, stpmax, ref check, ref cancel);
                 if (cancel) return;
+                // Check convergence.
+                if (CheckConvergence(fp, fret))
+                {
+                    UpdateStatus(OptimizationStatus.Success);
+                    return;
+                }
                 // The new function evaluation occurs in line search; save the function value in fp for the next line search.
                 // It is usually safe to ignore the value of check. 
                 fp = fret;
                 for (i = 0; i < D; i++)
                 {
-                    // Make sure the parameters are within the bounds.
-                    pnew[i] = RepairParameter(pnew[i], LowerBounds[i], UpperBounds[i]);
                     xi[i] = pnew[i] - p[i];
                     p[i] = pnew[i];
-                }
-                // Test for convergence.
-                test = 0.0;
-                for (i = 0; i < D; i++)
-                {
-                    temp = Math.Abs(xi[i]) / Math.Max(Math.Abs(p[i]), 1.0);
-                    if (temp > test) test = temp;
-                }
-                if (test <= RelativeTolerance)
-                {
-                    UpdateStatus(OptimizationStatus.Success);
-                    return;
                 }
                 // Save the old gradient, and get the new gradient. 
                 for (i = 0; i < D; i++) dg[i] = g[i];
                 g = Gradient != null ? Gradient(p) : NumericalDerivative.Gradient((x) => Evaluate(x, ref cancel), p);
                 if (cancel) return;
-                // Test or convergence on zero gradient.
-                test = 0.0;
-                den = Math.Max(Math.Abs(fret), 1.0);
-                for (i = 0; i < D; i++)
-                {
-                    temp = Math.Abs(g[i]) * Math.Max(Math.Abs(p[i]), 1.0) / den;
-                    if (temp > test) test = temp;
-                }
-                if (test <= AbsoluteTolerance)
-                {
-                    UpdateStatus(OptimizationStatus.Success);
-                    return;
-                }
                 // Compute difference of gradients.
                 for (i = 0; i < D; i++)
                     dg[i] = g[i] - dg[i];

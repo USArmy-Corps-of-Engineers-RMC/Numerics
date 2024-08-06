@@ -37,19 +37,172 @@ using System.Threading.Tasks;
 namespace Mathematics.Optimization
 {
     /// <summary>
-    /// Functions designed to test optimization algorithms
+    /// Functions designed to test optimization algorithms.
     /// </summary>
     public class TestFunctions
     {
+
         /// <summary>
-        /// Test one-dimensional function
+        /// A simple one-dimensional test function
         /// </summary>
+        /// <remarks>
+        /// <para>
+        /// Test area is restricted to [-3, 3]
+        /// </para>
+        /// <para>
+        /// <b> Local minimum:</b>
+        /// f(1) = 0
+        /// </para>
+        /// <para>
+        /// <b> Local maximum:</b>
+        /// f(-1.6667) = 9.4815
+        /// </para>
+        /// </remarks>
         public static double FX(double x)
         {
             double F = (x + 3d) * Math.Pow(x - 1d, 2d);
             return F;
         }
 
+        /// <summary>
+        /// A simple 3-dimensional test function.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// <b> Global minimum:</b>
+        /// f(0.125, 0.2, 0.35) = 0
+        /// </para>
+        /// </remarks>
+        public static double FXYZ(double[] parms)
+        {
+            double x = parms[0];
+            double y = parms[1];
+            double z = parms[2];
+            double F = Math.Pow(4d * x - 0.5d, 2d) + Math.Pow(3d * y - 0.6d, 2d) + Math.Pow(2d * z - 0.7d, 2d);
+            return F;
+        }
+
+        /// <summary>
+        /// The De Jong (or sphere) function. 
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// Test area is usually restricted to hypercube [-5.12, 5.12]
+        /// </para>
+        /// <para>
+        /// <b> Global minimum:</b>
+        /// f(0, 0) = 0
+        /// </para>
+        /// </remarks>
+        public static double DeJong(double[] x)
+        {
+            int n = x.Length;
+            double F = 0;
+            for (int i = 0; i < n; i++)
+                F += Math.Pow(x[i], 2);
+            return F;
+        }
+
+        /// <summary>
+        /// The Sum of Different Power Functions. 
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// Test area is usually restricted to hypercube [-1, 1]
+        /// </para>
+        /// <para>
+        /// <b> Global minimum:</b>
+        /// f(0, 0) = 0
+        /// </para>
+        /// </remarks>
+        public static double SumOfPowerFunctions(double[] x)
+        {
+            int n = x.Length;
+            double F = 0;
+            for (int i = 0; i < n; i++)
+                F += Math.Pow(Math.Abs(x[i]), i + 2);
+            return F;
+        }
+
+        /// <summary>
+        /// The Rosenberg Function.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// Test area is usually restricted to hypercube [-2.048, 2.048]
+        /// </para>
+        /// <para>
+        /// <b> Global minimum:</b>
+        /// f(1, 1) = 0
+        /// </para>
+        /// <b> References: </b>
+        /// <see href="https://en.wikipedia.org/wiki/Test_functions_for_optimization" />
+        /// </remarks>
+        public static double Rosenbrock(double[] parms)
+        {
+            int n = parms.Length;
+            double F = 0;
+            for (int i = 0; i < n - 1; i++)
+                F += 100 * Math.Pow(parms[i + 1] - parms[i] * parms[i], 2) + Math.Pow(1 - parms[i], 2);
+            return F;
+        }
+
+        /// <summary>
+        /// The Booth Function.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// <b> Global minimum:</b>
+        /// f(1, 3) = 0
+        /// </para>
+        /// <b> References: </b>
+        /// <see href="https://en.wikipedia.org/wiki/Test_functions_for_optimization" />
+        /// </remarks>
+        public static double Booth(double[] parms)
+        {
+            var x = parms[0];
+            var y = parms[1];
+            double F = Math.Pow(x + 2 * y - 7, 2) + Math.Pow(2 * x + y - 5, 2);
+            return F;
+        }
+
+        /// <summary>
+        /// The Matyas Function.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// <b> Global minimum:</b>
+        /// f(0, 0) = 0
+        /// </para>
+        /// <b> References: </b>
+        /// <see href="https://en.wikipedia.org/wiki/Test_functions_for_optimization" />
+        /// </remarks>
+        public static double Matyas(double[] parms)
+        {
+            var x = parms[0];
+            var y = parms[1];
+            double F = 0.26 * (x * x + y * y) - 0.48 * x * y;
+            return F;
+        }
+
+        /// <summary>
+        /// The McCormick Function.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// <b> Global minimum:</b>
+        /// f(-0.54719, -1.54719) = -1.9133
+        /// </para>
+        /// <b> References: </b>
+        /// <see href="https://en.wikipedia.org/wiki/Test_functions_for_optimization" />
+        /// </remarks>
+        public static double McCormick(double[] parms)
+        {
+            var x = parms[0];
+            var y = parms[1];
+            double F = Math.Sin(x + y) + Math.Pow(x - y, 2) - 1.5 * x + 2.5 * y + 1.0;
+            return F;
+        }
 
         /// <summary>
         /// The Rastrigin Function.
@@ -88,26 +241,6 @@ namespace Mathematics.Optimization
             var x = parms[0];
             var y = parms[1];
             double F = -20 * Math.Exp(-0.2 * Math.Sqrt(0.5 * (x * x + y * y))) - Math.Exp(0.5 * (Math.Cos(2 * Math.PI * x) + Math.Cos(2 * Math.PI * y))) + Math.E + 20;
-            return F;
-        }
-
-        /// <summary>
-        /// The Rosenbrock Function.
-        /// </summary>
-        /// <remarks>
-        /// <para>
-        /// <b> Global minimum:</b>
-        /// f(1, 1) = 0
-        /// </para>
-        /// <b> References: </b>
-        /// <see href="https://en.wikipedia.org/wiki/Test_functions_for_optimization" />
-        /// </remarks>
-        public static double Rosenbrock(double[] parms)
-        {
-            int n = parms.Length;
-            double F = 0;
-            for (int i = 0; i < n - 1; i++)
-                F += 100 * Math.Pow(parms[i + 1] - parms[i] * parms[i], 2) + Math.Pow(1 - parms[i], 2);
             return F;
         }
 
@@ -151,25 +284,6 @@ namespace Mathematics.Optimization
         }
 
         /// <summary>
-        /// The Booth Function.
-        /// </summary>
-        /// <remarks>
-        /// <para>
-        /// <b> Global minimum:</b>
-        /// f(1, 3) = 0
-        /// </para>
-        /// <b> References: </b>
-        /// <see href="https://en.wikipedia.org/wiki/Test_functions_for_optimization" />
-        /// </remarks>
-        public static double Booth(double[] parms)
-        {
-            var x = parms[0];
-            var y = parms[1];
-            double F = Math.Pow(x + 2 * y - 7, 2) + Math.Pow(2 * x + y - 5, 2);
-            return F;
-        }
-
-        /// <summary>
         /// The Bukin Function.
         /// </summary>
         /// <remarks>
@@ -185,25 +299,6 @@ namespace Mathematics.Optimization
             var x = parms[0];
             var y = parms[1];
             double F = 100 * Math.Sqrt(Math.Abs(y - 0.01 * x * x)) + 0.01 * Math.Abs(x + 10);
-            return F;
-        }
-
-        /// <summary>
-        /// The Matyas Function.
-        /// </summary>
-        /// <remarks>
-        /// <para>
-        /// <b> Global minimum:</b>
-        /// f(0, 0) = 0
-        /// </para>
-        /// <b> References: </b>
-        /// <see href="https://en.wikipedia.org/wiki/Test_functions_for_optimization" />
-        /// </remarks>
-        public static double Matyas(double[] parms)
-        {
-            var x = parms[0];
-            var y = parms[1];
-            double F = 0.26 * (x * x + y * y) - 0.48 * x * y;
             return F;
         }
 
@@ -242,43 +337,6 @@ namespace Mathematics.Optimization
             var x = parms[0];
             var y = parms[1];
             double F = -(y + 47) * Math.Sin(Math.Sqrt(Math.Abs((x / 2) + (y + 47)))) - x * Math.Sin(Math.Sqrt(Math.Abs(x - (y + 47))));
-            return F;
-        }
-
-        /// <summary>
-        /// The McCormick Function.
-        /// </summary>
-        /// <remarks>
-        /// <para>
-        /// <b> Global minimum:</b>
-        /// f(-0.54719, -1.54719) = -1.9133
-        /// </para>
-        /// <b> References: </b>
-        /// <see href="https://en.wikipedia.org/wiki/Test_functions_for_optimization" />
-        /// </remarks>
-        public static double McCormick(double[] parms)
-        {
-            var x = parms[0];
-            var y = parms[1];
-            double F = Math.Sin(x + y) + Math.Pow(x - y, 2) - 1.5 * x + 2.5 * y + 1.0;
-            return F;
-        }
-
-        /// <summary>
-        /// Multidimensional function.
-        /// </summary>
-        /// <remarks>
-        /// <para>
-        /// <b> Global minimum:</b>
-        /// f(0.125, 0.2, 0.35)
-        /// </para>
-        /// </remarks>
-        public static double FXYZ(double[] parms)
-        {
-            double x = parms[0];
-            double y = parms[1];
-            double z = parms[2];
-            double F = Math.Pow(4d * x - 0.5d, 2d) + Math.Pow(3d * y - 0.6d, 2d) + Math.Pow(2d * z - 0.7d, 2d);
             return F;
         }
 

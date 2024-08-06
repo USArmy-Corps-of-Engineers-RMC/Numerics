@@ -675,9 +675,6 @@ namespace Numerics.Distributions
                 {
                     pm[k] = Distributions[k].CCDF(bins[0].Midpoint);
                     pu[k] = k == i ? Distributions[k].CDF(bins[0].LowerBound) : pm[k];
-                    // Needed for Genz
-                    //lower[k] = k == i ? Normal.StandardZ(1E-16) : Normal.StandardZ(Distributions[k].CDF(bins[0].LowerBound));
-                    //upper[k] = k == i ? Normal.StandardZ(Distributions[i].CDF(bins[0].LowerBound)) : Normal.StandardZ(1 - 1E-16);
                 }
                 if (Dependency == Probability.DependencyType.Independent || Dependency == Probability.DependencyType.PerfectlyPositive)
                 {
@@ -686,7 +683,6 @@ namespace Numerics.Distributions
                 else if (Dependency == Probability.DependencyType.PerfectlyNegative || correlationMatrix != null)
                 {
                     dF[i][0] = Probability.JointProbability(pu, ind, sigma, Probability.DependencyType.CorrelationMatrix);
-                    //dF[i][0] = multivariateNormal.Interval(lower, upper);
                 }
                 if (double.IsNaN(dF[i][0])) dF[i][0] = 0;
                 dF[i][0] = Math.Max(0, Math.Min(1, dF[i][0]));
@@ -698,24 +694,23 @@ namespace Numerics.Distributions
                     x[i][j + 1] = bins[j].UpperBound;
                     for (int k = 0; k < D; k++)
                     {
+                        //pm[k] = Distributions[k].CCDF(bins[j].Midpoint);
+                        //pl[k] = k == i ? Distributions[k].CCDF(bins[j].UpperBound) : pm[k];
+                        //pu[k] = k == i ? Distributions[k].CCDF(bins[j].LowerBound) : pm[k];
+
                         pm[k] = Distributions[k].CCDF(bins[j].Midpoint);
-                        pl[k] = k == i ? Distributions[k].CCDF(bins[j].UpperBound) : pm[k];
-                        pu[k] = k == i ? Distributions[k].CCDF(bins[j].LowerBound) : pm[k];
-                        // Needed for Genz
-                        //lower[k] = k == i ? Normal.StandardZ(Distributions[i].CDF(bins[j].LowerBound)) : Normal.StandardZ(Distributions[k].CDF(bins[j].Midpoint));
-                        //upper[k] = k == i ? Normal.StandardZ(Distributions[i].CDF(bins[j].UpperBound)) : Normal.StandardZ(1 - 1E-16);
+                        pl[k] = k == i ? pm[k] : Distributions[k].CCDF(bins[j].UpperBound);
+                        pu[k] = k == i ? pm[k] : Distributions[k].CCDF(bins[j].LowerBound);
                     }
                     if (correlationMatrix == null && (Dependency == Probability.DependencyType.Independent || Dependency == Probability.DependencyType.PerfectlyPositive))
                     {
                         SF1 = Probability.JointProbability(pl, Dependency);
                         SF2 = Probability.JointProbability(pu, Dependency);
-                        //dF[i][j + 1] = SF2 - SF1;
                     }
                     else if (correlationMatrix != null || Dependency == Probability.DependencyType.PerfectlyNegative)
                     {
                         SF1 = Probability.JointProbability(pl, ind, sigma, Probability.DependencyType.CorrelationMatrix);
                         SF2 = Probability.JointProbability(pu, ind, sigma, Probability.DependencyType.CorrelationMatrix);
-                        //dF[i][j + 1] = multivariateNormal.Interval(lower, upper);
                     }
 
                     dF[i][j + 1] = SF2 - SF1;

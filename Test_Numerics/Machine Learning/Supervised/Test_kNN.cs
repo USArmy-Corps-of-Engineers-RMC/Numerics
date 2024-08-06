@@ -39,6 +39,8 @@ using Numerics.Data;
 using Numerics.Data.Statistics;
 using System.Runtime.Remoting.Messaging;
 using System.Runtime.InteropServices;
+using Numerics.Distributions;
+using Numerics.Sampling;
 
 namespace MachineLearning
 {
@@ -99,18 +101,18 @@ namespace MachineLearning
         [TestMethod()]
         public void Test_kNN_Classification()
         {
-            var val = new double[] { 0, 0, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 0, 0, 1, 0, 0,0,0,0};
-            var xPred = new double[] { 1, 2, 5, 3, 3, 1.5, 7, 6, 3.8, 3, 5.6, 4, 3.5, 2, 2, 1,2.5,2.5,2.5};
-            var yPred = new double[] { 12, 5, 3, 2, 6, 9, 2, 1, 3, 10, 4, 2, 8, 11, 5, 9, 7,7,7,7};
+            var val = new double[] { 0, 0, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0 };
+            var xPred = new double[] { 1, 2, 5, 3, 3, 1.5, 7, 6, 3.8, 3, 5.6, 4, 3.5, 2, 2, 1, 2.5, 2.5, 2.5 };
+            var yPred = new double[] { 12, 5, 3, 2, 6, 9, 2, 1, 3, 10, 4, 2, 8, 11, 5, 9, 7, 7, 7, 7 };
 
             int tIDX = 16;
-            var list = new List<double[]> { xPred.Subset(0, tIDX), yPred.Subset(0,tIDX) };
+            var list = new List<double[]> { xPred.Subset(0, tIDX), yPred.Subset(0, tIDX) };
             var Y_training = new Vector(val.Subset(0, tIDX));
             var X_training = new Matrix(list);
 
 
             // Create test data
-            list = new List<double[]> { xPred.Subset(tIDX,tIDX + 2), yPred.Subset(tIDX,tIDX+2) };
+            list = new List<double[]> { xPred.Subset(tIDX, tIDX + 2), yPred.Subset(tIDX, tIDX + 2) };
             var Y_test = new Vector(val.Subset(tIDX + 1));
             var X_test = new Matrix(list);
 
@@ -120,7 +122,32 @@ namespace MachineLearning
             var boot = knn.PredictionIntervals(X_test.ToArray());
 
             for (int i = 0; i < test.Length; i++)
-                Debug.WriteLine(test[i] + "," + Y_test[i] + "," + boot[i,0] +"," + boot[i,1]);
+                Debug.WriteLine(test[i] + "," + Y_test[i] + "," + boot[i, 0] + "," + boot[i, 1]);
+        }
+
+        [TestMethod]
+        public void Test_IS()
+        {
+            var mu = new double[] { 10, 30, 17, 99, 68 };
+            var sigma = new double[] { 2, 15, 5, 14, 7 };
+
+            var mean = new double[] { 0, 0, 0, 0, 0 };
+            var r = 0.0;
+            var covar = new double[,]
+            { { 1, r, r, r, r },
+              { r, 1, r, r, r },
+              { r, r, 1, r, r },
+              { r, r, r, 1, r },
+              { r, r, r, r, 1 }};
+            var mvn = new MultivariateNormal(mean, covar) { MVNUNI = new MersenneTwister(12345) };
+            var rnd = mvn.GenerateRandomValues(10000, 12345);
+
+            var probabilities = new double[] { 0.999, 0.998, 0.995, 0.99, 0.98, 0.95, 0.9, 0.8, 0.7, 0.5, 0.3, 0.2, 0.1, 0.05, 0.02, 0.01 };
+
+            for (int i  = 0; i < 10000; i++)
+            {
+                //Debug.WriteLine(rnd[i, 0] + ", " + rnd[i, 1] + ", " + rnd[i, 2] + ", " + rnd[i, 3] + ", " + rnd[i, 4]);
+            }
         }
 
     }
