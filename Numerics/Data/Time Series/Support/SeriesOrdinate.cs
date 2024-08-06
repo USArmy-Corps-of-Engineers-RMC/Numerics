@@ -102,8 +102,9 @@ namespace Numerics.Data
 
         public static bool operator ==(SeriesOrdinate<TIndex, TValue> left, SeriesOrdinate<TIndex, TValue> right)
         {
-            if (!EqualityComparer<TIndex>.Default.Equals(left.Index, right.Index)) return false;
-            if (!EqualityComparer<TValue>.Default.Equals(left.Value, right.Value)) return false;
+            if (object.Equals(left, right) == false) { return false; }
+            if (!EqualityComparer<TIndex>.Default.Equals(left.Index, right.Index)) { return false; }
+            if (!EqualityComparer<TValue>.Default.Equals(left.Value, right.Value)) { return false; }
             return true;
         }
 
