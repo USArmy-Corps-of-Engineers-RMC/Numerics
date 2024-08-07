@@ -321,7 +321,7 @@ namespace Numerics.Data
         public double[,] PredictionIntervals(Matrix x, double alpha = 0.1)
         {
             var percentiles = new double[] { alpha / 2d, 1d - alpha / 2d };
-            var result = new double[x.NumberOfRows, 4]; // lower, median, upper, mean
+            var result = new double[x.NumberOfRows, 3]; // lower, upper, mean
             for (int i = 0; i < x.NumberOfRows; i++)
             {
                 double mu = 0;

@@ -44,7 +44,7 @@ namespace Distributions.Univariate
             double logLH(double[] parameters)
             {
                 var dist = (Mixture)mix.Clone();
-                dist.SetParameters(parameters);
+                dist.SetParametersFromArray(parameters);
                 double lh = dist.LogLikelihood(sample);
                 if (double.IsNaN(lh) || double.IsInfinity(lh)) return double.MinValue;
                 return lh;

@@ -42,8 +42,21 @@ namespace Numerics.Mathematics.Optimization
     /// </remarks>
     public enum LocalMethod
     {
+        /// <summary>
+        /// The Broyden-Fletcher-Goldfarb-Shanno (BFGS) algorithm.
+        /// </summary>
         BFGS,
+        /// <summary>
+        /// The Gradient Descent algorithm.
+        /// </summary>
+        GradientDescent,
+        /// <summary>
+        /// The Nelder-Mead downhill simplex algorithm
+        /// </summary>
         NelderMead,
+        /// <summary>
+        /// The Powell optimization algorithm.
+        /// </summary>
         Powell
     }
 }

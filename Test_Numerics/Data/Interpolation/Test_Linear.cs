@@ -345,10 +345,6 @@ namespace Data.Interpolation
             for (int i = 1; i < N; i++)
                 xVals[i] = xVals[i - 1] + delta;
 
-            // ???
-            var stopWatch = new Stopwatch();
-            stopWatch.Start();
-
             var yVals = LI.Interpolate(xVals);
             var trueVals = new double[] { 100, 128.888888888889, 177.777777777778, 226.666666666667, 275.555555555556, 324.444444444444, 373.333333333333, 422.222222222222, 471.111111111111, 500 };
             for (int i = 1; i < N; i++)

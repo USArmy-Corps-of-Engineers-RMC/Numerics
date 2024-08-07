@@ -43,7 +43,7 @@ namespace Numerics.Mathematics.Optimization
     /// </para>
     /// <para>
     /// <b> Description: </b>
-    /// This class contains a shared function for finding the minimum or maximum of a function using the Golden-Section method.
+    /// This class contains methods for finding the minimum or maximum of a function using the Golden-Section method.
     /// This method operates by successively narrowing the range of values on the specified interval. When searching for a
     /// minimum, the central point is always less than or equal to the outer points, assuring that a minimum is contained 
     /// between the outer points.

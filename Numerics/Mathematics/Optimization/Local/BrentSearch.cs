@@ -43,7 +43,7 @@ namespace Numerics.Mathematics.Optimization
     /// </para>
     /// <para>
     /// <b> Description: </b>
-    /// This class contains a shared function for finding the minimum or maximum of a function using Brent's method.
+    /// This class contains methods for finding the minimum or maximum of a function using Brent's method.
     /// Brent's method is a hybrid root-finding algorithm that combines the bisection method, secant method, and inverse
     /// quadratic interpolation.
     /// </para>

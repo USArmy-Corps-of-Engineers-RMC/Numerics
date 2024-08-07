@@ -71,10 +71,8 @@ namespace Numerics.Data
         /// Raise each time block to some power.
         /// </summary>
         Exponentiate,
-
-        /// <summary>
-        /// Take the inverse of each time block.
-        /// </summary>
-        Inverse
+        Inverse,
+        Replace,
+        Interpolate
     }
 }

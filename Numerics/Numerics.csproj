@@ -94,6 +94,7 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
     <Import Include="Microsoft.VisualBasic" />
@@ -164,8 +165,10 @@
     <Compile Include="Mathematics\Optimization\Global\MultiStart.cs" />
     <Compile Include="Mathematics\Optimization\Global\ParticleSwarm.cs" />
     <Compile Include="Mathematics\Optimization\Global\SimulatedAnnealing.cs" />
+    <Compile Include="Mathematics\Optimization\Local\ADAM.cs" />
     <Compile Include="Mathematics\Optimization\Local\BFGS.cs" />
     <Compile Include="Mathematics\Optimization\Global\DifferentialEvolution.cs" />
+    <Compile Include="Mathematics\Optimization\Local\GradientDescent.cs" />
     <Compile Include="Mathematics\Optimization\Local\Powell.cs" />
     <Compile Include="Mathematics\Optimization\Support\LocalMethod.cs" />
     <Compile Include="Mathematics\Optimization\Support\OptimizationStatus.cs" />
