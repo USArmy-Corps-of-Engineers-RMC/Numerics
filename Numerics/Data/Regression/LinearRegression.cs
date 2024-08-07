@@ -42,9 +42,16 @@ namespace Numerics.Data
     /// </summary>
     /// <remarks>
     /// <para>
-    ///     Authors:
+    ///     <b> Authors: </b>
     ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
     /// </para>
+    /// <para>
+    /// <b> Description: </b>
+    /// Linear regression works to estimate the linear relationship between a single, scalar response (dependent) variable and one or more explanatory 
+    /// (independent) variables. This implementation estimates Y = α + βX + e, where e ~ N(0,σ), and fits the linear regression model using singular value decomposition (SVD).
+    /// </para>
+    /// <b> References: </b>
+    /// <see href="https://en.wikipedia.org/wiki/Linear_regression"/>
     /// </remarks>
     public class LinearRegression
     {

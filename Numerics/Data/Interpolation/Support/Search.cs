@@ -30,7 +30,6 @@
 
 using System;
 using System.Collections.Generic;
-
 namespace Numerics.Data
 {
 
@@ -39,13 +38,45 @@ namespace Numerics.Data
     /// </summary>
     /// <remarks>
     /// <para>
-    ///     Authors:
+    ///     <b> Authors: </b>
     ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
     /// </para>
+    /// <para>
+    /// <b> Description: </b>
+    /// This class has 3 search methods: Sequential, Bisection, and Hunt.
+    /// <list type="bullet">
+    /// <item><description>
+    /// Sequential search, or linear search, checks each element in a list until a match is found or the whole list has been
+    /// searched.
+    /// </description></item>
+    /// <item><description> 
+    /// The bisection method, also known as binary search, starts off by comparing the target value (i.e. value being searched for
+    /// in the array) against the middle element of the list. If the target value and middle element are not equal, the half of the list in which the target 
+    /// cannot lie is eliminated. If the list  sorted in ascending order, if the target is less than the middle element, the second half of the list of values 
+    /// greater than the middle element is eliminated. If the target is greater than the middle element then the first half of the list is eliminated. Then, the algorithm starts
+    /// again, comparing the middle element of the new, smaller list against the target element. This continues until the target value is found or until the remaining half 
+    /// being empty.
+    /// </description></item>
+    /// <item><description>
+    /// 
+    /// </description></item>
+    /// </list>
+    /// </para>
+    /// <b> References: </b>
+    /// <list type="bullet">
+    /// <item><description>
+    /// <see href="https://en.wikipedia.org/wiki/Linear_search"/>
+    /// </description></item>
+    /// <item><description>
+    /// <see href="https://en.wikipedia.org/wiki/Binary_search"/>
+    /// </description></item>
+    /// <item><description>
+    /// 
+    /// </description></item>
+    /// </list>
     /// </remarks>
     public class Search
     {
-
         /// <summary>
         /// Enumeration of search methods.
         /// </summary>
@@ -76,6 +107,9 @@ namespace Numerics.Data
         /// <param name="values">Array of values to search within.</param>
         /// <param name="start">Optional. Location to start the search of the arrays. Default = 0.</param>
         /// <param name="order">Optional. The sort order of the values, either ascending or descending. Default = Ascending.</param>
+        /// <returns>
+        /// The lower bound of the location to be used in interpolation. E.g., X1 is the lower, X2 is the upper (X1 + 1).
+        /// </returns>
         public static int Sequential(double x, IList<double> values, int start = 0, SortOrder order = SortOrder.Ascending)
         {
             // variables
@@ -158,6 +192,9 @@ namespace Numerics.Data
         /// <param name="x">The value to search for.</param>
         /// <param name="orderedPairedData">Ordered paired data to search within.</param>
         /// <param name="start">Optional. Location to start the search of the arrays. Default = 0.</param>
+        /// <returns>
+        /// The lower bound of the location to be used in interpolation. E.g., X1 is the lower, X2 is the upper (X1 + 1).
+        /// </returns>
         public static int Sequential(double x, OrderedPairedData orderedPairedData, int start = 0)
         {
             // variables
@@ -242,6 +279,9 @@ namespace Numerics.Data
         /// <param name="ordinates">List of ordinates to search within.</param>
         /// <param name="start">Optional. Location to start the search of the arrays. Default = 0.</param>
         /// <param name="order">Optional. The sort order of the values, either ascending or descending. Default = Ascending.</param>
+        /// <returns>
+        /// The lower bound of the location to be used in interpolation. E.g., X1 is the lower, X2 is the upper (X1 + 1).
+        /// </returns>
         public static int Sequential(double x, IList<Ordinate> ordinates, int start = 0, SortOrder order = SortOrder.Ascending)
         {
             // variables
@@ -329,6 +369,9 @@ namespace Numerics.Data
         /// <param name="values">Array of values to search within.</param>
         /// <param name="start">Optional. Location to start the search of the arrays. Default = 0.</param>
         /// <param name="order">Optional. The sort order of the values, either ascending or descending. Default = Ascending.</param>
+        /// <returns>
+        /// The lower bound of the location to be used in interpolation. E.g., X1 is the lower, X2 is the upper (X1 + 1).
+        /// </returns>
         public static int Bisection(double x, IList<double> values, int start = 0, SortOrder order = SortOrder.Ascending)
         {
             // variables
@@ -409,6 +452,9 @@ namespace Numerics.Data
         /// <param name="ordinates">List of ordinates to search within.</param>
         /// <param name="start">Optional. Location to start the search of the arrays. Default = 0.</param>
         /// <param name="order">Optional. The sort order of the values, either ascending or descending. Default = Ascending.</param>
+        /// <returns>
+        /// The lower bound of the location to be used in interpolation. E.g., X1 is the lower, X2 is the upper (X1 + 1).
+        /// </returns>
         public static int Bisection(double x, IList<Ordinate> ordinates, ref int start, SortOrder order = SortOrder.Ascending)
         {
             // variables
@@ -493,6 +539,9 @@ namespace Numerics.Data
         /// <param name="values">Array of values.</param>
         /// <param name="start">Optional. Location to start the search of the arrays. Default = 0.</param>
         /// <param name="order">Optional. The sort order of the values, either ascending or descending. Default = Ascending.</param>
+        /// <returns>
+        /// The lower bound of the location to be used in interpolation. E.g., X1 is the lower, X2 is the upper (X1 + 1).
+        /// </returns>
         public static int Hunt(double x, IList<double> values, int start = 0, SortOrder order = SortOrder.Ascending)
         {
             int N = values.Count;

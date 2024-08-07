@@ -38,31 +38,29 @@ using Numerics.Mathematics.SpecialFunctions;
 
 namespace Numerics.Data.Statistics
 {
-
     /// <summary>
     /// Contains functions for computing the Multiple Grubbs Beck low outlier test.
     /// </summary>
     /// <remarks>
     /// <para>
-    ///     Authors:
+    ///     <b> Authors: </b>
     ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
     /// </para>
     /// <para>
-    /// References:
+    /// <b> References: </b>
     /// <list type="bullet">
-    /// <item><description>
+    /// <item>
     /// See the 2011 manuscript by Cohn, Stedinger, England, et al.
-    /// </description></item>
-    /// <item><description>
+    /// </item>
+    /// <item>
     /// This code converted from the FORTRAN source code for PeakfqSA, which can be downloaded at:
     /// <see href = "https://sites.google.com/a/alumni.colostate.edu/jengland/resources" />
-    /// </description></item>
+    /// </item>
     /// </list>
     /// </para>
     /// </remarks>
     public sealed class MultipleGrubbsBeckTest
     {
-
         /// <summary>
         /// Generalized Grubbs-Beck Test.
         /// <remarks>

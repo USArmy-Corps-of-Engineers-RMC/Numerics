@@ -32,31 +32,26 @@ using System;
 
 namespace Numerics.Data.Statistics
 {
-
     /// <summary>
     /// Contains plotting position formulas.
     /// </summary>
     /// <remarks>
     /// <para>
-    ///     Authors:
+    ///     <b> Authors: </b>
     ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
     /// </para>
     /// <para>
+    /// <b> Description: </b>
     /// The choice of quantiles from a theoretical distribution can depend upon context and purpose.
     /// Several different formulas have been used or proposed as affine symmetrical plotting positions.
     /// Such formulas have the form (k − a) / (n + 1 − 2a) for some value of a in the range from 0 to 1,
     /// which gives a range between k / (n + 1) and (k − 1) / (n - 1).
     /// </para>
-    /// <para>
-    /// References:
-    /// </para>
-    /// <para>
+    /// <b> References: </b>
     /// <see href="https://en.wikipedia.org/wiki/Q%E2%80%93Q_plot"/>
-    /// </para>
     /// </remarks>
     public class PlottingPositions
     {
-
         /// <summary>
         /// The general plotting position formula. This formula assumes the data is uncensored and complete.
         /// </summary>
@@ -204,17 +199,40 @@ namespace Numerics.Data.Statistics
         /// </summary>
         public enum PlottingPostionType
         {
+            /// <summary>
+            /// The Weibull plotting position formula (alpha = 0.0).
+            /// </summary>
             Weibull,
+
+            /// <summary>
+            /// The Median plotting position formula (alpha = 0.3175).
+            /// </summary>
             Median,
+
+            /// <summary>
+            /// The Blom (1958) plotting position formula (alpha = 0.375).
+            /// </summary>
             Blom,
+
+            /// <summary>
+            /// The Cunnane (1978) plotting position formula (alpha = 0.40).
+            /// </summary>
             Cunnane,
+
+            /// <summary>
+            /// The Gringorten (1963) plotting position formula (alpha = 0.44).
+            /// </summary>
             Gringorten,
+
+            /// <summary>
+            /// The Hazen plotting position formula (alpha = 0.50).
+            /// </summary>
             Hazen,
+
+            /// <summary>
+            /// The Kaplan-Meier plotting position formula for uncensored data (k/n).
+            /// </summary>
             KaplanMeier
         }
-
     }
-
-
-
 }

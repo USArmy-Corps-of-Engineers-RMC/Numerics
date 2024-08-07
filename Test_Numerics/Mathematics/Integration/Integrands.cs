@@ -29,18 +29,17 @@
 * **/
 
 using Numerics.Distributions;
-using Numerics;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Mathematics.Integration
 {
     /// <summary>
     /// Test functions used to test the integration algorithms. There are both multidimensional and single dimensional functions
     /// </summary>
+    /// <remarks>
+    ///     <b> Authors: </b>
+    ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
+    /// </remarks>
     public class Integrands
     {
         /// <summary>

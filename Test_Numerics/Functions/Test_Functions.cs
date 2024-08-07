@@ -36,27 +36,53 @@ using Numerics.Functions;
 
 namespace Functions
 {
+    /// <summary>
+    /// Unit tests for the function classes
+    /// </summary>
+    /// <remarks>
+    ///      <b> Authors: </b>
+    /// <list type="bullet">
+    /// <item><description>
+    ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
+    /// </description></item>
+    /// <item><description>
+    ///     Sadie Niblett, USACE Risk Management Center, sadie.s.niblett@usace.army.mil
+    /// </description></item>
+    /// </list>
+    /// </remarks>
     [TestClass]
     public class Test_Functions
     {
         /// <summary>
         /// Test the linear function
         /// </summary>
+        /// <remarks>
+        /// <b> References: </b>
+        /// Jiang L, Linton O, Tang H, Zhang Y (2023). drcarlate: Improving 
+        /// Estimation Efficiency in CAR with Imperfect Compliance. R package version 1.2.0,
+        /// https://CRAN.R-project.org/package=drcarlate
+        /// </remarks>
         [TestMethod]
         public void Test_Linear_Function()
         {
+            // Default constructor with alpha = 0 and beta = 1
+            var func0 = new LinearFunction();
+            double y0 = func0.Function(6);
+            double valid0 = 6;
+            Assert.AreEqual(valid0, y0, 1E-6);
+
             double alpha = -2;
             double beta = 5;
             double sigma = 3;
 
-            var func = new LinearFunction(alpha, beta);
-            double y = func.Function(6);
-            double valid = (5 * 6) + -2;
-            Assert.AreEqual(valid, y, 1E-6);
+            var func1 = new LinearFunction(alpha, beta);
+            double y1 = func1.Function(6);
+            double valid1 = (5 * 6) + -2;
+            Assert.AreEqual(valid1, y1, 1E-6);
 
             var func2 = new LinearFunction(alpha, beta, sigma);
             double y2 = func2.Function(6);
-            Assert.AreEqual(valid, y2, 1E-6);
+            Assert.AreEqual(valid1, y2, 1E-6);
 
             func2.ConfidenceLevel = 0.75;
             double y3 = func2.Function(6);
@@ -85,22 +111,34 @@ namespace Functions
         /// <summary>
         /// Test the power function
         /// </summary>
+        /// <remarks>
+        /// <b> References: </b>
+        /// Jiang L, Linton O, Tang H, Zhang Y (2023). drcarlate: Improving 
+        /// Estimation Efficiency in CAR with Imperfect Compliance. R package version 1.2.0,
+        /// https://CRAN.R-project.org/package=drcarlate
+        /// </remarks>
         [TestMethod]
         public void Test_Power_Function()
         {
+            // Default constructor with alpha = 1, beta = 1.5, and xi = 0
+            var func0 = new PowerFunction();
+            var y0 = func0.Function(6);
+            var valid0 = 1 * Math.Pow(6 - 0, 1.5);
+            Assert.AreEqual(valid0, y0, 1E-6);
+
             double alpha = 5;
             double beta = 2;
             double sigma = 3;
             double xi = 0;
 
-            var func = new PowerFunction(alpha, beta, xi);
-            double y = func.Function(6);
-            double valid = alpha * Math.Pow(6 - xi, beta);
-            Assert.AreEqual(valid, y, 1E-6);
+            var func1 = new PowerFunction(alpha, beta, xi);
+            double y1 = func1.Function(6);
+            double valid1 = alpha * Math.Pow(6 - xi, beta);
+            Assert.AreEqual(valid1, y1, 1E-6);
 
             var func2 = new PowerFunction(alpha, beta, xi, sigma);
             double y2 = func2.Function(6);
-            Assert.AreEqual(valid, y2, 1E-6);
+            Assert.AreEqual(valid1, y2, 1E-6);
 
             func2.ConfidenceLevel = 0.75;
             double y3 = func2.Function(6);
@@ -129,6 +167,12 @@ namespace Functions
         /// <summary>
         /// Test the inverse power function
         /// </summary>
+        /// <remarks>
+        /// <b> References: </b>
+        /// Jiang L, Linton O, Tang H, Zhang Y (2023). drcarlate: Improving 
+        /// Estimation Efficiency in CAR with Imperfect Compliance. R package version 1.2.0,
+        /// https://CRAN.R-project.org/package=drcarlate
+        /// </remarks>
         [TestMethod]
         public void Test_InversePower_Function()
         {

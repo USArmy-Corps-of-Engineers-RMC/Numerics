@@ -45,14 +45,13 @@ namespace Numerics.Data
     /// </summary>
     /// <remarks>
     /// <para>
-    ///     Authors:
+    ///     <b> Authors: </b>
     ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
     /// </para>
     /// </remarks>
     [Serializable]
     public class TimeSeries : Series<DateTime, double>
     {
-
         /// <summary>
         /// Constructs an empty time-series.
         /// </summary>
@@ -732,7 +731,7 @@ namespace Numerics.Data
         /// <summary>
         /// Returns a moving sum time-series based on the specified time period. The sum is computed based on the previous n=period ordinates.
         /// </summary>
-        /// <param name="period">The time period to sum over. If time interval is 1-hour, and period is 12. The moving sum will be computed over a moving 12 hour block.</param>
+        /// <param name="period">The time period to sum over. If time interval is 1-hour, and period is 12, the moving sum will be computed over a moving 12 hour block.</param>
         public TimeSeries MovingSum(int period)
         {
             if (period >= Count)

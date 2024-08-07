@@ -39,12 +39,26 @@ namespace Numerics.Data
     /// </summary>
     /// <remarks>
     /// <para>
-    ///     Authors:
+    ///     <b> Authors: </b>
     ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
     /// </para>
-    /// References:
+    /// <para>
+    /// <b> Description: </b>
+    /// This method is the interpolation of a given bivariate data set by the polynomial of lowest possible degree
+    /// that passes through the points of the dataset.
+    /// </para>
+    /// <b> References: </b>
+    /// <list type="bullet">
+    /// <item><description>
     /// "Numerical Recipes, Routines and Examples in Basic", J.C. Sprott, Cambridge University Press, 1991.
+    /// </description></item>
+    /// <item><description>
     /// "Numerical Recipes: The art of Scientific Computing, Third Edition. Press et al. 2017.
+    /// </description></item>
+    /// <item><description>
+    /// <see href="https://en.wikipedia.org/wiki/Polynomial_interpolation"/>
+    /// </description></item>
+    /// </list>
     /// </remarks>
     public class Polynomial : Interpolater
     {

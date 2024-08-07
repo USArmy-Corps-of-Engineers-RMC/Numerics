@@ -42,7 +42,7 @@ namespace Numerics.Data
     /// </summary>
     /// <remarks>
     /// <para>
-    ///     Authors:
+    ///     <b> Authors: </b>
     ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
     /// </para>
     /// </remarks>
@@ -116,6 +116,7 @@ namespace Numerics.Data
         /// Removes the first occurrence of the specified object.
         /// </summary>
         /// <param name="item">The object to remove from the collection.</param>
+        /// <returns>True if the occurrence is successfully removed. False otherwise.</returns>
         public virtual bool Remove(SeriesOrdinate<TIndex, TValue> item)
         {
             var index = IndexOf(item);
@@ -153,6 +154,7 @@ namespace Numerics.Data
         /// Determines whether an element is in the collection.
         /// </summary>
         /// <param name="item">The item to locate.</param>
+        /// <returns>True if the element is in the collection. False otherwise/</returns>
         public bool Contains(SeriesOrdinate<TIndex, TValue> item)
         {
             return _seriesOrdinates.Contains(item);
@@ -177,11 +179,19 @@ namespace Numerics.Data
             return _seriesOrdinates.IndexOf(item);
         }
 
+        /// <summary>
+        /// Returns an enumerator that iterates through the collection.
+        /// </summary>
+        /// <returns>An enumerator for the collection.</returns>
         public IEnumerator<SeriesOrdinate<TIndex, TValue>> GetEnumerator()
         {
             return _seriesOrdinates.GetEnumerator();
         }
 
+        /// <summary>
+        /// Returns an enumerator that iterates through the collection.
+        /// </summary>
+        /// <returns>An enumerator for the collection.</returns>
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
@@ -194,7 +204,6 @@ namespace Numerics.Data
         {
             CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
         }
-
 
         /// <summary>
         /// Returns the list of series values as a list.

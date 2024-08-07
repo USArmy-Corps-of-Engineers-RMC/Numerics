@@ -153,10 +153,10 @@ namespace Numerics.Mathematics.SpecialFunctions
         /// <summary>
         /// Helper function for FindCombinations() 
         /// </summary>
-        /// <param name="buffer"></param>
-        /// <param name="done"></param>
-        /// <param name="begin"></param>
-        /// <param name="end"></param>
+        /// <param name="buffer"> An array to store the current combination being constructed </param>
+        /// <param name="done"> The index of where the next element of the combination should be placed </param>
+        /// <param name="begin"> Index of where to start adding elements. Ensures each element is only included once</param>
+        /// <param name="end"> The last index (exclusive) to be inlcuded in the current combination </param>
         private static IEnumerable<int[]> FindCombosRecursive(int[] buffer, int done, int begin, int end)
         {
             for (int i = begin; i < end; i++)

@@ -1,16 +1,61 @@
-﻿using System;
-using System.Linq;
+﻿/**
+* NOTICE:
+* The U.S. Army Corps of Engineers, Risk Management Center (USACE-RMC) makes no guarantees about
+* the results, or appropriateness of outputs, obtained from Numerics.
+*
+* LIST OF CONDITIONS:
+* Redistribution and use in source and binary forms, with or without modification, are permitted
+* provided that the following conditions are met:
+* ● Redistributions of source code must retain the above notice, this list of conditions, and the
+* following disclaimer.
+* ● Redistributions in binary form must reproduce the above notice, this list of conditions, and
+* the following disclaimer in the documentation and/or other materials provided with the distribution.
+* ● The names of the U.S. Government, the U.S. Army Corps of Engineers, the Institute for Water
+* Resources, or the Risk Management Center may not be used to endorse or promote products derived
+* from this software without specific prior written permission. Nor may the names of its contributors
+* be used to endorse or promote products derived from this software without specific prior
+* written permission.
+*
+* DISCLAIMER:
+* THIS SOFTWARE IS PROVIDED BY THE U.S. ARMY CORPS OF ENGINEERS RISK MANAGEMENT CENTER
+* (USACE-RMC) "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+* THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+* DISCLAIMED. IN NO EVENT SHALL USACE-RMC BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+* SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+* PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+* INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+* LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+* THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+* **/
+
+using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Numerics.Data;
 using Numerics.Data.Statistics;
-using Numerics.Data;
 using Numerics.Mathematics;
+using Numerics.Distributions;
 
 namespace Data.Statistics
 {
+    /// <summary>
+    /// Unit testing for the autocorrelation class. These methods were tested against values attained from R's "acf()" method from the "stats" package.
+    /// function from the "stats" package.
+    /// </summary>
+    /// <remarks>
+    ///     <b> Authors: </b>
+    ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
+    /// <para>
+    /// <b> References: </b>
+    ///  R Core Team (2013). R: A language and environment for statistical computing. R Foundation for Statistical Computing, 
+    ///  Vienna, Austria. ISBN 3-900051-07-0, URL <see href="http://www.R-project.org/."/>
+    /// </para>
+    /// </remarks>
     [TestClass]
     public class Test_Autocorrelation
     {
+        /// <summary>
+        /// Test the covariance method with an array of data
+        /// </summary>
         [TestMethod()]
         public void Test_Covariance()
         {
@@ -21,6 +66,9 @@ namespace Data.Statistics
                 Assert.AreEqual(acvf[i, 1], true_acvf[i], 0.0001d);
         }
 
+        /// <summary>
+        /// Test the covariance method with TimeSeries data
+        /// </summary>
         [TestMethod()]
         public void Test_Covariance_TimeSeries()
         {
@@ -32,6 +80,9 @@ namespace Data.Statistics
                 Assert.AreEqual(acvf[i, 1], true_acvf[i], 0.0001d);
         }
 
+        /// <summary>
+        /// Test the autocorrelation method with an array of data
+        /// </summary>
         [TestMethod()]
         public void Test_Correlation()
         {
@@ -46,6 +97,9 @@ namespace Data.Statistics
                 Assert.AreEqual(acf2[i, 1], true_acf[i], 0.0001d);
         }
 
+        /// <summary>
+        /// Test the autocorrelation method with TimeSeries data
+        /// </summary>
         [TestMethod()]
         public void Test_Correlation_TimeSeries()
         {
@@ -57,6 +111,9 @@ namespace Data.Statistics
                 Assert.AreEqual(acf[i, 1], true_acf[i], 0.0001d);
         }
 
+        /// <summary>
+        /// Test the partial autocorrelation method with an array of data
+        /// </summary>
         [TestMethod()]
         public void Test_Partial()
         {
@@ -67,6 +124,9 @@ namespace Data.Statistics
                 Assert.AreEqual(pacf[i, 1], true_pacf[i], 0.0001d);
         }
 
+        /// <summary>
+        /// Test the partial autocorrelation method with TimeSeries data
+        /// </summary>
         [TestMethod()]
         public void Test_Partial_TimeSeries()
         {
@@ -76,6 +136,30 @@ namespace Data.Statistics
             var true_pacf = new double[] { 0.955844726d, 0.037833688d, 0.020103563d, -0.063283074d, -0.101338145d, 0.148214184d, 0.042511772d, -0.023952331d, 0.07833128d, -0.075887833d, -0.117610117d, -0.085556279d, 0.03336607d, -0.118322713d, 0.051528628d, 0.089399743d, 0.0019337d, -0.005678822d, -0.104080153d, -0.032036409d, 0.083778031d, 0.078051358d, -0.120023159d };
             for (int i = 0; i < true_pacf.Length; i++)
                 Assert.AreEqual(pacf[i, 1], true_pacf[i], 0.0001d);
+        }
+
+        /// <summary>
+        /// Test the method for attaining a confidence interval for the correlation function
+        /// </summary>
+        [TestMethod]
+        public void Test_CorrelationConfidenceInterval()
+        {
+            var sizes = new int[] { 20, 30, 40, 50, 50, 60 };
+            var intervals = new double[] { 0.90, 0.95, 0.99 };
+
+            for(int i = 0; i < sizes.Length;i++)
+            {
+                for(int j = 0; j < intervals.Length; j++)
+                {
+                    var cci = Autocorrelation.CorrelationConfidenceInterval(sizes[i], intervals[j]);
+                    var high = Normal.StandardZ(0.5*(1 - intervals[j])) / Math.Sqrt(sizes[i]);
+                    var low = -high;
+
+                    Assert.AreEqual(high, cci[0], 1E-6);
+                    Assert.AreEqual(low, cci[1], 1E-6);
+                }
+            }
+
         }
     }
 }

@@ -37,11 +37,10 @@ namespace Numerics.Data
     /// </summary>
     /// <remarks>
     /// <para>
-    ///     Authors:
+    ///     <b> Authors: </b>
     ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
     /// </para>
     /// </remarks>
-
     [Serializable]
     public enum BlockFunctionType
     {
@@ -49,14 +48,17 @@ namespace Numerics.Data
         /// Compute the minimum over each time block.
         /// </summary>
         Minimum,
+
         /// <summary>
         /// Compute the maximum over each time block.
         /// </summary>
         Maximum,
+
         /// <summary>
         /// Compute the average over each time block.
         /// </summary>
         Average,
+
         /// <summary>
         /// Compute the sum over each time block.
         /// </summary>

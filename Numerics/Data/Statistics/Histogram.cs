@@ -34,38 +34,35 @@ using System.Linq;
 
 namespace Numerics.Data.Statistics
 {
-
     /// <summary>
-    /// Create a histogram from a sample of data.
+    /// Create a histogram from a sample of data, which is a visual representation of the distribution of the data.
     /// </summary>
     /// <remarks>
     /// <para>
-    ///     Authors:
+    ///     <b> Authors: </b>
     ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
-    /// </para>>
+    /// </para>
     /// <para>
-    /// References:
+    /// <b> References: </b>
     /// <list type="bullet">
-    /// <item><description>
+    /// <item>
     /// <see href = "https://en.wikipedia.org/wiki/Histogram" />
-    /// </description></item>
-    /// <item><description>
-    /// This class is modeled after the histogram class in the Math.NET Numerics library, http://numerics.mathdotnet.com.
-    /// </description></item>
+    /// </item>
+    /// <item>
+    /// This class is modeled after the histogram class in the Math.NET Numerics library: <see href="http://numerics.mathdotnet.com"/> 
+    /// ></item>
     /// </list>
     /// </para>
     /// </remarks>
     [Serializable]
     public class Histogram
     {
-
         /// <summary>
         /// A histogram bin.
         /// </summary>
         [Serializable]
         public class Bin : IComparable<Bin>, ICloneable
         {
-
             /// <summary>
             /// Initialize a new instance of the histogram bin class.
             /// </summary>
@@ -116,7 +113,7 @@ namespace Numerics.Data.Statistics
             /// <summary>
             /// Comparison of two bins. The bins cannot be overlapping.
             /// </summary>
-            /// <param name="other"></param>
+            /// <param name="other">The bin to compare with</param>
             /// <returns>
             /// 0 if the upper bound and lower bound are bit-for-bit equal.
             /// +1 if this bin is lower than the compared bin.
@@ -151,6 +148,7 @@ namespace Numerics.Data.Statistics
             /// <summary>
             /// Checks whether two histogram bins are equal.
             /// </summary>
+            /// <returns>True if the bins are equal and false otherwise.</returns>
             public override bool Equals(object obj)
             {
                 if (!(obj is Bin))
@@ -192,7 +190,7 @@ namespace Numerics.Data.Statistics
         }
 
         /// <summary>
-        /// Constructs a histogram with a specific number of bins. The histogram limits are derived from the data.
+        /// Constructs a histogram with a specific number of bins and the data provided. The histogram limits are derived from the data.
         /// </summary>
         /// <param name="data">The data to construct a histogram with.</param>
         /// <param name="numberOfBins">The number of bins.</param>
@@ -376,7 +374,7 @@ namespace Numerics.Data.Statistics
         /// <summary>
         /// Add a bin to the bin list.
         /// </summary>
-        /// <param name="bin">Histogram bin.</param>
+        /// <param name="bin">Histogram bin to add.</param>
         public void AddBin(Bin bin)
         {
             _bins.Add(bin);
@@ -415,7 +413,7 @@ namespace Numerics.Data.Statistics
         /// Add a sequence of data values to the histogram. If the data value falls outside the range of the histogram,
         /// the start or end bin will automatically adapt.
         /// </summary>
-        /// <param name="data">A sequence of data values.</param>
+        /// <param name="data">A sequence of data values to add.</param>
         public void AddData(IList<double> data)
         {
             foreach (double d in data)

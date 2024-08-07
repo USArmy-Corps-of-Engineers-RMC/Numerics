@@ -41,7 +41,7 @@ namespace Numerics.Data.Statistics
     /// </summary>
     /// <remarks>
     /// <para>
-    ///     Authors:
+    ///     <b> Authors: </b>
     ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
     /// </para>
     /// </remarks>
@@ -55,6 +55,7 @@ namespace Numerics.Data.Statistics
         /// </summary>
         /// <param name="numberOfParameters">The number of model parameters</param>
         /// <param name="logLikelihood">The maximum log-likelihood.</param>
+        /// <returns>The AIC value for the model</returns>
         public static double AIC(int numberOfParameters, double logLikelihood)
         {
             return (-2d * logLikelihood) + (2d * numberOfParameters);
@@ -68,6 +69,7 @@ namespace Numerics.Data.Statistics
         /// <param name="sampleSize">The sample size.</param>
         /// <param name="numberOfParameters">The number of model parameters</param>
         /// <param name="logLikelihood">The maximum log-likelihood.</param>
+        /// <returns>The AIC value for the model</returns>
         public static double AICc(int sampleSize, int numberOfParameters, double logLikelihood)
         {
             double _aic = AIC(numberOfParameters, logLikelihood);
@@ -83,6 +85,7 @@ namespace Numerics.Data.Statistics
         /// <param name="sampleSize">The sample size.</param>
         /// <param name="numberOfParameters">The number of model parameters</param>
         /// <param name="logLikelihood">The maximum log-likelihood.</param>
+        /// <returns>The BIC value for the model</returns>
         public static double BIC(int sampleSize, int numberOfParameters, double logLikelihood)
         {
             return (-2d * logLikelihood) + (numberOfParameters * Math.Log(sampleSize));
@@ -138,6 +141,7 @@ namespace Numerics.Data.Statistics
         /// <param name="observedValues">The list of observed values to measure against.</param>
         /// <param name="modeledValues">The list of modeled values to compare against the observed values.</param>
         /// <param name="k">Number of model parameters. Default = 0.</param>
+        /// <returns>The RMSE of the model</returns>
         public static double RMSE(IList<double> observedValues, IList<double> modeledValues, int k = 0)
         {
             // Check if the lists are the same size
@@ -153,9 +157,10 @@ namespace Numerics.Data.Statistics
 
         /// <summary>
         /// Gets the Root Mean Square Error (RMSE) of the model compared to the observed data. Weibull plotting positions are assumed.
-        /// </summary>
+        /// </summary>inverse
         /// <param name="observedValues">The list of observed values to measure against.</param>
         /// <param name="model">The univariate continuous distribution.</param>
+        /// <returns>The RMSE of the model</returns>
         public static double RMSE(IList<double> observedValues, UnivariateDistributionBase model)
         {
             var observed = observedValues.ToArray();
@@ -171,6 +176,7 @@ namespace Numerics.Data.Statistics
         /// <param name="observedValues">The list of observed values to measure against.</param>
         /// <param name="plottingPositions">The plotting positions of the observed values.</param>
         /// <param name="model">The univariate continuous distribution.</param>
+        /// <returns>The RMSE of the model</returns>
         public static double RMSE(IList<double> observedValues, IList<double> plottingPositions, UnivariateDistributionBase model)
         {
             var modeled = model.InverseCDF(plottingPositions);
@@ -199,10 +205,11 @@ namespace Numerics.Data.Statistics
         }
 
         /// <summary>
-        /// Gets the r^2, the square of the correlation of the model data compared to the observed data.
+        /// Gets the R^2, the square of the correlation of the model data compared to the observed data.
         /// </summary>
         /// <param name="observedValues">The list of observed values to measure against.</param>
         /// <param name="modeledValues">The list of modeled values to compare against the observed values.</param>
+        /// <returns>The R^2 value pf the model</returns>
         public static double RSquared(IList<double> observedValues, IList<double> modeledValues)
         {
             // Check if the lists are the same size
@@ -215,17 +222,21 @@ namespace Numerics.Data.Statistics
         }
 
         /// <summary>
-        /// The Kolmogorov-Smirnov test statistic. 
+        /// Computes the Kolmogorov-Smirnov test statistic, which is used to decide if a sample comes from a population with a specified distribution.
         /// </summary>
+        /// <remarks>
+        /// <b> References: </b> 
+        /// <see href="https://www.itl.nist.gov/div898/handbook/eda/section3/eda35g.htm"/>
+        /// </remarks>
         /// <param name="observedValues">The list of observed values to measure against. Must be sorted in ascending order.</param>
         /// <param name="model">The univariate continuous distribution.</param>
+        /// <returns>The Kolmogorov Smirnov test statistic</returns>
         public static double KolmogorovSmirnov(IList<double> observedValues, UnivariateDistributionBase model)
         {
             // Check if the lists are the same size
             if (observedValues.Count < 1)
                 throw new ArgumentOutOfRangeException(nameof(observedValues), "There must be more than one observed value.");
 
-            //https://www.itl.nist.gov/div898/handbook/eda/section3/eda35g.htm
             int n = observedValues.Count;
             double D = double.MinValue;
             for (int i = 1; i <= n; i++)
@@ -238,17 +249,21 @@ namespace Numerics.Data.Statistics
         }
 
         /// <summary>
-        /// The Chi-Squared test statistic. 
+        /// Computes the Chi-Squared test statistic, which is used to decide if a sample of data comes from a population with a specified distribution.
         /// </summary>
+        /// <remarks>
+        /// <b> References: </b>
+        /// <see href="https://www.itl.nist.gov/div898/handbook/eda/section3/eda35f.htm"/>
+        /// </remarks>
         /// <param name="observedValues">The list of observed values to measure against. Must be sorted in ascending order.</param>
         /// <param name="model">The univariate continuous distribution.</param>
+        /// <returns>The Chi-Squared test statistic.</returns>
         public static double ChiSquared(IList<double> observedValues, UnivariateDistributionBase model)
         {
             // Check if the lists are the same size
             if (observedValues.Count < 1)
                 throw new ArgumentOutOfRangeException(nameof(observedValues), "There must be more than one observed value.");
 
-            // https://www.itl.nist.gov/div898/handbook/eda/section3/eda35f.htm
             int n = observedValues.Count;
             var hist = new Histogram(observedValues);
             double x2 = 0;
@@ -261,17 +276,21 @@ namespace Numerics.Data.Statistics
         }
 
         /// <summary>
-        /// The Anderson-Darling test statistic
+        /// Computes the Anderson-Darling test statistic, which is used to decide if a sample of data comes from a population with a specified distribution.
         /// </summary>
+        /// <remarks>
+        /// <b> References: </b>
+        /// <see href="https://www.itl.nist.gov/div898/handbook/eda/section3/eda35e.htm"/>
+        /// </remarks>
         /// <param name="observedValues">The list of observed values to measure against. Must be sorted in ascending order.</param>
         /// <param name="model">The univariate continuous distribution.</param>
+        /// <returns>The Anderson-Darling test statistic.</returns>
         public static double AndersonDarling(IList<double> observedValues, UnivariateDistributionBase model)
         {
             // Check if the lists are the same size
             if (observedValues.Count < 1)
                 throw new ArgumentOutOfRangeException(nameof(observedValues), "There must be more than one observed value.");
 
-            //https://www.itl.nist.gov/div898/handbook/eda/section3/eda35e.htm
             int n = observedValues.Count;
             double S = 0;
             for (int i = 1; i <= n; i++)

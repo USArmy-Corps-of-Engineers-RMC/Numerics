@@ -28,7 +28,6 @@
 * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 * **/
 
-using Mathematics.Integration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Numerics.Distributions;
 using Numerics.Mathematics.Integration;
@@ -39,6 +38,10 @@ namespace Mathematics.Integration
     /// <summary>
     /// Unit test for the Trapezoidal rule of integration
     /// </summary>
+    /// <remarks>
+    ///     <b> Authors: </b>
+    ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
+    /// </remarks>
     [TestClass]
     public class Test_TrapezoidalRule
     {

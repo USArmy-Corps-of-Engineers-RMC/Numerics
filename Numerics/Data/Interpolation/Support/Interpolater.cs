@@ -38,9 +38,15 @@ namespace Numerics.Data
     /// </summary>
     /// <remarks>
     /// <para>
-    ///     Authors:
+    ///     <b> Authors: </b>
     ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
     /// </para>
+    /// <para>
+    /// <b> Description: </b>
+    /// Interpolation is an estimation method to find new data points within the range of a discrete set of known data points.
+    /// </para>
+    /// <b> References: </b>
+    /// <see href="https://en.wikipedia.org/wiki/Interpolation"/>
     /// </remarks>
     public abstract class Interpolater
     {
@@ -144,6 +150,9 @@ namespace Numerics.Data
         /// and saves search value for future use on the next call.  
         /// </summary>
         /// <param name="x">The value to search for.</param>
+        /// <returns>
+        /// The lower bound of the interpolation interval
+        /// </returns>
         public int Search(double x)
         {
             int start = 0;
@@ -164,6 +173,9 @@ namespace Numerics.Data
         /// Searches for the lower bound of the location of a value using a sequential search method.
         /// </summary>
         /// <param name="x">The value to search for.</param>
+        /// <returns>
+        /// The lower bound of the location of a value
+        /// </returns>
         public int SequentialSearch(double x)
         {
             int jl = SearchStart;
@@ -198,6 +210,9 @@ namespace Numerics.Data
         /// Searches for the lower bound of the location of a value using a bisection search method.
         /// </summary>
         /// <param name="x">The value to search for.</param>
+        /// <returns>
+        /// The lower bound of the location of a value
+        /// </returns>
         public int BisectionSearch(double x)
         {
             int ju = Count - 1, jm, jl = 0;
@@ -217,6 +232,9 @@ namespace Numerics.Data
         /// Searches for the lower bound of the location of a value using a hunt search method.
         /// </summary>
         /// <param name="x">The value to search for.</param>
+        /// <returns>
+        /// The lower bound of the location of a value
+        /// </returns>
         public int HuntSearch(double x)
         {
             int jl = SearchStart, jm, ju, inc = 1;

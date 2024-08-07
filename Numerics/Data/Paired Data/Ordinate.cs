@@ -41,9 +41,15 @@ namespace Numerics.Data
     /// </summary>
     /// <remarks>
     /// <para>
-    ///     Authors:
-    ///     Woodrow Fields, USACE Risk Management Center, woodrow.l.fields@usace.army.mil
-    ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
+    ///     <b> Authors: </b>
+    /// <list type="bullet">
+    /// <item><description>
+    ///     Woodrow Fields, USACE Risk Management Center, woodrow.l.fields@usace.army.mil 
+    /// </description></item>
+    /// <item><description>
+    ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil 
+    /// </description></item>
+    /// </list>
     /// </para>
     /// </remarks>
     [Serializable]
@@ -75,7 +81,6 @@ namespace Numerics.Data
             double x = 0, y = 0;
             if (xElement.Attribute(nameof(X)) != null) double.TryParse(xElement.Attribute(nameof(X)).Value, NumberStyles.Any, CultureInfo.InvariantCulture, out x);
             if (xElement.Attribute(nameof(Y)) != null) double.TryParse(xElement.Attribute(nameof(Y)).Value, NumberStyles.Any, CultureInfo.InvariantCulture, out y);
-            //
             X = x;
             Y = y;
             IsValid = true;
@@ -114,7 +119,7 @@ namespace Numerics.Data
         /// <param name="xOrder">The order of the x-values.</param>
         /// <param name="yOrder">The order of the y-values.</param>
         /// <param name="compareOrdinateIsNext">Boolean identifying if the ordinate to compare is the next or previous ordinate in a series.</param>
-        /// <returns>a boolean indicating if the ordinate is valid or not given the criteria.</returns>
+        /// <returns> A boolean indicating if the ordinate is valid or not given the criteria.</returns>
         public bool OrdinateValid(Ordinate ordinateToCompare, bool strictX, bool strictY, SortOrder xOrder, SortOrder yOrder, bool compareOrdinateIsNext)
         {
             // Check the ordinate itself
@@ -207,7 +212,7 @@ namespace Numerics.Data
         /// <param name="xOrder">The order of the x-values.</param>
         /// <param name="yOrder">The order of the y-values.</param>
         /// <param name="compareOrdinateIsNext">Boolean identifying if the ordinate to compare is the next or previous ordinate in a series.</param>
-        /// <returns>a list of error messages given the criteria.</returns>
+        /// <returns> A list of error messages given the criteria.</returns>
         public List<string> OrdinateErrors(Ordinate ordinateToCompare, bool strictX, bool strictY, SortOrder xOrder, SortOrder yOrder, bool compareOrdinateIsNext)
         {
             var result = new List<string>();
@@ -276,6 +281,7 @@ namespace Numerics.Data
         /// <summary>
         /// Get errors in the ordinate data.
         /// </summary>
+        /// <returns>A list of strings.</returns>
         public List<string> OrdinateErrors()
         {
             var result = new List<string>();
@@ -330,13 +336,12 @@ namespace Numerics.Data
             return new Ordinate(transformedX, transformedY);
         }
 
-        #endregion
-
         /// <summary>
-        /// Checks if two uncertain ordinates are equal.
+        /// Checks if two ordinates are equal.
         /// </summary>
-        /// <param name="left">Uncertain ordinate.</param>
-        /// <param name="right">Uncertain ordinate.</param>
+        /// <param name="left"> First ordinate to compare.</param>
+        /// <param name="right"> Second ordinate to compare.</param>
+        /// <returns>True if two objects are numerically equal; otherwise, False.</returns>
         public static bool operator ==(Ordinate left, Ordinate right)
         {
             if (Math.Abs(left.X - right.X) > Tools.DoubleMachineEpsilon) { return false; }
@@ -345,17 +350,18 @@ namespace Numerics.Data
         }
 
         /// <summary>
-        /// Checks if two uncertain ordinates are not equal.
+        /// Checks if two ordinates are not equal.
         /// </summary>
-        /// <param name="left">Uncertain ordinate.</param>
-        /// <param name="right">Uncertain ordinate.</param>
+        /// <param name="left"> First ordinate to compare.</param>
+        /// <param name="right"> Second ordinate to compare.</param>
+        /// <returns>True if two objects are not numerically equal; otherwise, False.</returns>
         public static bool operator !=(Ordinate left, Ordinate right)
         {
             return !(left == right);
         }
 
         /// <summary>
-        /// Returns the ordinate as XEleemnt.
+        /// Returns the ordinate as XElement.
         /// </summary>
         public XElement ToXElement()
         {
@@ -364,5 +370,7 @@ namespace Numerics.Data
             result.SetAttributeValue(nameof(Y), Y.ToString("G17", CultureInfo.InvariantCulture));
             return result;
         }
+
+        #endregion
     }
 }

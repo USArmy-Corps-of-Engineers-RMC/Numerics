@@ -29,21 +29,18 @@
 * **/
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Numerics.Data.Statistics;
-using Numerics.Distributions;
 using Numerics.Mathematics.Integration;
-using Numerics.Sampling;
-using Numerics.Sampling.MCMC;
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 
 namespace Mathematics.Integration
 {
     /// <summary>
     /// Unit tests for the Vegas method of adaptive multidimensional integration
     /// </summary>
+    /// <remarks>
+    ///     <b> Authors: </b>
+    ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
+    /// </remarks>
     [TestClass]
     public class Test_Vegas
     {

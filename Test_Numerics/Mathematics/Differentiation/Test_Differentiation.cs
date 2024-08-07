@@ -37,22 +37,39 @@ namespace Mathematics.Differentiation
     /// <summary>
     /// Unit tests for the methods of numerical differentiation
     /// </summary>
+    /// <remarks>
+    ///     <b> Authors: </b>
+    /// <list type="bullet">
+    /// <item><description>
+    /// Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
+    /// </description></item>
+    /// <item><description>
+    /// Sadie Niblett, USACE Risk Management Center, sadie.s.niblett@usace.army.mil
+    /// </description></item>
+    /// </list>
+    /// </remarks>
     [TestClass]
     public class Test_Differentiation
     {
         /// <summary>
-        /// Test function
+        /// Test function of x^3
         /// </summary>
         public double FX(double x)
         {
             return Math.Pow(x, 3d);
         }
 
+        /// <summary>
+        /// Test function of e^x
+        /// </summary>
         public double EX(double x)
         {
             return Math.Exp(x);
         }
 
+        /// <summary>
+        /// Test function of ln(x)
+        /// </summary>
         public double LN(double x)
         {
             return Math.Log(x);

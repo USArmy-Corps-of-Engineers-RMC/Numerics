@@ -39,7 +39,7 @@ namespace Numerics.Data.Statistics
     /// </summary>
     /// <remarks>
     /// <para>
-    ///     Authors:
+    ///     <b> Authors: </b>
     ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
     /// </para>
     /// </remarks>
@@ -75,7 +75,8 @@ namespace Numerics.Data.Statistics
         /// <summary>
         /// Add a new vector to the running statistics. 
         /// </summary>
-        /// <param name="values">Vector of data values.</param>
+        /// <param name="values">Vector of data values. The length of the vector but be the same as 
+        /// the number of rows</param>
         public void Push(IList<double> values)
         {
             N += 1;

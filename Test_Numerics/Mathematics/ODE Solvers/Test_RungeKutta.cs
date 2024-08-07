@@ -38,6 +38,15 @@ namespace Mathematics.ODESolvers
     /// Unit tests for the RungeKutta method
     /// </summary>
     /// <remarks>
+    ///      <b> Authors: </b>
+    /// <list type="bullet">
+    /// <item><description>
+    ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
+    /// </description></item>
+    /// <item><description>
+    ///     Sadie Niblett, USACE Risk Management Center, sadie.s.niblett@usace.army.mil
+    /// </description></item>
+    /// </list>
     /// <b> References: </b>
     /// <para>
     /// The example values were taken from OK State's MATH4513 course

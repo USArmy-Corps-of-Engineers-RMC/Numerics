@@ -29,7 +29,6 @@
 * **/
 
 using System.Collections.Generic;
-
 namespace Numerics.Data
 {
     /// <summary>
@@ -37,12 +36,27 @@ namespace Numerics.Data
     /// </summary>
     /// <remarks>
     /// <para>
-    ///     Authors:
+    ///     <b> Authors: </b>
     ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
     /// </para>
-    /// References:
+    /// <para>
+    /// <b> Description: </b>
+    /// Spline interpolation uses a piecewise polynomial called a spline as the interpolant. Instead of fitting a single, high degree 
+    /// polynomial to all of the given values at once, spline interpolation fits low-degree polynomials to small subsets of values. For cubic spline
+    /// interpolation, polynomials of degree 3 are used.
+    /// </para>
+    /// <b> References: </b>
+    /// <list type="bullet">
+    /// <item><description>
     /// "Numerical Recipes, Routines and Examples in Basic", J.C. Sprott, Cambridge University Press, 1991.
+    /// </description></item>
+    /// <item><description>
     /// "Numerical Recipes: The art of Scientific Computing, Third Edition. Press et al. 2017.
+    /// </description></item>
+    /// <item><description>
+    /// <see href="https://en.wikipedia.org/wiki/Spline_interpolation"/>
+    /// </description></item>
+    /// </list>
     /// </remarks>
     public class CubicSpline : Interpolater
     {
@@ -68,7 +82,7 @@ namespace Numerics.Data
         /// </summary>
         public void SetSecondDerivatives()
         {
-            // This routine stores an array y2[0...n-1] with second derivatives of the interpolating unction
+            // This routine stores an array y2[0...n-1] with second derivatives of the interpolating function
             // at the tabulated points. if yp1 and or yp2 are equal to 1E99 or larger, the routine is signaled to set
             // the corresponding boundary condition for a natural spline, with zero second derivative on that boundary.
 

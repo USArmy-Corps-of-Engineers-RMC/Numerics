@@ -39,12 +39,19 @@ namespace Numerics.Data
     /// </summary>
     /// <remarks>
     /// <para>
-    ///     Authors:
+    ///     <b> Authors: </b>
     ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
+    /// </para>
+    /// <para>
+    /// <b> Description: </b>
+    /// Linear interpolation is a method of estimation and curve fitting using linear polynomials to construct new data points
+    /// within the range of a discrete set of known data points.
     /// </para>
     /// <para>
     ///     Methods are designed to be compatible with the VBA Macro 'Interpolate Version 2.0.0' November 2017, USACE Risk Management Center
     /// </para>
+    /// <b> References: </b>
+    /// <see href="https://en.wikipedia.org/wiki/Linear_interpolation"/>
     /// </remarks>
     public class Linear : Interpolater
     {
@@ -149,7 +156,7 @@ namespace Numerics.Data
         /// <summary>
         /// Given a value x, returns an extrapolated value. 
         /// </summary>
-        /// <param name="x">The value to interpolate.</param>
+        /// <param name="x">The value to extrapolate.</param>
         public double Extrapolate(double x)
         {
             double y, x1 = 0, x2 = 0, y1 = 0, y2 = 0;
