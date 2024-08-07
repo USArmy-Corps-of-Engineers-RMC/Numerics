@@ -190,15 +190,6 @@ namespace Data.Regression
             **/
         }
 
-
-            // Test summary output table
-            var summary = LM.Summary();
-            for (int i = 0; i < summary.Count; i++)
-            {
-                // Debug.WriteLine(summary[i]);
-            }
-        }
-
         /// <summary>
         /// Test for multiple linear regression.
         /// </summary>

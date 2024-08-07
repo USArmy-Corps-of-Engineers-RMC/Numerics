@@ -340,7 +340,7 @@ namespace Numerics.Data
             SuppressCollectionChanged = true;
             for (int i = 0; i <= Count - 1; i++)
             {
-                if (!double.IsNaN(this[i].Value)) { this[i].Value -= Math.Abs(this[i].Value); }
+                if (!double.IsNaN(this[i].Value)) { this[i].Value = Math.Abs(this[i].Value); }
             }
             SuppressCollectionChanged = false;
             RaiseCollectionChangedReset();
