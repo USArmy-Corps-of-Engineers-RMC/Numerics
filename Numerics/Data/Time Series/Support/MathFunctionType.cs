@@ -31,13 +31,45 @@
 
 namespace Numerics.Data
 {
+    /// <summary>
+    /// Enumeration of math function types.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    ///     <b> Authors: </b>
+    ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
+    /// </para>
+    /// </remarks>
     public enum MathFunctionType
     {
+        /// <summary>
+        /// Compute the sum over each time block.
+        /// </summary>
         Add,
+
+        /// <summary>
+        /// Compute the difference over each time block.
+        /// </summary>
         Subtract,
+
+        /// <summary>
+        /// Compute the product over each time block.
+        /// </summary>
         Multiply,
+
+        /// <summary>
+        /// Compute the quotient over each time block.
+        /// </summary>
         Divide,
+
+        /// <summary>
+        /// Compute the logarithmic transform over each time block.
+        /// </summary>
         Logarithm,
+
+        /// <summary>
+        /// Raise each time block to some power.
+        /// </summary>
         Exponentiate,
         Inverse,
         Replace,

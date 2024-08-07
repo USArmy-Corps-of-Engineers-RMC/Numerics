@@ -40,11 +40,20 @@ namespace Numerics.Data
     /// </summary>
     /// <remarks>
     /// <para>
-    ///     Authors:
+    ///     <b> Authors: </b>
     ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
     /// </para>
     /// <para>
+    /// <b> Description: </b>
+    /// This method interpolates functions of two variables using repeated linear interpolation. First linear 
+    /// interpolation is performed in one direction, and then again in another. 
+    /// </para>
+    /// <para>
     ///     Methods are designed to be compatible with the VBA Macro 'Interpolate Version 2.0.0' November 2017, USACE Risk Management Center
+    /// </para>
+    /// <para>
+    /// <b> References: </b>
+    /// <see href="https://en.wikipedia.org/wiki/Bilinear_interpolation"/>
     /// </para>
     /// </remarks>
     public class Bilinear

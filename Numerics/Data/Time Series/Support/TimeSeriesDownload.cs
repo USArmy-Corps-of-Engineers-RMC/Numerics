@@ -1,20 +1,49 @@
-﻿using System.IO.Compression;
+﻿/**
+* NOTICE:
+* The U.S. Army Corps of Engineers, Risk Management Center (USACE-RMC) makes no guarantees about
+* the results, or appropriateness of outputs, obtained from Numerics.
+*
+* LIST OF CONDITIONS:
+* Redistribution and use in source and binary forms, with or without modification, are permitted
+* provided that the following conditions are met:
+* ● Redistributions of source code must retain the above notice, this list of conditions, and the
+* following disclaimer.
+* ● Redistributions in binary form must reproduce the above notice, this list of conditions, and
+* the following disclaimer in the documentation and/or other materials provided with the distribution.
+* ● The names of the U.S. Government, the U.S. Army Corps of Engineers, the Institute for Water
+* Resources, or the Risk Management Center may not be used to endorse or promote products derived
+* from this software without specific prior written permission. Nor may the names of its contributors
+* be used to endorse or promote products derived from this software without specific prior
+* written permission.
+*
+* DISCLAIMER:
+* THIS SOFTWARE IS PROVIDED BY THE U.S. ARMY CORPS OF ENGINEERS RISK MANAGEMENT CENTER
+* (USACE-RMC) "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+* THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+* DISCLAIMED. IN NO EVENT SHALL USACE-RMC BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+* SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+* PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+* INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+* LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+* THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+* **/
+
+using System.IO.Compression;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Xml.Linq;
 using System;
-using System.Collections.Generic;
 
 namespace Numerics.Data
 {
 
     /// <summary>
-    /// Download time series from the Internet.
+    /// Download time series data from the Internet.
     /// </summary>
     /// <remarks>
     /// <para>
-    ///     Authors:
+    ///     <b> Authors: </b>
     ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
     /// </para>
     /// </remarks>
@@ -60,8 +89,7 @@ namespace Numerics.Data
         /// <param name="unit">The depth unit. Default = inches.</param>
         /// <returns>A downloaded time series.</returns>
         public static TimeSeries FromGHCN(string siteNumber, GHCNTimeSeriesType timeSeriesType = GHCNTimeSeriesType.DailyPrecipitation, DepthUnit unit = DepthUnit.Inches)
-        {
-                     
+        {     
             var timeSeries = new TimeSeries(TimeInterval.OneDay);
       
             try
@@ -96,7 +124,6 @@ namespace Numerics.Data
                         }
                     }
                 }
-
 
                 // Parse the file and create time series
                 // import at-site data
@@ -268,7 +295,6 @@ namespace Numerics.Data
                                 DateTime.TryParse(segments[2], out index);
                             }
 
-
                             // Get value
                             double value = 0;
 
@@ -289,9 +315,6 @@ namespace Numerics.Data
                         }
                     }
                 }
-
-
-
             }
             catch (Exception ex)
             {
@@ -315,7 +338,5 @@ namespace Numerics.Data
             catch { }
             return false;
         }
-
     }
-
 }

@@ -70,27 +70,26 @@ namespace Numerics.Data.Statistics
     /// </summary>
     /// <remarks>
     /// <para>
-    ///     Authors:
+    ///     <b> Authors: </b>
     ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
     /// </para>
     /// <para>
-    /// References:
+    /// <b> References: </b>
     /// <list type="bullet">
-    /// <item><description>
+    /// <item>
     /// <see href = "https://en.wikipedia.org/wiki/Summary_statistics" />
-    /// </description></item>
-    /// <item><description>
+    /// </item>
+    /// <item>
     /// <see href = "https://en.wikipedia.org/wiki/Descriptive_statistics" />
-    /// </description></item>
-    /// <item><description>
-    /// This class contains some functions from the Math.NET Numerics library, http://numerics.mathdotnet.com
-    /// </description></item>
+    /// </item>
+    /// <item>
+    /// This class contains some functions from the Math.NET Numerics library, <see href="http://numerics.mathdotnet.com"/>
+    /// </item>
     /// </list>
     /// </para>
     /// </remarks>
     public class Statistics
     {
-
         /// <summary>
         /// Returns the smallest value from the unsorted data array.
         /// Returns NaN if data is empty or any entry is NaN
@@ -163,6 +162,11 @@ namespace Numerics.Data.Statistics
             return sum / sampleData.Count;
         }
 
+        /// <summary>
+        /// Computes the arithmetic sample mean from the unsorted data array by first enabling parallelization of the array.
+        /// Returns NaN if data is empty or any entry is NaN.
+        /// </summary>
+        /// <param name="sampleData">Sample of data, no sorting is assumed.</param>
         public static double ParallelMean(IList<double> sampleData)
         {
             if (sampleData.Count == 0) return double.NaN;
@@ -631,6 +635,7 @@ namespace Numerics.Data.Statistics
         /// <summary>
         /// Returns the rank of each entry of the unsorted data array.
         /// </summary>
+        /// <param name="data">The array of sample of data, no sorting is assumed.</param>
         public static double[] RanksInplace(double[] data)
         {
 
@@ -670,6 +675,8 @@ namespace Numerics.Data.Statistics
         /// <summary>
         /// Returns the rank of each entry of the unsorted data array.
         /// </summary>
+        /// <param name="data">The array of sample of data, no sorting is assumed.</param>
+        /// <param name="ties">Output. The number of ties in the data.</param>
         public static double[] RanksInplace(double[] data, out double [] ties)
         {
 
@@ -711,6 +718,9 @@ namespace Numerics.Data.Statistics
             return ranks;
         }
 
+        /// <summary>
+        /// Helper function for RanksInplace(double[], out double[])
+        /// </summary>
         private static void RanksTies(double[] ranks, int[] index, int a, int b)
         {
             

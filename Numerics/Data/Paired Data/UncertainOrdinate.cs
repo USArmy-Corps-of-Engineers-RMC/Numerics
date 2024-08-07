@@ -41,9 +41,15 @@ namespace Numerics.Data
     /// </summary>
     /// <remarks>
     /// <para>
-    ///     Authors:
-    ///     Woodrow Fields, USACE Risk Management Center, woodrow.l.fields@usace.army.mil
-    ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
+    ///     <b> Authors: </b>
+    /// <list type="bullet">
+    /// <item><description>
+    ///     Woodrow Fields, USACE Risk Management Center, woodrow.l.fields@usace.army.mil 
+    /// </description></item>
+    /// <item><description>
+    ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil 
+    /// </description></item>
+    /// </list>
     /// </para>
     /// </remarks>
     public struct UncertainOrdinate
@@ -87,7 +93,7 @@ namespace Numerics.Data
         /// Constructs new uncertain ordinate from XElement.
         /// </summary>
         /// <param name="xElement">The XElement to deserialize.</param>
-        /// <param name="distributionType">The probability distribution type.</param>
+        /// <param name="distributionType">The probability distribution type of Y.</param>
         public UncertainOrdinate(XElement xElement, UnivariateDistributionType distributionType)
         {
             double x = 0;
@@ -140,7 +146,7 @@ namespace Numerics.Data
         /// Sample the uncertain ordinate to return a 'sampled' ordinate value.
         /// </summary>
         /// <param name="probability">Probability between 0 and 1.</param>
-        /// <returns>A 'sampled' ordinate value</returns>
+        /// <returns>A 'sampled' ordinate value.</returns>
         public Ordinate GetOrdinate(double probability)
         {
             return new Ordinate(X, Y.InverseCDF(probability));
@@ -149,7 +155,7 @@ namespace Numerics.Data
         /// <summary>
         /// Gets the mean value of the uncertain distribution and returns a new ordinate value.
         /// </summary>
-        /// <returns>A mean ordinate value</returns>
+        /// <returns>A mean ordinate value.</returns>
         public Ordinate GetOrdinate()
         {
             return new Ordinate(X, Y.Mean);
@@ -165,7 +171,7 @@ namespace Numerics.Data
         /// <param name="yOrder">The order of the y-values.</param>
         /// <param name="compareOrdinateIsNext">Boolean identifying if the ordinate to compare is the next or previous ordinate in a series.</param>
         /// <param name="allowDifferentTypes">Allow different distribution types. Default = false.</param>
-        /// <returns>a boolean indicating if the ordinate is valid or not given the criteria.</returns>
+        /// <returns> A boolean indicating if the ordinate is valid or not given the criteria.</returns>
         public bool OrdinateValid(UncertainOrdinate ordinateToCompare, bool strictX, bool strictY, SortOrder xOrder, SortOrder yOrder, bool compareOrdinateIsNext, bool allowDifferentTypes = false)
         {
             // 
@@ -202,7 +208,7 @@ namespace Numerics.Data
         /// <param name="yOrder">The order of the y-values.</param>
         /// <param name="compareOrdinateIsNext">Boolean identifying if the ordinate to compare is the next or previous ordinate in a series.</param>
         /// <param name="allowDifferentTypes">Allow different distribution types. Default = false.</param>
-        /// <returns>a list of error messages given the criteria.</returns>
+        /// <returns>A list of error messages given the criteria.</returns>
         public List<string> OrdinateErrors(UncertainOrdinate ordinateToCompare, bool strictX, bool strictY, SortOrder xOrder, SortOrder yOrder, bool compareOrdinateIsNext, bool allowDifferentTypes = false)
         {
             var result = new List<string>();
@@ -246,11 +252,11 @@ namespace Numerics.Data
             // Finished Checking
             return result;
         }
-       
+
         /// <summary>
         /// Get errors with the ordinate.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>A list of strings.</returns>
         public List<string> OrdinateErrors()
         {
             var result = new List<string>();
@@ -276,8 +282,9 @@ namespace Numerics.Data
         /// <summary>
         /// Checks if two uncertain ordinates are equal.
         /// </summary>
-        /// <param name="left">Uncertain ordinate.</param>
-        /// <param name="right">Uncertain ordinate.</param>
+        /// <param name="left">First uncertain ordinate to compare.<param>
+        /// <param name="right">Second uncertain ordinate to compare.</param>
+        /// <returns>True if two objects are numerically equal; otherwise, False.</returns>
         public static bool operator ==(UncertainOrdinate left, UncertainOrdinate right)
         {
             //if (left == null || right == null) return false;
@@ -291,15 +298,16 @@ namespace Numerics.Data
         /// <summary>
         /// Checks if two uncertain ordinates are not equal.
         /// </summary>
-        /// <param name="left">Uncertain ordinate.</param>
-        /// <param name="right">Uncertain ordinate.</param>
+        /// <param name="left">First uncertain ordinate to compare.</param>
+        /// <param name="right">Second uncertain ordinate to compare.</param>
+        /// <returns>True if two objects are not numerically equal; otherwise, False.</returns>
         public static bool operator !=(UncertainOrdinate left, UncertainOrdinate right)
         {
             return !(left == right);
         }
 
         /// <summary>
-        /// Returns the ordinate as XEleemnt.
+        /// Returns the ordinate as XElement.
         /// </summary>
         public XElement ToXElement()
         {

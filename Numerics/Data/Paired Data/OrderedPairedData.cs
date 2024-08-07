@@ -41,16 +41,17 @@ namespace Numerics.Data
 {
 
     /// <summary>
-    /// The OrderedPairedData class is designed to store xy data that is ordered for both the x and y values.
+    /// Class designed to store xy data that is ordered for both the x and y values.
+    /// </summary>
+    /// <remarks>
+    ///     <b> Authors:</b>
+    ///     Woodrow Fields, USACE Risk Management Center, woodrow.l.fields@usace.army.mil
+    /// <para>
+    /// <b> Description: </b>
     /// The most common use case for this class is to store curve data such as a cumulative distribution function.
     /// One of the more powerful functions associated with this class is the Transform() function which allows to transform
     /// the OrderedPairedData class with another to create a new class. Common use cases of the Transform() function include
     /// transforming a flood frequency function into a stage frequency function using a flow-stage rating curve.
-    /// </summary>
-    /// <remarks>
-    /// <para>
-    ///     Authors:
-    ///     Woodrow Fields, USACE Risk Management Center, woodrow.l.fields@usace.army.mil
     /// </para>
     /// </remarks> 
     [Serializable]
@@ -94,6 +95,8 @@ namespace Numerics.Data
         private bool Ycorrelated = false;
 
         #endregion
+
+        #region Members
 
         private bool _strictX;
         private bool _strictY;
@@ -185,42 +188,11 @@ namespace Numerics.Data
         /// <returns>Boolean.</returns>
         bool ICollection<Ordinate>.IsReadOnly => false;
 
-        /// <summary>
-        /// Get or set the ordinate at a specified index.
-        /// </summary>
-        /// <param name="index">Index of ordinate in the collection to manipulate.</param>
-        /// <returns>Ordinate at the specified index.</returns>
-        public Ordinate this[int index]
-        {
-            get { return _ordinates[index]; }
-            set
-            {
-                //_ordinates[index] = value;
-                //Validate();
+        #endregion
 
-                if (_ordinates[index] != value)
-                {
-                    var oldvalue = _ordinates[index];
-                    _ordinates[index] = value;
-                    if (IsValid == true)
-                    {
-                        if (OrdinateValid(index) == false) { IsValid = false; }
-                    }
-                    else
-                    {
-                        if (OrdinateValid(index) == true) { Validate(); }
-                    }
-                    ////
-                    //if (SupressCollectionChanged == false)
-                    //{
-                    CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, value, oldvalue));
-                    //}
-                }
+        #region Construction
 
-            }
-        }
-
-        /// <summary>
+        /*/// <summary>
         /// Create empty instance of the ordered paired data class.
         /// </summary>
         /// <param name="strictOnX">Boolean indicating if x values are strictly increasing/decreasing. True means x values cannot be equal.</param>
@@ -247,6 +219,27 @@ namespace Numerics.Data
         public OrderedPairedData(int capacity, bool strictOnX, SortOrder xOrder, bool strictOnY, SortOrder yOrder)
         {
             _ordinates = new List<Ordinate>(capacity);
+            StrictX = strictOnX;
+            StrictY = strictOnY;
+            OrderX = xOrder;
+            OrderY = yOrder;
+        }*/
+
+        /// <summary>
+        /// Create empty instance of the ordered paired data class.
+        /// </summary>
+        /// <param name="strictOnX">Boolean indicating if x values are strictly increasing/decreasing. True means x values cannot be equal.</param>
+        /// <param name="xOrder">Order of the x values.</param>
+        /// <param name="strictOnY">Boolean indicating if x values are strictly increasing/decreasing. True means x values cannot be equal.</param>
+        /// <param name="yOrder">Order of the y values.</param>
+        /// <param name="capacity"> Optional, capacity of the collection.</param>
+        public OrderedPairedData(bool strictOnX, SortOrder xOrder, bool strictOnY, SortOrder yOrder, int capacity = 0)
+        {
+            if (capacity > 0)
+                _ordinates = new List<Ordinate>(capacity);
+            else
+                _ordinates = new List<Ordinate>();
+
             StrictX = strictOnX;
             StrictY = strictOnY;
             OrderX = xOrder;
@@ -295,9 +288,9 @@ namespace Numerics.Data
         }
 
         /// <summary>
-        /// Create a new instance of the uncertain ordered paired data class from an XElement XML object.
+        /// Create a new instance of the ordered paired data class from an XElement XML object.
         /// </summary>
-        /// <param name="el"></param>
+        /// <param name="el"> The XElement the OrderedPairedData object is being created from </param>
         public OrderedPairedData(XElement el)
         {
             // Get Strictness
@@ -332,7 +325,43 @@ namespace Numerics.Data
             Validate();
         }
 
+        #endregion
 
+        #region Methods
+        /// <summary>
+        /// Get or set the ordinate at a specified index.
+        /// </summary>
+        /// <param name="index">Index of ordinate in the collection to manipulate.</param>
+        /// <returns>Ordinate at the specified index.</returns>
+        public Ordinate this[int index]
+        {
+            get { return _ordinates[index]; }
+            set
+            {
+                //_ordinates[index] = value;
+                //Validate();
+
+                if (_ordinates[index] != value)
+                {
+                    var oldvalue = _ordinates[index];
+                    _ordinates[index] = value;
+                    if (IsValid == true)
+                    {
+                        if (OrdinateValid(index) == false) { IsValid = false; }
+                    }
+                    else
+                    {
+                        if (OrdinateValid(index) == true) { Validate(); }
+                    }
+                    ////
+                    //if (SupressCollectionChanged == false)
+                    //{
+                    CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, value, oldvalue));
+                    //}
+                }
+
+            }
+        }
 
         /// <summary>
         /// Determines the index of a specific ordinate in the collection.
@@ -404,7 +433,7 @@ namespace Numerics.Data
         }
 
         /// <summary>
-        /// Get a list of errors in the UncertainOrderedPairedData object.
+        /// Get a list of errors in the OrderedPairedData object.
         /// </summary>
         /// <returns>A list of strings.</returns>
         public List<string> GetErrors()
@@ -506,6 +535,111 @@ namespace Numerics.Data
         }
 
         /// <summary>
+        /// Copies the ordinates to an System.Array, starting at a particular System.Array index.
+        /// </summary>
+        /// <param name="array">The one-dimensional System.Array that is the destination of the elements copied
+        /// from. The System.Array must have zero-based indexing.</param>
+        /// <param name="arrayIndex">The zero-based index in array at which copying begins.</param>
+        public void CopyTo(Ordinate[] array, int arrayIndex)
+        {
+            _ordinates.CopyTo(array, arrayIndex);
+        }
+
+        /// <summary>
+        /// Clones the object to a new object.
+        /// </summary>
+        /// <returns>Clone of target OrderedPairedData collection.</returns>
+        public OrderedPairedData Clone()
+        {
+            return new OrderedPairedData(_ordinates, StrictX, OrderX, StrictY, OrderY);
+        }
+
+        /// <summary>
+        /// Create an inverted function.
+        /// </summary>
+        public OrderedPairedData Invert()
+        {
+            var invertedOrdinates = new Ordinate[_ordinates.Count];
+            for (int i = 0; i < _ordinates.Count; i++)
+                invertedOrdinates[i] = new Ordinate(_ordinates[i].Y, _ordinates[i].X);
+            return new OrderedPairedData(invertedOrdinates, StrictY, OrderY, StrictX, OrderX);
+        }
+
+        /// <summary>
+        /// Returns an enumerator that iterates through the collection.
+        /// </summary>
+        /// <returns>An enumerator for the collection.</returns>
+        public IEnumerator<Ordinate> GetEnumerator()
+        {
+            return _ordinates.GetEnumerator();
+        }
+
+        /// <summary>
+        /// Returns an enumerator that iterates through the collection.
+        /// </summary>
+        /// <returns>An enumerator for the collection.</returns>
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return _ordinates.GetEnumerator();
+        }
+
+        /// <summary>
+        /// Tests for numerical equality between two OrderedPairedData collection.
+        /// </summary>
+        /// <param name="left">OrderedPairedData object to the left of the equality operator.</param>
+        /// <param name="right">OrderedPairedData object to the right of the equality operator.</param>
+        /// <returns>True if two objects are numerically equal; otherwise, False.</returns>
+        public static bool operator ==(OrderedPairedData left, OrderedPairedData right)
+        {
+            // Check for null arguments. Keep in mind null == null
+            if (left is null && right is null)
+            {
+                return true;
+            }
+            else if (left is null)
+            {
+                return false;
+            }
+            else if (right is null)
+            {
+                return false;
+            }
+            // I don't think this is possible
+            if ((left._ordinates == null) && (right._ordinates == null))
+            {
+                return true;
+            }
+            else if (left._ordinates == null)
+            {
+                return false;
+            }
+            else if (right._ordinates == null)
+            {
+                return false;
+            }
+            if (left.Count != right.Count) return false;
+            for (int i = 0; i < left._ordinates.Count; i++)
+            {
+                if (Math.Abs(left._ordinates[i].X - right._ordinates[i].X) > 0.0000000000001d)
+                    return false;
+                if (Math.Abs(left._ordinates[i].Y - right._ordinates[i].Y) > 0.0000000000001d)
+                    return false;
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// Tests for numerical inequality between two OrderedPairedData collection.
+        /// </summary>
+        /// <param name="left">OrderedPairedData object to the left of the inequality operator.</param>
+        /// <param name="right">OrderedPairedData object to the right of the inequality operator.</param>
+        /// <returns>True if two objects are not numerically equal; otherwise, False.</returns>
+        public static bool operator !=(OrderedPairedData left, OrderedPairedData right)
+        {
+            return !(left == right);
+        }
+
+        /// <summary>
         /// Calculates the area between the Y values and the zero axis using the trapezoidal approximation.
         /// </summary>
         /// <returns>The area under the curve.</returns>
@@ -553,9 +687,41 @@ namespace Numerics.Data
             return sum;
         }
 
+        /// <summary>
+        /// Converts the ordered paired data set to an XElement for saving to xml.
+        /// </summary>
+        /// <returns>An XElement representation of the data.</returns>
+        public XElement SaveToXElement()
+        {
+            var result = new XElement(nameof(OrderedPairedData));
+            // 
+            // Order
+            result.SetAttributeValue(nameof(StrictX), StrictX.ToString());
+            result.SetAttributeValue(nameof(StrictY), StrictY.ToString());
+            // Get Strictness
+            result.SetAttributeValue(nameof(OrderX), OrderX.ToString());
+            result.SetAttributeValue(nameof(OrderY), OrderY.ToString());
+            // 
+            var curveElement = new XElement("Ordinates");
+            for (int i = 0; i < Count; i++) { curveElement.Add(this[i].ToXElement()); }
+            // 
+            result.Add(curveElement);
+            return result;
+        }
+
+        #endregion
+
         #region Interpolation
 
-
+        /// <summary>
+        /// Given a value (x or y) returns the interpolated value (y or x).
+        /// </summary>
+        /// <param name="value"> The value to be interpolated. </param>
+        /// <param name="start">The zero-based index to start the search from.</param>
+        /// <param name="givenX"> Optional boolean if the given value is an x value. Default is set to true.</param>
+        /// <param name="xTransform"> Transform for the x values. Default is set to none.</param>
+        /// <param name="yTransform"> Transform for the y values. Default is set to none. </param>
+        /// <returns> The interpolated value.</returns>
         private double RawInterpolate(double value, int start, bool givenX = true, Transform xTransform = Data.Transform.None, Transform yTransform = Data.Transform.None)
         {
 
@@ -657,6 +823,14 @@ namespace Numerics.Data
 
         }
 
+        /// <summary>
+        /// Given a value (x or y) returns the interpolated value (y or x).
+        /// </summary>
+        /// <param name="value"> The value to be interpolated. </param>
+        /// <param name="givenX"> Optional boolean if the given value is an x value. Default is set to true.</param>
+        /// <param name="xTransform"> Transform for the x values. Default is set to none.</param>
+        /// <param name="yTransform"> Transform for the y values. Default is set to none. </param>
+        /// <returns> The interpolated value.</returns>
         public double Interpolate(double value, bool givenX = true, Transform xTransform = Data.Transform.None, Transform yTransform = Data.Transform.None)
         {
             if (Count == 0) return double.NaN;
@@ -685,45 +859,20 @@ namespace Numerics.Data
             return RawInterpolate(value, start, givenX, xTransform, yTransform);
         }
 
+        /// <summary>
+        /// Given a list of values (x or y) returns the interpolated values (y or x).
+        /// </summary>
+        /// <param name="values">The list of values to be interpolated.</param>
+        /// <param name="givenX"> Optional boolean if the given value is an x value. Default is set to true.</param>
+        /// <param name="xTransform"> Transform for the x values. Default is set to none.</param>
+        /// <param name="yTransform"> Transform for the y values. Default is set to none. </param>
+        /// <returns>An array of interpolated values.</returns>
         public double[] Interpolate(IList<double> values, bool givenX = true, Transform xTransform = Data.Transform.None, Transform yTransform = Data.Transform.None)
         {
             var result = new double[values.Count];
             for (int i = 0; i < values.Count; i++)
                 result[i] = Interpolate(values[i], givenX, xTransform, yTransform);
             return result;
-        }
-
-
-        /// <summary>
-        /// Samples a Y value for a given X from the X coordinates of the curve, solves the function F(X) = Y
-        /// </summary>
-        /// <param name="xValue">A value that represents the X, if the value is below the lowest x value, it returns the first y value, if the value is above the highest x value it returns the last y value</param>
-        /// <param name="xTransform">Interpolation transform for x values.</param>
-        /// <param name="yTransform">Interpolation transform for y values.</param>
-        /// <returns>An interpolated y value for a given x</returns>
-        public double GetYfromX(double xValue, Transform xTransform = Data.Transform.None, Transform yTransform = Data.Transform.None)
-        {
-            int index = BinarySearchX(xValue);
-            if (index < -1)
-            {
-                index = -1 * index - 1;
-                if (index == _ordinates.Count)
-                {
-                    return _ordinates.Last().Y;
-                }
-                else
-                {
-                    return InterpolateYFromX(xValue, _ordinates[index - 1], _ordinates[index], xTransform, yTransform);
-                }
-            }
-            else if (index == -1)
-            {
-                return _ordinates[0].Y;
-            }
-            else
-            {
-                return _ordinates[index].Y;
-            }
         }
 
         /// <summary>
@@ -733,6 +882,7 @@ namespace Numerics.Data
         /// <param name="valuesOrdered">Boolean indicating if the sample x values are in the same order as the ordinate x values.</param>
         /// <param name="xTransform">Interpolation transform for x values.</param>
         /// <param name="yTransform">Interpolation transform for y values.</param>
+        /// <returns> An array of interpolated y values.</returns>
         public double[] GetYValues(IList<double> xValues, bool valuesOrdered, Transform xTransform = Data.Transform.None, Transform yTransform = Data.Transform.None)
         {
             if (xValues == null || xValues.Count == 0) return new double[0];
@@ -788,11 +938,43 @@ namespace Numerics.Data
         }
 
         /// <summary>
+        /// Samples a Y value for a given X from the X coordinates of the curve, solves the function F(X) = Y
+        /// </summary>
+        /// <param name="xValue">A value that represents the X, if the value is below the lowest x value, it returns the first y value, if the value is above the highest x value it returns the last y value</param>
+        /// <param name="xTransform">Interpolation transform for x values. Default is none. </param>
+        /// <param name="yTransform">Interpolation transform for y values. Default is none. </param>
+        /// <returns>An interpolated y value for a given x</returns>
+        public double GetYfromX(double xValue, Transform xTransform = Data.Transform.None, Transform yTransform = Data.Transform.None)
+        {
+            int index = BinarySearchX(xValue);
+            if (index < -1)
+            {
+                index = -1 * index - 1;
+                if (index == _ordinates.Count)
+                {
+                    return _ordinates.Last().Y;
+                }
+                else
+                {
+                    return InterpolateYFromX(xValue, _ordinates[index - 1], _ordinates[index], xTransform, yTransform);
+                }
+            }
+            else if (index == -1)
+            {
+                return _ordinates[0].Y;
+            }
+            else
+            {
+                return _ordinates[index].Y;
+            }
+        }
+
+        /// <summary>
         /// Samples a X value based on a given Y from the Y coordinates of the curve, solves the inverse function of F(X)=Y
         /// </summary>
         /// <param name="yValue">A value that represents the Y, if the value is below the lowest y value, it returns the lowest x value, if the value is above the highest y value it returns the highest x value</param>
-        /// <param name="xTransform">Interpolation transform for x values.</param>
-        /// <param name="yTransform">Interpolation transform for y values.</param>
+        /// <param name="xTransform">Interpolation transform for x values. Default is none. </param>
+        /// <param name="yTransform">Interpolation transform for y values. Default is none. </param>
         /// <returns>an x value for a given y</returns>
         /// <remarks></remarks>
         public double GetXfromY(double yValue, Transform xTransform = Data.Transform.None, Transform yTransform = Data.Transform.None)
@@ -819,10 +1001,6 @@ namespace Numerics.Data
                 return _ordinates[index].X;
             }
         }
-
-
-
-
 
         /// <summary>
         /// Calculates the interpolated Y value for a given X between two ordinates.
@@ -962,7 +1140,7 @@ namespace Numerics.Data
             // Return x1 + (yValue - y1) / (y2 - y1) * (x2 - x1)
         }
 
-        /// <summary>
+        /// <summary> 
         /// Transforms target with another OrderedPairedData collection into a new OrderedPairedData collection.
         /// </summary>
         /// <param name="transformFunction">The OrderedPairedData collection to be used for composition with target.</param>
@@ -1195,6 +1373,52 @@ namespace Numerics.Data
             return new OrderedPairedData(xValues, yValues, strictOnX, orderOnX, strictOnY, orderOnY);
         }
 
+        #endregion
+
+        #region Search Methods
+
+        /// <summary>
+        /// Search for the lower bound of the interpolation interval. This method updates whether the values being searched on repeated calls are correlated, 
+        /// and saves search value for future use on the next call.  
+        /// </summary>
+        /// <param name="x">The value to search for.</param>
+        public int SearchX(double x)
+        {
+            int start = 0;
+            if (UseSmartSearch)
+            {
+                start = Xcorrelated ? HuntSearchX(x) : BisectionSearchX(x);
+            }
+            else
+            {
+                start = SequentialSearchX(x);
+            }
+            Xcorrelated = Math.Abs(start - XSearchStart) > XdeltaStart ? false : true;
+            XSearchStart = start < 0 || start >= Count ? 0 : start;
+            return start;
+        }
+
+        /// <summary>
+        /// Search for the lower bound of the interpolation interval. This method updates whether the values being searched on repeated calls are correlated, 
+        /// and saves search value for future use on the next call.  
+        /// </summary>
+        /// <param name="y">The value to search for.</param>
+        public int SearchY(double y)
+        {
+            int start = 0;
+            if (UseSmartSearch)
+            {
+                start = Ycorrelated ? HuntSearchY(y) : BisectionSearchY(y);
+            }
+            else
+            {
+                start = SequentialSearchY(y);
+            }
+            Ycorrelated = Math.Abs(start - YSearchStart) > YdeltaStart ? false : true;
+            YSearchStart = start < 0 || start >= Count ? 0 : start;
+            return start;
+        }
+
         /// <summary>
         /// Searches ordinates in the OrderedPairedData collection
         /// for an ordinate based on X-value and returns the zero-based index of the element.
@@ -1298,53 +1522,6 @@ namespace Numerics.Data
                 return ~low;
             }
         }
-
-        #endregion
-
-        #region Search Methods
-
-        /// <summary>
-        /// Search for the lower bound of the interpolation interval. This method updates whether the values being searched on repeated calls are correlated, 
-        /// and saves search value for future use on the next call.  
-        /// </summary>
-        /// <param name="x">The value to search for.</param>
-        public int SearchX(double x)
-        {
-            int start = 0;
-            if (UseSmartSearch)
-            {
-                start = Xcorrelated ? HuntSearchX(x) : BisectionSearchX(x);
-            }
-            else
-            {
-                start = SequentialSearchX(x);
-            }
-            Xcorrelated = Math.Abs(start - XSearchStart) > XdeltaStart ? false : true;
-            XSearchStart = start < 0 || start >= Count ? 0 : start;
-            return start;
-        }
-
-        /// <summary>
-        /// Search for the lower bound of the interpolation interval. This method updates whether the values being searched on repeated calls are correlated, 
-        /// and saves search value for future use on the next call.  
-        /// </summary>
-        /// <param name="y">The value to search for.</param>
-        public int SearchY(double y)
-        {
-            int start = 0;
-            if (UseSmartSearch)
-            {
-                start = Ycorrelated ? HuntSearchY(y) : BisectionSearchY(y);
-            }
-            else
-            {
-                start = SequentialSearchY(y);
-            }
-            Ycorrelated = Math.Abs(start - YSearchStart) > YdeltaStart ? false : true;
-            YSearchStart = start < 0 || start >= Count ? 0 : start;
-            return start;
-        }
-
         /// <summary>
         /// Searches for the lower bound of the location of a value using a sequential search method.
         /// </summary>
@@ -1565,117 +1742,13 @@ namespace Numerics.Data
 
         #endregion
 
-        /// <summary>
-        /// Copies the ordinates to an System.Array, starting at a particular System.Array index.
-        /// </summary>
-        /// <param name="array">The one-dimensional System.Array that is the destination of the elements copied
-        /// from. The System.Array must have zero-based indexing.</param>
-        /// <param name="arrayIndex">The zero-based index in array at which copying begins.</param>
-        public void CopyTo(Ordinate[] array, int arrayIndex)
-        {
-            _ordinates.CopyTo(array, arrayIndex);
-        }
-
-        /// <summary>
-        /// Clones the object to a new object.
-        /// </summary>
-        /// <returns>Clone of target OrderedPairedData collection.</returns>
-        public OrderedPairedData Clone()
-        {
-            return new OrderedPairedData(_ordinates, StrictX, OrderX, StrictY, OrderY);
-        }
-
-        /// <summary>
-        /// Create an inverted function.
-        /// </summary>
-        public OrderedPairedData Invert()
-        {
-            var invertedOrdinates = new Ordinate[_ordinates.Count];
-            for (int i = 0; i < _ordinates.Count; i++)
-                invertedOrdinates[i] = new Ordinate(_ordinates[i].Y, _ordinates[i].X);
-            return new OrderedPairedData(invertedOrdinates, StrictY, OrderY, StrictX, OrderX);
-        }
-
-
-
-        /// <summary>
-        /// Returns an enumerator that iterates through the collection.
-        /// </summary>
-        /// <returns>An enumerator for the collection.</returns>
-        public IEnumerator<Ordinate> GetEnumerator()
-        {
-            return _ordinates.GetEnumerator();
-        }
-
-        /// <summary>
-        /// Returns an enumerator that iterates through the collection.
-        /// </summary>
-        /// <returns>An enumerator for the collection.</returns>
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return _ordinates.GetEnumerator();
-        }
-
-        /// <summary>
-        /// Tests for numerical equality between two OrderedPairedData collection.
-        /// </summary>
-        /// <param name="left">OrderedPairedData object to the left of the equality operator.</param>
-        /// <param name="right">OrderedPairedData object to the right of the equality operator.</param>
-        /// <returns>True if two objects are numerically equal; otherwise, False.</returns>
-        public static bool operator ==(OrderedPairedData left, OrderedPairedData right)
-        {
-            // Check for null arguments. Keep in mind null == null
-            if (left is null && right is null)
-            {
-                return true;
-            }
-            else if (left is null)
-            {
-                return false;
-            }
-            else if (right is null)
-            {
-                return false;
-            }
-            // I don't think this is possible
-            if ((left._ordinates == null) && (right._ordinates == null))
-            {
-                return true;
-            }
-            else if (left._ordinates == null)
-            {
-                return false;
-            }
-            else if (right._ordinates == null)
-            {
-                return false;
-            }
-            if (left.Count != right.Count) return false;
-            for (int i = 0; i < left._ordinates.Count; i++)
-            {
-                if (Math.Abs(left._ordinates[i].X - right._ordinates[i].X) > 0.0000000000001d)
-                    return false;
-                if (Math.Abs(left._ordinates[i].Y - right._ordinates[i].Y) > 0.0000000000001d)
-                    return false;
-            }
-            return true;
-        }
-
-        /// <summary>
-        /// Tests for numerical inequality between two OrderedPairedData collection.
-        /// </summary>
-        /// <param name="left">OrderedPairedData object to the left of the inequality operator.</param>
-        /// <param name="right">OrderedPairedData object to the right of the inequality operator.</param>
-        /// <returns>True if two objects are not numerically equal; otherwise, False.</returns>
-        public static bool operator !=(OrderedPairedData left, OrderedPairedData right)
-        {
-            return !(left == right);
-        }
-
-
         #region Line Simplification
 
-
+        /// <summary>
+        /// The Douglas Peucker algorithm that decimates a curve composed of line segments to a similar curve with fewer points.
+        /// </summary>
+        /// <param name="tolerance"> Tolerance to remove points. Higher tolerance will remove more points.</param>
+        /// <returns> An OrderedPairedData object that has been simplified according to the algorithm and tolerance level. </returns>
         public OrderedPairedData DouglasPeuckerSimplify(double tolerance)
         {
             List<Ordinate> ordinates = new List<Ordinate>();
@@ -1686,20 +1759,19 @@ namespace Numerics.Data
             return new OrderedPairedData(ordinates, StrictX, OrderX, StrictY, OrderY);
         }
 
-
         /// <summary>
-        /// Returns a list of indices to keep for the simplified x and y values of a line.
-        /// Source: http://www.codeproject.com/Articles/18936/A-Csharp-Implementation-of-Douglas-Peucker-Line-Ap
+        /// Helper function for DouglasPeuckerSimplfy().
         /// </summary>
-        /// <param name="xValues">x-values of the line.</param>
-        /// <param name="yValues">y-values of the line.</param>
+        /// <remarks>
+        /// <b> References: </b>
+        /// <see href="http://www.codeproject.com/Articles/18936/A-Csharp-Implementation-of-Douglas-Peucker-Line-Ap"/>
+        /// </remarks>
         /// <param name="tolerance">Tolerance to remove points. Higher tolerance will remove more points.</param>
-        /// <returns></returns>
+        /// <returns>
+        /// A list of indices to keep for the simplified x and y values of a line.
+        /// </returns>
         private List<int> DouglasPeuckerReduction(double tolerance)
         {
-
-            // http://www.codeproject.com/Articles/18936/A-Csharp-Implementation-of-Douglas-Peucker-Line-Ap
-
             List<int> reducedPointIndexes = new List<int>();
             if (_ordinates == null) { return reducedPointIndexes; }
             if (_ordinates.Count() < 3 | tolerance <= 0)
@@ -1717,6 +1789,13 @@ namespace Numerics.Data
 
         }
 
+        /// <summary>
+        /// Helper function for DouglasPeuckerSimplfy()
+        /// </summary>
+        /// <param name="firstPoint"> The first ordinate in the OrderedPairedData object .</param>
+        /// <param name="lastPoint"> The last ordinate in the OrderedPairedData object. </param>
+        /// <param name="tolerance"> Tolerance to remove points. Higher tolerance will remove more points. </param>
+        /// <param name="pointIndexesToKeep"> The list of simplified points to keep </param>
         private void DouglasPeuckerReduction(int firstPoint, int lastPoint, double tolerance, ref List<int> pointIndexesToKeep)
 
         {
@@ -1747,11 +1826,21 @@ namespace Numerics.Data
 
         }
 
+        /// <summary>
+        /// Calculates the distance of a point from a given line using 3 given points to form a triangle.
+        /// </summary>
+        /// <param name="aX"> The first point's x value.</param>
+        /// <param name="aY"> The first point's y value. </param>
+        /// <param name="bX"> The second point's x value. </param>
+        /// <param name="bY"> The second point's y value. </param>
+        /// <param name="cX"> The third point's x value. </param>
+        /// <param name="cY"> The third point's y value. </param>
+        /// <returns> The distance between the point and the curve. </returns>
         private double PerpendicularDistance(double aX, double aY, double bX, double bY, double cX, double cY)
         {
             // Area = |(1/2)(x1y2 + x2y3 + x3y1 - x2y1 - x3y2 - x1y3)|   *Area of triangle
-            // Base = v((x1-x2)²+(x1-x2)²)                               *Base of Triangle*
-            // Area = .5*Base*H                                          *Solve for height
+            // Base = v((x1-x2)²+(x1-x2)²)                               *Base of Triangle
+            // Area = 0.5*Base*H                                         *Solve for height
             // Height = Area/.5/Base
 
             double area = Math.Abs((aX * bY + bX * cY + cX * aY - bX * aY - cX * bY - aX * cY) * 0.5);
@@ -1760,14 +1849,17 @@ namespace Numerics.Data
         }
 
         /// <summary>
+        /// The Visvaligam-Whyatt algorithm that decimates a curve composed of line segments to a similar curve with fewer points.
         /// Upgrade when we implement the priority queue in .NET 6
         /// </summary>
-        /// <param name="numToKeep"></param>
-        /// <returns></returns>
+        /// <remarks>
+        /// <b> Reference: </b>
+        /// <see cref="http://bost.ocks.org/mike/simplify/"/>
+        /// </remarks>
+        /// <param name="numToKeep"> The number of points to keep for the simplified curve. </param>
+        /// <returns> An OrderedPairedData object that has been simplified according to the algorithm and given number of points to keep.</returns>
         public OrderedPairedData VisvaligamWhyattSimplify(int numToKeep)
         {
-            // http://bost.ocks.org/mike/simplify/
-
             List<Ordinate> ordinates = new List<Ordinate>(_ordinates);
 
             int removeLimit = ordinates.Count - numToKeep;
@@ -1814,9 +1906,16 @@ namespace Numerics.Data
         //    public Triangle Next;
         //}
 
-        private double TriangleArea(Ordinate point1, Ordinate point2, Ordinate point)
+        /// <summary>
+        /// Calculates the triangle area between 3 points
+        /// </summary>
+        /// <param name="point1"> First point or vertex.</param>
+        /// <param name="point2"> Second point or vertex.</param>
+        /// <param name="point3"> Third point or vertex.</param>
+        /// <returns> The area of the triangle formed by the three given points.</returns>
+        private double TriangleArea(Ordinate point1, Ordinate point2, Ordinate point3)
         {
-            return Math.Abs((point1.X * point2.Y + point2.X * point.Y + point.X * point1.Y - point2.X * point1.Y - point.X * point2.Y - point1.X * point.Y) * 0.5);
+            return Math.Abs((point1.X * point2.Y + point2.X * point3.Y + point3.X * point1.Y - point2.X * point1.Y - point3.X * point2.Y - point1.X * point3.Y) * 0.5);
         }
 
         //public OrderedPairedData VWSimplify(int length)
@@ -1826,6 +1925,13 @@ namespace Numerics.Data
 
         //}
 
+        /// <summary>
+        /// The Lang algorithm that decimates a curve composed of line segments to a similar curve with fewer points.
+        /// </summary>
+        /// <param name="tolerance"> Tolerance to remove points. Higher tolerance will remove more points. </param>
+        /// <param name="lookAhead"> How many points to look ahead at. This defines the search region that the tolerance is used on.</param>
+        /// <returns> An OrderedPairedData object that has been simplified according to the algorithm, given tolerance, 
+        /// and number of points in the search region.</returns>
         public OrderedPairedData LangSimplify(double tolerance, int lookAhead)
         {
             if (_ordinates == null | lookAhead <= 1 | tolerance <= 0)
@@ -1856,6 +1962,13 @@ namespace Numerics.Data
             return new OrderedPairedData(ordinates, StrictX, OrderX, StrictY, OrderY);
         }
 
+        /// <summary>
+        /// Helper function for LangSimplfy() that helps select which points to keep for the simplified curve
+        /// </summary>
+        /// <param name="i"> The index in the list of ordinates the algorithm is currently on</param>
+        /// <param name="lookAhead"> How many points to look ahead at. This defines the search region that the tolerance is used on.</param>
+        /// <param name="tolerance"> Tolerance to remove points. Higher tolerance will remove more points. </param>
+        /// <returns> An index to in the ordinate  list to look at next.</returns>
         private int RecursiveTolerance(int i, int lookAhead, double tolerance)
         {
             int n = lookAhead;
@@ -1894,34 +2007,7 @@ namespace Numerics.Data
             return n;
         }
 
-
-
-
-
-
         #endregion
-
-        /// <summary>
-        /// Converts the ordered paired data set to an XElement for saving to xml.
-        /// </summary>
-        /// <returns>An XElement representation of the data.</returns>
-        public XElement SaveToXElement()
-        {
-            var result = new XElement(nameof(OrderedPairedData));
-            // 
-            // Order
-            result.SetAttributeValue(nameof(StrictX), StrictX.ToString());
-            result.SetAttributeValue(nameof(StrictY), StrictY.ToString());
-            // Get Strictness
-            result.SetAttributeValue(nameof(OrderX), OrderX.ToString());
-            result.SetAttributeValue(nameof(OrderY), OrderY.ToString());
-            // 
-            var curveElement = new XElement("Ordinates");
-            for (int i = 0; i < Count; i++) { curveElement.Add(this[i].ToXElement()); }
-            // 
-            result.Add(curveElement);
-            return result;
-        }
 
     }
 }

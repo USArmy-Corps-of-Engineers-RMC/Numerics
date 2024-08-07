@@ -28,9 +28,6 @@
 * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 * **/
 
-using System;
-using System.Diagnostics;
-using System.Security.AccessControl;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Numerics.Data.Statistics;
 using Numerics.Mathematics;
@@ -40,6 +37,10 @@ namespace Mathematics.FourierMethods
     /// <summary>
     /// Unit tests for the Fast Fourier Transform methods
     /// </summary>
+    /// <remarks>
+    ///     <b> Authors: </b>
+    /// Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
+    /// </remarks>
     [TestClass]
     public class Test_FastFourierTransform
     {

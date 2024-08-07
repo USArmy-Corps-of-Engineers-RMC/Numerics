@@ -37,19 +37,24 @@ using Numerics.Mathematics.SpecialFunctions;
 
 namespace Numerics.Data.Statistics
 {
-
     /// <summary>
     /// A class for performing statistical hypothesis tests. 
     /// </summary>
     /// <remarks>
-    /// <para>
-    ///     Authors:
+    ///     <b> Authors: </b>
     ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
+    /// <para>
+    /// <b> Description: </b>
+    /// This is a method of statistical inference used to decide whether the data sufficiently support a particular hypothesis, typically
+    /// through the calculation of some test statistic. The null hypothesis (H0) is assumed to be true until proven otherwise through the tests. In this class
+    /// the p value is calculated to determine whether or not to reject the null hypothesis. If the p value is less than the specified significance level,
+    /// the null hypothesis is rejected in favor of the alternative hypothesis (Ha).
     /// </para>
+    /// <b> References: </b>
+    /// <see href="https://en.wikipedia.org/wiki/Statistical_hypothesis_test"/>
     /// </remarks>
     public class HypothesisTests
     {
-
         /// <summary>
         /// The one sample t-Test compares the mean of the sample to a hypothesized population mean.
         /// One rejects H0 if the p-value of the statistic is less than the significance level.

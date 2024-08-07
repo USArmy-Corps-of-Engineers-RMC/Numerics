@@ -34,26 +34,32 @@ using System.Linq;
 
 namespace Numerics.Data.Statistics
 {
-
     /// <summary>
     /// Contains methods for determining the correlation of two data sets.
     /// </summary>
     /// <remarks>
     /// <para>
-    ///     Authors:
+    ///     <b> Authors: </b>
     ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
     /// </para>
     /// <para>
-    /// This class contains a shared functions for Pearson and Spearman Correlation Coefficients.
+    /// <b> Description: </b>
+    /// This class contains a shared functions for Pearson and Spearman Correlation Coefficients. The Pearson correlation coefficient measures linear correlation
+    /// between two sets of data. The Spearman correlation coefficient is a nonparametric measure of rank correlation (i.e. measures the strength and direction of
+    /// association between two ranked variables).
     /// </para>
-    /// <para>
-    /// References:
-    /// </para>
-    /// <para>
+    /// <b> References: </b>
+    /// <list type="bullet">
+    /// <item>
     /// "Numerical Recipes, Routines and Examples in Basic", J.C. Sprott, Cambridge University Press, 1991.
+    /// </item>
+    /// <item>
     /// <see href="https://en.wikipedia.org/wiki/Pearson_correlation_coefficient"/>
+    /// </item>
+    /// <item>
     /// <see href="https://en.wikipedia.org/wiki/Spearman%27s_rank_correlation_coefficient"/>
-    /// </para>
+    /// </item>
+    /// </list>
     /// </remarks>
     public sealed class Correlation
     {

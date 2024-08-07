@@ -38,6 +38,10 @@ namespace Mathematics.Integration
     /// <summary>
     /// Unit tests for the Monte Carlo method of integration
     /// </summary>
+    /// <remarks>
+    ///     <b> Authors: </b>
+    ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
+    /// </remarks>
     [TestClass]
     public class Test_MonteCarlo
     {

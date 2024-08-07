@@ -76,16 +76,24 @@
     <Compile Include="Data\Interpolation\Test_Bilinear.cs" />
     <Compile Include="Data\Paired Data\Test_PairedData.cs" />
     <Compile Include="Data\Paired Data\Test_PairedDataInterpolation.cs" />
+    <Compile Include="Data\Paired Data\Test_LineSimplification.cs" />
+    <Compile Include="Data\Paired Data\Test_Ordinate.cs" />
+    <Compile Include="Data\Paired Data\Test_PairedDataLineSimplification.cs" />
+    <Compile Include="Data\Paired Data\Test_UncertainOrdinate.cs" />
+    <Compile Include="Data\Paired Data\Test_UncertainPairedData.cs" />
     <Compile Include="Data\Regression\Test_LinearRegression.cs" />
     <Compile Include="Data\Statistics\Test_HypothesisTests.cs" />
     <Compile Include="Data\Statistics\Test_Autocorrelation.cs" />
     <Compile Include="Data\Statistics\Test_BoxCox.cs" />
-    <Compile Include="Data\Statistics\Test_Historgram.cs" />
+    <Compile Include="Data\Statistics\Test_Histogram.cs" />
     <Compile Include="Data\Statistics\Test_Correlation.cs" />
     <Compile Include="Data\Statistics\Test_Statistics.cs" />
     <Compile Include="Data\Statistics\Test_GoodnessOfFit.cs" />
     <Compile Include="Data\Statistics\Test_Probability.cs" />
+    <Compile Include="Data\Statistics\Test_PlottingPositions.cs" />
+    <Compile Include="Data\Statistics\Test_RunningStatistics.cs" />
     <Compile Include="Data\Time Series\Test_TimeSeries.cs" />
+    <Compile Include="Data\Time Series\Test_TimeSeriesMethods.cs" />
     <Compile Include="Distributions\Bivariate Copulas\Test_AMHCopula.cs" />
     <Compile Include="Distributions\Bivariate Copulas\Test_ClaytonCopula.cs" />
     <Compile Include="Distributions\Bivariate Copulas\Test_FrankCopula.cs" />
@@ -161,18 +169,18 @@
     <Compile Include="Mathematics\Optimization\TestFunctions.cs" />
     <Compile Include="Mathematics\Optimization\Local\Test_GoldenSection.cs" />
     <Compile Include="Mathematics\Optimization\Local\Test_BrentSearch.cs" />
-    <Compile Include="Mathematics\Optimization\Local\Test_Powell.cs" />
+    <Compile Include="Mathematics\Optimization\Local\Test_Adam.cs" />
+    <Compile Include="Mathematics\Optimization\Constrained\Test_AugmentedLagrange.cs" />
     <Compile Include="Mathematics\Optimization\Local\Test_BFGS.cs" />
     <Compile Include="Mathematics\Optimization\Global\Test_DifferentialEvolution.cs" />
-    <Compile Include="Mathematics\Optimization\Global\Test_ShuffledComplexEvolution.cs" />
-    <Compile Include="Mathematics\Optimization\Local\Test_NelderMead.cs" />
-    <Compile Include="Mathematics\Optimization\Global\Test_MultiStart.cs" />
-    <Compile Include="Mathematics\Optimization\Global\Test_SimulatedAnnealing.cs" />
-    <Compile Include="Mathematics\Optimization\Global\Test_ParticleSwarm.cs" />
-    <Compile Include="Mathematics\Optimization\Constrained\Test_AugmentedLagrange.cs" />
-    <Compile Include="Mathematics\Optimization\Global\Test_MLSL.cs" />
     <Compile Include="Mathematics\Optimization\Local\Test_GradientDescent.cs" />
-    <Compile Include="Mathematics\Optimization\Local\Test_Adam.cs" />
+    <Compile Include="Mathematics\Optimization\Global\Test_MLSL.cs" />
+    <Compile Include="Mathematics\Optimization\Global\Test_MultiStart.cs" />
+    <Compile Include="Mathematics\Optimization\Local\Test_NelderMead.cs" />
+    <Compile Include="Mathematics\Optimization\Global\Test_ParticleSwarm.cs" />
+    <Compile Include="Mathematics\Optimization\Local\Test_Powell.cs" />
+    <Compile Include="Mathematics\Optimization\Global\Test_ShuffledComplexEvolution.cs" />
+    <Compile Include="Mathematics\Optimization\Global\Test_SimulatedAnnealing.cs" />
     <Compile Include="Mathematics\Root Finding\Test_Bracket.cs" />
     <Compile Include="Mathematics\Root Finding\Test_Bisection.cs" />
     <Compile Include="Mathematics\Root Finding\Test_Brent.cs" />
@@ -204,6 +212,7 @@
       <Name>Numerics</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

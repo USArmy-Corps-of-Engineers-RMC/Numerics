@@ -31,23 +31,28 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
-
 
 namespace Numerics
 {
     /// <summary>
     /// Static class for various data classification methods.
     /// </summary>
+    /// <remarks>
+    ///     <b> Authors: </b>
+    ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
+    /// </remarks>
     public static class Classification
     {
 
         /// <summary>
-        /// Determines classification range break values into equally sized intervals. Returns an array of upper bound break values.
+        /// Determines classification range break values into equally sized intervals.
         /// </summary>
         /// <param name="data">The data to be classified.</param>
         /// <param name="nClasses">The number of classes to determine break values.</param>
         /// <param name="dataIsSorted">Boolean value indicating if the data is sorted in ascending order.</param>
+        /// <returns>
+        /// An array of upper bound break values.
+        /// </returns>
         public static double[] EqualInterval(double[] data, int nClasses, bool dataIsSorted)
         {
             // 
@@ -73,11 +78,14 @@ namespace Numerics
         }
 
         /// <summary>
-        /// Determines classification range break values into equally sized intervals. Returns an array of upper bound break values.
+        /// Determines classification range break values into equally sized intervals. 
         /// </summary>
         /// <param name="minValue">Minimum value for determining classification.</param>
         /// <param name="maxValue">Maximum value for determining classification.</param>
         /// <param name="nClasses">The number of classes to determine break values for.</param>
+        /// <returns>
+        /// An array of upper bound break values.
+        /// </returns>
         public static double[] EqualInterval(double minValue, double maxValue, int nClasses)
         {
             if (nClasses <= 0)
@@ -95,12 +103,14 @@ namespace Numerics
         }
 
         /// <summary>
-        /// Determines classification range break values for a predefined interval. Returns an array of upper bound break values.
+        /// Determines classification range break values for a predefined interval.
         /// </summary>
         /// <param name="data">The data to be classified.</param>
         /// <param name="intervalSize">The size of the interval to classify break values.</param>
         /// <param name="dataIsSorted">Boolean value indicating if the data is sorted in ascending order.</param>
-        /// <returns></returns>
+        /// <returns>
+        /// An array of upper bound break values.
+        /// </returns>
         public static double[] DefinedInterval(IList<double> data, double intervalSize, bool dataIsSorted)
         {
             if (dataIsSorted)
@@ -116,12 +126,14 @@ namespace Numerics
         }
 
         /// <summary>
-        /// Determines classification range break values for a predefined interval. Returns an array of upper bound break values.
+        /// Determines classification range break values for a predefined interval.
         /// </summary>
         /// <param name="minValue">Minimum value for determining classification.</param>
         /// <param name="maxValue">Maximum value for determining classification.</param>
         /// <param name="intervalSize">The size of the interval to classify break values.</param>
-        /// <returns></returns>
+        /// <returns>
+        /// An array of upper bound break values.
+        /// </returns>
         public static double[] DefinedInterval(double minValue, double maxValue, double intervalSize)
         {
             if (intervalSize <= 0d || double.IsNaN(intervalSize))
@@ -139,12 +151,14 @@ namespace Numerics
         }
 
         /// <summary>
-        /// Determines classification range break values for intervals with equal counts. Returns an array of upper bound break values.
+        /// Determines classification range break values for intervals with equal counts.
         /// </summary>
         /// <param name="data">The data to be classified.</param>
         /// <param name="nClasses">The number of classes to determine break values.</param>
         /// <param name="dataIsSorted">Boolean value indicating if the data is sorted in ascending order.</param>
-        /// <returns></returns>
+        /// <returns>
+        /// An array of upper bound break values.
+        /// </returns>
         public static double[] Quantiles(IList<double> data, int nClasses, bool dataIsSorted)
         {
             if (nClasses <= 0) return new double[0];
@@ -181,14 +195,25 @@ namespace Numerics
         }
 
         /// <summary>
-        /// Determines classification range break values for intervals using the head/tail classification technique. Returns an array of upper bound break values.
-        /// <see href="https://en.wikipedia.org/wiki/Head/tail_breaks"/>
-        /// Jiang 2013.
+        /// Determines classification range break values for intervals using the head/tail classification technique.
         /// </summary>
+        /// <remarks>
+        /// <b> References: </b>
+        /// <list type="bullet">
+        /// <item><description> 
+        /// <see href="https://en.wikipedia.org/wiki/Head/tail_breaks"/>
+        /// </description></item>
+        /// <item><description> 
+        /// Jiang 2013.
+        /// </description></item>
+        /// </list>
+        /// </remarks>
         /// <param name="data">The data to be classified.</param>
         /// <param name="dataIsSorted">Boolean value indicating if the data is sorted in ascending order.</param>
         /// <param name="threshold">Proportion of the last bin to stop the iterative classification process.</param>
-        /// <returns></returns>
+        /// <returns>
+        /// An array of upper bound break values.
+        /// </returns>
         public static double[] HeadTailInterval(double[] data, bool dataIsSorted, double threshold = 0.4d)
         {
             if ((data == null))
@@ -261,12 +286,14 @@ namespace Numerics
         }
 
         /// <summary>
-        /// Determines classification range break values for intervals at a specified number of standard deviations. Returns an array of upper bound break values.
+        /// Determines classification range break values for intervals at a specified number of standard deviations.
         /// </summary>
         /// <param name="data">The data to be classified.</param>
         /// <param name="nDeviations">The multiplier determining the number of deviations per interval. For example, .5 would be half a deviation.</param>
         /// <param name="dataIsSorted">Boolean value indicating if the data is sorted in ascending order.</param>
-        /// <returns></returns>
+        /// <returns>
+        /// An array of upper bound break values.
+        /// </returns>
         public static double[] StandardDeviationInterval(IList<double> data, double nDeviations, bool dataIsSorted)
         {
             if (nDeviations <= 0d)
@@ -291,14 +318,16 @@ namespace Numerics
         }
 
         /// <summary>
-        /// Determines classification range break values for intervals at a specified number of standard deviations. Returns an array of upper bound break values.
+        /// Determines classification range break values for intervals at a specified number of standard deviations.
         /// </summary>
         /// <param name="mean">The average value.</param>
         /// <param name="standardDeviation">The standard deviation.</param>
         /// <param name="minValue">Minimum value for determining classification.</param>
         /// <param name="maxValue">Maximum value for determining classification.</param>
         /// <param name="nDeviations">The multiplier determining the number of deviations per interval. For example, .5 would be half a deviation.</param>
-        /// <returns></returns>
+        /// <returns>
+        /// An array of upper bound break values.
+        /// </returns>
         public static double[] StandardDeviationInterval(double mean, double standardDeviation, double minValue, double maxValue, double nDeviations)
         {
             if (nDeviations <= 0d)
@@ -341,13 +370,15 @@ namespace Numerics
         }
 
         /// <summary>
-        /// Determines classification range break values for intervals geometrically expanding from the mean value. Returns an array of upper bound break values.
+        /// Determines classification range break values for intervals geometrically expanding from the mean value.
         /// </summary>
         /// <param name="data">The data to be classified.</param>
         /// <param name="rValue">The common ratio (r) in a geometric progression.</param>
         /// <param name="dataIsSorted">Boolean value indicating if the data is sorted in ascending order.</param>
         /// <param name="maxClasses">maximum number of classes allowed</param>
-        /// <returns></returns>
+        /// <returns>
+        /// An array of upper bound break values.
+        /// </returns>
         public static double[] GeometricInterval(IList<double> data, double rValue, bool dataIsSorted, bool mirror = true, int maxClasses = 20)
         {
             if ((data == null))
@@ -390,13 +421,15 @@ namespace Numerics
         }
 
         /// <summary>
-        /// Determines classification range break values for intervals geometrically expanding from the mean value. Returns an array of upper bound break values.
+        /// Determines classification range break values for intervals geometrically expanding from the mean value.
         /// </summary>
         /// <param name="rValue">The common ratio (r) in a geometric progression.</param>
         /// <param name="minValue">Minimum value for determining classification.</param>
         /// <param name="maxValue">Maximum value for determining classification.</param>
         /// <param name="maxClasses">maximum number of classes allowed</param>
-        /// <returns></returns>
+        /// <returns>
+        /// An array of upper bound break values.
+        /// </returns>
         public static double[] GeometricInterval(double rValue, double minValue, double maxValue, bool mirror = true, int maxClasses = 20)
         {
             if (rValue <= 1) return Array.Empty<double>();
@@ -492,20 +525,39 @@ namespace Numerics
         }
 
         /// <summary>
-        /// Determines classification range break values for intervals with natural breaks. Returns an array of upper bound break values.
-        /// Several sources were used before finally landing on a combination of methods.
-        /// <see href="http:danieljlewis.org/files/2010/06/Jenks.pdf"/>
-        /// <see href = "http:danieljlewis.org/2010/06/07/jenks-natural-breaks-algorithm-in-python/"/>
-        /// <see href="https:en.wikipedia.org/wiki/Jenks_natural_breaks_optimization"/>
-        /// <see href="https:support.esri.com/en/technical-article/000006743"/>
-        /// <see href="https://github.com/mthh/jenkspy/blob/master/jenkspy/src/_jenks.c"/>
-        /// <see href="https://github.com/pschoepf/naturalbreaks/blob/master/src/main/java/de/pschoepf/naturalbreaks/JenksFisher.java"/>
+        /// Determines classification range break values for intervals with natural breaks. 
         /// </summary>
+        /// <remarks>
+        /// <b> References: </b>
+        /// Several sources were used before finally landing on a combination of methods.
+        /// <list type="bullet">
+        /// <item><description>
+        /// <see href="http:danieljlewis.org/files/2010/06/Jenks.pdf"/>
+        /// </description></item>
+        /// <item><description>
+        /// <see href = "http:danieljlewis.org/2010/06/07/jenks-natural-breaks-algorithm-in-python/"/>
+        /// </description></item>
+        /// <item><description>
+        /// <see href="https:en.wikipedia.org/wiki/Jenks_natural_breaks_optimization"/>
+        /// </description></item>
+        /// <item><description>
+        /// <see href="https:support.esri.com/en/technical-article/000006743"/>
+        /// </description></item>
+        /// <item><description>
+        /// <see href="https://github.com/mthh/jenkspy/blob/master/jenkspy/src/_jenks.c"/>
+        /// </description></item>
+        /// <item><description>
+        /// <see href="https://github.com/pschoepf/naturalbreaks/blob/master/src/main/java/de/pschoepf/naturalbreaks/JenksFisher.java"/>
+        /// </description></item>
+        /// </list>
+        /// </remarks>
         /// <param name="data">The data to be classified.</param>
         /// <param name="nClasses">The number of classes to determine break values.</param>
         /// <param name="dataIsSorted">Boolean value indicating if the data is sorted in ascending order.</param>
         /// <param name="breakCounts">Returns the total number of observations for each break associated with the return values.</param>
-        /// <returns></returns>
+        /// <returns>
+        /// An array of upper bound break values.
+        /// </returns>
         public static double[] JenksNaturalBreaks(double[] data, int nClasses, bool dataIsSorted, ref int[] breakCounts)
         {
             if (nClasses <= 0) return new double[0];

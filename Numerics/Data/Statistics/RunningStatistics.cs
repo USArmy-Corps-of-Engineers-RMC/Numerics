@@ -62,21 +62,17 @@ using System.Collections.Generic;
 
 namespace Numerics.Data.Statistics
 {
-
     /// <summary>
     /// Contains functions for computing running statistics of a sample of data.
     /// </summary>
     /// <remarks>
     /// <para>
-    ///     Authors:
+    ///     <b> Authors: </b>
     ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
     /// </para>
     /// <para>
-    /// References:
-    /// <list type="bullet">
-    /// <item><description>
-    /// This class is copied from the Math.NET Numerics library, http://numerics.mathdotnet.com
-    /// </description></item>
+    /// <b> References: </b>
+    /// This class is copied from the Math.NET Numerics library, <see href="http://numerics.mathdotnet.com"/>
     /// </list>
     /// </para>
     /// </remarks>

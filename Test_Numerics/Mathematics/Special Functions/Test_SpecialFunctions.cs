@@ -53,20 +53,27 @@
 using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Numerics.Mathematics.SpecialFunctions;
-using Numerics;
-using System.Diagnostics;
-using Numerics.Data;
-using System.Threading;
 
 namespace Mathematics.SpecialFunctions
 {
-
     /// <summary>
     /// Unit tests for Special Functions, outside of the Beta and Gamma Class.
-    /// We are only able to test some of these special functions directly with MS Excel and with values provided by:
+    /// </summary>
+    /// <remarks>
+    ///      <b> Authors: </b>
+    /// <list type="bullet">
+    /// <item><description>
+    ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
+    /// </description></item>
+    /// <item><description>
+    ///     Sadie Niblett, USACE Risk Management Center, sadie.s.niblett@usace.army.mil
+    /// </description></item>
+    /// </list>
+    /// <b> Description: </b>
+    /// Some of these special functions are tested directly with MS Excel and with values provided by:
     /// "Numerical Recipes, Routines and Examples in Basic", J.C. Sprott, Cambridge University Press, 1991.
     /// Others must be tested indirectly through the continuous distribution classes.
-    /// </summary>
+    /// </remarks>
     [TestClass]
     public class Test_SpecialFunctions
     {

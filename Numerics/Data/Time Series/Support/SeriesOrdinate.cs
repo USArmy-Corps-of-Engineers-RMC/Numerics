@@ -40,7 +40,7 @@ namespace Numerics.Data
     /// </summary>
     /// <remarks>
     /// <para>
-    ///     Authors: 
+    ///     <b> Authors: </b>
     ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
     /// </para>
     /// </remarks>
@@ -99,7 +99,12 @@ namespace Numerics.Data
             }
         }
 
-
+        /// <summary>
+        /// Equality operator overload. 
+        /// </summary>
+        /// <param name="left">The first SeriesOrdinate object to compare.</param>
+        /// <param name="right">The second SeriesOrdinate object to compare/</param>
+        /// <returns>True of the two SeriesOrdinate objects are equal and false otherwise.</returns>
         public static bool operator ==(SeriesOrdinate<TIndex, TValue> left, SeriesOrdinate<TIndex, TValue> right)
         {
             if (object.Equals(left, right) == false) { return false; }
@@ -108,6 +113,12 @@ namespace Numerics.Data
             return true;
         }
 
+        /// <summary>
+        /// Inequality operator overload. 
+        /// </summary>
+        /// <param name="left">The first SeriesOrdinate object to compare.</param>
+        /// <param name="right">The second SeriesOrdinate object to compare/</param>
+        /// <returns>True of the two SeriesOrdinate objects are NOT equal and false otherwise.</returns>
         public static bool operator !=(SeriesOrdinate<TIndex, TValue> left, SeriesOrdinate<TIndex, TValue> right)
         {
             return !(left == right);

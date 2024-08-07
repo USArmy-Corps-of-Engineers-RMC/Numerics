@@ -31,6 +31,7 @@
 using System;
 using System.Collections.Generic;
 using Numerics.Distributions;
+using static System.Net.WebRequestMethods;
 
 namespace Numerics.Data.Statistics
 {
@@ -39,14 +40,31 @@ namespace Numerics.Data.Statistics
     /// Computes the autocovariance, autocorrelation, or partial autocorrelation function.
     /// </summary>
     /// <remarks>
-    /// <para>
-    ///     Authors:
+    ///      <b> Authors: </b>
     ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
+    /// <para>
+    ///<b> Description: </b>
+    /// Autocovariance is a function that gives the covariance (measure of the joint variability of two random variables)
+    /// of the process with itself at pairs of time points.
+    /// Autocorrelation is the similarity of between observations of a random variable as a function of the time lag between them.
+    /// The partial autocorrelation function gives the partial correlation of a stationary time series with it own lagged values of the 
+    /// time series at all short lags. This is in contrast with the autocorrelation function that does not control for other lags.
     /// </para>
+    /// <b> References: </b>
+    /// <list type="bullet">
+    /// <item><description> 
+    /// <see href="https://en.wikipedia.org/wiki/Autocovariance"/>
+    /// </description></item>
+    /// <item><description>
+    /// <see href="https://en.wikipedia.org/wiki/Autocorrelation"/>
+    /// </description></item>
+    /// <item><description>
+    /// 
+    /// </description></item>
+    /// </list>
     /// </remarks>
     public class Autocorrelation
     {
-
         /// <summary>
         /// Enumeration of the type of autocorrelation.
         /// </summary>
@@ -72,7 +90,11 @@ namespace Numerics.Data.Statistics
         /// <param name="data">The list of data to evaluate.</param>
         /// <param name="lagMax">The maximum lag at which to estimate the function. Default is 10*log10(N/m) where N is the number of observations.
         /// Will be automatically limited to one less than the number of observations in the series.</param>
-        /// <param name="type">The type of function to be computed.</param>
+        /// <param name="type">The type of function to be computed. Default is correlation. </param>
+        /// <returns>
+        /// A n x 2 matrix, with being the number of given input data points. The first column contains the lag and the 
+        /// second column contains the function evaluated at the given values.
+        /// </returns>
         public static double[,] Function(IList<double> data, int lagMax = -1, Type type = Type.Correlation)
         {
             if (type == Type.Correlation)
@@ -97,7 +119,11 @@ namespace Numerics.Data.Statistics
         /// <param name="timeSeries">The time-series to evaluate.</param>
         /// <param name="lagMax">The maximum lag at which to estimate the function. Default is 10*log10(N/m) where N is the number of observations.
         /// Will be automatically limited to one less than the number of observations in the series.</param>
-        /// <param name="type">The type of function to be computed.</param>
+        /// <param name="type">The type of function to be computed. Default is correlation.</param>
+        /// <returns>
+        /// A n x 2 matrix, with being the number of given input data points. The first column contains the lag and the 
+        /// second column contains the function evaluated at the given values.
+        /// </returns>
         public static double[,] Function(TimeSeries timeSeries, int lagMax = -1, Type type = Type.Correlation)
         {
             if (type == Type.Correlation)
@@ -121,6 +147,10 @@ namespace Numerics.Data.Statistics
         /// </summary>
         /// <param name="data">The list of data to assess.</param>
         /// <param name="lagMax">The maximum lag.</param>
+        /// <returns>
+        /// A n x 2 matrix, with being the number of given input data points. The first column contains the lag and the 
+        /// second column contains the covariance of the given values.
+        /// </returns>
         private static double[,] Covariance(IList<double> data, int lagMax = -1)
         {
             int n = data.Count;
@@ -144,7 +174,10 @@ namespace Numerics.Data.Statistics
         /// Compute the autocovariance function.
         /// </summary>
         /// <param name="timeSeries">The time-series to assess.</param>
-        /// <param name="lagMax">The maximum lag.</param>
+        /// <param name="lagMax">The maximum lag.</param><returns>
+        /// A n x 2 matrix, with being the number of given input data points. The first column contains the lag and the 
+        /// second column contains the covariance of the given values.
+        /// </returns>
         private static double[,] Covariance(TimeSeries timeSeries, int lagMax = -1)
         {
             int n = timeSeries.Count;
@@ -169,6 +202,10 @@ namespace Numerics.Data.Statistics
         /// </summary>
         /// <param name="data">The list of data to assess.</param>
         /// <param name="lagMax">The maximum lag.</param>
+        /// <returns>
+        /// A n x 2 matrix, with being the number of given input data points. The first column contains the lag and the 
+        /// second column contains the autocorrelation of the given values.
+        /// </returns>
         private static double[,] Correlation(IList<double> data, int lagMax = -1)
         {
             int n = data.Count;
@@ -186,6 +223,10 @@ namespace Numerics.Data.Statistics
         /// </summary>
         /// <param name="timeSeries">The time-series to assess.</param>
         /// <param name="lagMax">The maximum lag.</param>
+        /// <returns>
+        /// A n x 2 matrix, with being the number of given input data points. The first column contains the lag and the 
+        /// second column contains the autocorrelation of the given values.
+        /// </returns>
         private static double[,] Correlation(TimeSeries timeSeries, int lagMax = -1)
         {
             int n = timeSeries.Count;
@@ -203,6 +244,10 @@ namespace Numerics.Data.Statistics
         /// </summary>
         /// <param name="data">The list of data to assess.</param>
         /// <param name="lagMax">The maximum lag.</param>
+        /// <returns>
+        /// A n x 2 matrix, with being the number of given input data points. The first column contains the lag and the 
+        /// second column contains the partial autocorrelation of the given values.
+        /// </returns>
         private static double[,] Partial(IList<double> data, int lagMax = -1)
         {
             int n = data.Count;
@@ -245,6 +290,10 @@ namespace Numerics.Data.Statistics
         /// </summary>
         /// <param name="timeSeries">The time-series to assess.</param>
         /// <param name="lagMax">The maximum lag.</param>
+        /// <returns>
+        /// A n x 2 matrix, with being the number of given input data points. The first column contains the lag and the 
+        /// second column contains the partial autocorrelation of the given values.
+        /// </returns>
         private static double[,] Partial(TimeSeries timeSeries, int lagMax = -1)
         {
             int n = timeSeries.Count;
@@ -287,6 +336,9 @@ namespace Numerics.Data.Statistics
         /// </summary>
         /// <param name="sampleSize">The sample size.</param>
         /// <param name="interval">The confidence interval width. Default = 0.95, or 95%.</param>
+        /// <returns>
+        /// An array that contains the lower and upper bound of the confidence interval.
+        /// </returns>
         public static double[] CorrelationConfidenceInterval(int sampleSize, double interval = 0.95d)
         {
             double alpha = 0.5d * (1.0d - interval);

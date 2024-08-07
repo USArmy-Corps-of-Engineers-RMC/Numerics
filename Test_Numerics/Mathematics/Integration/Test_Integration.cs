@@ -28,21 +28,17 @@
 * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 * **/
 
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Numerics;
-using Numerics.Data;
-using Numerics.Distributions;
-using Numerics.Sampling;
 
 namespace Mathematics.Integration
 {
     /// <summary>
     /// Test integration methods.
     /// </summary>
+    /// <remarks>
+    ///     <b> Authors: </b>
+    ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
+    /// </remarks>
     [TestClass()]
     public class Test_Integration
     {
@@ -93,7 +89,5 @@ namespace Mathematics.Integration
             Assert.AreEqual(e, val, 1E-3);
 
         }
-
-
     }
 }

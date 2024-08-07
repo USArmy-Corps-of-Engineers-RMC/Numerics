@@ -38,6 +38,10 @@ namespace Mathematics.Integration
     /// <summary>
     /// Unit tests for Simpson's rule of integration
     /// </summary>
+    /// <remarks>
+    ///     <b> Authors: </b>
+    ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
+    /// </remarks>
     [TestClass]
     public class Test_SimpsonsRule
     {

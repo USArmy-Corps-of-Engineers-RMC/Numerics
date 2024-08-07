@@ -38,9 +38,17 @@ using Numerics.Distributions;
 
 namespace Numerics.Data
 {
+    /// <summary>
+    /// Class designed to store xy data that is ordered for both the x and y values. Here y is uncertain and represented 
+    /// as a continuous distribution.
+    /// </summary>
+    /// <remarks>
+    ///     <b> Authors:</b>
+    ///     Woodrow Fields, USACE Risk Management Center, woodrow.l.fields@usace.army.mil
+    /// </remarks> 
     public class UncertainOrderedPairedData : IList<UncertainOrdinate>, INotifyCollectionChanged
     {
-
+        #region Members
         // 
         private List<UncertainOrdinate> _uncertainOrdinates;
         private bool _strictX;
@@ -144,44 +152,30 @@ namespace Numerics.Data
         public UnivariateDistributionType Distribution { get; private set; }
 
         /// <summary>
-        /// Get and sets the element at the specific index.
+        /// Gets the count of the number of UncertainOrdinates currently stored
         /// </summary>
-        /// <param name="index">The zero-based index of the element to get or set</param>
-        public UncertainOrdinate this[int index]
-        {
-            get { return _uncertainOrdinates[index]; }
-            set
-            {
-                if (_uncertainOrdinates[index] != value)
-                {
-                    var oldvalue = _uncertainOrdinates[index];
-                    _uncertainOrdinates[index] = value;
-                    if (_isValid == true)
-                    {
-                        if (OrdinateValid(index) == false) { _isValid = false; }
-                    }
-                    else
-                    {
-                        if (OrdinateValid(index) == true) { Validate(); }
-                    }
-                    //
-                    if (SupressCollectionChanged == false)
-                    {
-                        CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, value, oldvalue));
-                    }
-                }
-            }
-        }
-
         public int Count => _uncertainOrdinates.Count;
 
+        /// <summary>
+        /// Boolean that dictates if an object is read-only or can be modified
+        /// </summary>
         public bool IsReadOnly => false;
 
+        /// <summary>
+        /// Boolean of whether or not to invoke anything on CollectionChanged
+        /// </summary>
         public bool SupressCollectionChanged { get; set; } = false;
 
+        /// <summary>
+        /// Handles the event of CollectionChanged
+        /// </summary>
         public event NotifyCollectionChangedEventHandler CollectionChanged;
 
-        public UncertainOrderedPairedData(bool strictOnX, SortOrder xOrder, bool strictOnY, SortOrder yOrder, UnivariateDistributionType distributionType)
+        #endregion
+
+        #region Construction
+
+        /*public UncertainOrderedPairedData(bool strictOnX, SortOrder xOrder, bool strictOnY, SortOrder yOrder, UnivariateDistributionType distributionType)
         {
             Distribution = distributionType;
             _uncertainOrdinates = new List<UncertainOrdinate>();
@@ -199,8 +193,41 @@ namespace Numerics.Data
             _strictY = strictOnY;
             _orderX = xOrder;
             _orderY = yOrder;
+        }*/
+
+        /// <summary>
+        /// Create empty instance of the uncertain ordered paired data class.
+        /// </summary>
+        /// <param name="strictOnX">Boolean indicating if x values are strictly increasing/decreasing. True means x values cannot be equal.</param>
+        /// <param name="xOrder">Order of the x values.</param>
+        /// <param name="strictOnY">Boolean indicating if x values are strictly increasing/decreasing. True means x values cannot be equal.</param>
+        /// <param name="yOrder">Order of the y values.</param>
+        /// <param name="distributionType">The distribution type of the y values</param>
+        /// <param name="capacity"> Optional, capacity of the collection.</param>
+        public UncertainOrderedPairedData(bool strictOnX, SortOrder xOrder, bool strictOnY, SortOrder yOrder, UnivariateDistributionType distributionType, int capacity = 0)
+        {
+            if (capacity > 0)
+                _uncertainOrdinates = new List<UncertainOrdinate>(capacity);
+            else
+                _uncertainOrdinates = new List<UncertainOrdinate>();
+
+            Distribution = distributionType;
+            _strictX = strictOnX;
+            _strictY = strictOnY;
+            _orderX = xOrder;
+            _orderY = yOrder;
         }
 
+        /// <summary>
+        /// Create an instance of the uncertain ordered paired data class with defined uncertain ordinate data.
+        /// </summary>
+        /// <param name="xData">Uncertain ordinate x values.</param>
+        /// <param name="yData">Uncertain ordinate y values.</param>
+        /// <param name="strictOnX">Boolean indicating if x values are strictly increasing/decreasing. True means x values cannot be equal.</param>
+        /// <param name="xOrder">Order of the x values.</param>
+        /// <param name="strictOnY">Boolean indicating if x values are strictly increasing/decreasing. True means x values cannot be equal.</param>
+        /// <param name="yOrder">Order of the y values.</param>
+        /// <param name="distributionType">The distribution type of the y values</param>
         public UncertainOrderedPairedData(IList<double> xData, IList<UnivariateDistributionBase> yData, bool strictOnX, SortOrder xOrder, bool strictOnY, SortOrder yOrder, UnivariateDistributionType distributionType)
         {
             if (xData.Count != yData.Count)
@@ -216,6 +243,15 @@ namespace Numerics.Data
             Validate();
         }
 
+        /// <summary>
+        /// Create an instance of the uncertain ordered paired data class with defined uncertain ordinate data.
+        /// </summary>
+        /// <param name="data">Uncertain ordinate values.</param>
+        /// <param name="strictOnX">Boolean indicating if x values are strictly increasing/decreasing. True means x values cannot be equal.</param>
+        /// <param name="xOrder">Order of the x values.</param>
+        /// <param name="strictOnY">Boolean indicating if x values are strictly increasing/decreasing. True means x values cannot be equal.</param>
+        /// <param name="yOrder">Order of the y values.</param>
+        /// <param name="distributionType">The distribution type of the y values</param>
         public UncertainOrderedPairedData(IList<UncertainOrdinate> data, bool strictOnX, SortOrder xOrder, bool strictOnY, SortOrder yOrder, UnivariateDistributionType distributionType)
         {
             Distribution = distributionType;
@@ -229,6 +265,16 @@ namespace Numerics.Data
             Validate();
         }
 
+        /// <summary>
+        /// Helper function for the Clone() method that creates an instance of the uncertain ordered paired data class with defined uncertain ordinate data.
+        /// </summary>
+        /// <param name="data">Uncertain ordinate values.</param>
+        /// <param name="strictOnX">Boolean indicating if x values are strictly increasing/decreasing. True means x values cannot be equal.</param>
+        /// <param name="xOrder">Order of the x values.</param>
+        /// <param name="strictOnY">Boolean indicating if x values are strictly increasing/decreasing. True means x values cannot be equal.</param>
+        /// <param name="yOrder">Order of the y values.</param>
+        /// <param name="distributionType">The distribution type of the y values</param>
+        /// <param name="dataValid">Boolean of if the data is valid.</param>
         private UncertainOrderedPairedData(IList<UncertainOrdinate> data, bool strictOnX, SortOrder xOrder, bool strictOnY, SortOrder yOrder, UnivariateDistributionType distributionType, bool dataValid)
         {
             Distribution = distributionType;
@@ -246,7 +292,7 @@ namespace Numerics.Data
         /// <summary>
         /// Create a new instance of the uncertain ordered paired data class from an XElement XML object.
         /// </summary>
-        /// <param name="el"></param>
+        /// <param name="el">The XElement the UncertainOrderPairedData object is being created from.</param>
         public UncertainOrderedPairedData(XElement el)
         {
             // Get Order
@@ -311,6 +357,13 @@ namespace Numerics.Data
             Validate();
         }
 
+        #endregion
+
+        #region Methods
+
+        /// <summary>
+        /// Resets the event handling of the CollectionChanged event
+        /// </summary>
         public void RaiseCollectionChangedReset()
         {
             CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
@@ -320,8 +373,7 @@ namespace Numerics.Data
         /// This function samples a curve using the probability axis of the continuous distribution in the Y value for each x ordinate, which will result in a new paired data curve.
         /// </summary>
         /// <param name="probability">A value between 0 and 1 representing the value to sample from each y continuous distribution</param>
-        /// <returns>a sampled curve provided as an OrderedPairedData object.</returns>
-        /// <remarks></remarks>
+        /// <returns>A sampled curve provided as an OrderedPairedData object.</returns>
         public OrderedPairedData CurveSample(double probability)
         {
             if (probability < 0d)
@@ -337,8 +389,7 @@ namespace Numerics.Data
         /// <summary>
         /// This function samples a curve using the mean of the Y value for each x ordinate, which will result in a new paired data curve.
         /// </summary>
-        /// <returns>a sampled curve provided as an OrderedPairedData object.</returns>
-        /// <remarks></remarks>
+        /// <returns>A sampled curve provided as an OrderedPairedData object.</returns>
         public OrderedPairedData CurveSample()
         {
             var result = new Ordinate[_uncertainOrdinates.Count];
@@ -377,7 +428,8 @@ namespace Numerics.Data
         /// Determines the validity of a specific ordinate at a specified index.
         /// </summary>
         /// <param name="index">The index of ordinate item.</param>
-        /// <param name="lookBackward">Optional parameter to also look backward when determining validity of the ordinate. This parameter is included as an optimization for situations where looking at the previous ordinate is not required.</param>
+        /// <param name="lookBackward">Optional parameter to also look backward when determining validity of the ordinate. This parameter is included as an 
+        /// optimization for situations where looking at the previous ordinate is not required.</param>
         /// <returns>A boolean that indicates if the ordinate at the specified index is valid or not within the dataset.</returns>
         private bool OrdinateValid(int index, bool lookBackward = true)
         {
@@ -408,16 +460,19 @@ namespace Numerics.Data
             var result = new List<string>();
             if (_isValid == true)
                 return result;
-            // 
             for (int i = 0; i < _uncertainOrdinates.Count - 1; i++)
                 // Look forward
                 result.AddRange(_uncertainOrdinates[i].OrdinateErrors(_uncertainOrdinates[i + 1], StrictX, StrictY, OrderX, OrderY, true, AllowDifferentDistributionTypes));
-            // 
             result.AddRange(_uncertainOrdinates.Last().OrdinateErrors());
-            // 
             return result;
         }
 
+        /// <summary>
+        /// Tests for numerical equality between two UncertainOrderedPairedData collections.
+        /// </summary>
+        /// <param name="left">UncertainOrderedPairedData object to the left of the equality operator.</param>
+        /// <param name="right">UncertainOrderedPairedData object to the right of the equality operator.</param>
+        /// <returns>True if two objects are numerically equal; otherwise, False.</returns>
         public static bool operator ==(UncertainOrderedPairedData left, UncertainOrderedPairedData right)
         {
             // Check for null arguments. Keep in mind null == null
@@ -446,10 +501,8 @@ namespace Numerics.Data
             {
                 return false;
             }
-            // 
             if (left.Count != right.Count)
                 return false;
-            // 
             for (int i = 0, loopTo = left.Count - 1; i <= loopTo; i++)
             {
                 if (left._uncertainOrdinates[i].X != right._uncertainOrdinates[i].X)
@@ -457,13 +510,48 @@ namespace Numerics.Data
                 if (left._uncertainOrdinates[i].Y == right._uncertainOrdinates[i].Y == false)
                     return false;
             }
-            // 
             return true;
         }
 
+        /// <summary>
+        /// Tests for numerical inequality between two UncertainOrderedPairedData collections.
+        /// </summary>
+        /// <param name="left">UncertainOrderedPairedData object to the left of the inequality operator.</param>
+        /// <param name="right">UncertainOrderedPairedData object to the right of the inequality operator.</param>
+        /// <returns>True if two objects are not numerically equal; otherwise, False.</returns>
         public static bool operator !=(UncertainOrderedPairedData left, UncertainOrderedPairedData right)
         {
             return !(left == right);
+        }
+
+
+        /// <summary>
+        /// Get and sets the element at the specific index.
+        /// </summary>
+        /// <param name="index">The zero-based index of the element to get or set</param>
+        public UncertainOrdinate this[int index]
+        {
+            get { return _uncertainOrdinates[index]; }
+            set
+            {
+                if (_uncertainOrdinates[index] != value)
+                {
+                    var oldvalue = _uncertainOrdinates[index];
+                    _uncertainOrdinates[index] = value;
+                    if (_isValid == true)
+                    {
+                        if (OrdinateValid(index) == false) { _isValid = false; }
+                    }
+                    else
+                    {
+                        if (OrdinateValid(index) == true) { Validate(); }
+                    }
+                    if (SupressCollectionChanged == false)
+                    {
+                        CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, value, oldvalue));
+                    }
+                }
+            }
         }
 
         /// <summary>
@@ -547,9 +635,7 @@ namespace Numerics.Data
                 removedItems.Add(_uncertainOrdinates[sortedIndices[i]]);
                 _uncertainOrdinates.RemoveAt(sortedIndices[i]);
             }
-            // 
             Validate();
-            // 
             if (SupressCollectionChanged == false)
             {
                 if (isContinuous)
@@ -584,7 +670,6 @@ namespace Numerics.Data
         {
             if ((items == null) || items.Count == 0)
                 return;
-            // 
             int startIndex = _uncertainOrdinates.Count - 1;
             foreach (var ordinate in items)
             {
@@ -592,7 +677,6 @@ namespace Numerics.Data
                 if (OrdinateValid(_uncertainOrdinates.Count - 1) == false)
                     _isValid = false;
             }
-            // 
             if (SupressCollectionChanged == false)
                 CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, items.ToList(), startIndex));
         }
@@ -625,9 +709,7 @@ namespace Numerics.Data
         {
             if ((items == null) || items.Count == 0)
                 return;
-            // 
             _uncertainOrdinates.InsertRange(index, items);
-            // 
             for (int i = index; i <= index + items.Count - 1; i++)
             {
                 if (_isValid == true)
@@ -636,7 +718,6 @@ namespace Numerics.Data
                         _isValid = false;
                 }
             }
-            // 
             if (SupressCollectionChanged == false)
                 CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, items.ToList(), index));
         }
@@ -698,7 +779,6 @@ namespace Numerics.Data
         public XElement SaveToXElement()
         {
             var result = new XElement("UncertainOrderedPairedData");
-            // 
             // Order
             result.SetAttributeValue("X_Strict", StrictX.ToString());
             result.SetAttributeValue("Y_Strict", StrictY.ToString());
@@ -715,5 +795,7 @@ namespace Numerics.Data
             result.Add(curveElement);
             return result;
         }
+
+        #endregion
     }
-}
+}   
