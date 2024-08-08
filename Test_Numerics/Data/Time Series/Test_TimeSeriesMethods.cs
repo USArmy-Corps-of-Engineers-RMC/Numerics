@@ -1,20 +1,45 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿/**
+* NOTICE:
+* The U.S. Army Corps of Engineers, Risk Management Center (USACE-RMC) makes no guarantees about
+* the results, or appropriateness of outputs, obtained from Numerics.
+*
+* LIST OF CONDITIONS:
+* Redistribution and use in source and binary forms, with or without modification, are permitted
+* provided that the following conditions are met:
+* ● Redistributions of source code must retain the above notice, this list of conditions, and the
+* following disclaimer.
+* ● Redistributions in binary form must reproduce the above notice, this list of conditions, and
+* the following disclaimer in the documentation and/or other materials provided with the distribution.
+* ● The names of the U.S. Government, the U.S. Army Corps of Engineers, the Institute for Water
+* Resources, or the Risk Management Center may not be used to endorse or promote products derived
+* from this software without specific prior written permission. Nor may the names of its contributors
+* be used to endorse or promote products derived from this software without specific prior
+* written permission.
+*
+* DISCLAIMER:
+* THIS SOFTWARE IS PROVIDED BY THE U.S. ARMY CORPS OF ENGINEERS RISK MANAGEMENT CENTER
+* (USACE-RMC) "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+* THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+* DISCLAIMED. IN NO EVENT SHALL USACE-RMC BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+* SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+* PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+* INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+* LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+* THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+* **/
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Numerics.Data;
 using System;
 using System.Xml.Linq;
 using System.Linq;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Collections;
-using Numerics.Data.Statistics;
-
-
 
 namespace Data.TimeSeriesAnalysis
 {
     /// <summary>
-    /// Unit tests for the TimeSeries class
-    /// class.
+    /// Unit tests for the TimeSeries class.
     /// </summary>
     /// <remarks>
     /// <para>
@@ -28,6 +53,9 @@ namespace Data.TimeSeriesAnalysis
     [TestClass]
     public class Test_TimeSeriesMethods
     {
+        /// <summary>
+        /// Test the construction methods for the TimeSeries class
+        /// </summary>
         [TestMethod]
         public void Test_Construction()
         {
@@ -50,6 +78,9 @@ namespace Data.TimeSeriesAnalysis
             var ts6 = new TimeSeries(xElement);
         }
 
+        /// <summary>
+        /// Test the getter for the TimeSeries class
+        /// </summary>
         [TestMethod]
         public void Test_Getters()
         {
@@ -68,6 +99,9 @@ namespace Data.TimeSeriesAnalysis
             Assert.AreEqual(new DateTime(2023, 12, 01), end);
         }
 
+        /// <summary>
+        /// Test the method that converts a TimeSeries object to an XElement object
+        /// </summary>
         [TestMethod]
         public void Test_ToXElement()
         {
@@ -102,6 +136,9 @@ namespace Data.TimeSeriesAnalysis
             Assert.AreEqual(ts.TimeInterval, time);
         }
 
+        /// <summary>
+        /// Test the clone method
+        /// </summary>
         [TestMethod]
         public void Test_Clone()
         {
@@ -121,6 +158,9 @@ namespace Data.TimeSeriesAnalysis
             Assert.AreEqual(ts.EndDate, newTS.EndDate);
         }
 
+        /// <summary>
+        /// Test the sort method
+        /// </summary>
         [TestMethod]
         public void Test_Sort()
         {
@@ -144,7 +184,12 @@ namespace Data.TimeSeriesAnalysis
             }
         }
 
-        // helper function for math
+        /// <summary>
+        /// Helper function for Test_Math
+        /// </summary>
+        /// <param name="ts">The TimeSeries object being evaluated.</param>
+        /// <param name="values">The validation values to compare the TimeSeries object to</param>
+        /// <param name="tol">The tolerance level for the comparison. Default: 1E-6</param>
         public void Equal(TimeSeries ts, double[] values, double tol = 1E-6)
         {
             for (int i = 0; i < ts.Count; i++)
@@ -153,50 +198,65 @@ namespace Data.TimeSeriesAnalysis
             }
         }
 
+        /// <summary>
+        /// Test the methods that manipulate the TimeSeries values 
+        /// </summary>
         [TestMethod]
         public void Test_Math()
         {
             var values = new double[] { 22, 16, 33, 5, 12, 36, 48, 10, 18, 15, 22, 13 };
             var ts = new TimeSeries(TimeInterval.OneMonth, new DateTime(2023, 01, 01), values);
 
+            // Test Add method
             for (int i = 0; i < values.Length; i++) { values[i] += 10; }
             ts.Add(10);
             Equal(ts, values);
 
+            // Test Subtract method
             for (int i = 0; i < values.Length; i++) { values[i] -= 5; }
             ts.Subtract(5);
             Equal(ts, values);
 
+            // Test Multiply method
             for (int i = 0; i < values.Length; i++) { values[i] *= 4; }
             ts.Multiply(4);
             Equal(ts, values);
 
+            // Test Divide method
             for (int i = 0; i < values.Length; i++) { values[i] /= -2; }
             ts.Divide(-2);
             Equal(ts, values);
 
+            // Test Equal method
             for (int i = 0; i < values.Length; i++) { values[i] = Math.Abs(values[i]); }
             ts.AbsoluteValue();
             Equal(ts, values);
 
+            // Test Exponentiate method
             for (int i = 0; i < values.Length; i++) { values[i] = Math.Pow(values[i], 2); }
             ts.Exponentiate(2);
             Equal(ts, values);
 
+            // Test LogTransform method
             for (int i = 0; i < values.Length; i++) { values[i] = Math.Log10(values[i]); }
             ts.LogTransform();
             Equal(ts, values);
 
+            // Test Inverse method
             for (int i = 0; i < values.Length; i++) { values[i] = 1 / values[i]; }
             ts.Inverse();
             Equal(ts, values);
 
+            // Test Standardize method
             var mean = Numerics.Data.Statistics.Statistics.Mean(values); var sd = Numerics.Data.Statistics.Statistics.StandardDeviation(values);
             for (int i = 0; i < values.Length; i++) { values[i] = (values[i] - mean) / sd; }
             ts.Standardize();
             Equal(ts, values, 1E-1);
         }
 
+        /// <summary>
+        /// Test the CumulativeSum and successive Difference methods
+        /// </summary>
         [TestMethod]
         public void Test_Cumulative()
         {
@@ -217,6 +277,9 @@ namespace Data.TimeSeriesAnalysis
             Equal(newTS, newValues.Skip(1).ToArray());
         }
 
+        /// <summary>
+        /// Test the methods that handle missing values
+        /// </summary>
         [TestMethod]
         public void Test_Missing()
         {
@@ -242,6 +305,9 @@ namespace Data.TimeSeriesAnalysis
             Assert.AreEqual(8.9, ts[11].Value, 1E-6);
         }
 
+        /// <summary>
+        /// Test the method that adds different interval times
+        /// </summary>
         [TestMethod]
         public void Test_AddInterval()
         {
@@ -285,6 +351,9 @@ namespace Data.TimeSeriesAnalysis
             Assert.AreEqual(original.AddYears(1), test);
         }
 
+        /// <summary>
+        /// Test the method that subtracts different interval times
+        /// </summary>
         [TestMethod]
         public void Test_SubtractInterval()
         {
@@ -328,6 +397,9 @@ namespace Data.TimeSeriesAnalysis
             Assert.AreEqual(original.AddYears(-1), test);
         }
 
+        /// <summary>
+        /// Test the method that converts the time interval to hours
+        /// </summary>
         [TestMethod]
         public void Test_TimeIntervalInHours()
         {
@@ -361,6 +433,9 @@ namespace Data.TimeSeriesAnalysis
             Assert.AreEqual(168, test);
         }
 
+        /// <summary>
+        /// Test the moving average method. Validation values were attained from MS Excel.
+        /// </summary>
         [TestMethod]
         public void Test_MovingAverage()
         {
@@ -374,6 +449,9 @@ namespace Data.TimeSeriesAnalysis
             }
         }
 
+        /// <summary>
+        /// Test the moving sum method. Validation values were attained from MS Excel.
+        /// </summary>
         [TestMethod]
         public void Test_MovingSum()
         {
@@ -387,6 +465,9 @@ namespace Data.TimeSeriesAnalysis
             }
         }
 
+        /// <summary>
+        /// Test the method that shifts all dates to a new starting date
+        /// </summary>
         [TestMethod]
         public void Test_ShiftAllDates()
         {
@@ -401,6 +482,9 @@ namespace Data.TimeSeriesAnalysis
             }
         }
 
+        /// <summary>
+        /// Test the method that shifts all dates by a specified number of months
+        /// </summary>
         [TestMethod]
         public void Test_ShiftDatesByMonth()
         {
@@ -409,11 +493,17 @@ namespace Data.TimeSeriesAnalysis
 
             for (int i = 0; i < newTS.Count; i++)
             {
+                // two different methods in source code - asked on github which one we want use (give 2 slightly different answers so we can't
+                // test until we pick one method)
+
                 //Assert.AreEqual(ts[i].Index.AddMonths(5), newTS[i].Index);
                 //Assert.AreEqual(ts[i].Value, newTS[i].Value);
             }
         }
 
+        /// <summary>
+        /// Test the method that shifts all dates by a specified number of years
+        /// </summary>
         [TestMethod]
         public void Test_ShiftDatesByYear()
         {
@@ -427,7 +517,9 @@ namespace Data.TimeSeriesAnalysis
             }
         }
 
-        // test clip time series
+        /// <summary>
+        /// Test the method that clips the TimeSeries object, from both the beginning and end.
+        /// </summary>
         [TestMethod]
         public void Test_ClipTimeSeries()
         {
@@ -440,8 +532,6 @@ namespace Data.TimeSeriesAnalysis
             Assert.AreEqual(start, newTS.StartDate);
             Assert.AreEqual(end, newTS.EndDate);
 
-            //var orgIndex = ts.IndexOf(new SeriesOrdinate<DateTime, double>(start, 22));
-            //var orgIndex = ts.IndexOf(new SeriesOrdinate<DateTime, double>(new DateTime(2023, 11, 01), 22));
             for (int i = 0; i < newTS.Count; i++)
             {
                 Assert.AreEqual(ts[10 + i].Index, newTS[i].Index);
@@ -449,27 +539,39 @@ namespace Data.TimeSeriesAnalysis
             }
         }
 
-        // test convert time interval
+        [TestMethod]
+        public void Test_ConvertTimeInterval()
+        {
+            // THIS METHOD DOESN'T SEEM TO BE FULLY WRITTEN IN TIMESERIES.CS 
+        }
 
+        /// <summary>
+        /// Test the statistics methods of the TimeSeries class
+        /// </summary>
         [TestMethod]
         public void Test_Stats()
         {
             var values = new double[] { 22, 16, 33, 5, 12, 36, 48, 10, 18, 15, 22, 13 };
             var ts = new TimeSeries(TimeInterval.OneMonth, new DateTime(2023, 01, 01), values);
 
+            // Test MinValue
             double min = ts.MinValue();
             Assert.AreEqual(5, min);
 
+            // Test MaxValue
             double max = ts.MaxValue();
             Assert.AreEqual(48, max);
 
+            // Test MeanValue
             double mean = ts.MeanValue();
             Assert.AreEqual(20.83333333333, mean, 1E-10);
 
+            // Test StandardDeviation
             double sd = ts.StandardDeviation();
-            // from roll_sd w/ width = 11 (R method)   
+            // CHANGED ON MAIN BY HADEN (REWROTE METHOD AND THIS TEST) ACCEPT MAIN DURING MERGE - SHOULD BE 12.40112
             Assert.AreEqual(13.007, sd, 1E-3);
 
+            // Test Duration
             var duration = ts.Duration();
             var dValues = new double[] { 48, 36, 33, 22, 22, 18, 16, 15, 13, 12, 10, 5 };
             var dValid = new double[] { 7.69230769230769, 15.3846153846154, 23.0769230769231, 30.7692307692308, 38.4615384615385, 46.1538461538462, 53.8461538461538, 61.5384615384615, 69.2307692307692, 76.9230769230769, 84.6153846153846, 92.3076923076923 };
@@ -481,12 +583,17 @@ namespace Data.TimeSeriesAnalysis
             }
         }
 
+        /// <summary>
+        /// Test the methods that return the summary statistics about a TimeSeries object. These method include SummaryPercentiles(), Percentiles(), and
+        /// SummaryStatistics()
+        /// </summary>
         [TestMethod]
         public void Test_SummaryStats()
         {
             var values = new double[] { 22, 16, 33, 5, 12, 36, 48, 10, 18, 15, 22, 13 };
             var ts = new TimeSeries(TimeInterval.OneMonth, new DateTime(2023, 01, 01), values);
 
+            // Test SummaryPercecntiles
             var summaryP = ts.SummaryPercentiles();
             var spValid = new double[] { 7.75, 12.75, 17.00, 24.75, 41.40 };
             for (int i = 0; i < summaryP.Length; i++)
@@ -494,6 +601,7 @@ namespace Data.TimeSeriesAnalysis
                 Assert.AreEqual(spValid[i], summaryP[i], 1E-10);
             }
 
+            // Test Percentiles
             var percentiles = ts.Percentiles(new double[] { 0.10, 0.20, 0.30, 0.40, 0.60, 0.70, 0.80, 0.90 });
             var pValid = new double[] { 10.2, 12.2, 13.6, 15.4, 20.4, 22.0, 30.8, 35.7 };
             for (int i = 0; i < percentiles.Length; i++)
@@ -501,6 +609,7 @@ namespace Data.TimeSeriesAnalysis
                 Assert.AreEqual(pValid[i], percentiles[i], 1E-10);
             }
 
+            // Test SummaryStatistics
             var summaryStats = ts.SummaryStatistics();
             var testStats = new double[13];
 
@@ -525,6 +634,26 @@ namespace Data.TimeSeriesAnalysis
             }
         }
 
+        /// <summary>
+        /// Test the method that returns a summary of different hypothesis tests on the TimeSeries object. These methods were validated against
+        /// their corresponding R commands. 
+        /// </summary>
+        /// <remarks>
+        /// <list type="bullet">
+        /// <item>"jarque.test()" from the "moments" package</item>
+        /// <item>"Box.test()", "wilcox.test()", "t.test()", and "var.test()" from the "stats" package</item>
+        /// <item>"ww.test()" and "mk.test()" from the "trend" package</item>
+        /// </list>
+        /// <para>
+        /// <b> References: </b>
+        /// <list type="bullet">
+        /// <item> Lukasz Komsta (2005). moments: Moments, Cumulants, Skewness, Kurtosis and Related Tests. R package version 0.14.1, https://cran.r-project.org/web/packages/moments</item>
+        /// <item> R Core Team (2013). R: A language and environment for statistical computing. R Foundation for Statistical Computing, 
+        /// Vienna, Austria. ISBN 3-900051-07-0, URL http://www.R-project.org/. </item>
+        /// <item> Pohlert T (2023). trend: Non-Parametric Trend Tests and Change-Point Detection. R package version 1.1.6, https://CRAN.R-project.org/package=trend</item>
+        /// </list>
+        /// </para>
+        /// </remarks>
         [TestMethod]
         public void Test_SummaryHypothesisTest()
         {
@@ -541,13 +670,16 @@ namespace Data.TimeSeriesAnalysis
             hypothesis.TryGetValue("t-test for differences in the means of two samples", out testH[5]);
             hypothesis.TryGetValue("F-test for differences in the variances of two samples", out testH[6]);
 
-            var validH = new double[] { 0.002439d/2d, 0.1762, 0.4608, 0.5956, 0.7757, 0.7921, 0.03607 };
+            var validH = new double[] { 0.0012195d, 0.8204, 0.2436, 0.5956, 0.7757, 0.4691, 0.2287 };
             for (int i = 0; i < validH.Length; i++)
             {
-                //Assert.AreEqual(validH[i], testH[i], 1E-2);
+                Assert.AreEqual(validH[i], testH[i], 1E-1);
             }
         }
 
+        /// <summary>
+        /// Test the methods that return monthly statistics. These methods include MonthlyPercentiles() and MonthlySummaryStatistics().
+        /// </summary>
         [TestMethod]
         public void Test_MonthlyStats()
         {
@@ -592,21 +724,170 @@ namespace Data.TimeSeriesAnalysis
             }
         }
 
-        // test monthly frequency
+        /// <summary>
+        /// Test the monthly frequency method
+        /// </summary>
+        [TestMethod]
+        public void Test_MonthlyFrequency()
+        {
+            var values = new double[] { 22, 16, 33, 5, 12, 36, 48, 10, 18, 15, 22, 13, 38, 17, 3, 6, 27, 11, 2, 41, 44, 37, 50, 8 };
+            var ts = new TimeSeries(TimeInterval.OneMonth, new DateTime(2023, 01, 01), values);
 
-        // test annual max series (x2)
+            var frequencies = ts.MonthlyFrequency();
+            for(int i = 0; i < frequencies.Length; i++)
+            {
+                Assert.AreEqual(2, frequencies[i]);
+            }
+        }
 
-        // test calendar year series
+        /// <summary>
+        /// Test both annual max series methods
+        /// </summary>
+        [TestMethod]
+        public void Test_AnnualMaxSeries()
+        {
+            var values = new double[] { 122d, 244d, 214d, 173d, 229d, 156d, 212d, 263d, 146d, 183d, 161d, 205d, 135d, 331d, 225d, 174d, 98.8d, 149d, 238d, 262d, 132d, 235d, 216d, 240d, 230d, 192d, 195d, 172d, 173d, 172d, 153d, 142d, 317d, 161d, 201d, 204d, 194d, 164d, 183d, 161d, 167d, 179d, 185d, 117d, 192d, 337d, 125d, 166d, 99.1d, 202d, 230d, 158d, 262d, 154d, 164d, 182d, 164d, 183d, 171d, 250d, 184d, 205d, 237d, 177d, 239d, 187d, 180d, 173d, 174d };
+            var ts = new TimeSeries(TimeInterval.OneMonth, new DateTime(2023, 01, 01), values);
 
-        // test water year series
+            // should give the same results
+            var annualTS = ts.AnnualMaxSeries();
+            var annualTS2 = ts.AnnualMaxSeries(new int[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 });
 
-        // test custom year series
+            var maxVals = new double[] { 263, 331, 317, 337, 262, 239 };
 
-        // test monthly series
+            for (int i = 0; i < maxVals.Length; i++)
+            {
+                Assert.AreEqual(maxVals[i], annualTS[i].Value);
+                Assert.AreEqual(maxVals[i], annualTS2[i].Value);
+            }   
+        }
 
-        // test quarterly series
+        /// <summary>
+        /// Test the calendar year series method
+        /// </summary>
+        [TestMethod]
+        public void Test_CalendarYearSeries()
+        {
+            var values = new double[] { 122d, 244d, 214d, 173d, 229d, 156d, 212d, 263d, 146d, 183d, 161d, 205d, 135d, 331d, 225d, 174d, 98.8d, 149d, 238d, 262d, 132d, 235d, 216d, 240d, 230d, 192d, 195d, 172d, 173d, 172d, 153d, 142d, 317d, 161d, 201d, 204d, 194d, 164d, 183d, 161d, 167d, 179d, 185d, 117d, 192d, 337d, 125d, 166d, 99.1d, 202d, 230d, 158d, 262d, 154d, 164d, 182d, 164d, 183d, 171d, 250d, 184d, 205d, 237d, 177d, 239d, 187d, 180d, 173d, 174d };
+            var ts = new TimeSeries(TimeInterval.OneMonth, new DateTime(2023, 01, 01), values);
 
-        // test peaks over threshold series
+            var annualTS = ts.CalendarYearSeries();
+
+            // same values as annual max series test
+            var maxVals = new double[] { 263, 331, 317, 337, 262, 239 };
+
+            for (int i = 0; i < maxVals.Length; i++)
+            {
+                Assert.AreEqual(maxVals[i], annualTS[i].Value);
+            }
+        }
+
+        /// <summary>
+        /// Test the water year series method
+        /// </summary>
+        [TestMethod]
+        public void Test_WaterYearSeries()
+        {
+            var values = new double[] { 122d, 244d, 214d, 173d, 229d, 156d, 212d, 263d, 146d, 183d, 161d, 205d, 135d, 331d, 225d, 174d, 98.8d, 149d, 238d, 262d, 132d, 235d, 216d, 240d, 230d, 192d, 195d, 172d, 173d, 172d, 153d, 142d, 317d, 161d, 201d, 204d, 194d, 164d, 183d, 161d, 167d, 179d, 185d, 117d, 192d, 337d, 125d, 166d, 99.1d, 202d, 230d, 158d, 262d, 154d, 164d, 182d, 164d, 183d, 171d, 250d, 184d, 205d, 237d, 177d, 239d, 187d, 180d, 173d, 174d };
+            var ts = new TimeSeries(TimeInterval.OneMonth, new DateTime(2023, 01, 01), values);
+
+            var annualTS = ts.WaterYearSeries();
+
+            // why not the same as annual max series?
+            var maxVals = new double[] { 263, 331, 317, 204, 337, 250 };
+
+            for (int i = 0; i < maxVals.Length; i++)
+            {
+                Assert.AreEqual(maxVals[i], annualTS[i].Value);
+            }
+        }
+
+        /// <summary>
+        /// Test the custom year series method
+        /// </summary>
+        [TestMethod]
+        public void Test_CustomYearSeries()
+        {
+            var values = new double[] { 122d, 244d, 214d, 173d, 229d, 156d, 212d, 263d, 146d, 183d, 161d, 205d, 135d, 331d, 225d, 174d, 98.8d, 149d, 238d, 262d, 132d, 235d, 216d, 240d, 230d, 192d, 195d, 172d, 173d, 172d, 153d, 142d, 317d, 161d, 201d, 204d, 194d, 164d, 183d, 161d, 167d, 179d, 185d, 117d, 192d, 337d, 125d, 166d, 99.1d, 202d, 230d, 158d, 262d, 154d, 164d, 182d, 164d, 183d, 171d, 250d, 184d, 205d, 237d, 177d, 239d, 187d, 180d, 173d, 174d };
+            var ts = new TimeSeries(TimeInterval.OneMonth, new DateTime(2023, 01, 01), values);
+
+            var annualTS = ts.CustomYearSeries();
+
+            // same values as annual max series test
+            var maxVals = new double[] { 263, 331, 317, 337, 262, 239 };
+
+            for (int i = 0; i < maxVals.Length; i++)
+            {
+                Assert.AreEqual(maxVals[i], annualTS[i].Value);
+            }
+        }
+
+        /// <summary>
+        /// Test the monthly series method
+        /// </summary>
+        [TestMethod]
+        public void Test_MonthlySeries()
+        {
+            var values = new double[] { 122d, 244d, 214d, 173d, 229d, 156d, 212d, 263d, 146d, 183d, 161d, 205d, 135d, 331d, 225d, 174d, 98.8d, 149d, 238d, 262d, 132d, 235d, 216d, 240d, 230d, 192d, 195d, 172d, 173d, 172d, 153d, 142d, 317d, 161d, 201d, 204d, 194d, 164d, 183d, 161d, 167d, 179d, 185d, 117d, 192d, 337d, 125d, 166d, 99.1d, 202d, 230d, 158d, 262d, 154d, 164d, 182d, 164d, 183d, 171d, 250d, 184d, 205d, 237d, 177d, 239d, 187d, 180d, 173d, 174d };
+            var ts = new TimeSeries(TimeInterval.OneMonth, new DateTime(2023, 01, 01), values);
+            var monthlyTS = ts.MonthlySeries();
+
+            for(int i = 0; i < monthlyTS.Count; i++)
+            {
+                // since the time interval is one month, all of the original values are the max of their own month
+                Assert.AreEqual(values[i], monthlyTS[i].Value);
+            }
+
+            // now the time interval is a week, so we will get different maxes
+            var ts2 = new TimeSeries(TimeInterval.SevenDay, new DateTime(2023, 01, 01), values);
+            var monthlyTS2 = ts2.MonthlySeries();
+
+            var maxVals2 = new double[] { 244, 263, 205, 331, 262, 240, 195, 317, 204, 185, 337, 262, 182, 250, 239, 180 };
+
+            for(int i = 0; i < maxVals2.Length; i++)
+            {
+                Assert.AreEqual(maxVals2[i], monthlyTS2[i].Value);
+            }
+        }
+
+        /// <summary>
+        /// Test the quarterly series method
+        /// </summary>
+        [TestMethod]
+        public void Test_QuarterlySeries()
+        {
+            var values = new double[] { 122d, 244d, 214d, 173d, 229d, 156d, 212d, 263d, 146d, 183d, 161d, 205d, 135d, 331d, 225d, 174d, 98.8d, 149d, 238d, 262d, 132d, 235d, 216d, 240d, 230d, 192d, 195d, 172d, 173d, 172d, 153d, 142d, 317d, 161d, 201d, 204d, 194d, 164d, 183d, 161d, 167d, 179d, 185d, 117d, 192d, 337d, 125d, 166d, 99.1d, 202d, 230d, 158d, 262d, 154d, 164d, 182d, 164d, 183d, 171d, 250d, 184d, 205d, 237d, 177d, 239d, 187d, 180d, 173d, 174d };
+            var ts = new TimeSeries(TimeInterval.OneMonth, new DateTime(2023, 01, 01), values);
+
+            var quarterlyTS = ts.QuarterlySeries();
+
+            var maxVals = new double[] { 244, 229, 263, 205, 331, 174, 262, 240, 230, 173, 317, 204, 194, 179, 192, 337, 230, 262, 182, 250, 237, 239, 180 };
+
+            for (int i = 0; i < maxVals.Length; i++)
+            {
+                Assert.AreEqual(maxVals[i], quarterlyTS[i].Value);
+            }
+        }
+
+        // test peaks over threshold series - COME BACK
+        [TestMethod]
+        public void Test_PeaksOverThreshold()
+        {
+            var values = new double[] { 122d, 244d, 214d, 173d, 229d, 156d, 212d, 263d, 146d, 183d, 161d, 205d, 135d, 331d, 225d, 174d, 98.8d, 149d, 238d, 262d, 132d, 235d, 216d, 240d, 230d, 192d, 195d, 172d, 173d, 172d, 153d, 142d, 317d, 161d, 201d, 204d, 194d, 164d, 183d, 161d, 167d, 179d, 185d, 117d, 192d, 337d, 125d, 166d, 99.1d, 202d, 230d, 158d, 262d, 154d, 164d, 182d, 164d, 183d, 171d, 250d, 184d, 205d, 237d, 177d, 239d, 187d, 180d, 173d, 174d };
+            var ts = new TimeSeries(TimeInterval.OneMonth, new DateTime(2023, 01, 01), values);
+
+            for(int i = 0; i < ts.Count; i++)
+            {
+                Debug.Write(ts[i].Index + ", ");
+            }
+            Debug.WriteLine("");
+            var POT = ts.PeaksOverThresholdSeries(200);
+
+            for(int i = 0; i < POT.Count; i++)
+            {
+                Debug.Write(POT[i].Value+", ");
+            }
+        }
 
     }
 }

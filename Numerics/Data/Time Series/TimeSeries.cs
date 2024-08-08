@@ -28,9 +28,7 @@
 * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 * **/
 
-using Microsoft.VisualBasic;
 using Numerics.Data.Statistics;
-using Numerics.Mathematics.Optimization;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -41,7 +39,6 @@ using System.Xml.Linq;
 
 namespace Numerics.Data
 {
-
     /// <summary>
     /// A time-series class, which is a collection of time-series ordinates.
     /// </summary>
@@ -602,7 +599,6 @@ namespace Numerics.Data
         /// </summary>
         /// <param name="maxNumberOfMissing">The maximum number of consecutive missing values.</param>
         /// <param name="indices">List of integer index values (0 based) for each ordinate in the time series to apply the calculation to.</param>
-
         public void InterpolateMissingData(int maxNumberOfMissing, IList<int> indices)
         {
             SuppressCollectionChanged = true;
@@ -803,6 +799,7 @@ namespace Numerics.Data
         /// <summary>
         /// Converts the time interval to hours.
         /// </summary>
+        /// <returns>The time interval in hours.</returns>
         public static double TimeIntervalInHours(TimeInterval timeInterval)
         {
             if (timeInterval == TimeInterval.OneMinute) return 1d / 60d;
@@ -976,6 +973,7 @@ namespace Numerics.Data
         /// Shift the dates by a specified number of months.
         /// </summary>
         /// <param name="numberOfMonths">The number of months to shift by.</param>
+        /// <returns> A new TimeSeries object with the dates shifted</returns>
         public TimeSeries ShiftDatesByMonth(int numberOfMonths)
         {
             SortByTime();
@@ -995,6 +993,7 @@ namespace Numerics.Data
         /// Shift the dates by a specified number of years. 
         /// </summary>
         /// <param name="numberOfYears">The number of years to shift by.</param>
+        /// <returns> A new TimeSeries object with the dates shifted</returns>
         public TimeSeries ShiftDatesByYear(int numberOfYears)
         {
             SortByTime();
@@ -1014,6 +1013,7 @@ namespace Numerics.Data
         /// </summary>
         /// <param name="startDate">The new start date/time of the series.</param>
         /// <param name="endDate">The new end date/time of the series.</param>
+        /// <returns> A new TimeSeries object with the dates clipped</returns>
         public TimeSeries ClipTimeSeries(DateTime startDate, DateTime endDate)
         {
             if (startDate < StartDate)
@@ -1036,6 +1036,7 @@ namespace Numerics.Data
         /// </summary>
         /// <param name="timeInterval">The new time interval.</param>
         /// <param name="average">Determines if values should be average or cumulated for larger time steps.</param>
+        /// <returns> A new TimeSeries object with the new interval</returns>
         public TimeSeries ConvertTimeInterval(TimeInterval timeInterval, bool average = true)
         {
             var TS = TimeSeries.TimeIntervalInHours(TimeInterval); // The time step in hours
@@ -1345,6 +1346,7 @@ namespace Numerics.Data
         /// <param name="startMonth">The month when the year begins. If not 1, dates are shifted.</param>
         /// <param name="period">The time period to average or sum over.</param>
         /// <param name="isMovingAverage">If true, a moving average is performed, if false, a moving sum is performed.</param>
+        /// <returns> A new TimeSeries of annual maxes</returns>
         public TimeSeries AnnualMaxSeries(int startMonth = 1, int period = 1, bool isMovingAverage = true)
         {
             var result = new TimeSeries(TimeInterval.Irregular);
@@ -1380,6 +1382,7 @@ namespace Numerics.Data
         /// <param name="months">The months that define the season.</param>
         /// <param name="period">The time period to average or sum over.</param>
         /// <param name="isMovingAverage">If true, a moving average is performed, if false, a moving sum is performed.</param>
+        /// <returns> A new TimeSeries of annual maxes</returns>
         public TimeSeries AnnualMaxSeries(int[] months, int period = 1, bool isMovingAverage = true)
         {
             var result = new TimeSeries(TimeInterval.Irregular);
@@ -1415,7 +1418,7 @@ namespace Numerics.Data
         /// </summary>
         /// <param name="blockFunction">The block function type; e.g. min, max, sum, or average.</param>
         /// <param name="smoothingFunction">The smoothing function type.</param>
-        /// <param name="period">The time period to perform smoothing over. If time interval is 1-hour, and period is 12. The smoothing will be computed over a moving 12 hour block.</param>
+        /// <param name="period">The time period to perform smoothing over. If time interval is 1-hour, and period is 12, the smoothing will be computed over a moving 12 hour block.</param>
         public TimeSeries CalendarYearSeries(BlockFunctionType blockFunction = BlockFunctionType.Maximum, SmoothingFunctionType smoothingFunction = SmoothingFunctionType.None, int period = 1)
         {
             var result = new TimeSeries(TimeInterval.Irregular);
@@ -1500,7 +1503,7 @@ namespace Numerics.Data
         /// <summary>
         /// Returns an annual (irregular) block series based on the water year. 
         /// </summary>
-        /// <param name="startMonth">The month when the water year begins. If not 1, dates are shifted.</param>
+        /// <param name="startMonth">The month when the water year begins. If not 10, dates are shifted.</param>
         /// <param name="blockFunction">The block function type; e.g. min, max, sum, or average.</param>
         /// <param name="smoothingFunction">The smoothing function type.</param>
         /// <param name="period">The time period to perform smoothing over. If time interval is 1-hour, and period is 12. The smoothing will be computed over a moving 12 hour block.</param>
@@ -1841,7 +1844,6 @@ namespace Numerics.Data
         /// </remarks>
         public TimeSeries PeaksOverThresholdSeries(double threshold, int minStepsBetweenEvents = 1, SmoothingFunctionType smoothingFunction = SmoothingFunctionType.None, int period = 1)
         {
-
             // Create smoothed time series
             TimeSeries smoothedSeries = null;
             if (smoothingFunction == SmoothingFunctionType.None)
@@ -1860,7 +1862,6 @@ namespace Numerics.Data
             {
                 smoothedSeries = Difference(period);
             }
-
 
             var result = new TimeSeries(TimeInterval.Irregular);
             for (int i = 0; i < smoothedSeries.Count; i++)
