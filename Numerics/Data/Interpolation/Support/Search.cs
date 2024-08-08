@@ -45,21 +45,21 @@ namespace Numerics.Data
     /// <b> Description: </b>
     /// This class has 3 search methods: Sequential, Bisection, and Hunt.
     /// <list type="bullet">
-    /// <item><description>
-    /// Sequential search, or linear search, checks each element in a list until a match is found or the whole list has been
-    /// searched.
-    /// </description></item>
-    /// <item><description> 
-    /// The bisection method, also known as binary search, starts off by comparing the target value (i.e. value being searched for
-    /// in the array) against the middle element of the list. If the target value and middle element are not equal, the half of the list in which the target 
+    /// <item>
+    /// <description>
+    /// Sequential search, or linear search, checks each element in a list until a match is found or the whole list has been searched.
+    /// </description>
+    /// </item>
+    /// <item>
+    /// <description> 
+    /// The bisection method, also known as binary search, starts off by comparing the target value (i.e. value being searched for in the array) 
+    /// against the middle element of the list. If the target value and middle element are not equal, the half of the list in which the target 
     /// cannot lie is eliminated. If the list  sorted in ascending order, if the target is less than the middle element, the second half of the list of values 
     /// greater than the middle element is eliminated. If the target is greater than the middle element then the first half of the list is eliminated. Then, the algorithm starts
     /// again, comparing the middle element of the new, smaller list against the target element. This continues until the target value is found or until the remaining half 
     /// being empty.
-    /// </description></item>
-    /// <item><description>
-    /// 
-    /// </description></item>
+    /// </description>
+    /// </item>
     /// </list>
     /// </para>
     /// <b> References: </b>
@@ -69,9 +69,6 @@ namespace Numerics.Data
     /// </description></item>
     /// <item><description>
     /// <see href="https://en.wikipedia.org/wiki/Binary_search"/>
-    /// </description></item>
-    /// <item><description>
-    /// 
     /// </description></item>
     /// </list>
     /// </remarks>
@@ -449,13 +446,95 @@ namespace Numerics.Data
         /// Searches for the lower bound of the location of a value using a bisection search method.
         /// </summary>
         /// <param name="x">The value to search for.</param>
+        /// <param name="orderedPairedData">Ordered paired data to search within.</param>
+        /// <param name="start">Optional. Location to start the search of the arrays. Default = 0.</param>
+        /// <returns>
+        /// The lower bound of the location to be used in interpolation. E.g., X1 is the lower, X2 is the upper (X1 + 1).
+        /// </returns>
+        public static int Bisection(double x, OrderedPairedData orderedPairedData, int start = 0)
+        {
+            // variables
+            int N = orderedPairedData.Count;
+
+            // validate
+            if (start < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(start), "The search starting point must be non-negative.");
+            }
+            else if (start >= N)
+            {
+                throw new ArgumentOutOfRangeException(nameof(start), "The search starting point cannot be greater than the length of the X array.");
+            }
+
+            // check if the order is ascending, if the X is outside of the range of the array
+            if (orderedPairedData.OrderX == SortOrder.Ascending)
+            {
+                if (x < orderedPairedData[0].X)
+                {
+                    return -1;
+                }
+                else if (x == orderedPairedData[0].X)
+                {
+                    return 0;
+                }
+                else if (x == orderedPairedData[N - 1].X)
+                {
+                    return N - 1;
+                }
+                else if (x > orderedPairedData[N - 1].X)
+                {
+                    return N;
+                }
+            }
+            else
+            {
+                if (x > orderedPairedData[0].X)
+                {
+                    return -1;
+                }
+                else if (x == orderedPairedData[0].X)
+                {
+                    return 0;
+                }
+                else if (x == orderedPairedData[N - 1].X)
+                {
+                    return N - 1;
+                }
+                else if (x < orderedPairedData[N - 1].X)
+                {
+                    return N;
+                }
+            }
+
+            // Perform bisection search
+            int xlo = start, xhi = N, xm = 0;
+            while (xhi - xlo > 1)
+            {
+                xm = xlo + (xhi - xlo >> 1);
+                if (x >= orderedPairedData[xm].X && orderedPairedData.OrderX == SortOrder.Ascending)
+                {
+                    xlo = xm;
+                }
+                else
+                {
+                    xhi = xm;
+                }
+            }
+            // Return XLO
+            return xlo;
+        }
+
+        /// <summary>
+        /// Searches for the lower bound of the location of a value using a bisection search method.
+        /// </summary>
+        /// <param name="x">The value to search for.</param>
         /// <param name="ordinates">List of ordinates to search within.</param>
         /// <param name="start">Optional. Location to start the search of the arrays. Default = 0.</param>
         /// <param name="order">Optional. The sort order of the values, either ascending or descending. Default = Ascending.</param>
         /// <returns>
         /// The lower bound of the location to be used in interpolation. E.g., X1 is the lower, X2 is the upper (X1 + 1).
         /// </returns>
-        public static int Bisection(double x, IList<Ordinate> ordinates, ref int start, SortOrder order = SortOrder.Ascending)
+        public static int Bisection(double x, IList<Ordinate> ordinates, int start = 0, SortOrder order = SortOrder.Ascending)
         {
             // variables
             int N = ordinates.Count;
@@ -665,7 +744,7 @@ namespace Numerics.Data
         /// </summary>
         /// <param name="xValue">The value to search for.</param>
         /// <param name="orderedPairedData">Ordered paired data.</param>
-        /// <param name="searchStart">Optional. Location to start the search of the arrays. Default = 0.</param>
+        /// <param name="start">Optional. Location to start the search of the arrays. Default = 0.</param>
         /// <returns>
         /// The lower bound of the location to be used in interpolation. E.g., X1 is the lower, X2 is the upper (X1 + 1).
         /// </returns>
@@ -674,22 +753,22 @@ namespace Numerics.Data
         /// monotonic, either increasing or decreasing. J = 0 or J = XArray.Length is returned to indicate that X is out of range. The SearchStart is
         /// taken as the initial guess for J on output.
         /// </remarks>
-        public static int HuntSearch(double xValue, OrderedPairedData orderedPairedData, int searchStart = 0)
+        public static int Hunt(double xValue, OrderedPairedData orderedPairedData, int start = 0)
         {
             int N = orderedPairedData.Count - 1;
             double X = xValue;
-            int XLO = searchStart;
+            int XLO = start;
             int XHI;
             int XM;
             var ASCND = default(bool);
             int INC;
 
             // validate
-            if (searchStart < 0)
+            if (start < 0)
             {
                 throw new ArgumentOutOfRangeException("searchStart", "The search starting point must be non-negative.");
             }
-            else if (searchStart > N)
+            else if (start > N)
             {
                 throw new ArgumentOutOfRangeException("searchStart", "The search starting point cannot be greater than the length of the X array.");
             }
@@ -732,7 +811,7 @@ namespace Numerics.Data
             }
 
             // XLO is defined by the search start
-            XLO = searchStart;
+            XLO = start;
 
             // Perform the hunt search algorithm
             if (XLO <= 0 | XLO > N)
@@ -808,7 +887,7 @@ namespace Numerics.Data
         /// </summary>
         /// <param name="xValue">The value to search for.</param>
         /// <param name="ordinateData">The list of ordinates.</param>
-        /// <param name="searchStart">Optional. Location to start the search of the arrays. Default = 0.</param>
+        /// <param name="start">Optional. Location to start the search of the arrays. Default = 0.</param>
         /// <param name="order">Optional. Ascending or descending. Default = ASC.</param>
         /// <returns>
         /// The lower bound of the location to be used in interpolation. E.g., X1 is the lower, X2 is the upper (X1 + 1).
@@ -818,22 +897,22 @@ namespace Numerics.Data
         /// monotonic, either increasing or decreasing. J = 0 or J = XArray.Length is returned to indicate that X is out of range. The SearchStart is
         /// taken as the initial guess for J on output.
         /// </remarks>
-        public static int HuntSearch(double xValue, IList<Ordinate> ordinateData, int searchStart = 0, SortOrder order = SortOrder.Ascending)
+        public static int Hunt(double xValue, IList<Ordinate> ordinateData, int start = 0, SortOrder order = SortOrder.Ascending)
         {
             int N = ordinateData.Count - 1;
             double X = xValue;
-            int XLO = searchStart;
+            int XLO = start;
             int XHI;
             int XM;
             bool ASCND;
             int INC;
 
             // validate
-            if (searchStart < 0)
+            if (start < 0)
             {
                 throw new ArgumentOutOfRangeException("searchStart", "The search starting point must be non-negative.");
             }
-            else if (searchStart > N)
+            else if (start > N)
             {
                 throw new ArgumentOutOfRangeException("searchStart", "The search starting point cannot be greater than the length of the X array.");
             }
@@ -881,7 +960,7 @@ namespace Numerics.Data
             }
 
             // XLO is defined by the search start
-            XLO = searchStart;
+            XLO = start;
 
             // Perform the hunt search algorithm
             if (XLO <= 0 | XLO > N)

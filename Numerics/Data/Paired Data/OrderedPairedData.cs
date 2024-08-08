@@ -41,7 +41,7 @@ namespace Numerics.Data
 {
 
     /// <summary>
-    /// Class designed to store xy data that is ordered for both the x and y values.
+    /// Class designed to store x-y data that is ordered for both the x and y values.
     /// </summary>
     /// <remarks>
     ///     <b> Authors:</b>
@@ -509,7 +509,7 @@ namespace Numerics.Data
         public void Insert(int index, Ordinate item)
         {
             _ordinates.Insert(index, item);
-            // only need to set valid state if it is true..if it is already false then inserting can't make it true.
+            // only need to set valid state if it is true. if it is already false then inserting can't make it true.
             if (IsValid) IsValid = OrdinateValid(index);
             CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item, index));
         }
@@ -604,7 +604,6 @@ namespace Numerics.Data
             {
                 return false;
             }
-            // I don't think this is possible
             if ((left._ordinates == null) && (right._ordinates == null))
             {
                 return true;
@@ -890,7 +889,7 @@ namespace Numerics.Data
 
             if (valuesOrdered == false)
             {
-                //Sort values and keep track of original indices
+                //Sort values and keep track of original indexes
                 var sorted = xValues.Select((x, i) => new KeyValuePair<double, int>(x, i)).OrderBy(x => x.Key).ToList();
                 if (OrderX == SortOrder.Descending) sorted.Reverse();
                 //Get sorted values and original index locations
@@ -1136,8 +1135,6 @@ namespace Numerics.Data
             }
 
             return default;
-            // 
-            // Return x1 + (yValue - y1) / (y2 - y1) * (x2 - x1)
         }
 
         /// <summary> 
@@ -1768,7 +1765,7 @@ namespace Numerics.Data
         /// </remarks>
         /// <param name="tolerance">Tolerance to remove points. Higher tolerance will remove more points.</param>
         /// <returns>
-        /// A list of indices to keep for the simplified x and y values of a line.
+        /// A list of indexes to keep for the simplified x and y values of a line.
         /// </returns>
         private List<int> DouglasPeuckerReduction(double tolerance)
         {
@@ -1797,7 +1794,6 @@ namespace Numerics.Data
         /// <param name="tolerance"> Tolerance to remove points. Higher tolerance will remove more points. </param>
         /// <param name="pointIndexesToKeep"> The list of simplified points to keep </param>
         private void DouglasPeuckerReduction(int firstPoint, int lastPoint, double tolerance, ref List<int> pointIndexesToKeep)
-
         {
 
             double maxDistance = 0;
@@ -1850,7 +1846,7 @@ namespace Numerics.Data
 
         /// <summary>
         /// The Visvaligam-Whyatt algorithm that decimates a curve composed of line segments to a similar curve with fewer points.
-        /// Upgrade when we implement the priority queue in .NET 6
+        /// This method will be improved when we implement the priority queue in .NET 8.
         /// </summary>
         /// <remarks>
         /// <b> Reference: </b>
@@ -1867,44 +1863,24 @@ namespace Numerics.Data
             double minArea;
             double tmpArea;
 
-
             for (int i = 0; i < removeLimit; i++)
             {
                 minIndex = 1;
-
                 minArea = TriangleArea(ordinates[0], ordinates[1], ordinates[2]);
-
-
-
                 for (int j = 2; j <= ordinates.Count - 2; j++)
                 {
                     tmpArea = TriangleArea(ordinates[j - 1], ordinates[j], ordinates[j + 1]);
-
                     if (tmpArea < minArea)
                     {
                         minIndex = j;
                         minArea = tmpArea;
                     }
                 }
-
                 ordinates.RemoveAt(minIndex);
             }
 
             return new OrderedPairedData(ordinates, StrictX, OrderX, StrictY, OrderY);
         }
-
-
-        //private bool CompareTriangles(Triangle A, Triangle B)
-        //{
-        //    return A.Area < B.Area;
-        //}
-        //private class Triangle
-        //{
-        //    public int[] Indices = new int[3];
-        //    public double Area;
-        //    public Triangle Prev;
-        //    public Triangle Next;
-        //}
 
         /// <summary>
         /// Calculates the triangle area between 3 points
@@ -1917,13 +1893,6 @@ namespace Numerics.Data
         {
             return Math.Abs((point1.X * point2.Y + point2.X * point3.Y + point3.X * point1.Y - point2.X * point1.Y - point3.X * point2.Y - point1.X * point3.Y) * 0.5);
         }
-
-        //public OrderedPairedData VWSimplify(int length)
-        //{
-        //    List<Ordinate> ordinates = new List<Ordinate>(_ordinates);
-
-
-        //}
 
         /// <summary>
         /// The Lang algorithm that decimates a curve composed of line segments to a similar curve with fewer points.

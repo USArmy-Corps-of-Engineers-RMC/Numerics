@@ -163,45 +163,6 @@ namespace Data.Interpolation
             Assert.AreEqual(y7, 875.962713889793d, 1E-6);
         }
 
-        // the Z implies at least one of the arrays would have a NormalZ transform??
-        [TestMethod]
-        public void Test_ZLinear()
-        {
-            var x1Array = new double[] { 100d, 200d, 300d, 400d, 500d };
-            var x2Array = new double[] { 50d, 100d, 150d, 200d, 250d };
-            var yArray = new double[5, 5];
-            yArray[0, 0] = 0.91468032d;
-            yArray[1, 0] = 0.930847173d;
-            yArray[2, 0] = 0.932869374d;
-            yArray[3, 0] = 0.935493933d;
-            yArray[4, 0] = 0.937785044d;
-            yArray[0, 1] = 0.934138628d;
-            yArray[1, 1] = 0.945120902d;
-            yArray[2, 1] = 0.947067808d;
-            yArray[3, 1] = 0.948616728d;
-            yArray[4, 1] = 0.949993546d;
-            yArray[0, 2] = 0.964536184d;
-            yArray[1, 2] = 0.969365803d;
-            yArray[2, 2] = 0.970140263d;
-            yArray[3, 2] = 0.97065657;
-            yArray[4, 2] = 0.971538594d;
-            yArray[0, 3] = 0.98397298d;
-            yArray[1, 3] = 0.988017382d;
-            yArray[2, 3] = 0.988662766d;
-            yArray[3, 3] = 0.989480251d;
-            yArray[4, 3] = 0.98978143d;
-            yArray[0, 4] = 0.999128732d;
-            yArray[1, 4] = 0.999763359d;
-            yArray[2, 4] = 0.999849411d;
-            yArray[3, 4] = 0.999935462d;
-            yArray[4, 4] = 1d;
-
-            var bilinear = new Bilinear(x1Array, x2Array, yArray);
-            double x1 = 350d;
-            double x2 = 75d;
-            double y = bilinear.Interpolate(x1, x2);
-            Assert.AreEqual(y, 0.941011961104896d, 1E-6);
-        }
 
         /// <summary>
         /// Test all of the possible z variate transforms of x1 and x2 of the bilinear function

@@ -222,14 +222,15 @@ namespace Data.Statistics
         }
 
         /// <summary>
-        /// No code implements this test in this same manner. 
-        /// Results from R are close though
+        /// Test the Chi-Squared test statistic. This method was tested against R's "gofTest()" method from the "EnvStats" package.
         /// </summary>
         [TestMethod]
         public void Test_ChiSquaredTest()
         {
+            var norm = new Normal();
+            norm.SetParameters(Numerics.Data.Statistics.Statistics.Mean(data), Numerics.Data.Statistics.Statistics.StandardDeviation(data));
             var result = GoodnessOfFit.ChiSquared(data, norm);
-            //Assert.AreEqual(0.032258, result, 1E-6);
+            Assert.AreEqual(0.9279124, result, 1E-6);
         }
 
         /// <summary>

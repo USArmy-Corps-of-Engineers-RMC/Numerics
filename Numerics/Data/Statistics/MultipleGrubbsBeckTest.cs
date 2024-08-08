@@ -50,7 +50,9 @@ namespace Numerics.Data.Statistics
     /// <b> References: </b>
     /// <list type="bullet">
     /// <item>
-    /// See the 2011 manuscript by Cohn, Stedinger, England, et al.
+    /// Cohn, T. A., England, J. F., Berenbrock, C. E., Mason, R. R., Stedinger, J. R., and Lamontagne, J. R. (2013). 
+    /// A generalized Grubbs-Beck test statistic for detecting multiple potentially influential low outliers in flood series. 
+    /// Water Resources Research, 49(8), 5047-5058.
     /// </item>
     /// <item>
     /// This code converted from the FORTRAN source code for PeakfqSA, which can be downloaded at:
@@ -192,15 +194,10 @@ namespace Numerics.Data.Statistics
                 _etaIn = ETA;
             }
 
-            // The original FORTRAN source code used a globally adaptive Gauss-Kronrod integration method. 
-
-            // I think this is overkill, so I just use Trapezoidal rule with 500 steps to solve
-            // the integral. I get the same number of low outliers as computed by the FORTRAN code.
-            // return Integration.TrapezoidalRule(FGGB, 1E-8, 1-1E-8, 500);
-
-            // Now  I use an adaptive quadrature routine. I get the same answers as before.
-            // This should work better than the trapezoidal rule. 
-            // Need to do more testing down the road.
+            // The original FORTRAN source code utilized a globally adaptive Gauss-Kronrod integration method. 
+            // This implementation, however, employs the adaptive Simpson's rule for integration.
+            // The number of low outliers computed by this method is consistent with the results from the FORTRAN code.
+            // Further testing is necessary to identify any edge cases where the adaptive Simpson's rule might prove insufficient.
             var sr = new AdaptiveSimpsonsRule(FGGB, 1E-16, 1 - 1E-16);
             sr.RelativeTolerance = 1E-4;
             sr.MaxDepth = 50;

@@ -488,7 +488,6 @@ namespace Numerics.Data
             {
                 return false;
             }
-            // I don't think this is possible but better safe than sorry.
             if ((left._uncertainOrdinates == null) && (right._uncertainOrdinates == null))
             {
                 return true;
