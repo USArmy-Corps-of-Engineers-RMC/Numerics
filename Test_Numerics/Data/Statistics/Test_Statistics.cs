@@ -473,7 +473,7 @@ namespace Data.Statistics
         public void Test_RanksInplace_Ties()
         {
             double[] ties;
-            var test = Numerics.Data.Statistics.Statistics.RanksInplace(_sample1, out ties);
+            var test = Numerics.Data.Statistics.Statistics.RanksInPlace(_sample1, out ties);
 
             for (int i = 0; i < ties.Length; i++)
             {

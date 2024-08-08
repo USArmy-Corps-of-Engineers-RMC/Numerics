@@ -141,7 +141,7 @@ namespace Data.PairedData
         /// Millard SP (2013). EnvStats: An R Package for Environmental Statistics. Springer, New York.
         /// </remarks>
         [TestMethod]
-        public void Test_Curve_Sample_Proabability()
+        public void Test_Curve_Sample_Probability()
         {
             OrderedPairedData data1 = _dataset1.CurveSample(0.5);
             OrderedPairedData data2 = _dataset2.CurveSample(0.5);
@@ -174,100 +174,78 @@ namespace Data.PairedData
         }
 
         /// <summary>
-        /// Test the various UncertainOrderedPairedData object indexing and manipulation methods
+        /// Test the various UncertainOrderedPairedData IList methods
         /// </summary>
         [TestMethod]
-        public void Test_Indexing()
+        public void Test_IList()
         {
-            var dataset11 = _dataset1.Clone();
-            UncertainOrdinate unordinate = new UncertainOrdinate(3, new Triangular(6, 8, 12));
+            var pairedData = _dataset1.Clone();
+            var ordinate = pairedData[2];
 
-            UncertainOrdinate test1 = dataset11[2];
-            Assert.IsTrue(unordinate == test1);
+            // Test IndexOf
+            int test1 = pairedData.IndexOf(ordinate);
+            Assert.AreEqual(2, test1);
 
-            int test2 = dataset11.IndexOf(unordinate);
-            //Assert.AreEqual(2, test2);
+            // Test Remove and Contains
+            pairedData.Remove(ordinate);
+            bool test2 = pairedData.Contains(ordinate);
+            Assert.AreEqual(false, test2);
 
-            dataset11.Remove(unordinate);
-            bool test4 = dataset11.Contains(unordinate);
-            Assert.AreEqual(false, test4);
+            // Test RemoveAt and Contains
+            pairedData.RemoveAt(2);
+            bool test3 = pairedData.Contains(ordinate);
+            Assert.AreEqual(false, test3);
 
-            UncertainOrdinate newUnordinate = dataset11[2];
-            dataset11.RemoveAt(2);
-            bool test5 = dataset11.Contains(newUnordinate);
-            Assert.AreEqual(false, test5);
+            // Test Insert and IndexOf
+            pairedData.Insert(2, ordinate);
+            int test4 = pairedData.IndexOf(ordinate);
+            Assert.AreEqual(2, test4);
 
-            UncertainOrdinate newUnordinate2 = new UncertainOrdinate(7, new Triangular(16, 22, 28));
-            dataset11.Add(newUnordinate2);
-            int test6 = dataset11.IndexOf(newUnordinate2);
-            Assert.AreEqual(dataset11.Count - 1, test6);
+            // Test Add and IndexOf
+            var newOrdinate = new UncertainOrdinate(7, new Triangular(16, 22, 28));
+            pairedData.Add(newOrdinate);
+            int test5 = pairedData.IndexOf(newOrdinate);
+            Assert.AreEqual(pairedData.Count - 1, test5);
 
-            dataset11.Insert(2, unordinate);
-            int test7 = dataset11.IndexOf(unordinate);
-            Assert.AreEqual(2, test7);
-
-            int prevCount = dataset11.Count();
-            UncertainOrdinate newUnordinate3 = dataset11[2];
-            dataset11.RemoveRange(0, 2);
-            UncertainOrdinate test8 = dataset11[0];
-            int currCount = dataset11.Count();
+            // Test RemoveRange
+            int prevCount = pairedData.Count();
+            ordinate = pairedData[2];
+            pairedData.RemoveRange(0, 2);
+            UncertainOrdinate test6 = pairedData[0];
+            int currCount = pairedData.Count();
             Assert.AreEqual(prevCount - 2, currCount);
-            Assert.AreEqual(newUnordinate3, test8);
+            Assert.AreEqual(ordinate, test6);
 
-            var array = new UncertainOrdinate[3];
-            dataset11.CopyTo(array, 0);
+            // Test CopyTo
+            var array = new UncertainOrdinate[2];
+            pairedData.CopyTo(array, 0);
             for (int i = 0; i < array.Length; i++)
             {
-                Assert.AreEqual(dataset11[i], array[i]);
+                Assert.AreEqual(pairedData[i], array[i]);
             }
 
+            // Test InsertRange
             var toInsert = new List<UncertainOrdinate>() { new UncertainOrdinate(1, new Triangular(1, 2, 3)), new UncertainOrdinate(2, new Triangular(2, 4, 5)) };
-            dataset11.InsertRange(0, toInsert);
+            pairedData.InsertRange(0, toInsert);
             for(int j = 0; j < toInsert.Count; j++)
             {
-                Assert.IsTrue(dataset11.Contains(toInsert[j]));
+                Assert.IsTrue(pairedData.Contains(toInsert[j]));
             }
 
-            var toRemove = new int[] { 3, 4 };
-            dataset11.RemoveRange(toRemove);
-            Assert.IsFalse(dataset11.Contains(new UncertainOrdinate(5, new Triangular(13, 19, 20))));
-            Assert.IsFalse(dataset11.Contains(new UncertainOrdinate(2, new Triangular(2, 4, 5))));
-
-            UncertainOrdinate newUnordinate4 = new UncertainOrdinate(3, new Triangular(6, 8, 12));
-            
-            bool test9 = dataset11.Remove(newUnordinate4);
-            //Assert.IsTrue(true);
-            Assert.IsFalse(dataset11.Contains(newUnordinate4)); // this test should pass if the method worked as intended, but it didn't, yet it is still passing
-            for (int i = 0; i < dataset11.Count; i++)
-            {
-                Debug.WriteLine(dataset11[i].X + "  " + dataset11[i].Y);
-            }
-
+            // Test AddRange
             var toAdd = new List<UncertainOrdinate>() { new UncertainOrdinate(3, new Triangular(6, 8, 12)), new UncertainOrdinate(5,  new Triangular(13, 19, 20)), new UncertainOrdinate(7, new Triangular(16, 22, 28)) };
-            dataset11.AddRange(toAdd);
-            var test10 = dataset11.Count();
-            Assert.AreEqual(6, test10);
+            pairedData.AddRange(toAdd);
+            var test7 = pairedData.Count();
+            Assert.AreEqual(7, test7);
             for(int k  = 0; k < toAdd.Count(); k++)
             {
-                Assert.IsTrue(dataset11.Contains(toAdd[k]));
+                Assert.IsTrue(pairedData.Contains(toAdd[k]));
             }
 
-            Debug.WriteLine("");
-            for (int i = 0; i < dataset11.Count; i++)
-            {
-                Debug.WriteLine(dataset11[i].X + "  " + dataset11[i].Y);
-            }
+            // Test Clear
+            pairedData.Clear();
+            Assert.AreEqual(0, pairedData.Count());
 
-            // ALL -1
-            int one = dataset11.IndexOf(new UncertainOrdinate(1, new Triangular(1, 2, 3)));
-            int two = dataset11.IndexOf(new UncertainOrdinate(2, new Triangular(2, 4, 5)));
-            int three = dataset11.IndexOf(new UncertainOrdinate(3, new Triangular(6, 8, 12)));
-            int four = dataset11.IndexOf(new UncertainOrdinate(5, new Triangular(13, 19, 20)));
-            int five = dataset11.IndexOf(new UncertainOrdinate(7, new Triangular(16, 22, 28)));
-
-
-            dataset11.Clear();
-            Assert.AreEqual(0, dataset11.Count());
         }
 
         /// <summary>

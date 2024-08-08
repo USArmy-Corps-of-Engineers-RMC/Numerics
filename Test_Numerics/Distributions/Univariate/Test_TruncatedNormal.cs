@@ -33,7 +33,6 @@ namespace Distributions.Univariate
             Assert.AreEqual(p, 0.7596566, 1E-5);
             Assert.AreEqual(q, 12.75, 1E-5);
 
-
             tn = new TruncatedNormal(0, 3, 0, 9);
             d = tn.PDF(4.5);
             p = tn.CDF(4.5);
@@ -43,16 +42,6 @@ namespace Distributions.Univariate
             Assert.AreEqual(p, 0.868731, 1E-5);
             Assert.AreEqual(q, 4.5, 1E-5);
 
-
-            var KDE = new PearsonTypeIII(-2.372978, 0.338314, -1.5);
-            var graph = KDE.CreatePDFGraph();
-            for (int i = 0; i < graph.GetLength(0); i++)
-            {
-                Debug.Print(graph[ i, 0] + ", " + graph[i, 1]);
-            }
-
-
-            var cdf = KDE.CDF(-2);
         }
     }
 }

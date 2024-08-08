@@ -467,8 +467,7 @@ namespace Data.TimeSeriesAnalysis
             Assert.AreEqual(20.83333333333, mean, 1E-10);
 
             double sd = ts.StandardDeviation();
-            // from roll_sd w/ width = 11 (R method)   
-            Assert.AreEqual(13.007, sd, 1E-3);
+            Assert.AreEqual(12.40112, sd, 1E-3);
 
             var duration = ts.Duration();
             var dValues = new double[] { 48, 36, 33, 22, 22, 18, 16, 15, 13, 12, 10, 5 };

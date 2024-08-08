@@ -31,6 +31,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 
 namespace Numerics.Data.Statistics
 {
@@ -184,7 +185,6 @@ namespace Numerics.Data.Statistics
             }
             // Guarantee that the upper bound is exactly the data maximum.
             _bins.Last().UpperBound = UpperBound;
-            //_binLimits.Add(UpperBound);
             // Add data
             AddData(data);
         }
@@ -213,7 +213,6 @@ namespace Numerics.Data.Statistics
             }
             // Guarantee that the upper bound is exactly the data maximum.
             _bins.Last().UpperBound = UpperBound;
-            // _binLimits.Add(UpperBound);
             // Add data
             AddData(data);
         }
@@ -378,7 +377,6 @@ namespace Numerics.Data.Statistics
         public void AddBin(Bin bin)
         {
             _bins.Add(bin);
-            _binLimits.Add(bin.LowerBound);
             _areBinsSorted = false;
         }
 
@@ -393,15 +391,15 @@ namespace Numerics.Data.Statistics
             int index = GetBinIndexOf(data);
             if (data <= LowerBound)
             {
-                _binLimits[0] = data;
                 _bins.First().LowerBound = data;
                 _bins.First().Frequency += 1;
+                _areBinsSorted = false;
             }
             else if (data >= UpperBound)
             {
-                _binLimits[NumberOfBins - 1] = data;
                 _bins.Last().UpperBound = data;
                 _bins.Last().Frequency += 1;
+                _areBinsSorted = false;
             }
             else if (index >= 0 && index < NumberOfBins)
             {
@@ -428,7 +426,7 @@ namespace Numerics.Data.Statistics
             if (!_areBinsSorted)
             {
                 _bins.Sort();
-                _binLimits.Sort();
+                _binLimits = _bins.Select(x => x.LowerBound).ToList();
                 _areBinsSorted = true;
             }
         }
@@ -445,8 +443,8 @@ namespace Numerics.Data.Statistics
             {
                 throw new ArgumentException("value", "The value is not contained with the histogram limits.");
             }
-            int binIdx = _binLimits.BinarySearch(value);
-            return binIdx < 0 ? Math.Abs(_binLimits.BinarySearch(value)) - 2 : binIdx;
+            int idx = Search.Bisection(value, _binLimits);
+            return idx < 0 ? 0 : idx >= _binLimits.Count ? _binLimits.Count - 1 : idx;
         }
 
     }

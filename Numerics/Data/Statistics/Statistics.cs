@@ -677,7 +677,7 @@ namespace Numerics.Data.Statistics
         /// </summary>
         /// <param name="data">The array of sample of data, no sorting is assumed.</param>
         /// <param name="ties">Output. The number of ties in the data.</param>
-        public static double[] RanksInplace(double[] data, out double [] ties)
+        public static double[] RanksInPlace(double[] data, out double [] ties)
         {
 
             var ranks = new double[data.Length];
@@ -693,8 +693,7 @@ namespace Numerics.Data.Statistics
             int t = 0;
             for (int i = 1; i < data.Length; i++)
             {
-
-                if (Math.Abs(data[i] - data[previousIndex]) <= 0d)
+                if (data[i].AlmostEquals(data[previousIndex], Tools.DoubleMachineEpsilon))
                 {
                     t += 1;
                     continue;
@@ -709,6 +708,7 @@ namespace Numerics.Data.Statistics
                 {
                     RanksTies(ranks, index, previousIndex, i);
                     ties[i - 1] = t;
+                    t = 0;
                 }
 
                 previousIndex = i;

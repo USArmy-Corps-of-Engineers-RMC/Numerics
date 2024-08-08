@@ -270,7 +270,7 @@ namespace Numerics.Data.Statistics
             sample.AddRange(sample2.ToList());
             var ties = new double[n1]; double R = 0, T = 0;
 
-            var ranks = Statistics.RanksInplace(sample.ToArray(), out ties);
+            var ranks = Statistics.RanksInPlace(sample.ToArray(), out ties);
 
             for (int i = 0; i < sample1.Count; i++) R += ranks[i];
             for (int i = 0; i < ties.Length; i++) T += (Tools.Pow(ties[i], 3) - ties[i]) / (n * (n - 1));
@@ -305,7 +305,7 @@ namespace Numerics.Data.Statistics
             }
 
             var ties = new double[n];
-            var R = Statistics.RanksInplace(sample.ToArray(), out ties);
+            var R = Statistics.RanksInPlace(sample.ToArray(), out ties);
             for (i = 0; i < ties.Length; i++) T += ties[i] * (ties[i] - 1) * (2 * ties[i] + 5);
             varS = (n * (n - 1) * (2 * n + 5) - T) / 18;
             z = Math.Abs((S - Math.Sign(S)) / Math.Sqrt(varS));

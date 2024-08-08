@@ -52,50 +52,6 @@ namespace Numerics.Data.Statistics
         /// Fit the transformation parameters using maximum likelihood estimation.
         /// </summary>
         /// <param name="values">The list of values to transform.</param>
-        /// <param name="lambda1">The transformation exponent. Range -5 to +5.</param>
-        /// <param name="lambda2">The transformation shift for negative values.</param>
-        /// <remarks>
-        /// https://www.rdocumentation.org/packages/EnvStats/versions/2.4.0/topics/boxcox
-        /// </remarks>
-        /*        public static void FitLambda(IList<double> values, out double lambda1, out double lambda2)
-                {
-                    int n = values.Count;
-                    double l1 = 0d;
-                    double l2 = 0d;
-                    double min = Statistics.Minimum(values);
-                    if (min <= 0d) l2 = 0d - min + Tools.DoubleMachineEpsilon;
-                    // Solve with Brent 
-                    Func<double, double> func = lambda =>
-                    {
-                        var y = new double[n];
-                        double mu = 0d;
-                        var sumX = 0d;
-                        for (int i = 0; i < n; i++)
-                        {
-                            y[i] = Transform(values[i], lambda, l2);
-                            mu += y[i];
-                            sumX += Math.Log(values[i] + l2);
-                        }
-                        mu = mu / n;
-                        double sse = 0d;
-                        for (int i = 0; i < n; i++)
-                            sse += Math.Pow(y[i] - mu, 2d);
-                        double sigma = Math.Sqrt(sse / n);
-                        return -n / 2.0d * Tools.LogSqrt2PI - n / 2.0d * Math.Log(sigma * sigma) - 1.0d / (2d * sigma * sigma) * sse + (lambda - 1d) * sumX;
-                    };
-
-                    var brent = new BrentSearch(func, -5d, 5d);
-                    brent.Maximize();
-                    l1 = brent.BestParameterSet.Values[0];
-                    // Set parameters
-                    lambda1 = l1;
-                    lambda2 = l2;
-                }*/
-
-        /// <summary>
-        /// Fit the transformation parameters using maximum likelihood estimation.
-        /// </summary>
-        /// <param name="values">The list of values to transform.</param>
         /// <param name="lambda1">Output. The transformation exponent. Range -5 to +5.</param>
         /// <param name="lambda2">Output. The transformation shift for negative values.</param>
         /// <remarks>
@@ -131,7 +87,7 @@ namespace Numerics.Data.Statistics
         /// <param name="lambda1">The transformation exponent. Range -5 to +5.</param>
         /// <param name="lambda2">The transformation shift for negative values.</param>
         /// <returns>
-        /// The value of loglikelihood function evaluated at the given values and lambdas.
+        /// The value of log-likelihood function evaluated at the given values and lambdas.
         /// </returns>
         public static double LogLikelihood(IList<double> values, double lambda1, double lambda2)
         {

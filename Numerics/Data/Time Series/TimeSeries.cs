@@ -1161,20 +1161,20 @@ namespace Numerics.Data
         public double StandardDeviation()
         {
             if (Count < 2) return double.NaN;
-            double variance_ = 0d;
+            double variance = 0d;
             double t = this[0].Value;
-            int n = 0;
+            double n = 1;
             for (int i = 1; i < Count; i++)
             {
                 if (!double.IsNaN(this[i].Value))
                 {
                     t += this[i].Value;
                     double diff = (i + 1) * this[i].Value - t;
-                    variance_ += diff * diff / ((i + 1.0d) * i);
+                    variance += diff * diff / ((i + 1.0d) * i);
                     n += 1;
                 }
             }
-            return Math.Sqrt(variance_ / (n - 1));
+            return Math.Sqrt(variance / (n - 1));
         }
 
         /// <summary>
