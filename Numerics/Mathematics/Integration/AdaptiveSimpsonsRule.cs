@@ -106,9 +106,7 @@ namespace Numerics.Mathematics.Integration
         /// </summary>
         public double StandardError { get; private set; }
 
-        /// <summary>
-        /// Evaluates the integral.
-        /// </summary>
+        /// <inheritdoc/>
         public override void Integrate()
         {
             StandardError = 0;

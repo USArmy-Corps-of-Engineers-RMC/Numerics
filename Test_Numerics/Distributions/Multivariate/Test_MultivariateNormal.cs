@@ -223,51 +223,6 @@ namespace Distributions.Multivariate
 
         }
 
-        [TestMethod]
-        public void Test_Multivariate_Stratification_2D()
-        {
-            int D = 2;
-            int R = 10000;
-            var mean = new double[] { 0, 0 };
-            var covar = new double[,]
-            { { 1, -0.8 },
-              { -0.8, 1 }};
-            var mvn = new MultivariateNormal(mean, covar);
-            var mvs = Stratify.MultivariateProbabilities(new StratificationOptions(0.01, 1 - 1E-8, R, true), Stratify.ImportanceDistribution.Normal, true, D, 12345, covar);
-            
-            for (int i = 0; i < R; i++)
-            {
-                var s = mvs[0][i].Midpoint.ToString() + "," + mvs[1][i].Midpoint.ToString();
-                s += ",";
-                s += mvn.LogPDF(new[] { Normal.StandardZ(mvs[0][i].Midpoint), Normal.StandardZ(mvs[1][i].Midpoint) }).ToString();
-                // Debug.Print(s);
-            }
-
-        }
-
-        [TestMethod]
-        public void Test_Multivariate_Stratification_3D()
-        {
-            int D = 3;
-            int R = 10000;
-            var mean = new double[] { 0, 0, 0 };
-            var covar = new double[,]
-            { { 1, -0.499, -0.499 },
-              { -0.499, 1, -0.499 },
-              { -0.499, -0.499, 1 }};
-            var mvn = new MultivariateNormal(mean, covar);
-            var mvs = Stratify.MultivariateProbabilities(new StratificationOptions(1E-3, 1 - 1E-8, R, true), Stratify.ImportanceDistribution.Normal, true, D, 12345, covar);
-
-            for (int i = 0; i < R; i++)
-            {
-                var s = mvs[0][i].Midpoint.ToString() + "," + mvs[1][i].Midpoint.ToString() + "," + mvs[2][i].Midpoint.ToString();
-                s += ",";
-                s += mvn.LogPDF(new[] { Normal.StandardZ(mvs[0][i].Midpoint), Normal.StandardZ(mvs[1][i].Midpoint), Normal.StandardZ(mvs[2][i].Midpoint) }).ToString();
-                // Debug.Print(s);
-            }
-
-        }
-
-       
+           
     }
 }

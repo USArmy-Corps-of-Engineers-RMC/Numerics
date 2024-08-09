@@ -131,9 +131,7 @@ namespace Numerics.Mathematics.Optimization
         /// </summary>
         public double CrossoverProbability { get; set; } = 0.9;
 
-        /// <summary>
-        /// Implements the actual optimization algorithm. This method should minimize the objective function. 
-        /// </summary>
+        /// <inheritdoc/>
         protected override void Optimize()
         {
             if (PopulationSize < 1) throw new ArgumentOutOfRangeException(nameof(PopulationSize), "The population size must be greater than 0.");

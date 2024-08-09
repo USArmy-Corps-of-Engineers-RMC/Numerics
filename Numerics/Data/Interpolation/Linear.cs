@@ -73,11 +73,7 @@ namespace Numerics.Data
         /// </summary>
         public Transform YTransform { get; set; } = Transform.None;
 
-        /// <summary>
-        /// Given a value x, returns an interpolated value.
-        /// </summary>
-        /// <param name="x">The value to interpolate.</param>
-        /// <param name="start">The zero-based index to start the search from.</param>
+        /// <inheritdoc/>
         public override double RawInterpolate(double x, int start)
         {
             // See if x is out of range

@@ -191,9 +191,7 @@ namespace Numerics.Mathematics.Optimization
         /// </summary>
         public int MaxNoImprovement { get; set; } = 10;
 
-        /// <summary>
-        /// Implements the actual optimization algorithm. This method should minimize the objective function. 
-        /// </summary>
+        /// <inheritdoc/>
         protected override void Optimize()
         {
             if (SampleSize < 4) throw new ArgumentOutOfRangeException(nameof(SampleSize), "The sample size must be greater than or equal to 4.");

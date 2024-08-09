@@ -200,6 +200,7 @@
     <Compile Include="Sampling\Test_LatinHypercube.cs" />
     <Compile Include="Sampling\Test_Stratification.cs" />
     <Compile Include="Sampling\Test_SobolSequence.cs" />
+    <Compile Include="Sampling\Test_MersenneTwister.cs" />
     <Compile Include="Utilities\Test_Tools.cs" />
     <Compile Include="Utilities\Test_ExtensionMethods.cs" />
   </ItemGroup>

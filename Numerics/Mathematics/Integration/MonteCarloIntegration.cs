@@ -120,9 +120,7 @@ namespace Numerics.Mathematics.Integration
         /// </summary>
         public bool UseSobolSequence { get; set; } = true;
 
-        /// <summary>
-        /// Evaluates the integral.
-        /// </summary>
+        /// <inheritdoc/>
         public override void Integrate()
         {
             ClearResults();

@@ -111,9 +111,7 @@ namespace Numerics.Mathematics.Optimization
         /// </summary>
         public int PRNGSeed { get; set; } = 12345;
 
-        /// <summary>
-        /// Implements the actual optimization algorithm. This method should minimize the objective function. 
-        /// </summary>
+        /// <inheritdoc/>
         /// <remarks>
         /// <b> References: </b>
         /// Alam "Particle Swarm Optimization: Algorithm and its Codes in MATLAB" (2016)

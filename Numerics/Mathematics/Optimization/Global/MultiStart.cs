@@ -156,9 +156,7 @@ namespace Numerics.Mathematics.Optimization
         /// </summary>
         public bool Polish { get; set; } = true;
 
-        /// <summary>
-        /// Implements the actual optimization algorithm. This method should minimize the objective function. 
-        /// </summary>
+        /// <inheritdoc/>
         protected override void Optimize()
         {
             int i, j, D = NumberOfParameters;

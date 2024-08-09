@@ -34,20 +34,33 @@ using System.Collections.Generic;
 namespace Numerics.Sampling
 {
     /// <summary>
-    /// A class to perform Latin hypercube sampling, or LHS.
+    /// A class to perform Latin hypercube sampling (LHS).
     /// </summary>
     /// <remarks>
     /// <para>
-    ///     Authors:
+    ///     <b> Authors: </b>
     ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
     /// </para>
     /// <para>
-    /// Uniform random numbers are sampled by stratifying U(0,1) into n bins of equal probability, 
-    /// where n is the number of iterations that are to be sampled. In the first iteration, one of these bins
-    /// is selected using a random number. A second random number is then generated to select a value within that bin.
-    /// The process is repeated for the second iteration, but the bin used in the first iteration is marked 
-    /// as having already been used and therefore will not be selected again. This process is repeated for 
-    /// all of the sample iterations.
+    /// Stratified sampling is used to generate uniform random numbers by dividing the interval [0,1) into n bins 
+    /// of equal probability, where n is the total number of samples required. 
+    /// <para>
+    /// In each iteration:
+    /// </para>
+    /// <list type="number">
+    /// <item>
+    /// A random number is generated to select one of the remaining bins.
+    /// </item>
+    /// <item>
+    /// A second random number is generated to select a value within the chosen bin.
+    /// </item>
+    /// <item>
+    /// The selected bin is marked as used and will not be selected in subsequent iterations.
+    /// </item>
+    /// </list>
+    /// <para>
+    /// This process is repeated until all n bins have been sampled, ensuring that each bin is selected exactly once.
+    /// </para>
     /// </para>
     /// </remarks>
     public class LatinHypercube

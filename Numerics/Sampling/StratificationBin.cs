@@ -40,18 +40,14 @@ namespace Numerics.Sampling
     /// </summary>
     /// <remarks>
     /// <para>
-    ///     Authors:
+    ///     <b> Authors: </b>
     ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
-    /// </para>
-    /// <para>
-    /// <see href = "https://en.wikipedia.org/wiki/Stratified_sampling" />
     /// </para>
     /// </remarks>
     [Serializable]
     public class StratificationBin : IComparable<StratificationBin>, ICloneable
     {
-
-        
+    
         /// <summary>
         /// Construct new stratification bin.
         /// </summary>
@@ -83,7 +79,7 @@ namespace Numerics.Sampling
         /// <summary>
         /// Initialize a new instance of the stratified X values class.
         /// </summary>
-        /// <param name="element">Xelement to deserialized into a stratified x value class.</param>
+        /// <param name="element">XElement to deserialized into a stratified x value class.</param>
         public StratificationBin(XElement element)
         {
             // Get required data
@@ -108,9 +104,7 @@ namespace Numerics.Sampling
                 Weight = argresult2;
             }
         }
-
-        
-        
+    
         /// <summary>
         /// Get the lower bound of the bin.
         /// </summary>
@@ -138,8 +132,7 @@ namespace Numerics.Sampling
         /// </summary>
         public double Weight { get; set; }
 
-        
-        
+             
         /// <summary>
         /// Comparison of two bins. The bins cannot be overlapping.
         /// </summary>

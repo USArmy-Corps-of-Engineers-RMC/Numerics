@@ -47,20 +47,34 @@ namespace Numerics.Sampling
     /// calculated from <see href="http://web.maths.unsw.edu.au/~fkuo/sobol/" />
     /// </para>
     /// <para>
-    ///     Authors:
+    ///     <b> Authors: </b>
     ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
     /// </para>
-    /// References:
+    /// <b> References:</b>
     /// This code was converted from the Apache Math Commons.
+    /// <list type="bullet">
+    /// <item>
     /// <see href = "https://commons.apache.org/proper/commons-math/apidocs/src-html/org/apache/commons/math4/random/SobolSequenceGenerator.html" />
+    /// </item>
+    /// <item>
     /// <see href = "http://en.wikipedia.org/wiki/Sobol_sequence" />
+    /// </item>
+    /// <item>
     /// <see href = "http://web.maths.unsw.edu.au/~fkuo/sobol/" />
+    /// </item>
+    /// <item>
     /// "Numerical Recipes: The art of Scientific Computing, Third Edition. Press et al. 2017.
+    /// </item>
+    /// </list>
     /// </remarks>
     public class SobolSequence
     {
-
-        public SobolSequence(int dimension)
+        /// <summary>
+        /// Constructs a new Sobol Sequence.
+        /// </summary>
+        /// <param name="dimension">Optional. The spatial dimension. Default = 1.</param>
+        /// <exception cref="ArgumentException"></exception>
+        public SobolSequence(int dimension = 1)
         {
             if (dimension < 1 || dimension > MAX_DIMENSION)
             {
@@ -108,7 +122,9 @@ namespace Numerics.Sampling
         /// </summary>
         private long[] x;
 
-
+        /// <summary>
+        /// Initialize the Sobol Sequence.
+        /// </summary>
         private void initialize()
         {
 
@@ -205,13 +221,17 @@ namespace Numerics.Sampling
             }
         }
 
-        public double[] NextVector()
+        /// <summary>
+        /// Returns a double-precision number that is greater than or equal to 0.0, and less than 1.0.
+        /// </summary>
+        /// <returns>A double-precision number that is greater than or equal to 0.0, and less than 1.0.</returns>
+        public double[] NextDouble()
         {
             double[] v = new double[Dimension];
             if (count == 0)
             {
                 count++;
-                return v;
+                //return v;
             }
 
             // find the index c of the rightmost 0
@@ -232,6 +252,11 @@ namespace Numerics.Sampling
             return v;
         }
 
+        /// <summary>
+        /// Skip to a specific index in the sequence.
+        /// </summary>
+        /// <param name="index">The index in the sequence.</param>
+        /// <returns>A double-precision number that is greater than or equal to 0.0, and less than 1.0.</returns>
         public double[] SkipTo(int index)
         {
             if (index == 0)
@@ -262,7 +287,7 @@ namespace Numerics.Sampling
                 }
             }
             count = index;
-            return NextVector();
+            return NextDouble();
         }
 
     }

@@ -40,9 +40,15 @@ namespace Numerics.Sampling
     /// </summary>
     /// <remarks>
     /// <para>
-    ///     Authors:
+    ///     <b> Authors: </b>
     ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
     /// </para>
+    /// <b> References:</b>
+    /// <list type="bullet">
+    /// <item>
+    /// <see href = "https://en.wikipedia.org/wiki/Stratified_sampling" />
+    /// </item>
+    /// </list>
     /// </remarks>
     public class Stratify
     {
@@ -374,7 +380,7 @@ namespace Numerics.Sampling
         /// <param name="isExhaustive">Determines if the probability bin weights should be collectively exhaustive (i.e., sum to 1).</param>
         /// <param name="dimension">The number of dimensions to stratify.</param>
         /// <param name="seed"> Seed for random number generator. </param>
-        /// <param name="correlation">The correlation matrix. If null, independence is assummed.</param>
+        /// <param name="correlation">The correlation matrix. If null, independence is assumed.</param>
         public static List<List<StratificationBin>> MultivariateProbabilities(StratificationOptions options, ImportanceDistribution distributionType = ImportanceDistribution.Uniform, bool isExhaustive = true, int dimension = 1, int seed = -1, double[,] correlation = null)
         {
             var bins = new List<List<StratificationBin>>();

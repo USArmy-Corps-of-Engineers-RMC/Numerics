@@ -158,9 +158,7 @@ namespace Numerics.Mathematics.Integration
         /// </summary>
         public bool UseSobolSequence { get; set; } = true;
 
-        /// <summary>
-        /// Evaluates the integral.
-        /// </summary>
+        /// <inheritdoc/>
         public override void Integrate()
         {
             ClearResults();
@@ -343,7 +341,7 @@ namespace Numerics.Mathematics.Integration
             int j, n = pt.Length;
             double[] rnd = null;
             if (UseSobolSequence)
-                rnd = _sobol.NextVector();
+                rnd = _sobol.NextDouble();
 
             for (j = 0; j < n; j++)
                 pt[j] = regn[j] + (regn[n + j] - regn[j]) * (UseSobolSequence ? rnd[j] : Random.NextDouble());

@@ -28,8 +28,6 @@
 * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 * **/
 
-using System;
-
 //
 //   A C-program for MT19937, with initialization improved 2002/1/26.
 //  Coded by Takuji Nishimura and Makoto Matsumoto.
@@ -73,6 +71,8 @@ using System;
 //  email: m-mat @ math.sci.hiroshima-u.ac.jp (remove space)
 //
 
+using System;
+
 namespace Numerics.Sampling
 {
 
@@ -81,7 +81,7 @@ namespace Numerics.Sampling
     /// </summary>
     /// <remarks>
     /// <para>
-    ///     Authors:
+    ///     <b> Authors: </b>
     ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
     /// </para>
     /// <para>
@@ -89,7 +89,7 @@ namespace Numerics.Sampling
     /// <see href="http://www.math.sci.hiroshima-u.ac.jp/m-mat/MT/MT2002/CODES/mt19937ar.c"/>
     /// </para>
     /// </remarks>
-    public class MersenneTwister : System.Random
+    public class MersenneTwister : Random
     {
 
         /// <summary>
@@ -97,9 +97,8 @@ namespace Numerics.Sampling
         /// </summary>
         public MersenneTwister()
         {
-            init_genrand((uint)DateTime.UtcNow.Ticks);
+            Initialize((uint)DateTime.UtcNow.Ticks);
         }
-
 
         /// <summary>
         /// Construct a Mersenne Twister PRNG given a seed. 
@@ -107,18 +106,32 @@ namespace Numerics.Sampling
         /// <param name="seed">The PRNG seed.</param>
         public MersenneTwister(int seed)
         {
-            init_genrand((uint)seed);
+            Initialize((uint)seed);
+        }
+
+        /// <summary>
+        /// Construct a Mersenne Twister PRNG given an array of seeds.
+        /// </summary>
+        /// <param name="seeds">The array of PRNG seeds.</param>
+        public MersenneTwister(int[] seeds)
+        {
+            var useeds = new uint[seeds.Length];
+            for (int i = 0; i < seeds.Length; i++)
+            {
+                useeds[i] = (uint)seeds[i];
+            }
+            Initialize(useeds, useeds.Length);
         }
 
 
-        const int N = 624;
-        const int M = 397;
-        const uint matrixA = 0x9908b0df;     // constant vector a 
-        const uint upperMask = 0x80000000;   // most significant w-r bits 
-        const uint lowerMask = 0x7fffffff;   // least significant r bits 
-        private uint[] mt = new uint[N];
-        int mti = N + 1;
-        static readonly uint[] mag01 = { 0x0U, matrixA };
+        private const int N = 624;
+        private const int M = 397;
+        private const uint matrixA = 0x9908b0dfU;     // constant vector a 
+        private const uint upperMask = 0x80000000U;   // most significant w-r bits 
+        private const uint lowerMask = 0x7fffffffU;   // least significant r bits 
+        private uint[] mt = new uint[N]; // the array for the state vector
+        int mti = N + 1; // mti==N+1 means mt[N] is not initialized
+        private static readonly uint[] mag01 = { 0x0U, matrixA }; // mag01[x] = x * MATRIX_A for x=0,1
 
 
         // The following constants, are used within the ADDITIONAL functions genrand_real2b() and
@@ -146,26 +159,54 @@ namespace Numerics.Sampling
         /// Initialize with seed.
         /// </summary>
         /// <param name="seed">The PRNG seed.</param>
-        private void init_genrand(uint seed)     
+        public void Initialize(uint seed)     
         {
-            mt[0] = seed & 0xffffffff;
+            mt[0] = seed & 0xffffffffU;
             for (mti = 1; mti < N; mti++)
             {
-                mt[mti] = 1812433253 * (mt[mti - 1] ^ (mt[mti - 1] >> 30)) + (uint)mti;
+                mt[mti] = (uint)(1812433253U * (mt[mti - 1] ^ (mt[mti - 1] >> 30)) + mti);
                 /* See Knuth TAOCP Vol2. 3rd Ed. P.106 for multiplier. */
                 /* In the previous versions, MSBs of the seed affect   */
                 /* only MSBs of the array _mt[].                       */
                 /* 2002/01/09 modified by Makoto Matsumoto             */
-                mt[mti] &= 0xffffffff;
+                mt[mti] &= 0xffffffffU;
                 /* for >32 bit machines */
             }
         }
 
         /// <summary>
-        /// Generates a random number on [0,0xffffffff]-interval
+        /// Initialize by an array with array-length.
         /// </summary>
-        /// <returns></returns>
-        private uint genrand_int32()  
+        /// <param name="init_key">The array of PRNG seeds.</param>
+        /// <param name="key_length">The array length.</param>
+        private void Initialize(uint[] init_key, int key_length)
+        {
+            Initialize(19650218U);
+            int i = 1, j = 0;
+            int k = (N > key_length) ? N : key_length;
+            for (; k > 0; k--)
+            {
+                mt[i] = (mt[i] ^ ((mt[i - 1] ^ (mt[i - 1] >> 30)) * 1664525U)) + init_key[j] + (uint)j;
+                mt[i] &= 0xffffffffU; // For WORDSIZE > 32 machines
+                i++; j++;
+                if (i >= N) { mt[0] = mt[N - 1]; i = 1; }
+                if (j >= key_length) j = 0;
+            }
+            for (k = N - 1; k > 0; k--)
+            {
+                mt[i] = (mt[i] ^ ((mt[i - 1] ^ (mt[i - 1] >> 30)) * 1566083941U)) - (uint)i;
+                mt[i] &= 0xffffffffU; // For WORDSIZE > 32 machines
+                i++;
+                if (i >= N) { mt[0] = mt[N - 1]; i = 1; }
+            }
+
+            mt[0] = upperMask; // MSB is 1; assuring non-zero initial array
+        }
+
+        /// <summary>
+        /// Generates a random number on [0,0xffffffff]-interval.
+        /// </summary>
+        public uint GenRandInt32()  
         {
 
             uint y;
@@ -179,7 +220,7 @@ namespace Numerics.Sampling
 
                 if (mti == N + 1) /* if init_genrand() has not been called, */
                 {
-                    init_genrand(5489); /* a default initial seed is used */
+                    Initialize(5489); /* a default initial seed is used */
                 }
 
                 for (kk = 0; kk < N - M; kk++)
@@ -212,70 +253,75 @@ namespace Numerics.Sampling
         }
 
         /// <summary>
-        /// [0.0, 1.0)=[0, 1-(2*gap)] =[0.0, 0.9999999999990] (*) (0.0 included, 1.0 excluded)
+        /// Generates a random number on [0,0x7fffffff]-interval.
         /// </summary>
-        public double genrand_real2b()
+        public int GenRandInt31()
         {
-            return genrand_int32() * kMT_2b;
+            return (int)(GenRandInt32() >> 1);
         }
 
         /// <summary>
-        /// (0.0, 1.0]=[0+(2*gap),1.0]=[1.0e-12, 1.0] (*) (0.0 excluded, 1.0 included)
+        /// Generates a random number on [0,1]-real-interval.
         /// </summary>
         /// <returns></returns>
-        public double genrand_real2c()
+        public double GenRandReal1()
         {
-            return kMT_Gap2 + (genrand_int32() * kMT_2c);
+            return GenRandInt32() * (1.0 / 4294967295.0); // Divided by 2^32-1
         }
 
         /// <summary>
-        /// (0.0, 1.0)=[0+gap, 1-gap] =[5.0e-13, 0.9999999999995] (*) (both 0.0 and 1.0 excluded)
+        /// Generates a random number on [0,1)-real-interval.
         /// </summary>
-        public double genrand_real3b()
+        public double GenRandReal2()
         {
-            return kMT_Gap + (genrand_int32() * kMT_3b);
+            return GenRandInt32() * (1.0 / 4294967296.0); // Divided by 2^32
         }
 
         /// <summary>
-        /// Returns a non-negative random integer./>.
+        /// Generates a random number on (0,1)-real-interval.
         /// </summary>
+        /// <returns></returns>
+        public double GenRandReal3()
+        {
+            return (GenRandInt32() + 0.5) * (1.0 / 4294967296.0); // Divided by 2^32
+        }
+
+        /// <summary>
+        /// Generates a random number on [0,1) with 53-bit resolution.
+        /// </summary>
+        public double GenRandRes53()
+        {
+            uint a = GenRandInt32() >> 5, b = GenRandInt32() >> 6;
+            return (a * 67108864.0 + b) * (1.0 / 9007199254740992.0);
+        }
+
+        /// <inheritdoc/>
         public sealed override int Next()
         {
-            uint uint32 = genrand_int32();
-            int int31 = (int)(uint32 >> 1);
+            int int31 = GenRandInt31();
             if (int31 == int.MaxValue)
             {
                 return Next();
             }
-
             return int31;
         }
 
-        /// <summary>
-        /// Returns a non-negative random integer that is less than the specified maximum.
-        /// </summary>
-        /// <param name="maxExclusive">The exclusive upper bound of the random number returned.</param>
+        /// <inheritdoc/>
         public sealed override int Next(int maxExclusive)
         {
             return (int)(NextDouble() * maxExclusive);
         }
 
-        /// <summary>
-        /// Returns a non-negative random integer that is less than the specified maximum.
-        /// </summary>
-        /// <param name="minExclusive">The inclusive lower bound of the random number returned.</param>
-        /// <param name="maxExclusive">The exclusive upper bound of the random number returned.</param>
+        /// <inheritdoc/>
         public sealed override int Next(int minExclusive, int maxExclusive)
         {
             return Next(maxExclusive - minExclusive) + minExclusive;
         }
 
-        /// <summary>
-        /// Returns a random double greater than or equal to 0 and less than 1.
-        /// </summary>
+        /// <inheritdoc/>
         public sealed override double NextDouble()
         {
-            return genrand_real2b();
+            return GenRandReal2();
         }
 
     }

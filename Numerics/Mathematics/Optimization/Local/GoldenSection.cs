@@ -92,9 +92,7 @@ namespace Numerics.Mathematics.Optimization
         /// </summary>
         public double UpperBound { get; private set; }
 
-        /// <summary>
-        /// Implements the actual optimization algorithm. This method should minimize the objective function. 
-        /// </summary>
+        /// <inheritdoc/>
         protected override void Optimize()
         {
             // Define variables

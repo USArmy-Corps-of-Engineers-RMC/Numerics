@@ -250,9 +250,7 @@ namespace Numerics.Mathematics.Integration
             Iterations = 0;
         }
 
-        /// <summary>
-        /// Evaluates the integral.
-        /// </summary>
+        /// <inheritdoc/>
         public override void Integrate()
         {
             Validate();
@@ -383,7 +381,7 @@ namespace Numerics.Mathematics.Integration
                         // Sobol Sequence quasi-random numbers
                         double[] rnd = null;
                         if (UseSobolSequence)
-                            rnd = _sobol.NextVector();
+                            rnd = _sobol.NextDouble();
 
                         for (j = 0; j < ndim; j++)
                         {

@@ -135,9 +135,7 @@ namespace Numerics.Mathematics.Optimization
         /// </summary>
         public int ToleranceSteps { get; set; } = 20;
 
-        /// <summary>
-        /// Implements the actual optimization algorithm. This method should minimize the objective function. 
-        /// </summary>
+        /// <inheritdoc/>
         protected override void Optimize()
         {
             int i, j, k, D = NumberOfParameters;

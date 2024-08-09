@@ -86,11 +86,7 @@ namespace Numerics.Data
         /// </summary>
         public int Order { get; set; }
 
-        /// <summary>
-        /// Given a value x, returns an interpolated value.
-        /// </summary>
-        /// <param name="x">The value to interpolate.</param>
-        /// <param name="start">The zero-based index to start the search from.</param>
+        /// <inheritdoc/>
         public override double RawInterpolate(double x, int start)
         {
             // Given a value x, this routine returns an interpolate value y, and stores an error estimate. 

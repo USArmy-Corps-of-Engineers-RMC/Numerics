@@ -65,6 +65,8 @@ namespace Numerics.Data
 
         protected TIndex _index;
         protected TValue _value;
+
+        /// <inheritdoc/>
         public event PropertyChangedEventHandler PropertyChanged;
 
         /// <summary>
@@ -127,10 +129,10 @@ namespace Numerics.Data
         /// <summary>
         /// Raise property changed event.
         /// </summary>
-        /// <param name="propertyname">Name of property that changed.</param>
-        protected void RaisePropertyChanged(string propertyname)
+        /// <param name="propertyName">Name of property that changed.</param>
+        protected void RaisePropertyChanged(string propertyName)
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyname));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
         /// <summary>

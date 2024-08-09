@@ -75,40 +75,25 @@ namespace Numerics.Functions
         /// </summary>
         public Transform YTransform { get; set; } = Transform.None;
 
-        /// <summary>
-        /// Returns the number of function parameters.
-        /// </summary>
+        /// <inheritdoc/>
         public int NumberOfParameters => 1;
 
-        /// <summary>
-        /// Returns a boolean value describing if the current parameters are valid or not.
-        /// If not, an ArgumentOutOfRange exception will be thrown when trying to use function.
-        /// </summary>
+        /// <inheritdoc/>
         public bool ParametersValid => PairedData.IsValid;
 
-        /// <summary>
-        /// Gets and sets the minimum X value supported by the function.
-        /// </summary>
+        /// <inheritdoc/>
         public double Minimum { get; set; } = double.MinValue;
 
-        /// <summary>
-        /// Gets and sets the maximum X value supported by the function. Default = double.MaxValue.
-        /// </summary>
+        /// <inheritdoc/>
         public double Maximum { get; set; } = double.MaxValue;
 
-        /// <summary>
-        /// Gets the minimum values allowable for each parameter.
-        /// </summary>
+        /// <inheritdoc/>
         public double[] MinimumOfParameters => new double[] { double.MinValue };
 
-        /// <summary>
-        /// Gets the maximum values allowable for each parameter.
-        /// </summary>
+        /// <inheritdoc/>
         public double[] MaximumOfParameters => new double[] { double.MaxValue};
 
-        /// <summary>
-        /// Determines if the function is deterministic or if it has uncertainty. 
-        /// </summary>
+        /// <inheritdoc/>
         public bool IsDeterministic 
         {
             get
@@ -131,9 +116,7 @@ namespace Numerics.Functions
             }
         }
 
-        /// <summary>
-        /// The confidence level to estimate when the function has uncertainty. 
-        /// </summary>
+        /// <inheritdoc/>
         public double ConfidenceLevel 
         { 
             get { return _confidenceLevel; }

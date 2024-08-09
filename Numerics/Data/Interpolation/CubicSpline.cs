@@ -118,11 +118,7 @@ namespace Numerics.Data
                 y2[k] = y2[k] * y2[k + 1] + u[k];
         }
 
-        /// <summary>
-        /// Given a value x, returns an interpolated value.
-        /// </summary>
-        /// <param name="x">The value to interpolate.</param>
-        /// <param name="start">The zero-based index to start the search from.</param>
+        /// <inheritdoc/>
         public override double RawInterpolate(double x, int start)
         {
             if (start < 0 || start >= Count) start = 0;

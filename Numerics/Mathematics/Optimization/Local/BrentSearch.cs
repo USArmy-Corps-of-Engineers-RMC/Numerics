@@ -90,21 +90,7 @@ namespace Numerics.Mathematics.Optimization
         /// </summary>
         public double UpperBound { get; private set; }
 
-        /// <summary>
-        /// Implements the actual optimization algorithm. This method should minimize the objective function. 
-        /// </summary>
-        /// <remarks>
-        /// <b> References: </b>
-        /// <list type="bullet">
-        /// <item><description>
-        /// "Numerical Recipes, Routines and Examples in BASIC    
-        /// Companion Manual to Numerical Recipes, the 
-        /// art of scientific computing.
-        /// J. C. Sprott,         
-        /// Cambridge University Press, 1991" 
-        /// </description></item>
-        /// </list>
-        /// </remarks>
+        /// <inheritdoc/>
         protected override void Optimize()
         { 
             // Define variables

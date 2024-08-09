@@ -156,9 +156,7 @@ namespace Numerics.Mathematics.Optimization
             return phi;
         }
 
-        /// <summary>
-        /// Implements the actual optimization algorithm. This method minimizes the objective function. 
-        /// </summary>
+        /// <inheritdoc/>
         protected override void Optimize()
         {
             double ICM = Double.PositiveInfinity;

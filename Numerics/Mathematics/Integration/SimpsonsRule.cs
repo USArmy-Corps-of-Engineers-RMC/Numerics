@@ -91,9 +91,7 @@ namespace Numerics.Mathematics.Integration
         /// </summary>
         public double Max => b;
 
-        /// <summary>
-        /// Evaluates the integral. Integration steps are refined until convergence.
-        /// </summary>
+        /// <inheritdoc/>
         public override void Integrate()
         {
             ClearResults();

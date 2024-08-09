@@ -142,9 +142,7 @@ namespace Numerics.Mathematics.Optimization
         /// </summary>
         public int ToleranceSteps { get; set; } = 20;
 
-        /// <summary>
-        /// Implements the actual optimization algorithm. This method should minimize the objective function. 
-        /// </summary>
+        /// <inheritdoc/>
         protected override void Optimize()
         {
             if (Complexes < 1) throw new ArgumentOutOfRangeException(nameof(Complexes), "The number of complexes must be greater than 0.");

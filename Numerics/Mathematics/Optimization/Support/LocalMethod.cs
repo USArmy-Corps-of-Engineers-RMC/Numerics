@@ -43,6 +43,10 @@ namespace Numerics.Mathematics.Optimization
     public enum LocalMethod
     {
         /// <summary>
+        /// The Adaptive Movement (Adam) optimization algorithm.
+        /// </summary>
+        ADAM,
+        /// <summary>
         /// The Broyden-Fletcher-Goldfarb-Shanno (BFGS) algorithm.
         /// </summary>
         BFGS,

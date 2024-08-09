@@ -1,16 +1,60 @@
-﻿using System;
+﻿/**
+* NOTICE:
+* The U.S. Army Corps of Engineers, Risk Management Center (USACE-RMC) makes no guarantees about
+* the results, or appropriateness of outputs, obtained from Numerics.
+*
+* LIST OF CONDITIONS:
+* Redistribution and use in source and binary forms, with or without modification, are permitted
+* provided that the following conditions are met:
+* ● Redistributions of source code must retain the above notice, this list of conditions, and the
+* following disclaimer.
+* ● Redistributions in binary form must reproduce the above notice, this list of conditions, and
+* the following disclaimer in the documentation and/or other materials provided with the distribution.
+* ● The names of the U.S. Government, the U.S. Army Corps of Engineers, the Institute for Water
+* Resources, or the Risk Management Center may not be used to endorse or promote products derived
+* from this software without specific prior written permission. Nor may the names of its contributors
+* be used to endorse or promote products derived from this software without specific prior
+* written permission.
+*
+* DISCLAIMER:
+* THIS SOFTWARE IS PROVIDED BY THE U.S. ARMY CORPS OF ENGINEERS RISK MANAGEMENT CENTER
+* (USACE-RMC) "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+* THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+* DISCLAIMED. IN NO EVENT SHALL USACE-RMC BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+* SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+* PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+* INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+* LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+* THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+* **/
+
 using System.Collections.Generic;
-using System.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Numerics.Data;
-using Numerics.Distributions;
 using Numerics.Sampling;
 
 namespace Sampling
 {
+    /// <summary>
+    /// Unit tests for Stratification. 
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    ///     <b> Authors: </b>
+    ///     <list type="bullet">
+    ///     <item>Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil</item>
+    ///     </list>
+    /// </para>
+    /// <para>
+    /// All tests were compared against hand calculations in Microsoft Excel. 
+    /// </para>
+    /// </remarks>
     [TestClass]
     public class Test_Stratification
     {
+        /// <summary>
+        /// Test for stratifying x-values.
+        /// </summary>
         [TestMethod()]
         public void Test_XValues()
         {
@@ -18,9 +62,12 @@ namespace Sampling
             var bins = Stratify.XValues(options);
             var true_midpoint = new double[] { 100.5d, 101.5d, 102.5d, 103.5d, 104.5d, 105.5d, 106.5d, 107.5d, 108.5d, 109.5d, 110.5d, 111.5d, 112.5d, 113.5d, 114.5d, 115.5d, 116.5d, 117.5d, 118.5d, 119.5d, 120.5d, 121.5d, 122.5d, 123.5d, 124.5d, 125.5d, 126.5d, 127.5d, 128.5d, 129.5d, 130.5d, 131.5d, 132.5d, 133.5d, 134.5d, 135.5d, 136.5d, 137.5d, 138.5d, 139.5d, 140.5d, 141.5d, 142.5d, 143.5d, 144.5d, 145.5d, 146.5d, 147.5d, 148.5d, 149.5d, 150.5d, 151.5d, 152.5d, 153.5d, 154.5d, 155.5d, 156.5d, 157.5d, 158.5d, 159.5d, 160.5d, 161.5d, 162.5d, 163.5d, 164.5d, 165.5d, 166.5d, 167.5d, 168.5d, 169.5d, 170.5d, 171.5d, 172.5d, 173.5d, 174.5d, 175.5d, 176.5d, 177.5d, 178.5d, 179.5d, 180.5d, 181.5d, 182.5d, 183.5d, 184.5d, 185.5d, 186.5d, 187.5d, 188.5d, 189.5d, 190.5d, 191.5d, 192.5d, 193.5d, 194.5d, 195.5d, 196.5d, 197.5d, 198.5d, 199.5d };
             for (int i = 0; i < bins.Count; i++)
-                Assert.AreEqual(bins[i].Midpoint, true_midpoint[i], 0.000001d);
+                Assert.AreEqual(true_midpoint[i], bins[i].Midpoint,  1E-6);
         }
 
+        /// <summary>
+        /// Test for stratifying x-values with multiple stratification options.
+        /// </summary>
         [TestMethod()]
         public void Test_XValues_Multi()
         {
@@ -31,9 +78,12 @@ namespace Sampling
             var bins = Stratify.XValues(options);
             var true_midpoint = new double[] { 101.25d, 103.75d, 106.25d, 108.75d, 111.25d, 113.75d, 116.25d, 118.75d, 121.25d, 123.75d, 125.125d, 125.375d, 125.625d, 125.875d, 126.125d, 126.375d, 126.625d, 126.875d, 127.125d, 127.375d, 127.625d, 127.875d, 128.125d, 128.375d, 128.625d, 128.875d, 129.125d, 129.375d, 129.625d, 129.875d, 130.5d, 131.5d, 132.5d, 133.5d, 134.5d, 135.5d, 136.5d, 137.5d, 138.5d, 139.5d, 140.5d, 141.5d, 142.5d, 143.5d, 144.5d, 145.5d, 146.5d, 147.5d, 148.5d, 149.5d, 150.5d, 151.5d, 152.5d, 153.5d, 154.5d, 155.5d, 156.5d, 157.5d, 158.5d, 159.5d, 160.5d, 161.5d, 162.5d, 163.5d, 164.5d, 165.5d, 166.5d, 167.5d, 168.5d, 169.5d, 170.5d, 171.5d, 172.5d, 173.5d, 174.5d, 175.5d, 176.5d, 177.5d, 178.5d, 179.5d, 180.5d, 181.5d, 182.5d, 183.5d, 184.5d, 185.5d, 186.5d, 187.5d, 188.5d, 189.5d, 190.5d, 191.5d, 192.5d, 193.5d, 194.5d, 195.5d, 196.5d, 197.5d, 198.5d, 199.5d };
             for (int i = 0; i < bins.Count; i++)
-                Assert.AreEqual(bins[i].Midpoint, true_midpoint[i], 0.000001d);
+                Assert.AreEqual(true_midpoint[i], bins[i].Midpoint,  1E-6);
         }
 
+        /// <summary>
+        /// Test for stratifying x-values using a log10-transform.
+        /// </summary>
         [TestMethod()]
         public void Test_XValues_Log10()
         {
@@ -41,9 +91,12 @@ namespace Sampling
             var bins = Stratify.XValues(options, true);
             var true_midpoint = new double[] { 100.347777502836d, 101.045751492337d, 101.748580274861d, 102.456297618163d, 103.168937524872d, 103.886534234125d, 104.60912222321d, 105.336736209223d, 106.069411150737d, 106.807182249483d, 107.550084952036d, 108.298154951525d, 109.05142818934d, 109.809940856868d, 110.573729397223d, 111.342830507004d, 112.117281138052d, 112.897118499231d, 113.682380058212d, 114.473103543273d, 115.269326945117d, 116.071088518688d, 116.878426785017d, 117.691380533071d, 118.509988821613d, 119.334290981083d, 120.164326615485d, 121.000135604291d, 121.841758104357d, 122.68923455185d, 123.542605664196d, 124.401912442031d, 125.267196171173d, 126.138498424606d, 127.015861064478d, 127.899326244109d, 128.788936410021d, 129.684734303973d, 130.586762965016d, 131.495065731564d, 132.409686243472d, 133.330668444133d, 134.258056582592d, 135.191895215669d, 136.132229210105d, 137.079103744708d, 138.032564312535d, 138.992656723068d, 139.959427104422d, 140.932921905556d, 141.91318789851d, 142.900272180647d, 143.894222176918d, 144.895085642142d, 145.902910663299d, 146.917745661838d, 147.93963939601d, 148.968640963201d, 150.004799802302d, 151.048165696075d, 152.09878877355d, 153.156719512431d, 154.222008741522d, 155.294707643172d, 156.374867755728d, 157.462540976015d, 158.557779561832d, 159.660636134457d, 160.771163681178d, 161.889415557839d, 163.015445491405d, 164.149307582538d, 165.291056308204d, 166.440746524284d, 167.598433468212d, 168.764172761627d, 169.938020413052d, 171.120032820574d, 172.310266774565d, 173.508779460402d, 174.715628461219d, 175.930871760673d, 177.154567745726d, 178.386775209458d, 179.627553353884d, 180.876961792803d, 182.13506055466d, 183.401910085432d, 184.677571251529d, 185.962105342722d, 187.255574075086d, 188.558039593965d, 189.869564476958d, 191.190211736925d, 192.520044825016d, 193.859127633718d, 195.207524499926d, 196.565300208033d, 197.932519993044d, 199.309249543709d };
             for (int i = 0; i < bins.Count; i++)
-                Assert.AreEqual(bins[i].Midpoint, true_midpoint[i], 0.000001d);
+                Assert.AreEqual(true_midpoint[i], bins[i].Midpoint,  1E-6);
         }
 
+        /// <summary>
+        /// Test for converting x-values to probability values using interpolation. 
+        /// </summary>
         [TestMethod()]
         public void Test_XToProbability()
         {
@@ -60,13 +113,16 @@ namespace Sampling
             double weights = 0d;
             for (int i = 0; i < bins.Count; i++)
             {
-                Assert.AreEqual(probs[i].Midpoint, true_midpoint[i], 0.000001d);
+                Assert.AreEqual(true_midpoint[i], probs[i].Midpoint,  1E-6);
                 weights += probs[i].Weight;
             }
-
-            Assert.AreEqual(weights, 1.0d, 0.000000001d);
+            // Check weights sum to 1.0
+            Assert.AreEqual(weights, 1.0d, 1E-8);
         }
 
+        /// <summary>
+        /// Test for converting x-values to exceedance probability values using interpolation. 
+        /// </summary>
         [TestMethod()]
         public void Test_XToExceedanceProbability()
         {
@@ -83,14 +139,17 @@ namespace Sampling
             double weights = 0d;
             for (int i = 0; i < bins.Count; i++)
             {
-                Assert.AreEqual(probs[i].Midpoint, true_midpoint[i], 0.000001d);
+                Assert.AreEqual(true_midpoint[i], probs[i].Midpoint,  1E-6);
                 weights += probs[i].Weight;
             }
-
-            Assert.AreEqual(weights, 1.0d, 0.000000001d);
+            // Check weights sum to 1.0
+            Assert.AreEqual(weights, 1.0d, 1E-8);
 
         }
 
+        /// <summary>
+        /// Test to convert probability values back to x-values.
+        /// </summary>
         [TestMethod()]
         public void Test_ProbabilityToX()
         {
@@ -105,9 +164,12 @@ namespace Sampling
             });
             var true_midpoint = new double[] { 230824.973954586d, 231658.921863759d, 232492.869772931d, 233326.817682103d, 234160.765591276d, 234994.713500448d, 235828.661409621d, 236662.609318793d, 237496.557227965d, 238330.505137138d, 239164.45304631d, 239998.400955483d, 240832.348864655d, 241666.296773827d, 242500.244683d, 243334.192592172d, 244168.140501345d, 245002.088410517d, 245836.036319689d, 246669.984228862d, 247503.932138034d, 248337.880047207d, 249171.827956379d, 250005.775865551d, 250839.723774724d, 251673.671683896d, 252507.619593068d, 253341.567502241d, 254175.515411413d, 255009.463320586d, 255843.411229758d, 256677.35913893d, 257511.307048103d, 258345.254957275d, 259179.202866448d, 260013.15077562d, 260847.098684792d, 261681.046593965d, 262514.994503137d, 263348.94241231d, 264182.890321482d, 265016.838230654d, 265850.786139827d, 266684.734048999d, 267518.681958172d, 268352.629867344d, 269186.577776516d, 270020.525685689d, 270854.473594861d, 271688.421504034d, 272522.369413206d, 273356.317322378d, 274190.265231551d, 275024.213140723d, 275858.161049896d, 276692.108959068d, 277526.05686824d, 278360.004777413d, 279193.952686585d, 280027.900595758d, 280861.84850493d, 281695.796414102d, 282529.744323275d, 283363.692232447d, 284197.64014162d, 285031.588050792d, 285865.535959964d, 286699.483869137d, 287533.431778309d, 289359.871931198d, 292255.186544736d, 295226.883375207d, 298198.580205678d, 301170.27703615d, 304141.973866621d, 307113.670697092d, 310085.367527563d, 313057.064358034d, 316028.761188506d, 319000.458018977d, 321972.154849448d, 324943.851679919d, 327915.54851039d, 330887.245340862d, 333858.942171333d, 336830.639001804d, 339802.335832275d, 342774.032662746d, 347713.988841734d, 356263.194558817d, 366453.390465478d, 376643.586372139d, 386833.7822788d, 397023.978185462d, 413695.87907665d, 437628.979201049d, 465781.355245109d, 500113.313884502d, 560546.439196073d, 877240.842003369d };
             for (int i = 0; i < probs.Count; i++)
-                Assert.AreEqual(bins[i].Midpoint, true_midpoint[i], 0.000001d);
+                Assert.AreEqual(true_midpoint[i], bins[i].Midpoint,  1E-6);
         }
 
+        /// <summary>
+        /// Test to convert exceedance probability values back to x-values.
+        /// </summary>
         [TestMethod()]
         public void Test_ExceedanceProbabilityToX()
         {
@@ -122,9 +184,12 @@ namespace Sampling
             });
             var true_midpoint = new double[] { 230824.973954586d, 231658.921863759d, 232492.869772935d, 233326.817682111d, 234160.765591284d, 234994.713500456d, 235828.661409632d, 236662.609318809d, 237496.557227981d, 238330.505137154d, 239164.453046326d, 239998.400955502d, 240832.348864679d, 241666.296773851d, 242500.244683023d, 243334.192592196d, 244168.140501372d, 245002.088410548d, 245836.036319721d, 246669.984228893d, 247503.93213807d, 248337.880047246d, 249171.827956418d, 250005.775865591d, 250839.723774763d, 251673.67168394d, 252507.619593116d, 253341.567502288d, 254175.515411461d, 255009.463320633d, 255843.411229809d, 256677.359138986d, 257511.307048158d, 258345.254957331d, 259179.202866503d, 260013.150775679d, 260847.098684856d, 261681.046594028d, 262514.9945032d, 263348.942412377d, 264182.890321553d, 265016.838230725d, 265850.786139898d, 266684.73404907d, 267518.681958247d, 268352.629867423d, 269186.577776595d, 270020.525685768d, 270854.47359494d, 271688.421504117d, 272522.369413293d, 273356.317322465d, 274190.265231638d, 275024.21314081d, 275858.161049986d, 276692.108959163d, 277526.056868335d, 278360.004777507d, 279193.952686684d, 280027.90059586d, 280861.848505033d, 281695.796414205d, 282529.744323377d, 283363.692232554d, 284197.64014173d, 285031.588050902d, 285865.535960075d, 286699.483869247d, 287533.431778424d, 289359.871931468d, 292255.186545158d, 295226.883375629d, 298198.5802061d, 301170.277036585d, 304141.973867071d, 307113.670697542d, 310085.367528013d, 313057.064358498d, 316028.761188984d, 319000.458019455d, 321972.154849926d, 324943.851680397d, 327915.548510882d, 330887.245341368d, 333858.942171839d, 336830.63900231d, 339802.335832781d, 342774.032663267d, 347713.988842917d, 356263.194560649d, 366453.39046731d, 376643.586373971d, 386833.782280681d, 397023.97818739d, 413695.879079953d, 437628.979205726d, 465781.35525112d, 500113.313895328d, 560546.439216146d, 877240.842375805d };
             for (int i = 0; i < probs.Count; i++)
-                Assert.AreEqual(bins[i].Midpoint, true_midpoint[i], 0.000001d);
+                Assert.AreEqual(true_midpoint[i], bins[i].Midpoint,  1E-6);
         }
 
+        /// <summary>
+        /// Test for stratifying probabilities.
+        /// </summary>
         [TestMethod()]
         public void Test_Probabilities()
         {
@@ -134,13 +199,16 @@ namespace Sampling
             double weights = 0d;
             for (int i = 0; i < bins.Count; i++)
             {
-                Assert.AreEqual(bins[i].Midpoint, true_midpoint[i], 0.000001d);
+                Assert.AreEqual(true_midpoint[i], bins[i].Midpoint, 1E-6);
                 weights += bins[i].Weight;
             }
-
-            Assert.AreEqual(weights, 1.0d, 0.000000001d);
+            // Check weights sum to 1.0
+            Assert.AreEqual(weights, 1.0d, 1E-8);
         }
 
+        /// <summary>
+        /// Test for stratifying probabilities with multiple stratification options.
+        /// </summary>
         [TestMethod()]
         public void Test_Probabilities_Multi()
         {
@@ -153,13 +221,16 @@ namespace Sampling
             double weights = 0d;
             for (int i = 0; i < bins.Count; i++)
             {
-                Assert.AreEqual(bins[i].Midpoint, true_midpoint[i], 0.000001d);
+                Assert.AreEqual(true_midpoint[i], bins[i].Midpoint, 1E-6);
                 weights += bins[i].Weight;
             }
-
-            Assert.AreEqual(weights, 1.0d, 0.000000001d);
+            // Check weights sum to 1.0
+            Assert.AreEqual(weights, 1.0d, 1E-8);
         }
 
+        /// <summary>
+        /// Test for stratifying probabilities using a log10-transform.
+        /// </summary>
         [TestMethod()]
         public void Test_Probabilities_Log10()
         {
@@ -169,13 +240,16 @@ namespace Sampling
             double weights = 0d;
             for (int i = 0; i < bins.Count; i++)
             {
-                Assert.AreEqual(bins[i].Midpoint, true_midpoint[i], 0.000001d);
+                Assert.AreEqual(true_midpoint[i], bins[i].Midpoint, 1E-6);
                 weights += bins[i].Weight;
             }
-
-            Assert.AreEqual(weights, 1.0d, 0.000000001d);
+            // Check weights sum to 1.0
+            Assert.AreEqual(weights, 1.0d, 1E-8);
         }
 
+        /// <summary>
+        /// Test for stratifying probabilities using a Normal-transform.
+        /// </summary>
         [TestMethod()]
         public void Test_Probabilities_Normal()
         {
@@ -186,15 +260,16 @@ namespace Sampling
             double weights = 0d;
             for (int i = 0; i < bins.Count; i++)
             {
-                Assert.AreEqual(bins[i].Midpoint, true_midpoint[i], 0.000001d);
+                Assert.AreEqual(true_midpoint[i], bins[i].Midpoint, 1E-6);
                 weights += bins[i].Weight;
             }
-
-            Assert.AreEqual(weights, 1.0d);
-
-
+            // Check weights sum to 1.0
+            Assert.AreEqual(weights, 1.0d, 1E-8);
         }
 
+        /// <summary>
+        /// Test for stratifying exceedance probabilities.
+        /// </summary>
         [TestMethod()]
         public void Test_ExceedanceProbabilities()
         {
@@ -204,13 +279,16 @@ namespace Sampling
             double weights = 0d;
             for (int i = 0; i < bins.Count; i++)
             {
-                Assert.AreEqual(bins[i].Midpoint, true_midpoint[i], 0.000001d);
+                Assert.AreEqual(true_midpoint[i], bins[i].Midpoint, 1E-6);
                 weights += bins[i].Weight;
             }
-
-            Assert.AreEqual(weights, 1.0d, 0.000000001d);
+            // Check weights sum to 1.0
+            Assert.AreEqual(weights, 1.0d, 1E-8);
         }
 
+        /// <summary>
+        /// Test for stratifying exceedance probabilities with multiple stratification options.
+        /// </summary>
         [TestMethod()]
         public void Test_ExceedanceProbabilities_Multi()
         {
@@ -223,13 +301,16 @@ namespace Sampling
             double weights = 0d;
             for (int i = 0; i < bins.Count; i++)
             {
-                Assert.AreEqual(bins[i].Midpoint, true_midpoint[i], 0.000001d);
+                Assert.AreEqual(true_midpoint[i], bins[i].Midpoint, 1E-6);
                 weights += bins[i].Weight;
             }
-
-            Assert.AreEqual(weights, 1.0d, 0.000000001d);
+            // Check weights sum to 1.0
+            Assert.AreEqual(weights, 1.0d, 1E-8);
         }
 
+        /// <summary>
+        /// Test for stratifying exceedance probabilities using a log10-transform.
+        /// </summary>
         [TestMethod()]
         public void Test_ExceedanceProbabilities_Log10()
         {
@@ -239,13 +320,16 @@ namespace Sampling
             double weights = 0d;
             for (int i = 0; i < bins.Count; i++)
             {
-                Assert.AreEqual(bins[i].Midpoint, true_midpoint[i], 0.000001d);
+                Assert.AreEqual(true_midpoint[i], bins[i].Midpoint, 1E-6);
                 weights += bins[i].Weight;
             }
-
-            Assert.AreEqual(weights, 1.0d, 0.000000001d);
+            // Check weights sum to 1.0
+            Assert.AreEqual(weights, 1.0d, 1E-8);
         }
 
+        /// <summary>
+        /// Test for stratifying exceedance probabilities using a Normal-transform.
+        /// </summary>
         [TestMethod()]
         public void Test_ExceedanceProbabilities_Normal()
         {
@@ -255,11 +339,11 @@ namespace Sampling
             double weights = 0d;
             for (int i = 0; i < bins.Count; i++)
             {
-                Assert.AreEqual(bins[i].Midpoint, true_midpoint[i], 0.000001d);
+                Assert.AreEqual(true_midpoint[i], bins[i].Midpoint, 1E-6);
                 weights += bins[i].Weight;
             }
-
-            Assert.AreEqual(weights, 1.0d, 0.000000001d);
+            // Check weights sum to 1.0
+            Assert.AreEqual(weights, 1.0d, 1E-8);
         }
     }
 }

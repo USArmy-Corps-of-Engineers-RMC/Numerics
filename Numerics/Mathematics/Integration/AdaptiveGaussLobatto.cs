@@ -98,9 +98,7 @@ namespace Numerics.Mathematics.Integration
         private static bool outOfTolerance = false;
         private double toler;
 
-        /// <summary>
-        /// Evaluates the integral.
-        /// </summary>
+        /// <inheritdoc/>
         public override void Integrate()
         {
             ClearResults();

@@ -227,13 +227,13 @@ namespace Numerics.Data
         /// Add a constant to specified values in the time-series. Missing values are kept as missing.
         /// </summary>
         /// <param name="constant">Factor to add to each value in the series.</param>
-        /// <param name="indices">List of integer index values (0 based) for each ordinate in the time series to apply the calculation to.</param>
-        public void Add(double constant, IList<int> indices)
+        /// <param name="indexes">List of integer index values (0 based) for each ordinate in the time series to apply the calculation to.</param>
+        public void Add(double constant, IList<int> indexes)
         {
             SuppressCollectionChanged = true;
-            for (int i = 0; i < indices.Count; i++)
+            for (int i = 0; i < indexes.Count; i++)
             {
-                if (indices[i] >= 0 && indices[i] < Count && (!double.IsNaN(this[indices[i]].Value))) { this[indices[i]].Value += constant; }
+                if (indexes[i] >= 0 && indexes[i] < Count && (!double.IsNaN(this[indexes[i]].Value))) { this[indexes[i]].Value += constant; }
             }
             SuppressCollectionChanged = false;
             RaiseCollectionChangedReset();
@@ -258,13 +258,13 @@ namespace Numerics.Data
         /// Subtract a constant from specified values in the time-series. Missing values are kept as missing.
         /// </summary>
         /// <param name="constant">Factor to subtract each value in the series.</param>
-        /// <param name="indices">List of integer index values (0 based) for each ordinate in the time series to apply the calculation to.</param>
-        public void Subtract(double constant, IList<int> indices)
+        /// <param name="indexes">List of integer index values (0 based) for each ordinate in the time series to apply the calculation to.</param>
+        public void Subtract(double constant, IList<int> indexes)
         {
             SuppressCollectionChanged = true;
-            for (int i = 0; i < indices.Count; i++)
+            for (int i = 0; i < indexes.Count; i++)
             {
-                if (indices[i] >= 0 && indices[i] < Count && (!double.IsNaN(this[indices[i]].Value))) { this[indices[i]].Value -= constant; }
+                if (indexes[i] >= 0 && indexes[i] < Count && (!double.IsNaN(this[indexes[i]].Value))) { this[indexes[i]].Value -= constant; }
             }
             SuppressCollectionChanged = false;
             RaiseCollectionChangedReset();
@@ -289,13 +289,13 @@ namespace Numerics.Data
         /// Multiply specified values in the time-series by a constant. Missing values are kept as missing.
         /// </summary>
         /// <param name="constant">Factor to multiply each value by in the series.</param>
-        /// <param name="indices">List of integer index values (0 based) for each ordinate in the time series to apply the calculation to.</param>
-        public void Multiply(double constant, IList<int> indices)
+        /// <param name="indexes">List of integer index values (0 based) for each ordinate in the time series to apply the calculation to.</param>
+        public void Multiply(double constant, IList<int> indexes)
         {
             SuppressCollectionChanged = true;
-            for (int i = 0; i < indices.Count; i++)
+            for (int i = 0; i < indexes.Count; i++)
             {
-                if (indices[i] >= 0 && indices[i] < Count && (!double.IsNaN(this[indices[i]].Value))) { this[indices[i]].Value *= constant; }
+                if (indexes[i] >= 0 && indexes[i] < Count && (!double.IsNaN(this[indexes[i]].Value))) { this[indexes[i]].Value *= constant; }
             }
             SuppressCollectionChanged = false;
             RaiseCollectionChangedReset();
@@ -320,13 +320,13 @@ namespace Numerics.Data
         /// Divide specified values in the time-series by a constant. Missing values are kept as missing.
         /// </summary>
         /// <param name="constant">Factor to divide each value by in the series.</param>
-        /// <param name="indices">List of integer index values (0 based) for each ordinate in the time series to apply the calculation to.</param>
-        public void Divide(double constant, IList<int> indices)
+        /// <param name="indexes">List of integer index values (0 based) for each ordinate in the time series to apply the calculation to.</param>
+        public void Divide(double constant, IList<int> indexes)
         {
             SuppressCollectionChanged = true;
-            for (int i = 0; i < indices.Count; i++)
+            for (int i = 0; i < indexes.Count; i++)
             {
-                if (indices[i] >= 0 && indices[i] < Count && (!double.IsNaN(this[indices[i]].Value))) { this[indices[i]].Value /= constant; }
+                if (indexes[i] >= 0 && indexes[i] < Count && (!double.IsNaN(this[indexes[i]].Value))) { this[indexes[i]].Value /= constant; }
             }
             SuppressCollectionChanged = false;
             RaiseCollectionChangedReset();
@@ -349,12 +349,12 @@ namespace Numerics.Data
         /// <summary>
         /// Set specified values in the time-series to its absolute value. Missing values are kept as missing.
         /// </summary>
-        public void AbsoluteValue(IList<int> indices)
+        public void AbsoluteValue(IList<int> indexes)
         {
             SuppressCollectionChanged = true;
-            for (int i = 0; i < indices.Count; i++)
+            for (int i = 0; i < indexes.Count; i++)
             {
-                if (indices[i] >= 0 && indices[i] < Count && (!double.IsNaN(this[indices[i]].Value))) { this[indices[i]].Value = Math.Abs(this[indices[i]].Value); }
+                if (indexes[i] >= 0 && indexes[i] < Count && (!double.IsNaN(this[indexes[i]].Value))) { this[indexes[i]].Value = Math.Abs(this[indexes[i]].Value); }
             }
             SuppressCollectionChanged = false;
             RaiseCollectionChangedReset();
@@ -378,13 +378,13 @@ namespace Numerics.Data
         /// Raise specified values in the time-series by the specified power or exponent. Missing values are kept as missing.
         /// </summary>
         /// <param name="power">Power or exponent.</param>
-        /// <param name="indices">List of integer index values (0 based) for each ordinate in the time series to apply the calculation to.</param>
-        public void Exponentiate(double power, IList<int> indices)
+        /// <param name="indexes">List of integer index values (0 based) for each ordinate in the time series to apply the calculation to.</param>
+        public void Exponentiate(double power, IList<int> indexes)
         {
             SuppressCollectionChanged = true;
-            for (int i = 0; i < indices.Count; i++)
+            for (int i = 0; i < indexes.Count; i++)
             {
-                if (indices[i] >= 0 && indices[i] < Count && (!double.IsNaN(this[indices[i]].Value))) { this[indices[i]].Value = Math.Pow(this[indices[i]].Value, power); }
+                if (indexes[i] >= 0 && indexes[i] < Count && (!double.IsNaN(this[indexes[i]].Value))) { this[indexes[i]].Value = Math.Pow(this[indexes[i]].Value, power); }
             }
             SuppressCollectionChanged = false;
             RaiseCollectionChangedReset();
@@ -411,15 +411,15 @@ namespace Numerics.Data
         /// <summary>
         /// Log transform specified values in the time-series. Missing values are kept as missing.
         /// </summary>
-        /// <param name="indices">List of integer index values (0 based) for each ordinate in the time series to apply the calculation to.</param>
+        /// <param name="indexes">List of integer index values (0 based) for each ordinate in the time series to apply the calculation to.</param>
         /// <param name="baseValue">The log base value.</param>
-        public void LogTransform(IList<int> indices, double baseValue = 10)
+        public void LogTransform(IList<int> indexes, double baseValue = 10)
         {
             SuppressCollectionChanged = true;
-            for (int i = 0; i < indices.Count; i++)
+            for (int i = 0; i < indexes.Count; i++)
             {
-                if (indices[i] >= 0 && indices[i] < Count && this[indices[i]].Value > 0 && (!double.IsNaN(this[indices[i]].Value))) { this[indices[i]].Value = Math.Log(this[indices[i]].Value, baseValue); }
-                else if (this[indices[i]].Value <= 0 || double.IsNaN(this[indices[i]].Value)) { this[indices[i]].Value = double.NaN; }
+                if (indexes[i] >= 0 && indexes[i] < Count && this[indexes[i]].Value > 0 && (!double.IsNaN(this[indexes[i]].Value))) { this[indexes[i]].Value = Math.Log(this[indexes[i]].Value, baseValue); }
+                else if (this[indexes[i]].Value <= 0 || double.IsNaN(this[indexes[i]].Value)) { this[indexes[i]].Value = double.NaN; }
             }
             SuppressCollectionChanged = false;
             RaiseCollectionChangedReset();
@@ -458,15 +458,15 @@ namespace Numerics.Data
 
         /// <summary>
         /// Specified values in the time-series are replaced by their inverse (1/x). Missing values are kept as missing. If the value is 0.0, the value is set to Double.NaN.
-        /// <param name="indices">List of integer index values (0 based) for each ordinate in the time series to apply the inverse calculation to.</param>
+        /// <param name="indexes">List of integer index values (0 based) for each ordinate in the time series to apply the inverse calculation to.</param>
         /// </summary>
-        public void Inverse(IList<int> indices)
+        public void Inverse(IList<int> indexes)
         {
             SuppressCollectionChanged = true;
-            for (int i = 0; i < indices.Count; i++)
+            for (int i = 0; i < indexes.Count; i++)
             {
-                if (indices[i] >= 0 && indices[i] < Count && this[indices[i]].Value != 0 && !double.IsNaN(this[indices[i]].Value)) { this[indices[i]].Value = 1d / this[indices[i]].Value; }
-                else if (this[indices[i]].Value == 0 || double.IsNaN(this[indices[i]].Value)) { this[indices[i]].Value = double.NaN; }
+                if (indexes[i] >= 0 && indexes[i] < Count && this[indexes[i]].Value != 0 && !double.IsNaN(this[indexes[i]].Value)) { this[indexes[i]].Value = 1d / this[indexes[i]].Value; }
+                else if (this[indexes[i]].Value == 0 || double.IsNaN(this[indexes[i]].Value)) { this[indexes[i]].Value = double.NaN; }
             }
             SuppressCollectionChanged = false;
             RaiseCollectionChangedReset();
@@ -528,16 +528,16 @@ namespace Numerics.Data
         }
 
         /// <summary>
-        /// Replaces missing data (Double.NaN) for specified indices with the specified value.
+        /// Replaces missing data (Double.NaN) for specified indexes with the specified value.
         /// </summary>
         /// <param name="value">Value for missing data.</param>
-        /// <param name="indices">List of integer index values (0 based) for each ordinate in the time series to apply the calculation to.</param>
-        public void ReplaceMissingData(IList<int> indices, double value)
+        /// <param name="indexes">List of integer index values (0 based) for each ordinate in the time series to apply the calculation to.</param>
+        public void ReplaceMissingData(IList<int> indexes, double value)
         {
             SuppressCollectionChanged = true;
-            for (int i = 0; i < indices.Count; i++)
+            for (int i = 0; i < indexes.Count; i++)
             {
-                if (indices[i] >= 0 && indices[i] < Count && double.IsNaN(this[indices[i]].Value)) { this[indices[i]].Value = value; }
+                if (indexes[i] >= 0 && indexes[i] < Count && double.IsNaN(this[indexes[i]].Value)) { this[indexes[i]].Value = value; }
             }
             SuppressCollectionChanged = false;
             RaiseCollectionChangedReset();
@@ -601,9 +601,9 @@ namespace Numerics.Data
         /// Interpolate missing data. Data will only be interpolated if the number of consecutive missing value is less than the specified limit.
         /// </summary>
         /// <param name="maxNumberOfMissing">The maximum number of consecutive missing values.</param>
-        /// <param name="indices">List of integer index values (0 based) for each ordinate in the time series to apply the calculation to.</param>
+        /// <param name="indexes">List of integer index values (0 based) for each ordinate in the time series to apply the calculation to.</param>
 
-        public void InterpolateMissingData(int maxNumberOfMissing, IList<int> indices)
+        public void InterpolateMissingData(int maxNumberOfMissing, IList<int> indexes)
         {
             SuppressCollectionChanged = true;
             SortByTime();
@@ -615,13 +615,13 @@ namespace Numerics.Data
             double y2;
             int upper;
             // 
-            for (int i = 0; i < indices.Count; i++)
+            for (int i = 0; i < indexes.Count; i++)
             {
                 // Find missing value
-                if(indices[i] >= 1 && indices[i] < Count && double.IsNaN(this[indices[i]].Value))
+                if(indexes[i] >= 1 && indexes[i] < Count && double.IsNaN(this[indexes[i]].Value))
                 {
                     // ok we found one
-                    int idx = indices[i];
+                    int idx = indexes[i];
                     x = this[idx].Index.ToOADate();
                     x1 = this[idx - 1].Index.ToOADate();
                     y1 = this[idx - 1].Value;
