@@ -169,9 +169,7 @@ namespace Numerics.Sampling.MCMC
         /// </summary>
         public Gradient GradientFunction { get; }
 
-        /// <summary>
-        /// Validate any custom MCMC sampler settings. 
-        /// </summary>
+        /// <inheritdoc/>
         protected override void ValidateCustomSettings()
         {
             if (Mass.Length != NumberOfParameters) throw new ArgumentException(nameof(Mass), "The mass vector must be the same length as the number of parameters.");
@@ -179,11 +177,7 @@ namespace Numerics.Sampling.MCMC
             if (Steps < 1) throw new ArgumentException(nameof(Steps), "The number of leapfrog steps must be at least one.");
         }
 
-        /// <summary>
-        /// Returns a proposed MCMC iteration. 
-        /// </summary>
-        /// <param name="index">The Markov Chain zero-based index.</param>
-        /// <param name="state">The current chain state to compare against.</param>
+        /// <inheritdoc/>
         protected override ParameterSet ChainIteration(int index, ParameterSet state)
         {
 

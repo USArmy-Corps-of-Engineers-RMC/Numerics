@@ -107,9 +107,7 @@ namespace Numerics.Sampling.MCMC
             }
         }
 
-        /// <summary>
-        /// Validate any custom MCMC sampler settings. 
-        /// </summary>
+        /// <inheritdoc/>
         protected override void ValidateCustomSettings()
         {
             if (Scale <= 0) throw new ArgumentException(nameof(Scale), "The scale parameter must greater than 0.");
@@ -117,9 +115,7 @@ namespace Numerics.Sampling.MCMC
             if (CrossoverProbability < 0 || CrossoverProbability > 1) throw new ArgumentException(nameof(CrossoverProbability), "The crossover probability must be between 0 and 1.");
         }
 
-        /// <summary>
-        /// Initialize any custom MCMC sampler settings.
-        /// </summary>
+        /// <inheritdoc/>
         protected override void InitializeCustomSettings()
         {
             // Set up multivariate Normal distributions and 
@@ -145,11 +141,7 @@ namespace Numerics.Sampling.MCMC
             }
         }
 
-        /// <summary>
-        /// Returns a proposed MCMC iteration. 
-        /// </summary>
-        /// <param name="index">The Markov Chain zero-based index.</param>
-        /// <param name="state">The current chain state to compare against.</param>
+        /// <inheritdoc/>
         protected override ParameterSet ChainIteration(int index, ParameterSet state)
         {
 

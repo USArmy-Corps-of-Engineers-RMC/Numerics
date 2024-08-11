@@ -114,9 +114,7 @@ namespace Numerics.Sampling.MCMC
             }
         }
 
-        /// <summary>
-        /// Validate any custom MCMC sampler settings. 
-        /// </summary>
+        /// <inheritdoc/>
         protected override void ValidateCustomSettings()
         {
             if (NumberOfChains < 3) throw new ArgumentException(nameof(NumberOfChains), "There must be at least 3 chains.");
@@ -126,11 +124,7 @@ namespace Numerics.Sampling.MCMC
             if (Noise < 0) throw new ArgumentException(nameof(Noise), "The noise parameter must be greater than 0.");
         }
 
-        /// <summary>
-        /// Returns a proposed MCMC iteration. 
-        /// </summary>
-        /// <param name="index">The Markov Chain zero-based index.</param>
-        /// <param name="state">The current chain state to compare against.</param>
+        /// <inheritdoc/>
         protected override ParameterSet ChainIteration(int index, ParameterSet state)
         {
             // Update the sample count

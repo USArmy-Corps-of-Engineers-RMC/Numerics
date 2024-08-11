@@ -77,9 +77,7 @@ namespace Numerics.Sampling.MCMC
         private bool useImportanceSampling = false;
         private MultivariateNormal mvn = null;
 
-        /// <summary>
-        /// Initialize any custom MCMC sampler settings.
-        /// </summary>
+        /// <inheritdoc/>
         protected override void InitializeCustomSettings()
         {
             if (mvn == null && useImportanceSampling == false && InitializeWithMAP && _mapSuccessful)
@@ -89,19 +87,13 @@ namespace Numerics.Sampling.MCMC
             }
         }
 
-        /// <summary>
-        /// Returns a proposed MCMC parameter set and its fitness. This method is not needed for Importance sampling.
-        /// </summary>
-        /// <param name="index">The Markov Chain zero-based index.</param>
-        /// <param name="state">The current chain state to compare against.</param>
+        /// <inheritdoc/>
         protected override ParameterSet ChainIteration(int index, ParameterSet state)
         {
             return new ParameterSet();
         }
 
-        /// <summary>
-        /// Validate the sampler settings.
-        /// </summary>
+        /// <inheritdoc/>
         protected override void ValidateSettings()
         {
             if (NumberOfChains != 1) throw new ArgumentException(nameof(InitialPopulationLength), "There can only be 1 chain with this method.");

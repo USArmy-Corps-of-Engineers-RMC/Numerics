@@ -75,9 +75,7 @@ namespace Numerics.Sampling.MCMC
         /// </summary>
         public Matrix ProposalSigma { get; private set; }
 
-        /// <summary>
-        /// Validate any custom MCMC sampler settings. 
-        /// </summary>
+        /// <inheritdoc/>
         protected override void ValidateCustomSettings()
         {
             if (ProposalSigma == null) throw new ArgumentException(nameof(ProposalSigma), "The proposal covariance matrix cannot be null.");
@@ -85,9 +83,7 @@ namespace Numerics.Sampling.MCMC
             if (ProposalSigma.NumberOfRows != NumberOfParameters) throw new ArgumentException(nameof(ProposalSigma), "The proposal covariance matrix must have the same number of rows and columns as the number of parameters.");
         }
 
-        /// <summary>
-        /// Initialize any custom MCMC sampler settings.
-        /// </summary>
+        /// <inheritdoc/>
         protected override void InitializeCustomSettings()
         {
             // Set up multivariate Normal distributions for each chain
@@ -103,11 +99,7 @@ namespace Numerics.Sampling.MCMC
             }
         }
 
-        /// <summary>
-        /// Returns a proposed MCMC iteration. 
-        /// </summary>
-        /// <param name="index">The Markov Chain zero-based index.</param>
-        /// <param name="state">The current chain state to compare against.</param>
+        /// <inheritdoc/>
         protected override ParameterSet ChainIteration(int index, ParameterSet state)
         {
             // Update the sample count

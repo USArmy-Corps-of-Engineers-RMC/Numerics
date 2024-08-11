@@ -1,17 +1,51 @@
-﻿using System;
-using System.Diagnostics;
+﻿/**
+* NOTICE:
+* The U.S. Army Corps of Engineers, Risk Management Center (USACE-RMC) makes no guarantees about
+* the results, or appropriateness of outputs, obtained from Numerics.
+*
+* LIST OF CONDITIONS:
+* Redistribution and use in source and binary forms, with or without modification, are permitted
+* provided that the following conditions are met:
+* ● Redistributions of source code must retain the above notice, this list of conditions, and the
+* following disclaimer.
+* ● Redistributions in binary form must reproduce the above notice, this list of conditions, and
+* the following disclaimer in the documentation and/or other materials provided with the distribution.
+* ● The names of the U.S. Government, the U.S. Army Corps of Engineers, the Institute for Water
+* Resources, or the Risk Management Center may not be used to endorse or promote products derived
+* from this software without specific prior written permission. Nor may the names of its contributors
+* be used to endorse or promote products derived from this software without specific prior
+* written permission.
+*
+* DISCLAIMER:
+* THIS SOFTWARE IS PROVIDED BY THE U.S. ARMY CORPS OF ENGINEERS RISK MANAGEMENT CENTER
+* (USACE-RMC) "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+* THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+* DISCLAIMED. IN NO EVENT SHALL USACE-RMC BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+* SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+* PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+* INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+* LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+* THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+* **/
+
+using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Numerics;
-using Numerics.Data;
-using Numerics.Data.Statistics;
 using Numerics.Distributions;
-using Numerics.Distributions.Copulas;
-using Numerics.Mathematics.LinearAlgebra;
-using Numerics.Mathematics.RootFinding;
 using Numerics.Sampling;
 
 namespace Distributions.Multivariate
 {
+    /// <summary>
+    /// Unit tests for the Multivariate Normal distribution. 
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    ///     <b> Authors: </b>
+    ///     <list type="bullet">
+    ///     <item>Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil</item>
+    ///     </list>
+    /// </para>
+    /// </remarks>
     [TestClass]
     public class Test_MultivariateNormal
     {
@@ -67,7 +101,7 @@ namespace Distributions.Multivariate
             var tester = new MultivariateNormal(5);
             tester.MVNUNI = new MersenneTwister(12345);
             int N = 5;
-            int MAXPTS = 50;// 5000 * N * N * N;
+            int MAXPTS = 50;
             double ABSEPS = 0.00005;
             double RELEPS = 0;
             double[] Lower = new double[] { 0, 0, 1.7817, 1.4755, 1.5949 };
@@ -152,14 +186,11 @@ namespace Distributions.Multivariate
             // ABCD
             p = mvn.CDF(new[] { Normal.StandardZ(0.25), Normal.StandardZ(0.35), Normal.StandardZ(0.5), Normal.StandardZ(0.5)});
             Assert.AreEqual(p, 3.593582e-13, 1E-4);
-
-
         }
 
         /// <summary>
         /// Verified against R "mvtnorm" package.
-        /// Test 1
-        /// Perfectly Negative correlation. 
+        /// Test 1: Perfectly Negative correlation. 
         /// The matrix must be positive semi-definite. 
         /// So, the smallest allowable negative value is -1/(D-1) + an offset for machine double precision. 
         /// For simplicity, I offset by 0.01. 
@@ -167,7 +198,6 @@ namespace Distributions.Multivariate
         [TestMethod]
         public void Test_MultivariateNormalCDF_R_PerfectNegative()
         {
-
             var mean = new double[] { 0, 0, 0 };
             var covar = new double[,]
             { { 1, -0.49,-0.49 },
@@ -177,14 +207,12 @@ namespace Distributions.Multivariate
 
             var p = mvn.CDF(new[] { Normal.StandardZ(0.5), Normal.StandardZ(0.5), Normal.StandardZ(0.5) });
             Assert.AreEqual(p, 0.002740932, 1E-4);
-
         }
 
         /// <summary>
         /// Verified against R "mvtnorm" package.
-        /// Test 2
-        /// Perfectly positive correlation. 
-        /// Again, I offset my 0.01 to keep it positive definite.. 
+        /// Test 2: Perfectly positive correlation. 
+        /// Again, I offset my 0.01 to keep it positive definite.
         /// </summary>
         [TestMethod]
         public void Test_MultivariateNormalCDF_R_PerfectPositive()
@@ -204,8 +232,7 @@ namespace Distributions.Multivariate
 
         /// <summary>
         /// Verified against R "mvtnorm" package.
-        /// Test 3
-        /// Independent correlation. 
+        /// Test 3: Independent correlation. 
         /// </summary>
         [TestMethod]
         public void Test_MultivariateNormalCDF_R_Independent()
@@ -222,7 +249,6 @@ namespace Distributions.Multivariate
             Assert.AreEqual(p, 0.125, 1E-4);
 
         }
-
-           
+         
     }
 }
