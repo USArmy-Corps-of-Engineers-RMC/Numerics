@@ -48,18 +48,17 @@ namespace Numerics.Sampling.MCMC
     /// <returns>The log-Likelihood given the parameter set.</returns>
     /// <remarks>
     /// This function should account for the data likelihood 
-    /// as well as the prior likelihood of the sampler parameters.
+    /// as well as the prior likelihood of the model parameters.
     /// </remarks>
     [Serializable]
     public delegate double LogLikelihood(double[] parameters);
-
 
     /// <summary>
     /// A base class for all Markov Chain Monte Carlo (MCMC) samplers.
     /// </summary>
     /// <remarks>
     /// <para>
-    ///     Authors:
+    ///     <b> Authors: </b>
     ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
     /// </para>
     /// </remarks>
@@ -97,12 +96,12 @@ namespace Numerics.Sampling.MCMC
         /// <summary>
         /// Gets and sets the number of MCMC iterations to simulate.
         /// </summary>
-        public int Iterations { get; set; } = 3000;
+        public int Iterations { get; set; } = 3500;
 
         /// <summary>
         /// Gets and sets the number of warm up MCMC iterations to discard at the beginning of the simulation.
         /// </summary>
-        public int WarmupIterations { get; set; } = 1500;
+        public int WarmupIterations { get; set; } = 1750;
 
         /// <summary>
         /// Gets and sets the number of Markov Chains.
@@ -153,7 +152,7 @@ namespace Numerics.Sampling.MCMC
         /// <summary>
         /// Determines if the Maximum a Posteriori (MAP) estimate was successful.
         /// </summary>
-        protected bool _MAPsuccessful = false;
+        protected bool _mapSuccessful = false;
 
         /// <summary>
         /// The Multivariate Normal proposal distribution set from the MAP estimate.
@@ -238,7 +237,7 @@ namespace Numerics.Sampling.MCMC
         /// <summary>
         /// Output posterior parameter sets. These are recorded after the iterations have been completed. 
         /// </summary>
-        public List<ParameterSet>[] Output { get; protected set; }
+        public List<ParameterSet> Output { get; protected set; }
 
         /// <summary>
         /// The output parameter set that produced the maximum likelihood. 
@@ -275,7 +274,6 @@ namespace Numerics.Sampling.MCMC
         /// </summary>
         protected virtual void InitializeCustomSettings() { }
 
-
         /// <summary>
         /// Initialize the Markov Chains.
         /// </summary>
@@ -302,7 +300,7 @@ namespace Numerics.Sampling.MCMC
                 {
                     try
                     {
-                        _MAPsuccessful = true;
+                        _mapSuccessful = true;
                         MAP = DE.BestParameterSet.Clone();
 
                         // Get Fisher Information Matrix (or Hessian)
@@ -312,7 +310,7 @@ namespace Numerics.Sampling.MCMC
                         var B = new Matrix(fisher.NumberOfRows, 0);
                         GaussJordanElimination.Solve(ref fisher, ref B);
                         // Scale it to give wider coverage
-                        fisher = fisher * 1.2;
+                        fisher = fisher * 3;
 
                         // Set up proposal distribution
                         _mvn = new MultivariateNormal(MAP.Values, fisher.ToArray());
@@ -454,9 +452,7 @@ namespace Numerics.Sampling.MCMC
             // Output settings
             int outputIterations = (int)Math.Ceiling(OutputLength / (double)NumberOfChains);
             int totalIterations = Iterations + outputIterations;
-            Output = new List<ParameterSet>[NumberOfChains];
-            for (int i = 0; i < NumberOfChains; i++)
-                Output[i] = new List<ParameterSet>();
+            Output = new List<ParameterSet>();
 
             // progress counter
             int progress = 0;
@@ -494,10 +490,10 @@ namespace Numerics.Sampling.MCMC
                         // Save chain state
                         MarkovChains[j].Add(_chainStates[j].Clone());
                     }
-                    else if (i > Iterations)
+                    else if (i > Iterations && Output.Count < OutputLength)
                     {
-                        Output[j].Add(_chainStates[j].Clone());
-                        if ((InitializeWithMAP == false || _MAPsuccessful == false) && _chainStates[j].Fitness > MAP.Fitness)
+                        Output.Add(_chainStates[j].Clone());
+                        if ((InitializeWithMAP == false || _mapSuccessful == false) && _chainStates[j].Fitness > MAP.Fitness)
                             MAP = _chainStates[j].Clone();
                     }
                 }
@@ -558,7 +554,7 @@ namespace Numerics.Sampling.MCMC
             SampleCount = new int[NumberOfChains];
             MeanLogLikelihood = new List<double>();
             MAP = new ParameterSet(new double[] { }, double.MinValue);
-            Output = new List<ParameterSet>[NumberOfChains];
+            Output = new List<ParameterSet>();
         }
 
         #endregion

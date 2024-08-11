@@ -44,7 +44,7 @@ namespace Numerics.Sampling.MCMC
     /// </summary>
     /// <remarks>
     /// <para>
-    ///     Authors:
+    ///     <b>Authors:</b>
     ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
     /// </para>
     /// <para>
@@ -71,10 +71,10 @@ namespace Numerics.Sampling.MCMC
         /// <param name="priorDistributions"></param>
         /// <param name="logLikelihoodFunction"></param>
         /// <param name="mass">Optional. The mass vector for the momentum distribution. Default = Identity.</param>
-        /// <param name="stepSize">Optional. The leapfrog step size. Default = 1. The rule of thumb is that the step size x steps = 1.</param>
-        /// <param name="steps">Optional. The number of leapfrog steps. Default = 1. The rule of thumb is that the step size x steps = 1.</param>
+        /// <param name="stepSize">Optional. The leapfrog step size. Default = 0.1.</param>
+        /// <param name="steps">Optional. The number of leapfrog steps. Default = 50.</param>
         /// <param name="gradientFunction">Optional. The function for evaluating the gradient of the log-likelihood. Numerical finite difference will be used by default.</param>
-        public HMC(List<IUnivariateDistribution> priorDistributions, LogLikelihood logLikelihoodFunction, Vector mass = null, double stepSize = 1, int steps = 1, Gradient gradientFunction = null)
+        public HMC(List<IUnivariateDistribution> priorDistributions, LogLikelihood logLikelihoodFunction, Vector mass = null, double stepSize = 0.1, int steps = 50, Gradient gradientFunction = null)
         {
             PriorDistributions = priorDistributions;
             LogLikelihoodFunction = logLikelihoodFunction;
@@ -98,8 +98,6 @@ namespace Numerics.Sampling.MCMC
             // Set leapfrog inputs
             StepSize = stepSize;
             Steps = steps;
-            _stepSizeU = new Uniform(0, 2 * StepSize);
-            _stepsU = new Uniform(0, 2 * Steps);
 
             // Set the gradient function
             if (gradientFunction == null)
@@ -113,29 +111,63 @@ namespace Numerics.Sampling.MCMC
 
         }
 
-        private Uniform _stepSizeU;
-        private Uniform _stepsU;
+        private Uniform _stepSizeU = new Uniform(0.00, 0.2);
+        private UniformDiscrete _stepsU = new UniformDiscrete(1, 100);
         private Vector _inverseMass;
+        private double _stepSize = 0.1;
+        private int _steps = 50;
 
         /// <summary>
         /// The mass vector for the momentum distribution.
         /// </summary>
-        public Vector Mass { get; set; }
+        public Vector Mass { get; }
 
         /// <summary>
-        /// The leapfrog step size. The rule of thumb is that the step size x steps = 1.
+        /// The leapfrog step size. Default = 0.1.
         /// </summary>
-        public double StepSize { get; set; }
+        /// <remarks>
+        /// This controls the size of each leapfrog step in the simulation. A smaller step size can lead to more accurate 
+        /// simulations of the Hamiltonian dynamics but requires more steps to cover the same distance, increasing 
+        /// computational cost. A larger step size reduces computational cost but can lead to inaccurate simulations 
+        /// and a higher rejection rate. The step size is often tuned during the warm-up phase of the HMC algorithm to 
+        /// achieve an optimal balance.
+        /// </remarks>
+        public double StepSize
+        {
+            get { return _stepSize; }
+            set 
+            { 
+                _stepSize = value;
+                _stepSizeU = new Uniform(0, 2.0 * _stepSize);
+            }
+        }
 
         /// <summary>
-        /// The number of leapfrog steps. The rule of thumb is that the step size x steps = 1.
+        /// The number of leapfrog steps. Default = 50.
         /// </summary>
-        public int Steps { get; set; }
+        /// <remarks>
+        /// This refers to the number of leapfrog steps taken in each HMC iteration. 
+        /// The total distance covered in the parameter space during each iteration is the product 
+        /// of the step size and the number of steps. The number of steps determines how far the 
+        /// algorithm moves in parameter space before proposing a new sample. A larger number of steps 
+        /// allows the algorithm to explore more of the parameter space but can increase 
+        /// computational time. Like the step size, the number of steps can also be tuned, though 
+        /// it is often set to a fixed value.
+        /// </remarks>
+        public int Steps
+        {
+            get { return _steps; }
+            set
+            {
+                _steps= value;
+                _stepsU = new UniformDiscrete(1, 2.0 * _steps);
+            }
+        }
 
         /// <summary>
         /// The function for evaluating the gradient of the log-likelihood.
         /// </summary>
-        public Gradient GradientFunction { get; private set; }
+        public Gradient GradientFunction { get; }
 
         /// <summary>
         /// Validate any custom MCMC sampler settings. 
@@ -143,7 +175,7 @@ namespace Numerics.Sampling.MCMC
         protected override void ValidateCustomSettings()
         {
             if (Mass.Length != NumberOfParameters) throw new ArgumentException(nameof(Mass), "The mass vector must be the same length as the number of parameters.");
-            if (StepSize < 0) throw new ArgumentException(nameof(Mass), "The leapfrog step size must be positive.");
+            if (StepSize < 0) throw new ArgumentException(nameof(StepSize), "The leapfrog step size must be positive.");
             if (Steps < 1) throw new ArgumentException(nameof(Steps), "The number of leapfrog steps must be at least one.");
         }
 
@@ -180,10 +212,10 @@ namespace Numerics.Sampling.MCMC
                 // Ensure the parameters are feasible (within the constraints)
                 for (int j = 0; j < NumberOfParameters; j++)
                 {
-                    if (xp[j] < PriorDistributions[i].Minimum) 
-                        xp[j] = PriorDistributions[i].Minimum + Tools.DoubleMachineEpsilon;
-                    if (xp[j] > PriorDistributions[i].Maximum) 
-                        xp[j] = PriorDistributions[i].Maximum - Tools.DoubleMachineEpsilon;
+                    if (xp[j] < PriorDistributions[j].Minimum) 
+                        xp[j] = PriorDistributions[j].Minimum + Tools.DoubleMachineEpsilon;
+                    if (xp[j] > PriorDistributions[j].Maximum) 
+                        xp[j] = PriorDistributions[j].Maximum - Tools.DoubleMachineEpsilon;
                 }
 
                 phi += GradientFunction(xp.ToArray()) * _stepSize * (i == _steps-1 ? 0.5: 1.0);

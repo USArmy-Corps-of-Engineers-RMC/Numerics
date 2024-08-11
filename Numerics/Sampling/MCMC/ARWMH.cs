@@ -43,7 +43,7 @@ namespace Numerics.Sampling.MCMC
     /// </summary>
     /// <remarks>
     /// <para>
-    ///     Authors:
+    ///     <b> Authors: </b>
     ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
     /// </para>
     /// <para>
@@ -55,7 +55,7 @@ namespace Numerics.Sampling.MCMC
     {
 
         /// <summary>
-        /// Constructs a new RWMH sampler.
+        /// Constructs a new ARWMH sampler.
         /// </summary>
         /// <param name="priorDistributions">The list of prior distributions for the model parameters.</param>
         /// <param name="logLikelihoodFunction">The Log-Likelihood function to evaluate.</param>      
@@ -107,6 +107,15 @@ namespace Numerics.Sampling.MCMC
             }
         }
 
+        /// <summary>
+        /// Validate any custom MCMC sampler settings. 
+        /// </summary>
+        protected override void ValidateCustomSettings()
+        {
+            if (Scale <= 0) throw new ArgumentException(nameof(Scale), "The scale parameter must greater than 0.");
+            if (Beta < 0 || Beta > 1) throw new ArgumentException(nameof(Beta), "Beta must be between 0 and 1.");
+            if (CrossoverProbability < 0 || CrossoverProbability > 1) throw new ArgumentException(nameof(CrossoverProbability), "The crossover probability must be between 0 and 1.");
+        }
 
         /// <summary>
         /// Initialize any custom MCMC sampler settings.
@@ -122,7 +131,7 @@ namespace Numerics.Sampling.MCMC
                 mvn[i] = new MultivariateNormal(NumberOfParameters);
                 sigma[i] = new RunningCovarianceMatrix(NumberOfParameters);
 
-                if (InitializeWithMAP && _MAPsuccessful)
+                if (InitializeWithMAP && _mapSuccessful)
                 {
                     // Hot start the covariance matrix
                     for (int j = 0; j < NumberOfParameters; j++)

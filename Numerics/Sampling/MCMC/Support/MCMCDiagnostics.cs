@@ -41,7 +41,7 @@ namespace Numerics.Sampling.MCMC
     /// </summary>
     /// <remarks>
     /// <para>
-    ///     Authors:
+    ///     <b> Authors: </b>
     ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
     /// </para>
     /// </remarks>
@@ -99,10 +99,7 @@ namespace Numerics.Sampling.MCMC
                 var result = new double[P];
                 result.Fill(double.NaN);
                 return result;
-                //throw new ArgumentOutOfRangeException(nameof(markovChains), "There must be at least two chains in the chain list.");
-            }
-
-                
+            }               
             if (N < 2) throw new ArgumentOutOfRangeException(nameof(markovChains), "There must be at least two iterations to evaluate.");
             if (P < 1) throw new ArgumentOutOfRangeException(nameof(markovChains), "There must be at least one parameter to evaluate.");
             if (warmupIterations < 0) throw new ArgumentOutOfRangeException(nameof(warmupIterations), "The warm up iterations must be non-negative.");

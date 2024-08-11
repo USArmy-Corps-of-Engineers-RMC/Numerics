@@ -40,7 +40,7 @@ namespace Numerics.Sampling.MCMC
     /// </summary>
     /// <remarks>
     /// <para>
-    ///     Authors:
+    ///     <b>Authors:</b>
     ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
     /// </para>
     /// <para>
@@ -57,7 +57,7 @@ namespace Numerics.Sampling.MCMC
         /// <param name="parameters">The list of parameters to evaluate.</param>
         /// <param name="prng">Random number generator.</param>
         /// <returns>Returns a proposal vector.</returns>
-        public delegate double[] Proposal(IList<double> parameters, Random prng);
+        public delegate double[] Proposal(double[] parameters, Random prng);
 
         /// <summary>
         /// Constructs a new RWMH sampler.
@@ -70,14 +70,19 @@ namespace Numerics.Sampling.MCMC
             PriorDistributions = priorDistributions;
             LogLikelihoodFunction = logLikelihoodFunction;
             ProposalFunction = proposalFunction;
+            // Create default settings
+            NumberOfChains = 1;
+            WarmupIterations = 1;
             ThinningInterval = 1;
+            InitialPopulationLength = 1;
+            Iterations = 100000;
+            OutputLength = 10000;
         }
 
         /// <summary>
         /// The proposal function for creating a proposal vector of parameters to evaluate.
         /// </summary>
         public Proposal ProposalFunction { get; }
-
 
         /// <summary>
         /// Returns a proposed MCMC iteration. 

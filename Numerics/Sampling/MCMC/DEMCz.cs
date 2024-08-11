@@ -40,11 +40,11 @@ namespace Numerics.Sampling.MCMC
     /// </summary>
     /// <remarks>
     /// <para>
-    ///     Authors:
+    ///     <b> Authors: </b>
     ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
     /// </para>
     /// <para>
-    ///     References:
+    ///    <b>  References: </b>
     /// <list type="bullet">
     /// <item><description>
     ///     This class was adapted from research code developed by Brian Skahill (USACE-ERDC-CHL).
@@ -116,7 +116,7 @@ namespace Numerics.Sampling.MCMC
             if (NumberOfChains < 3) throw new ArgumentException(nameof(NumberOfChains), "There must be at least 3 chains.");
             if (Jump <= 0 || Jump >= 2) throw new ArgumentException(nameof(Jump), "The jump parameter must be between 0 and 2.");
             if (JumpThreshold < 0 || JumpThreshold >= 1) throw new ArgumentException(nameof(JumpThreshold), "The jump threshold must be between 0 and 1.");
-            if (Noise < 0) throw new ArgumentException(nameof(JumpThreshold), "The noise parameter must be greater than 0.");            
+            if (Noise < 0) throw new ArgumentException(nameof(Noise), "The noise parameter must be greater than 0.");            
         }
 
 

@@ -44,7 +44,7 @@ namespace Numerics.Sampling.MCMC
     /// </summary>
     /// <remarks>
     /// <para>
-    ///     Authors:
+    ///     <b> Authors: </b>
     ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
     /// </para>
     /// </remarks>
@@ -63,15 +63,14 @@ namespace Numerics.Sampling.MCMC
         /// <param name="alpha">The confidence level; Default = 0.1, which will result in the 90% confidence intervals.</param> 
         public MCMCResults(MCMCSampler sampler, double alpha = 0.1)
         {
-            MarkovChains = new List<ParameterSet>[sampler.NumberOfChains];
-            Output = new List<ParameterSet>();
+            MarkovChains = new List<ParameterSet>[sampler.NumberOfChains];        
             for (int i = 0; i < sampler.NumberOfChains; i++)
             {
                 MarkovChains[i] = sampler.MarkovChains[i].ToList();
-                Output.AddRange(sampler.Output[i].ToList());
             }
             AcceptanceRates = sampler.AcceptanceRates.ToArray();
             MeanLogLikelihood = sampler.MeanLogLikelihood.ToList();
+            Output = sampler.Output.ToList();
             MAP = sampler.MAP.Clone();
             ProcessParameterResults(sampler, alpha);
         }
@@ -107,55 +106,6 @@ namespace Numerics.Sampling.MCMC
         /// </summary>
         public ParameterSet MAP { get; private set; }
 
-        private List<ParameterSet>[] ThinMarkovChains(MCMCSampler sampler)
-        {
-            // Create Markov Chains
-            var markovChains = new List<ParameterSet>[sampler.NumberOfChains];
-            for (int i = 0; i < sampler.NumberOfChains; i++)
-                markovChains[i] = new List<ParameterSet>();
-
-            Parallel.For(0, sampler.NumberOfChains, (i) =>
-            {
-                int t = 0;
-                for (int j = 0; j < sampler.Iterations; j++)
-                {
-                    t += sampler.ThinningInterval - 1;
-                    markovChains[i].Add(sampler.MarkovChains[i][t].Clone());
-                }
-
-            });
-
-            return markovChains;
-        }
-
-        private List<ParameterSet> ThinOutput(MCMCSampler sampler)
-        {
-
-            // Create Markov Chains
-            var outputChains = new List<ParameterSet>[sampler.NumberOfChains];
-            for (int i = 0; i < sampler.NumberOfChains; i++)
-                outputChains[i] = new List<ParameterSet>();
-
-            int outputIterations = (int)Math.Ceiling(sampler.OutputLength / (double)sampler.NumberOfChains);
-
-            Parallel.For(0, sampler.NumberOfChains, (i) =>
-            {
-                int t = 0;
-                for (int j = 0; j < outputIterations; j++)
-                {
-                    t += sampler.ThinningInterval - 1;
-                    outputChains[i].Add(sampler.Output[i][t].Clone());
-                }
-
-            });
-
-            var output = new List<ParameterSet>();
-            for (int i = 0; i < sampler.NumberOfChains; i++)
-                output.AddRange(outputChains[i]);
-
-            return output;
-        }
-
         /// <summary>
         /// Process the parameter results.
         /// </summary>
@@ -172,41 +122,33 @@ namespace Numerics.Sampling.MCMC
             {
 
                 // Compute the Autocorrelation Function (ACF) and Effective Sample Size (ESS)
-                // Average the ACF and sum the ESS
+                int N = Output.Count;
                 var x = new List<double>();
-                var avgACF = new double[51, 2];
-                double ess = 0;
-
-                for (int j = 0; j < sampler.NumberOfChains; j++)
+                for (int j = 0; j < N; j++)
                 {
-                    // Get list of parameters
-                    var N = sampler.Output[j].Count;
-                    var y = new List<double>();
-                    for (int k = 0; k < N; k++)
-                         y.Add(sampler.Output[j][k].Values[i]);
-                    x.AddRange(y);
-
-                    // Get ACF
-                    var acf = Fourier.Autocorrelation(y, (int)Math.Ceiling((double)N / 2));
-                    for (int k = 0; k < acf.GetLength(0); k++)
-                    {
-                        if (k > 50) break;
-                        avgACF[k, 1] += acf[k, 1] / sampler.NumberOfChains;
-                    }
-                    // Get ESS
-                    double rho = 0;
-                    for (int k = 1; k < acf.GetLength(0); k++)
-                    {
-                        if (acf[k, 1] < 0.05) break;
-                        rho += acf[k, 1];                                
-                    }
-                    ess += Math.Min(N / (1d + 2d * rho), N);              
+                    x.Add(Output[j].Values[i]);
                 }
+                // Get ACF
+                var acf = Fourier.Autocorrelation(x, (int)Math.Ceiling((double)N / 2));
+                var clippedACF = new double[51, 2];
+                for (int k = 0; k < acf.GetLength(0); k++)
+                {
+                    if (k > 50) break;
+                    clippedACF[k, 1] = acf[k, 1];
+                }
+                // Get ESS
+                double rho = 0;
+                for (int k = 1; k < acf.GetLength(0); k++)
+                {
+                    if (acf[k, 1] < 0.05) break;
+                    rho += acf[k, 1];
+                }
+                double ess = Math.Min(N / (1d + 2d * rho), N);
 
                 ParameterResults[i] = new ParameterResults(x, alpha);
                 ParameterResults[i].SummaryStatistics.Rhat = GR[i];
                 ParameterResults[i].SummaryStatistics.ESS = ess;
-                ParameterResults[i].Autocorrelation = avgACF;
+                ParameterResults[i].Autocorrelation = clippedACF;
             }
         }
 

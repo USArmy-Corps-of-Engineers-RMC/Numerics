@@ -42,11 +42,11 @@ namespace Numerics.Sampling.MCMC
     /// </summary>
     /// <remarks>
     /// <para>
-    ///     Authors:
+    ///     <b> Authors: </b>
     ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
     /// </para>
     /// <para>
-    ///     References:
+    ///    <b>  References: </b>
     /// <list type="bullet">
     /// <item><description>
     ///     This class is based on an algorithm described in:
@@ -119,11 +119,11 @@ namespace Numerics.Sampling.MCMC
         /// </summary>
         protected override void ValidateCustomSettings()
         {
+            if (NumberOfChains < 3) throw new ArgumentException(nameof(NumberOfChains), "There must be at least 3 chains.");
             if (Jump <= 0 || Jump >= 2) throw new ArgumentException(nameof(Jump), "The jump parameter must be between 0 and 2.");
             if (JumpThreshold < 0 || JumpThreshold > 1) throw new ArgumentException(nameof(JumpThreshold), "The jump threshold must be between 0 and 1.");
             if (SnookerThreshold < 0 || SnookerThreshold > 0.5) throw new ArgumentException(nameof(SnookerThreshold), "The snooker threshold must be between 0 and 0.5.");
-            if (Noise < 0) throw new ArgumentException(nameof(JumpThreshold), "The noise parameter must be greater than 0.");
-
+            if (Noise < 0) throw new ArgumentException(nameof(Noise), "The noise parameter must be greater than 0.");
         }
 
         /// <summary>

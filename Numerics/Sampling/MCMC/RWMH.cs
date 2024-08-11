@@ -43,7 +43,7 @@ namespace Numerics.Sampling.MCMC
     /// </summary>
     /// <remarks>
     /// <para>
-    ///     Authors:
+    ///     <b> Authors: </b>
     ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
     /// </para>
     /// <para>
@@ -73,13 +73,14 @@ namespace Numerics.Sampling.MCMC
         /// <summary>
         /// The covariance matrix Σ (sigma) for the proposal distribution.
         /// </summary>
-        public Matrix ProposalSigma { get; set; }
+        public Matrix ProposalSigma { get; private set; }
 
         /// <summary>
         /// Validate any custom MCMC sampler settings. 
         /// </summary>
         protected override void ValidateCustomSettings()
         {
+            if (ProposalSigma == null) throw new ArgumentException(nameof(ProposalSigma), "The proposal covariance matrix cannot be null.");
             if (ProposalSigma.NumberOfRows != ProposalSigma.NumberOfColumns) throw new ArgumentException(nameof(ProposalSigma), "The proposal covariance matrix must be square.");
             if (ProposalSigma.NumberOfRows != NumberOfParameters) throw new ArgumentException(nameof(ProposalSigma), "The proposal covariance matrix must have the same number of rows and columns as the number of parameters.");
         }
@@ -93,15 +94,13 @@ namespace Numerics.Sampling.MCMC
             _MVN = new MultivariateNormal[NumberOfChains];
             for (int i = 0; i < NumberOfChains; i++)
             {
-                if (InitializeWithMAP && _MAPsuccessful)
-                {
-                    _MVN[i] = (MultivariateNormal)_mvn.Clone();
-                }
-                else
-                {
-                    _MVN[i] = new MultivariateNormal(NumberOfParameters);
-                }    
-            }  
+                _MVN[i] = new MultivariateNormal(NumberOfParameters);
+            }
+            // Set up proposal matrix
+            if (InitializeWithMAP && _mapSuccessful)
+            {
+                ProposalSigma = new Matrix(_mvn.Covariance);
+            }
         }
 
         /// <summary>

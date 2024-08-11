@@ -29,6 +29,7 @@
 * **/
 
 using Numerics.Data;
+using Numerics.Data.Statistics;
 using Numerics.Distributions;
 using Numerics.Mathematics.Optimization;
 using System;
@@ -44,7 +45,7 @@ namespace Numerics.Sampling.MCMC
     /// </summary>
     /// <remarks>
     /// <para>
-    ///     Authors:
+    ///     <b> Authors: </b>
     ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
     /// </para>
     /// </remarks>
@@ -69,7 +70,7 @@ namespace Numerics.Sampling.MCMC
             WarmupIterations = 0;
             ThinningInterval = 1;
             InitialPopulationLength = 1;
-            Iterations = 50000;
+            Iterations = 100000;
             OutputLength = 10000;
         }
 
@@ -81,7 +82,7 @@ namespace Numerics.Sampling.MCMC
         /// </summary>
         protected override void InitializeCustomSettings()
         {
-            if (mvn == null && useImportanceSampling == false && InitializeWithMAP && _MAPsuccessful)
+            if (mvn == null && useImportanceSampling == false && InitializeWithMAP && _mapSuccessful)
             {
                 mvn = (MultivariateNormal)_mvn.Clone();
                 useImportanceSampling = true;
@@ -130,8 +131,7 @@ namespace Numerics.Sampling.MCMC
             MarkovChains = new List<ParameterSet>[NumberOfChains];
             var sets = new ParameterSet[Iterations];
             MarkovChains[0] = sets.ToList();
-            Output = new List<ParameterSet>[NumberOfChains];
-            Output[0] = new List<ParameterSet>();
+            Output = new List<ParameterSet>();
 
             // Create sample & accept counts
             AcceptCount = new int[NumberOfChains];
@@ -204,13 +204,12 @@ namespace Numerics.Sampling.MCMC
                 cdf[i] = cdf[i-1] + MarkovChains[0][i].Weight;
 
             // Record output
-            var rndOut = _masterPRNG.NextDoubles(OutputLength);
-            Array.Sort(rndOut);
+            var rndOut  = PlottingPositions.Weibull(OutputLength);
             int idx = 0;
             for (int i = 0; i < OutputLength; i++)
             {
-                idx = Search.Hunt(rndOut[i], cdf, idx);
-                Output[0].Add(MarkovChains[0][idx].Clone());
+                idx = Search.Sequential(rndOut[i], cdf, idx);
+                Output.Add(MarkovChains[0][idx].Clone());
             }
         }
 

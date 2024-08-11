@@ -31,7 +31,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Numerics.Sampling;
 
-namespace Test_Numerics.Sampling
+namespace Sampling
 {
     /// <summary>
     /// Unit tests for the Mersenne Twister class. 
