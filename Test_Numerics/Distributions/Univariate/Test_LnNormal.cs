@@ -151,7 +151,7 @@ namespace Distributions.Univariate
             var mom = LN.CentralMoments(1E-8);
             double true_mean = LN.Mean;
             double true_stDev = LN.StandardDeviation;
-            double true_skew = LN.Skew;
+            double true_skew = LN.Skewness;
             double true_kurt = LN.Kurtosis;
 
             Assert.AreEqual(mom[0], true_mean, 1E-4);

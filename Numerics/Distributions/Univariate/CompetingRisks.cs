@@ -1,4 +1,4 @@
-﻿/**
+﻿/*
 * NOTICE:
 * The U.S. Army Corps of Engineers, Risk Management Center (USACE-RMC) makes no guarantees about
 * the results, or appropriateness of outputs, obtained from Numerics.
@@ -26,7 +26,7 @@
 * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
 * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-* **/
+*/
 
 using Numerics.Data;
 using Numerics.Data.Statistics;
@@ -104,9 +104,7 @@ namespace Numerics.Distributions
         /// </summary>
         public Probability.DependencyType Dependency { get; set; } = Probability.DependencyType.Independent;
 
-        /// <summary>
-        /// Returns the number of distribution parameters.
-        /// </summary>
+        /// <inheritdoc/>
         public override int NumberOfParameters
         {
             get
@@ -118,24 +116,16 @@ namespace Numerics.Distributions
             }
         }
 
-        /// <summary>
-        /// Returns the univariate distribution type.
-        /// </summary>
+        /// <inheritdoc/>
         public override UnivariateDistributionType Type => UnivariateDistributionType.CompetingRisks;
 
-        /// <summary>
-        /// Returns the name of the distribution type as a string.
-        /// </summary>
+        /// <inheritdoc/>
         public override string DisplayName => "Competing Risks";
 
-        /// <summary>
-        /// Returns the short display name of the distribution as a string.
-        /// </summary>
+        /// <inheritdoc/>
         public override string ShortDisplayName => "CR";
 
-        /// <summary>
-        /// Get distribution parameters in 2-column array of string.
-        /// </summary>
+        /// <inheritdoc/>
         public override string[,] ParametersToString
         {
             get
@@ -157,9 +147,7 @@ namespace Numerics.Distributions
             }
         }
 
-        /// <summary>
-        /// Returns the distribution parameter names as an array of string.
-        /// </summary>
+        /// <inheritdoc/>
         public override string[] ParameterNames
         {
             get
@@ -174,9 +162,7 @@ namespace Numerics.Distributions
         }
 
 
-        /// <summary>
-        /// Gets the short form parameter names.
-        /// </summary>
+        /// <inheritdoc/>
         public override string[] ParameterNamesShortForm
         {
             get
@@ -190,9 +176,7 @@ namespace Numerics.Distributions
             }
         }
 
-        /// <summary>
-        /// Get an array of parameters.
-        /// </summary>
+        /// <inheritdoc/>
         public override double[] GetParameters 
         {
             get
@@ -204,17 +188,13 @@ namespace Numerics.Distributions
             }
         }
 
-        /// <summary>
-        /// Gets the full parameter names.
-        /// </summary>
+        /// <inheritdoc/>
         public override string[] GetParameterPropertyNames
         {
-            get { return new[] { nameof(Distributions) }; }
+            get { return [nameof(Distributions)]; }
         }
 
-        /// <summary>
-        /// Determines whether the parameters are valid or not.
-        /// </summary>
+        /// <inheritdoc/>
         public override bool ParametersValid
         {
             get { return _parametersValid; }
@@ -233,9 +213,7 @@ namespace Numerics.Distributions
             _momentsComputed = true;
         }
 
-        /// <summary>
-        /// Gets the mean of the distribution.
-        /// </summary>
+        /// <inheritdoc/>
         public override double Mean
         {
             get
@@ -245,25 +223,19 @@ namespace Numerics.Distributions
             }
         }
 
-        /// <summary>
-        /// Gets the median of the distribution.
-        /// </summary>
+        /// <inheritdoc/>
         public override double Median
         {
             get { return InverseCDF(0.5d); }
         }
 
-        /// <summary>
-        /// Gets the mode of the distribution.
-        /// </summary>
+        /// <inheritdoc/>
         public override double Mode
         {
             get { return double.NaN; }
         }
 
-        /// <summary>
-        /// Gets the standard deviation of the distribution.
-        /// </summary>
+        /// <inheritdoc/>
         public override double StandardDeviation
         {
             get
@@ -273,10 +245,8 @@ namespace Numerics.Distributions
             }
         }
 
-        /// <summary>
-        /// Gets the skew of the distribution.
-        /// </summary>
-        public override double Skew
+        /// <inheritdoc/>
+        public override double Skewness
         {
             get
             {
@@ -285,9 +255,7 @@ namespace Numerics.Distributions
             }
         }
 
-        /// <summary>
-        /// Gets the kurtosis of the distribution.
-        /// </summary>
+        /// <inheritdoc/>
         public override double Kurtosis
         {
             get
@@ -297,43 +265,31 @@ namespace Numerics.Distributions
             }
         }
 
-        /// <summary>
-        /// Gets the minimum of the distribution.
-        /// </summary>
+        /// <inheritdoc/>
         public override double Minimum
         {
             get { return Distributions.Min(p => p.Minimum); }
         }
 
-        /// <summary>
-        /// Gets the maximum of the distribution.
-        /// </summary>
+        /// <inheritdoc/>
         public override double Maximum
         {
             get { return Distributions.Max(p => p.Maximum); }
         }
 
-        /// <summary>
-        /// Gets the minimum values allowable for each parameter.
-        /// </summary>
+        /// <inheritdoc/>
         public override double[] MinimumOfParameters
         {
-            get { return new double[] { double.NaN }; }
+            get { return [double.NaN]; }
         }
 
-        /// <summary>
-        /// Gets the maximum values allowable for each parameter.
-        /// </summary>
+        /// <inheritdoc/>
         public override double[] MaximumOfParameters
         {
-            get { return new double[] { double.NaN }; }
+            get { return [double.NaN]; }
         }
 
-        /// <summary>
-        /// Estimates the parameters of the underlying distribution given a sample of observations.
-        /// </summary>
-        /// <param name="sample">The array of sample data.</param>
-        /// <param name="estimationMethod">The parameter estimation method.</param>
+        /// <inheritdoc/>
         public void Estimate(IList<double> sample, ParameterEstimationMethod estimationMethod)
         {
             if (estimationMethod == ParameterEstimationMethod.MaximumLikelihood)
@@ -342,15 +298,7 @@ namespace Numerics.Distributions
             }
         }
 
-        /// <summary>
-        /// Bootstrap the distribution based on a sample size and parameter estimation method.
-        /// </summary>
-        /// <param name="estimationMethod">The parameter estimation method.</param>
-        /// <param name="sampleSize">Size of the random sample to generate.</param>
-        /// <param name="seed">Optional. Seed for random number generator. Default = 12345.</param>
-        /// <returns>
-        /// Returns a bootstrapped distribution.
-        /// </returns>
+        /// <inheritdoc/>
         public IUnivariateDistribution Bootstrap(ParameterEstimationMethod estimationMethod, int sampleSize, int seed = 12345)
         {
             var newDistribution = (CompetingRisks)Clone();
@@ -389,10 +337,7 @@ namespace Numerics.Distributions
             _inverseCDFCreated = false;
         }
 
-        /// <summary>
-        /// Set the distribution parameters.
-        /// </summary>
-        /// <param name="parameters">A list of parameters.</param>
+        /// <inheritdoc/>
         public override void SetParameters(IList<double> parameters)
         {
             if (Distributions == null || Distributions.Count == 0) return;
@@ -410,11 +355,7 @@ namespace Numerics.Distributions
             }
         }
 
-        /// <summary>
-        /// Validate the parameters.
-        /// </summary>
-        /// <param name="parameters">A list of parameters.</param>
-        /// <param name="throwException">Determines whether to throw an exception or not.</param>
+        /// <inheritdoc/>
         public override ArgumentOutOfRangeException ValidateParameters(IList<double> parameters, bool throwException)
         {
             for (int i = 0; i < Distributions.Count; i++)
@@ -429,11 +370,7 @@ namespace Numerics.Distributions
             return null;
         }
 
-        /// <summary>
-        /// Get the initial, lower, and upper values for the distribution parameters for constrained optimization.
-        /// </summary>
-        /// <param name="sample">The array of sample data.</param>
-        /// <returns>Returns a Tuple of initial, lower, and upper values.</returns>
+        /// <inheritdoc/>
         public Tuple<double[], double[], double[]> GetParameterConstraints(IList<double> sample)
         {
             var initialVals = new double[NumberOfParameters];
@@ -460,10 +397,7 @@ namespace Numerics.Distributions
             return new Tuple<double[], double[], double[]>(initialVals, lowerVals, upperVals);
         }
 
-        /// <summary>
-        /// Estimate the distribution parameters using the method of maximum likelihood estimation.
-        /// </summary>
-        /// <param name="sample">The array of sample data.</param>
+        /// <inheritdoc/>
         public double[] MLE(IList<double> sample)
         {
             // Set constraints
@@ -485,10 +419,7 @@ namespace Numerics.Distributions
         }
 
 
-        /// <summary>
-        /// Gets the Probability Density Function (PDF) of the distribution evaluated at a point X.
-        /// </summary>
-        /// <param name="x">A single point in the distribution range.</param>
+        /// <inheritdoc/>
         public override double PDF(double x)
         {
        
@@ -520,10 +451,7 @@ namespace Numerics.Distributions
         }
 
 
-        /// <summary>
-        /// Returns the natural log of the PDF.
-        /// </summary>
-        /// <param name="x">A single point in the distribution range.</param>
+        /// <inheritdoc/>
         public override double LogPDF(double x)
         {
             double f = double.NaN;
@@ -554,10 +482,7 @@ namespace Numerics.Distributions
             return f;
         }
 
-        /// <summary>
-        /// Gets the Cumulative Distribution Function (CDF) for the distribution evaluated at a point X.
-        /// </summary>
-        /// <param name="x">A single point in the distribution range.</param>
+        /// <inheritdoc/>
         public override double CDF(double x)
         {
             double p = double.NaN;
@@ -576,18 +501,7 @@ namespace Numerics.Distributions
             return p < 0d ? 0d : p > 1d ? 1d : p;
         }
 
-        /// <summary>
-        /// Gets the Inverse Cumulative Distribution Function (ICFD) of the distribution evaluated at a probability.
-        /// </summary>
-        /// <param name="probability">Probability between 0 and 1.</param>
-        /// <returns>
-        /// Returns for a given probability in the probability distribution of a random variable,
-        /// the value at which the probability of the random variable is less than or equal to the
-        /// given probability.
-        /// </returns>
-        /// <remarks>
-        /// This function is also know as the Quantile Function.
-        /// </remarks>
+        /// <inheritdoc/>
         public override double InverseCDF(double probability)
         {
             // Validate probability
@@ -611,6 +525,7 @@ namespace Numerics.Distributions
         /// Returns a list of cumulative incidence functions. 
         /// </summary>
         /// <param name="bins">Optional. The stratification bins to integrate over. Default is 200 bins.</param>
+        /// <param name="correlationMatrix"></param>
         public List<EmpiricalDistribution> CumulativeIncidenceFunctions(List<StratificationBin> bins = null, double[,] correlationMatrix = null)
         {
             // Get stratification bins
@@ -863,24 +778,15 @@ namespace Numerics.Distributions
             _inverseCDFCreated = true;
         }
 
-        /// <summary>
-        /// Generate random values of a distribution given a sample size.
-        /// </summary>
-        /// <param name="samplesize"> Size of random sample to generate. </param>
-        /// <returns>
-        /// Array of random values.
-        /// </returns>
-        /// <remarks>
-        /// The random number generator seed is based on the current date and time according to your system.
-        /// </remarks>
-        public override double[] GenerateRandomValues(int samplesize)
+        /// <inheritdoc/>
+        public override double[] GenerateRandomValues(int sampleSize)
         {
             // Create seed based on date and time
             // Create PRNG for generating random numbers
             var r = new MersenneTwister();
-            var sample = new double[samplesize];
+            var sample = new double[sampleSize];
             // Generate values
-            for (int i = 0; i < samplesize; i++)
+            for (int i = 0; i < sampleSize; i++)
             {
                 double xMin = double.MaxValue;
                 double xMax = double.MinValue;
@@ -896,21 +802,14 @@ namespace Numerics.Distributions
             return sample;
         }
 
-        /// <summary>
-        /// Generate random values of a distribution given a sample size based on a user-defined seed.
-        /// </summary>
-        /// <param name="seed">Seed for random number generator.</param>
-        /// <param name="samplesize"> Size of random sample to generate. </param>
-        /// <returns>
-        /// Array of random values.
-        /// </returns>
-        public override double[] GenerateRandomValues(int seed, int samplesize)
+        /// <inheritdoc/>
+        public override double[] GenerateRandomValues(int seed, int sampleSize)
         {
             // Create PRNG for generating random numbers
             var r = new MersenneTwister(seed);
-            var sample = new double[samplesize];
+            var sample = new double[sampleSize];
             // Generate values
-            for (int i = 0; i < samplesize; i++)
+            for (int i = 0; i < sampleSize; i++)
             {
                 double xMin = double.MaxValue;
                 double xMax = double.MinValue;
@@ -926,9 +825,7 @@ namespace Numerics.Distributions
             return sample;
         }
 
-        /// <summary>
-        /// Creates a copy of the distribution.
-        /// </summary>
+        /// <inheritdoc/>
         public override UnivariateDistributionBase Clone()
         {
             var dists = new UnivariateDistributionBase[Distributions.Count];

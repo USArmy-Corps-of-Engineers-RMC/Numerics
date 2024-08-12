@@ -1,4 +1,4 @@
-﻿/**
+﻿/*
 * NOTICE:
 * The U.S. Army Corps of Engineers, Risk Management Center (USACE-RMC) makes no guarantees about
 * the results, or appropriateness of outputs, obtained from Numerics.
@@ -26,7 +26,7 @@
 * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
 * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-* **/
+*/
 
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -199,16 +199,26 @@ namespace Numerics.Utilities
             _synchronizationContext = context;
         }
 
+        /// <summary>
+        /// Indicate that the task has started.
+        /// </summary>
         public void IndicateTaskStart()
         {
             _synchronizationContext.Post(new SendOrPostCallback(state => TaskStarted?.Invoke()), null);
         }
 
+        /// <summary>
+        /// Indicate that the task has ended.
+        /// </summary>
         public void IndicateTaskEnded()
         {
             _synchronizationContext.Post(new SendOrPostCallback(state => TaskEnded?.Invoke()), null);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="prog"></param>
         protected virtual void OnProgressReported(double prog)
         {
         }
@@ -217,12 +227,20 @@ namespace Numerics.Utilities
         {
         }
 
-        public void ReportExternalProcess(Process p)
+        /// <summary>
+        /// Report external process that is running.
+        /// </summary>
+        /// <param name="process">The external process.</param>
+        public void ReportExternalProcess(Process process)
         {
-            _externalProcess = p;
-            OnExternalProcessReported(p);
+            _externalProcess = process;
+            OnExternalProcessReported(process);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="p"></param>
         protected virtual void OnExternalProcessReported(Process p)
         {
         }

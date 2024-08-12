@@ -1,4 +1,4 @@
-﻿/**
+﻿/*
 * NOTICE:
 * The U.S. Army Corps of Engineers, Risk Management Center (USACE-RMC) makes no guarantees about
 * the results, or appropriateness of outputs, obtained from Numerics.
@@ -26,7 +26,7 @@
 * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
 * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-* **/
+*/
 
 using System.Collections.Generic;
 using System.Globalization;
@@ -282,7 +282,7 @@ namespace Numerics.Data
         /// <summary>
         /// Checks if two uncertain ordinates are equal.
         /// </summary>
-        /// <param name="left">First uncertain ordinate to compare.<param>
+        /// <param name="left">First uncertain ordinate to compare.</param>
         /// <param name="right">Second uncertain ordinate to compare.</param>
         /// <returns>True if two objects are numerically equal; otherwise, False.</returns>
         public static bool operator ==(UncertainOrdinate left, UncertainOrdinate right)

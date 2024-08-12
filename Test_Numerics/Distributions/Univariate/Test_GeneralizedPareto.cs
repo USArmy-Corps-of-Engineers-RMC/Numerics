@@ -145,9 +145,9 @@ namespace Distributions.Univariate
         public void Test_GPA_Partials()
         {
             var GPA = new GeneralizedPareto(50203.04d, 55365.72d, 0.0948d);
-            double dQdLocation = GPA.PartialDerivatives(0.99d)[0];
-            double dQdScale = GPA.PartialDerivatives(0.99d)[1];
-            double dQdShape = GPA.PartialDerivatives(0.99d)[2];
+            double dQdLocation = GPA.QuantileGradient(0.99d)[0];
+            double dQdScale = GPA.QuantileGradient(0.99d)[1];
+            double dQdShape = GPA.QuantileGradient(0.99d)[2];
             double true_dLocation = 1.0d;
             double true_dScale = 3.7315488d;
             double true_dShape = -441209.53d;

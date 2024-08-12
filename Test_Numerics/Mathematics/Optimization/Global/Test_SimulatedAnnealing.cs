@@ -1,4 +1,4 @@
-﻿/**
+﻿/*
 * NOTICE:
 * The U.S. Army Corps of Engineers, Risk Management Center (USACE-RMC) makes no guarantees about
 * the results, or appropriateness of outputs, obtained from Numerics.
@@ -26,7 +26,7 @@
 * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
 * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-* **/
+*/
 
 using System;
 using System.Diagnostics;
@@ -310,13 +310,13 @@ namespace Mathematics.Optimization
             var solver = new SimulatedAnnealing(TestFunctions.Eggholder, 2, lower, upper);
             solver.Minimize();
             double F = solver.BestParameterSet.Fitness; // -126.42
-            double trueF = -959.6407;
+            //double trueF = -959.6407;
             //Assert.AreEqual(F, trueF, 1E-2);
             var solution = solver.BestParameterSet.Values;
             var x = solution[0]; // -46.45
             var y = solution[1]; // 38.13
-            var validX = 512d;
-            var validY = 404.2319d;
+            //var validX = 512d;
+            //var validY = 404.2319d;
             //Assert.AreEqual(x, validX, 1E-2);
             //Assert.AreEqual(y, validY, 1E-2);
 

@@ -1,4 +1,4 @@
-﻿/**
+﻿/*
 * NOTICE:
 * The U.S. Army Corps of Engineers, Risk Management Center (USACE-RMC) makes no guarantees about
 * the results, or appropriateness of outputs, obtained from Numerics.
@@ -26,12 +26,11 @@
 * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
 * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-* **/
+*/
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.ConstrainedExecution;
 using Numerics.Mathematics.LinearAlgebra;
 using Numerics.Mathematics.SpecialFunctions;
 using Numerics.Sampling;
@@ -506,7 +505,7 @@ namespace Numerics.Distributions
         /// <summary>
         /// Generate random values of a distribution given a sample size.
         /// </summary>
-        /// <param name="samplesize"> Size of random sample to generate. </param>
+        /// <param name="sampleSize"> Size of random sample to generate. </param>
         /// <returns>
         /// Array of random values. The number of rows are equal to the sample size.
         /// The number of columns are equal to the dimensions of this distribution.
@@ -514,14 +513,14 @@ namespace Numerics.Distributions
         /// <remarks>
         /// The random number generator seed is based on the current date and time according to your system.
         /// </remarks>
-        public double[,] GenerateRandomValues(int samplesize)
+        public double[,] GenerateRandomValues(int sampleSize)
         {
             // Create seed based on date and time
             // Create PRNG for generating random numbers
             var r = new MersenneTwister();
-            var sample = new double[samplesize, Dimension];
+            var sample = new double[sampleSize, Dimension];
             // Generate values
-            for (int i = 0; i < samplesize; i++)
+            for (int i = 0; i < sampleSize; i++)
             {
                 // Create vector z of standard normal variates for each dimension
                 var z = new double[Dimension];
@@ -539,18 +538,18 @@ namespace Numerics.Distributions
         /// <summary>
         /// Generate random values of a distribution given a sample size based on a user-defined seed.
         /// </summary>
-        /// <param name="samplesize"> Size of random sample to generate. </param>
+        /// <param name="sampleSize"> Size of random sample to generate. </param>
         /// <param name="seed"> Seed for random number generator. </param>
         /// <returns>
         /// Array of random values.
         /// </returns>
-        public double[,] GenerateRandomValues(int samplesize, int seed)
+        public double[,] GenerateRandomValues(int sampleSize, int seed)
         {
             // Create PRNG for generating random numbers
             var r = new MersenneTwister(seed);
-            var sample = new double[samplesize, Dimension];
+            var sample = new double[sampleSize, Dimension];
             // Generate values
-            for (int i = 0; i < samplesize; i++)
+            for (int i = 0; i < sampleSize; i++)
             {
                 // Create vector z of standard normal variates for each dimension
                 var z = new double[Dimension];
@@ -568,17 +567,17 @@ namespace Numerics.Distributions
         /// <summary>
         /// Use Latin hypercube method to generate random values of a distribution given a sample size and a user-defined seed.
         /// </summary>
-        /// <param name="samplesize"> Size of random sample to generate. </param>
+        /// <param name="sampleSize"> Size of random sample to generate. </param>
         /// <param name="seed"> Seed for random number generator. </param>
         /// <returns>
         /// Array of random values.
         /// </returns>
-        public double[,] LatinHypercubeRandomValues(int samplesize, int seed)
+        public double[,] LatinHypercubeRandomValues(int sampleSize, int seed)
         {
-            var r = LatinHypercube.Random(samplesize, Dimension, seed);
-            var sample = new double[samplesize, Dimension];
+            var r = LatinHypercube.Random(sampleSize, Dimension, seed);
+            var sample = new double[sampleSize, Dimension];
             // Generate values
-            for (int i = 0; i < samplesize; i++)
+            for (int i = 0; i < sampleSize; i++)
             {
                 // Create vector z of standard normal variates for each dimension
                 var z = new double[Dimension];
@@ -1230,7 +1229,7 @@ namespace Numerics.Distributions
         /// <param name="LOWER">array of lower integration limits.</param>
         /// <param name="UPPER">array of upper integration limits.</param>
         /// <param name="INFIN">array of integration limits flags:
-        ///            if INFIN(I) < 0, Ith limits are (-infinity, infinity);
+        ///            if INFIN(I) &gt; 0, Ith limits are (-infinity, infinity);
         ///            if INFIN(I) = 0, Ith limits are(-infinity, UPPER(I)];
         ///            if INFIN(I) = 1, Ith limits are[LOWER(I), infinity);
         ///            if INFIN(I) = 2, Ith limits are[LOWER(I), UPPER(I)].</param>
@@ -1241,7 +1240,7 @@ namespace Numerics.Distributions
         /// <param name="RELEPS">relative error tolerance.</param>
         /// <param name="ERROR">estimated absolute error, with 99% confidence level.</param>
         /// <param name="VALUE">estimated value for the integral.</param>
-        /// <param name="INFORM">termination status parameter: if INFORM = 0, normal completion with ERROR<EPS; if INFORM = 1, completion with ERROR > EPS and MAXPTS function values used; increase MAXPTS to decrease ERROR; if INFORM = 2, N > 500 or N less than 1.</param>
+        /// <param name="INFORM">termination status parameter: if INFORM = 0, normal completion with ERROR &lt; EPS; if INFORM = 1, completion with ERROR > EPS and MAXPTS function values used; increase MAXPTS to decrease ERROR; if INFORM = 2, N > 500 or N less than 1.</param>
         public void MVNDST(int N, double[] LOWER, double[] UPPER, int[] INFIN, double[] CORREL, int MAXPTS, double ABSEPS, double RELEPS, ref double ERROR, ref double VALUE, ref int INFORM)
         {
             int INFIS = 0, IVLS;
@@ -1700,14 +1699,14 @@ namespace Numerics.Distributions
         /// H.Niederreiter, Aequationes Mathematicae, 8(1972), pp. 304-11.
         /// </summary>
         /// <param name="NDIM">Number of variables, must exceed 1, but not exceed 40.</param>
-        /// <param name="MINVLS">minimum number of function evaluations allowed. MINVLS must not exceed MAXVLS.If MINVLS< 0 then the routine assumes a previous call has been made with the same integrand and continues that calculation.</param>
+        /// <param name="MINVLS">minimum number of function evaluations allowed. MINVLS must not exceed MAXVLS.If MINVLS &lt; 0 then the routine assumes a previous call has been made with the same integrand and continues that calculation.</param>
         /// <param name="MAXVLS">maximum number of function evaluations allowed.</param>
         /// <param name="FUNCTN">EXTERNALly declared user defined function to be integrated. It must have parameters (NDIM, Z), where Z is a real array of dimension NDIM.</param>
         /// <param name="ABSEPS">Required absolute accuracy.</param>
         /// <param name="RELEPS">Required relative accuracy.</param>
         /// <param name="ABSERR">Estimated absolute accuracy of FINEST.</param>
         /// <param name="FINEST">Estimated value of integral.</param>
-        /// <param name="INFORM">INFORM = 0 for normal exit, when ABSERR <= MAX(ABSEPS, RELEPS* ABS(FINEST)) and INTVLS <= MAXCLS. 
+        /// <param name="INFORM">INFORM = 0 for normal exit, when ABSERR &lt;= MAX(ABSEPS, RELEPS* ABS(FINEST)) and INTVLS &lt;= MAXCLS. 
         ///                      INFORM = 1 If MAXVLS was too small to obtain the required accuracy.In this case a value FINEST is returned with estimated absolute accuracy ABSERR.</param>
         private void DKBVRC(int NDIM, int MINVLS, int MAXVLS, Func<int, double[], double> FUNCTN, double ABSEPS, double RELEPS, ref double ABSERR, ref double FINEST, ref int INFORM)
         {

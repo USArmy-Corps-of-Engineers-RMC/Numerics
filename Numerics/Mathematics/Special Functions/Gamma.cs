@@ -1,4 +1,4 @@
-﻿/**
+﻿/*
 * NOTICE:
 * The U.S. Army Corps of Engineers, Risk Management Center (USACE-RMC) makes no guarantees about
 * the results, or appropriateness of outputs, obtained from Numerics.
@@ -26,7 +26,7 @@
 * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
 * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-* **/
+*/
 
 // Accord Math Library
 // The Accord.NET Framework
@@ -117,7 +117,11 @@ namespace Numerics.Mathematics.SpecialFunctions
     /// </remarks>
     public sealed class Gamma
     {
-        private static readonly double[] _p = new[] { 0.99999999999980993d, 676.5203681218851d, -1259.1392167224028d, 771.32342877765313d, -176.61502916214059d, 12.507343278686905d, -0.13857109526572012d, 0.0000099843695780195716d, 0.00000015056327351493116d };
+        private static readonly double[] _p = [0.99999999999980993d, 676.5203681218851d, -1259.1392167224028d, 771.32342877765313d, -176.61502916214059d, 12.507343278686905d, -0.13857109526572012d, 0.0000099843695780195716d, 0.00000015056327351493116d];
+        
+        /// <summary>
+        /// The maximum Gamma value. 
+        /// </summary>
         public const double GammaMax = 171.624376956302725;
 
         private static readonly double[] gamma_P =

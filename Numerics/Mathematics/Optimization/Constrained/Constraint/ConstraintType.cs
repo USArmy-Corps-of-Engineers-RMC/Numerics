@@ -1,4 +1,4 @@
-﻿/**
+﻿/*
 * NOTICE:
 * The U.S. Army Corps of Engineers, Risk Management Center (USACE-RMC) makes no guarantees about
 * the results, or appropriateness of outputs, obtained from Numerics.
@@ -26,7 +26,7 @@
 * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
 * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-* **/
+*/
 
 namespace Numerics.Mathematics.Optimization
 {
@@ -48,12 +48,12 @@ namespace Numerics.Mathematics.Optimization
         EqualTo,
 
         /// <summary>
-        /// Inequality constraint for greater than or equal to, h(x) >= 0
+        /// Inequality constraint for greater than or equal to, h(x) &gt;= 0
         /// </summary>
         GreaterThanOrEqualTo,
 
         /// <summary>
-        /// Inequality constraint for lesser than or equal to, h(x) <= 0
+        /// Inequality constraint for lesser than or equal to, h(x) &lt;= 0
         /// </summary>
         LesserThanOrEqualTo
     }

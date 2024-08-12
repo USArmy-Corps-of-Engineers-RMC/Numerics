@@ -1,4 +1,4 @@
-﻿/**
+﻿/*
 * NOTICE:
 * The U.S. Army Corps of Engineers, Risk Management Center (USACE-RMC) makes no guarantees about
 * the results, or appropriateness of outputs, obtained from Numerics.
@@ -26,7 +26,7 @@
 * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
 * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-* **/
+*/
 
 using System;
 using System.Collections.Generic;
@@ -375,6 +375,7 @@ namespace Numerics
         /// <param name="data">The data to be classified.</param>
         /// <param name="rValue">The common ratio (r) in a geometric progression.</param>
         /// <param name="dataIsSorted">Boolean value indicating if the data is sorted in ascending order.</param>
+        /// <param name="mirror"></param>
         /// <param name="maxClasses">maximum number of classes allowed</param>
         /// <returns>
         /// An array of upper bound break values.
@@ -426,6 +427,7 @@ namespace Numerics
         /// <param name="rValue">The common ratio (r) in a geometric progression.</param>
         /// <param name="minValue">Minimum value for determining classification.</param>
         /// <param name="maxValue">Maximum value for determining classification.</param>
+        /// <param name="mirror"></param>
         /// <param name="maxClasses">maximum number of classes allowed</param>
         /// <returns>
         /// An array of upper bound break values.

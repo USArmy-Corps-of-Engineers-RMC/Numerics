@@ -1,4 +1,4 @@
-﻿/**
+﻿/*
 * NOTICE:
 * The U.S. Army Corps of Engineers, Risk Management Center (USACE-RMC) makes no guarantees about
 * the results, or appropriateness of outputs, obtained from Numerics.
@@ -26,13 +26,12 @@
 * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
 * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-* **/
+*/
 
 using Numerics.Mathematics.LinearAlgebra;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Windows.Documents;
 
 namespace Numerics.Mathematics.Optimization
 {
@@ -131,7 +130,7 @@ namespace Numerics.Mathematics.Optimization
             double EPS = Tools.DoubleMachineEpsilon;
             double TOLX = 4 * EPS, STPMX = 100.0;
             bool check = false;
-            double fret = 0, den, fac, fad, fae, fp, stpmax, sum = 0.0, sumdg, sumxi, temp, test;
+            double fret = 0, fac, fad, fae, fp, stpmax, sum = 0.0, sumdg, sumxi;
             var p = InitialValues.ToArray();
             var dg = new double[D];
             var g = new double[D];

@@ -36,7 +36,7 @@ namespace Distributions.Univariate
             PA.SetParameters(new[] { 1d, 10d });
             double true_skew = 2.8111d;
             double true_kurt = 17.8286d;
-            Assert.AreEqual(PA.Skew, true_skew, 0.0001d);
+            Assert.AreEqual(PA.Skewness, true_skew, 0.0001d);
             Assert.AreEqual(PA.Kurtosis, true_kurt, 0.0001d);
         }
     }

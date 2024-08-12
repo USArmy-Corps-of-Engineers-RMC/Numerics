@@ -1,4 +1,4 @@
-﻿/**
+﻿/*
 * NOTICE:
 * The U.S. Army Corps of Engineers, Risk Management Center (USACE-RMC) makes no guarantees about
 * the results, or appropriateness of outputs, obtained from Numerics.
@@ -26,7 +26,7 @@
 * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
 * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-* **/
+*/
 
 using Numerics.Data;
 using Numerics.Mathematics.Optimization;
@@ -311,7 +311,7 @@ namespace Numerics.Distributions
         /// <summary>
         /// Gets the skew of the distribution.
         /// </summary>
-        public override double Skew
+        public override double Skewness
         {
             get
             {
@@ -885,7 +885,7 @@ namespace Numerics.Distributions
                 }
                 x = Brent.Solve((y) => { return probability - CDF(y); }, minX, maxX, 1E-4, 100, true);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 if (_inverseCDFCreated == false)
                     CreateInverseCDF();

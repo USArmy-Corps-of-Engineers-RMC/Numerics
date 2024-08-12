@@ -1,4 +1,4 @@
-﻿/**
+﻿/*
 * NOTICE:
 * The U.S. Army Corps of Engineers, Risk Management Center (USACE-RMC) makes no guarantees about
 * the results, or appropriateness of outputs, obtained from Numerics.
@@ -26,7 +26,7 @@
 * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
 * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-* **/
+*/
 
 using System;
 using System.Collections.Generic;
@@ -322,7 +322,7 @@ namespace Numerics.Distributions
         /// <summary>
         /// Gets the skew of the distribution.
         /// </summary>
-        public override double Skew
+        public override double Skewness
         {
             get { return 2.0d * (Beta - Alpha) * Math.Sqrt(Alpha + Beta + 1.0d) / ((Alpha + Beta + 2.0d) * Math.Sqrt(Alpha * Beta)); }
         }
@@ -399,6 +399,13 @@ namespace Numerics.Distributions
             SetParameters(parameters[0], parameters[1], parameters[2], parameters[3]);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="mu"></param>
+        /// <param name="sigma"></param>
+        /// <param name="min"></param>
+        /// <param name="max"></param>
         public void SetParametersFromMoments(double mu, double sigma, double min, double max)
         {
             var s2 = sigma * sigma;

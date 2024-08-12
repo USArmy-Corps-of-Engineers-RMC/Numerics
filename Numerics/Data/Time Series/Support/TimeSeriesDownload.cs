@@ -1,4 +1,4 @@
-﻿/**
+﻿/*
 * NOTICE:
 * The U.S. Army Corps of Engineers, Risk Management Center (USACE-RMC) makes no guarantees about
 * the results, or appropriateness of outputs, obtained from Numerics.
@@ -26,7 +26,7 @@
 * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
 * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-* **/
+*/
 
 using System.IO.Compression;
 using System.IO;
@@ -54,11 +54,29 @@ namespace Numerics.Data
         /// </summary>
         public enum USGSTimeSeriesType
         {
+            /// <summary>
+            /// Daily discharge.
+            /// </summary>
             DailyDischarge,
+            /// <summary>
+            /// Daily stage.
+            /// </summary>
             DailyStage,
+            /// <summary>
+            /// Instantaneous discharge, typically record at a 15-minute interval.
+            /// </summary>
             InstantaneousDischarge,
+            /// <summary>
+            /// Instantaneous stage, typically record at a 15-minute interval.
+            /// </summary>
             InstantaneousStage,
+            /// <summary>
+            /// Annual max peak discharge.
+            /// </summary>
             PeakDischarge,
+            /// <summary>
+            /// Annual max peak stage.
+            /// </summary>
             PeakStage
         }
 
@@ -67,7 +85,13 @@ namespace Numerics.Data
         /// </summary>
         public enum GHCNTimeSeriesType
         {
+            /// <summary>
+            /// Daily precipitation.
+            /// </summary>
             DailyPrecipitation,
+            /// <summary>
+            /// Daily snow.
+            /// </summary>
             DailySnow,
         }
 
@@ -76,8 +100,17 @@ namespace Numerics.Data
         /// </summary>
         public enum DepthUnit
         {
+            /// <summary>
+            /// Millimeters
+            /// </summary>
             Millimeters,
+            /// <summary>
+            /// Centimeters.
+            /// </summary>
             Centimeters,
+            /// <summary>
+            /// Inches.
+            /// </summary>
             Inches
         }
 

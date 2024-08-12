@@ -1,4 +1,4 @@
-﻿/**
+﻿/*
 * NOTICE:
 * The U.S. Army Corps of Engineers, Risk Management Center (USACE-RMC) makes no guarantees about
 * the results, or appropriateness of outputs, obtained from Numerics.
@@ -26,7 +26,7 @@
 * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
 * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-* **/
+*/
 
 using System;
 using System.Collections.Generic;
@@ -112,9 +112,21 @@ namespace Numerics.Distributions
         /// </summary>
         public enum KernelType
         {
+            /// <summary>
+            /// Epanechnikov kernel.
+            /// </summary>
             Epanechnikov,
+            /// <summary>
+            /// Gaussian kernel.
+            /// </summary>
             Gaussian,
+            /// <summary>
+            /// Triangular kernel.
+            /// </summary>
             Triangular,
+            /// <summary>
+            /// Uniform kernel.
+            /// </summary>
             Uniform
         }
 
@@ -339,7 +351,7 @@ namespace Numerics.Distributions
         /// <summary>
         /// Gets the skew of the distribution.
         /// </summary>
-        public override double Skew
+        public override double Skewness
         {
             get { return u3; }
         }

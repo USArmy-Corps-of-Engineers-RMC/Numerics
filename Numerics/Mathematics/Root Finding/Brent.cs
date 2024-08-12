@@ -1,4 +1,4 @@
-﻿/***
+﻿/*
 * NOTICE:
 * The U.S. Army Corps of Engineers, Risk Management Center (USACE-RMC) makes no guarantees about
 * the results, or appropriateness of outputs, obtained from Numerics.
@@ -26,7 +26,7 @@
 * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
 * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-**/
+*/
 
 using System;
 
@@ -201,15 +201,17 @@ namespace Numerics.Mathematics.RootFinding
         /// <param name="f">The function to solve.</param>
         /// <param name="lowerBound">The lower bound (a) of the interval containing the root.</param>
         /// <param name="upperBound">The upper bound (b) of the interval containing the root.</param>
+        /// <param name="f1">Output. The function value at the lower bound.</param>
+        /// <param name="f2">Output. The function value at the upper bound.</param>
         /// <param name="maxIterations">Optional. Maximum number of iterations. Default = 1000.</param>
         public static bool Bracket(Func<double, double> f, ref double lowerBound, ref double upperBound, out double f1, out double f2, int maxIterations = 10)
         {
             double FACTOR = 1.6;
-            if (lowerBound == upperBound) throw new Exception("Bad initial range in zbrac");
+            if (lowerBound == upperBound) throw new Exception("Bad initial range in bracket.");
             f1 = f(lowerBound);
             f2 = f(upperBound);
 
-            if (lowerBound == upperBound) throw new Exception("Bad initial range in zbrac");
+            if (lowerBound == upperBound) throw new Exception("Bad initial range in bracket.");
             
             for (int j = 0; j < maxIterations; j++)
             {

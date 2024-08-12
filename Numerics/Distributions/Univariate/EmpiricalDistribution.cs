@@ -1,4 +1,4 @@
-﻿/**
+﻿/*
 * NOTICE:
 * The U.S. Army Corps of Engineers, Risk Management Center (USACE-RMC) makes no guarantees about
 * the results, or appropriateness of outputs, obtained from Numerics.
@@ -26,7 +26,7 @@
 * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
 * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-* **/
+*/
 
 using System;
 using System.Collections.Generic;
@@ -73,7 +73,7 @@ namespace Numerics.Distributions
         /// </summary>
         public EmpiricalDistribution()
         {
-            SetParameters(new[] { -0.5d, 0d, 0.5d }, new[] { 0.1d, 0.5d, 0.9d });
+            SetParameters([-0.5d, 0d, 0.5d], [0.1d, 0.5d, 0.9d]);
         }
 
         /// <summary>
@@ -165,13 +165,13 @@ namespace Numerics.Distributions
         /// Returns the array of X values. Points On the cumulative curve are specified
         /// with increasing value and increasing probability.
         /// </summary>
-        public ReadOnlyCollection<double> XValues => new ReadOnlyCollection<double>(_xValues);
+        public ReadOnlyCollection<double> XValues => new(_xValues);
 
         /// <summary>
         /// Returns the array of probability values. Points on the cumulative curve are specified
         /// with increasing value and increasing probability.
         /// </summary>
-        public ReadOnlyCollection<double> ProbabilityValues => new ReadOnlyCollection<double>(_pValues);
+        public ReadOnlyCollection<double> ProbabilityValues => new(_pValues);
 
         /// <summary>
         /// Returns the sort order of the X-values.
@@ -193,41 +193,31 @@ namespace Numerics.Distributions
         /// </summary>
         public Transform ProbabilityTransform { get; set; } = Transform.NormalZ;
 
-        /// <summary>
-        /// Returns the number of distribution parameters.
-        /// </summary>
+        /// <inheritdoc/>
         public override int NumberOfParameters
         {
             get { return 2; }
         }
 
-        /// <summary>
-        /// Returns the continuous distribution type.
-        /// </summary>
+        /// <inheritdoc/>
         public override UnivariateDistributionType Type
         {
             get { return UnivariateDistributionType.Empirical; }
         }
 
-        /// <summary>
-        /// Returns the name of the distribution type as a string.
-        /// </summary>
+        /// <inheritdoc/>
         public override string DisplayName
         {
             get { return "Univariate Empirical"; }
         }
 
-        /// <summary>
-        /// Returns the short display name of the distribution as a string.
-        /// </summary>
+        /// <inheritdoc/>
         public override string ShortDisplayName
         {
             get { return "Uni. Emp"; }
         }
 
-        /// <summary>
-        /// Get distribution parameters in 2-column array of string.
-        /// </summary>
+        /// <inheritdoc/>
         public override string[,] ParametersToString
         {
             get
@@ -255,33 +245,25 @@ namespace Numerics.Distributions
             }
         }
 
-        /// <summary>
-        /// Gets the short form parameter names.
-        /// </summary>
+        /// <inheritdoc/>
         public override string[] ParameterNamesShortForm
         {
-            get { return new[] { "X()", "P()" }; }
+            get { return ["X()", "P()"]; }
         }
 
-        /// <summary>
-        /// Gets the full parameter names.
-        /// </summary>
+        /// <inheritdoc/>
         public override string[] GetParameterPropertyNames
         {
-            get { return new[] { nameof(XValues), nameof(ProbabilityValues) }; }
+            get { return [nameof(XValues), nameof(ProbabilityValues)]; }
         }
 
-        /// <summary>
-        /// Get an array of parameters.
-        /// </summary>
+        /// <inheritdoc/>
         public override double[] GetParameters
         {
             get { throw new NotImplementedException(); }
         }
 
-        /// <summary>
-        /// Determines whether the parameters are valid or not.
-        /// </summary>
+        /// <inheritdoc/>
         public override bool ParametersValid
         {
             get { return _parametersValid; }
@@ -300,9 +282,7 @@ namespace Numerics.Distributions
             _momentsComputed = true;
         }
 
-        /// <summary>
-        /// Gets the mean of the distribution.
-        /// </summary>
+        /// <inheritdoc/>
         public override double Mean
         {
             get
@@ -312,25 +292,19 @@ namespace Numerics.Distributions
             }
         }
 
-        /// <summary>
-        /// Gets the median of the distribution.
-        /// </summary>
+        /// <inheritdoc/>
         public override double Median
         {
             get { return InverseCDF(0.5d); }
         }
 
-        /// <summary>
-        /// Gets the mode of the distribution.
-        /// </summary>
+        /// <inheritdoc/>
         public override double Mode
         {
             get { return double.NaN; }
         }
 
-        /// <summary>
-        /// Gets the standard deviation of the distribution.
-        /// </summary>
+        /// <inheritdoc/>
         public override double StandardDeviation
         {
             get
@@ -340,10 +314,8 @@ namespace Numerics.Distributions
             }
         }
 
-        /// <summary>
-        /// Gets the skew of the distribution.
-        /// </summary>
-        public override double Skew
+        /// <inheritdoc/>
+        public override double Skewness
         {
             get
             {
@@ -352,9 +324,7 @@ namespace Numerics.Distributions
             }
         }
 
-        /// <summary>
-        /// Gets the kurtosis of the distribution.
-        /// </summary>
+        /// <inheritdoc/>
         public override double Kurtosis
         {
             get
@@ -364,47 +334,31 @@ namespace Numerics.Distributions
             }
         }
 
-        /// <summary>
-        /// Gets the minimum of the distribution.
-        /// </summary>
+        /// <inheritdoc/>
         public override double Minimum
         {
             get { return XValues.First(); }
         }
 
-        /// <summary>
-        /// Gets the maximum of the distribution.
-        /// </summary>
+        /// <inheritdoc/>
         public override double Maximum
         {
             get { return XValues.Last(); }
         }
 
-        /// <summary>
-        /// Gets the minimum values allowable for each parameter.
-        /// </summary>
+        /// <inheritdoc/>
         public override double[] MinimumOfParameters
         {
             get { return new double[] { double.MinValue, 0d }; }
         }
 
-        /// <summary>
-        /// Gets the maximum values allowable for each parameter.
-        /// </summary>
+        /// <inheritdoc/>
         public override double[] MaximumOfParameters
         {
             get { return new double[] { double.MaxValue, 1d }; }
         }
 
-        /// <summary>
-        /// Bootstrap the distribution based on a sample size and parameter estimation method.
-        /// </summary>
-        /// <param name="estimationMethod">The parameter estimation method.</param>
-        /// <param name="sampleSize">Size of the random sample to generate.</param>
-        /// <param name="seed">Optional. Seed for random number generator. Default = 12345.</param>
-        /// <returns>
-        /// Returns a bootstrapped distribution.
-        /// </returns>
+        /// <inheritdoc/>
         public IUnivariateDistribution Bootstrap(ParameterEstimationMethod estimationMethod, int sampleSize, int seed = 12345)
         {
             var sample = GenerateRandomValues(seed, sampleSize);
@@ -439,29 +393,18 @@ namespace Numerics.Distributions
             _momentsComputed = false;
         }
 
-        /// <summary>
-        /// Set the distribution parameters.
-        /// </summary>
-        /// <param name="parameters">A list of parameters.</param>
+        /// <inheritdoc/>
         public override void SetParameters(IList<double> parameters)
         {
             throw new NotImplementedException();
         }
 
-        /// <summary>
-        /// Validate the parameters.
-        /// </summary>
-        /// <param name="parameters">A list of parameters.</param>
-        /// <param name="throwException">Determines whether to throw an exception or not.</param>
+        /// <inheritdoc/>
         public override ArgumentOutOfRangeException ValidateParameters(IList<double> parameters, bool throwException)
         {
             return null;
         }
-
-        /// <summary>
-        /// Gets the Probability Density Function (PDF) of the distribution evaluated at a point X.
-        /// </summary>
-        /// <param name="X">A single point in the distribution range.</param>
+        /// <inheritdoc/>
         public override double PDF(double X)
         {
             if (X < Minimum || X > Maximum) return 0.0d;
@@ -484,14 +427,9 @@ namespace Numerics.Distributions
             return d < 0d ? 0d : d;
         }
 
-        /// <summary>
-        /// Gets the Cumulative Distribution Function (CDF) for the distribution evaluated at a point X.
-        /// </summary>
-        /// <param name="X">A single point in the distribution range.</param>
+        /// <inheritdoc/>
         public override double CDF(double X)
         {
-            //if (X < Minimum) return 0d;
-            //if (X > Maximum) return 1d;
             double p = 0;
             if (opd.OrderY == SortOrder.Ascending || opd.OrderY == SortOrder.None)
             {
@@ -505,18 +443,7 @@ namespace Numerics.Distributions
             return p < 0d ? 0d : p > 1d ? 1d : p;
         }
 
-        /// <summary>
-        /// Gets the Inverse Cumulative Distribution Function (ICFD) of the distribution evaluated at a probability.
-        /// </summary>
-        /// <param name="probability">Probability between 0 and 1.</param>
-        /// <returns>
-        /// Returns for a given probability in the probability distribution of a random variable,
-        /// the value at which the probability of the random variable is less than or equal to the
-        /// given probability.
-        /// </returns>
-        /// <remarks>
-        /// This function is also know as the Quantile Function.
-        /// </remarks>
+        /// <inheritdoc/>
         public override double InverseCDF(double probability)
         {
             // Validate probability
@@ -539,10 +466,8 @@ namespace Numerics.Distributions
             }
             return x < min ? min : x > max ? max : x;
         }
-       
-        /// <summary>
-        /// Creates a copy of the distribution.
-        /// </summary>
+
+        /// <inheritdoc/>
         public override UnivariateDistributionBase Clone()
         {
             return new EmpiricalDistribution(XValues, ProbabilityValues) { XTransform = XTransform, ProbabilityTransform = ProbabilityTransform };

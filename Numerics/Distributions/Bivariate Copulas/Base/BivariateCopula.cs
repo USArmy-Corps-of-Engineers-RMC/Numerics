@@ -1,4 +1,4 @@
-﻿/**
+﻿/*
 * NOTICE:
 * The U.S. Army Corps of Engineers, Risk Management Center (USACE-RMC) makes no guarantees about
 * the results, or appropriateness of outputs, obtained from Numerics.
@@ -26,7 +26,7 @@
 * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
 * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-* **/
+*/
 
 using Numerics.Sampling;
 using System;
@@ -48,7 +48,13 @@ namespace Numerics.Distributions.Copulas
 
         #region Members
 
+        /// <summary>
+        /// Protected dependency property.
+        /// </summary>
         protected double _theta;
+        /// <summary>
+        /// Protected parameter is valid property.
+        /// </summary>
         protected bool _parametersValid = true;
 
         /// <summary>
@@ -190,6 +196,7 @@ namespace Numerics.Distributions.Copulas
         /// Returns the OR joint exceedance probability. When either of the variables exceeds a particular threshold value
         /// </summary>
         /// <param name="u">The reduced variate between 0 and 1.</param>
+        /// <param name="v">The reduced variate between 0 and 1.</param>
         public double ORJointExceedanceProbability(double u, double v)
         {
             return 1 - CDF(u, v);
@@ -199,6 +206,7 @@ namespace Numerics.Distributions.Copulas
         /// Returns the AND joint exceedance probability. When both variables exceed a particular threshold value simultaneously.
         /// </summary>
         /// <param name="u">The reduced variate between 0 and 1.</param>
+        /// <param name="v">The reduced variate between 0 and 1.</param>
         public double ANDJointExceedanceProbability(double u, double v)
         {
             return 1 - u - v + CDF(u, v);

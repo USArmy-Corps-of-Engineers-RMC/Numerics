@@ -1,4 +1,4 @@
-﻿/**
+﻿/*
 * NOTICE:
 * The U.S. Army Corps of Engineers, Risk Management Center (USACE-RMC) makes no guarantees about
 * the results, or appropriateness of outputs, obtained from Numerics.
@@ -26,7 +26,7 @@
 * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
 * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-* **/
+*/
 
 using System;
 using System.Collections.Generic;
@@ -53,7 +53,7 @@ namespace Numerics.Distributions
     /// </para>
     /// </remarks>
     [Serializable]
-    public sealed class GeneralizedExtremeValue : UnivariateDistributionBase, IColesTawn, IEstimation, IMaximumLikelihoodEstimation, ILinearMomentEstimation, IStandardError, IBootstrappable
+    public sealed class GeneralizedExtremeValue : UnivariateDistributionBase, IEstimation, IMaximumLikelihoodEstimation, ILinearMomentEstimation, IStandardError, IBootstrappable
     {
     
         /// <summary>
@@ -286,7 +286,7 @@ namespace Numerics.Distributions
         /// <summary>
         /// Gets the skew of the distribution.
         /// </summary>
-        public override double Skew
+        public override double Skewness
         {
             get
             {
@@ -554,7 +554,7 @@ namespace Numerics.Distributions
             dist.SetParameters(parameters);
             var m1 = dist.Mean;
             var m2 = dist.StandardDeviation;
-            var m3 = dist.Skew;
+            var m3 = dist.Skewness;
             var m4 = dist.Kurtosis;
             return new[] { m1, m2, m3, m4 };
         }
@@ -882,7 +882,7 @@ namespace Numerics.Distributions
         /// Returns a list of partial derivatives of X given probability with respect to each parameter.
         /// </summary>
         /// <param name="probability">Probability between 0 and 1.</param>
-        public IList<double> PartialDerivatives(double probability)
+        public IList<double> QuantileGradient(double probability)
         {
             if (_parametersValid == false)
                 ValidateParameters(Xi, _alpha, Kappa, true);
@@ -893,6 +893,33 @@ namespace Numerics.Distributions
             partialList.Add(1d / k * (1d - Math.Pow(-Math.Log(probability), k))); // scale
             partialList.Add(-(a / (k * k)) * (1d - Math.Pow(-Math.Log(probability), k)) - a / k * Math.Pow(-Math.Log(probability), k) * Math.Log(-Math.Log(probability))); // shape
             return partialList;
+        }
+
+        /// <inheritdoc/>
+        public double[,] QuantileJacobian(IList<double> probabilities, out double determinant)
+        {
+            if (probabilities.Count != NumberOfParameters)
+            {
+                throw new ArgumentOutOfRangeException(nameof(Jacobian), "The number of probabilities must be the same length as the number of distribution parameters.");
+            }
+
+            // Get gradients
+            var dXt1 = QuantileGradient(probabilities[0]).ToArray();
+            var dXt2 = QuantileGradient(probabilities[1]).ToArray();
+            // Compute determinant
+            // |a b|
+            // |c d|
+            // |A| = ad − bc
+            double a = dXt1[0];
+            double b = dXt1[1];
+            double c = dXt2[0];
+            double d = dXt2[1];
+            determinant = a * d - b * c;
+            // Return Jacobian
+            var jacobian = new double[2, 2];
+            jacobian.SetRow(0, dXt1);
+            jacobian.SetRow(1, dXt2);
+            return jacobian;
         }
 
         /// <summary>
@@ -909,9 +936,9 @@ namespace Numerics.Distributions
             double covAB = ParameterCovariance(sampleSize, estimationMethod)[0];
             double covAG = ParameterCovariance(sampleSize, estimationMethod)[1];
             double covBG = ParameterCovariance(sampleSize, estimationMethod)[2];
-            double pXA = PartialDerivatives(probability)[0];
-            double pXB = PartialDerivatives(probability)[1];
-            double pXG = PartialDerivatives(probability)[2];
+            double pXA = QuantileGradient(probability)[0];
+            double pXB = QuantileGradient(probability)[1];
+            double pXG = QuantileGradient(probability)[2];
             return Math.Pow(pXA, 2d) * varA + Math.Pow(pXB, 2d) * varB + Math.Pow(pXG, 2d) * varG + 2d * pXA * pXB * covAB + 2d * pXA * pXG * covAG + 2d * pXB * pXG * covBG;
         }
 
@@ -929,9 +956,9 @@ namespace Numerics.Distributions
             // |d e f|
             // |g h i|
             // |A| = a(ei − fh) − b(di − fg) + c(dh − eg)
-            var dXt1 = PartialDerivatives(probabilities[0]).ToArray();
-            var dXt2 = PartialDerivatives(probabilities[1]).ToArray();
-            var dXt3 = PartialDerivatives(probabilities[2]).ToArray();
+            var dXt1 = QuantileGradient(probabilities[0]).ToArray();
+            var dXt2 = QuantileGradient(probabilities[1]).ToArray();
+            var dXt3 = QuantileGradient(probabilities[2]).ToArray();
             double a = dXt1[0];
             double b = dXt1[1];
             double c = dXt1[2];

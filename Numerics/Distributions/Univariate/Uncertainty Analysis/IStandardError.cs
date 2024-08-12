@@ -1,4 +1,4 @@
-﻿/**
+﻿/*
 * NOTICE:
 * The U.S. Army Corps of Engineers, Risk Management Center (USACE-RMC) makes no guarantees about
 * the results, or appropriateness of outputs, obtained from Numerics.
@@ -26,7 +26,7 @@
 * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
 * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-* **/
+*/
 
 using System.Collections.Generic;
 
@@ -38,7 +38,7 @@ namespace Numerics.Distributions
     /// </summary>
     /// <remarks>
     /// <para>
-    ///     Authors:
+    ///     <b> Authors: </b>
     ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
     /// </para>
     /// </remarks>
@@ -63,10 +63,15 @@ namespace Numerics.Distributions
         /// Returns a list of partial derivatives of X given probability with respect to each parameter.
         /// </summary>
         /// <param name="probability">Probability between 0 and 1.</param>
-        IList<double> PartialDerivatives(double probability);
+        IList<double> QuantileGradient(double probability);
 
-
-
+        /// <summary>
+        /// Returns the Jacobian matrix of the quantile function with respect to each parameter.
+        /// </summary>
+        /// <param name="probabilities">List of probabilities, must be the same length as the number of distribution parameters.</param>
+        /// <param name="determinant">Output. The determinant of the Jacobian matrix.</param>
+        /// <returns>Returns the Jacobian matrix of the quantile function.</returns>
+        double[,] QuantileJacobian(IList<double> probabilities, out double determinant);
 
         /// <summary>
         /// Returns the quantile variance given probability and sample size.
@@ -75,5 +80,7 @@ namespace Numerics.Distributions
         /// <param name="sampleSize">The sample size.</param>
         /// <param name="estimationMethod">The distribution parameter estimation method.</param>
         double QuantileVariance(double probability, int sampleSize, ParameterEstimationMethod estimationMethod);
+
+
     }
 }

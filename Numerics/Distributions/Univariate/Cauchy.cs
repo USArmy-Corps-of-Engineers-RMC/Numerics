@@ -1,4 +1,4 @@
-﻿/**
+﻿/*
 * NOTICE:
 * The U.S. Army Corps of Engineers, Risk Management Center (USACE-RMC) makes no guarantees about
 * the results, or appropriateness of outputs, obtained from Numerics.
@@ -26,7 +26,7 @@
 * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
 * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-* **/
+*/
 
 using System;
 using System.Collections.Generic;
@@ -55,7 +55,7 @@ namespace Numerics.Distributions
         /// </summary>
         public Cauchy()
         {
-            SetParameters(new[] { 0d, 1d });
+            SetParameters([0d, 1d]);
         }
 
         /// <summary>
@@ -65,7 +65,7 @@ namespace Numerics.Distributions
         /// <param name="scale">The scale parameter γ (gamma).</param>
         public Cauchy(double location, double scale)
         {
-            SetParameters(new[] { location, scale });
+            SetParameters([location, scale]);
         }
      
         private bool _parametersValid = true;
@@ -84,46 +84,36 @@ namespace Numerics.Distributions
             get { return _gamma; }
             set
             {
-                _parametersValid = ValidateParameters(new[] { X0, value }, false) is null;
+                _parametersValid = ValidateParameters([X0, value], false) is null;
                 _gamma = value;
             }
         }
 
-        /// <summary>
-        /// Returns the number of distribution parameters.
-        /// </summary>
+        /// <inheritdoc/>
         public override int NumberOfParameters
         {
             get { return 2; }
         }
 
-        /// <summary>
-        /// Returns the univariate distribution type.
-        /// </summary>
+        /// <inheritdoc/>
         public override UnivariateDistributionType Type
         {
             get { return UnivariateDistributionType.Cauchy; }
         }
 
-        /// <summary>
-        /// Returns the name of the distribution type as a string.
-        /// </summary>
+        /// <inheritdoc/>
         public override string DisplayName
         {
             get { return "Cauchy"; }
         }
 
-        /// <summary>
-        /// Returns the short display name of the distribution as a string.
-        /// </summary>
+        /// <inheritdoc/>
         public override string ShortDisplayName
         {
             get { return "C"; }
         }
 
-        /// <summary>
-        /// Get distribution parameters in 2-column array of string.
-        /// </summary>
+        /// <inheritdoc/>
         public override string[,] ParametersToString
         {
             get
@@ -137,133 +127,98 @@ namespace Numerics.Distributions
             }
         }
 
-        /// <summary>
-        /// Gets the short form parameter names.
-        /// </summary>
+        /// <inheritdoc/>
         public override string[] ParameterNamesShortForm
         {
-            get { return new[] { "X0", "γ" }; }
+            get { return ["X0", "γ"]; }
         }
 
-        /// <summary>
-        /// Gets the full parameter names.
-        /// </summary>
+        /// <inheritdoc/>
         public override string[] GetParameterPropertyNames
         {
-            get { return new[] { nameof(X0), nameof(Gamma) }; }
+            get { return [nameof(X0), nameof(Gamma)]; }
         }
 
-        /// <summary>
-        /// Get an array of parameters.
-        /// </summary>
+        /// <inheritdoc/>
         public override double[] GetParameters
         {
-            get { return new[] { X0, Gamma }; }
+            get { return [X0, Gamma]; }
         }
 
-        /// <summary>
-        /// Determines whether the parameters are valid or not.
-        /// </summary>
+        /// <inheritdoc/>
         public override bool ParametersValid
         {
             get { return _parametersValid; }
         }
-   
-        /// <summary>
-        /// Gets the mean of the distribution.
-        /// </summary>
+
+        /// <inheritdoc/>
         public override double Mean
         {
             get { return double.NaN; }
         }
 
-        /// <summary>
-        /// Gets the median of the distribution.
-        /// </summary>
+        /// <inheritdoc/>
         public override double Median
         {
             get { return X0; }
         }
 
-        /// <summary>
-        /// Gets the mode of the distribution.
-        /// </summary>
+        /// <inheritdoc/>
         public override double Mode
         {
             get { return X0; }
         }
 
-        /// <summary>
-        /// Gets the standard deviation of the distribution.
-        /// </summary>
+        /// <inheritdoc/>
         public override double StandardDeviation
         {
             get { return double.NaN; }
         }
 
-        /// <summary>
-        /// Gets the skew of the distribution.
-        /// </summary>
-        public override double Skew
+        /// <inheritdoc/>
+        public override double Skewness
         {
             get { return double.NaN; }
         }
 
-        /// <summary>
-        /// Gets the kurtosis of the distribution.
-        /// </summary>
+        /// <inheritdoc/>
         public override double Kurtosis
         {
             get { return double.NaN; }
         }
-       
-        /// <summary>
-        /// Gets the minimum of the distribution.
-        /// </summary>
+
+        /// <inheritdoc/>
         public override double Minimum
         {
             get { return double.NegativeInfinity; }
         }
 
-        /// <summary>
-        /// Gets the maximum of the distribution.
-        /// </summary>
+        /// <inheritdoc/>
         public override double Maximum
         {
             get { return double.PositiveInfinity; }
         }
 
-        /// <summary>
-        /// Gets the minimum values allowable for each parameter.
-        /// </summary>
+        /// <inheritdoc/>
         public override double[] MinimumOfParameters
         {
-            get { return new[] { double.NegativeInfinity, 0.0d }; }
+            get { return [double.NegativeInfinity, 0.0d]; }
         }
 
-        /// <summary>
-        /// Gets the maximum values allowable for each parameter.
-        /// </summary>
+        /// <inheritdoc/>
         public override double[] MaximumOfParameters
         {
-            get { return new[] { double.PositiveInfinity, double.PositiveInfinity }; }
+            get { return [double.PositiveInfinity, double.PositiveInfinity]; }
         }
-   
-        /// <summary>
-        /// Set the distribution parameters.
-        /// </summary>
-        /// <param name="parameters">A list of parameters.</param>
+
+        /// <inheritdoc/>
         public override void SetParameters(IList<double> parameters)
         {
             X0 = parameters[0];
             Gamma = parameters[1];
         }
 
-        /// <summary>
-        /// Validate the parameters.
-        /// </summary>
-        /// <param name="parameters">A list of parameters.</param>
-        /// <param name="throwException">Determines whether to throw an exception or not.</param>
+        /// <inheritdoc/>
         public override ArgumentOutOfRangeException ValidateParameters(IList<double> parameters, bool throwException)
         {
             if (double.IsNaN(parameters[1]) || double.IsInfinity(parameters[1]) || parameters[1] <= 0.0d)
@@ -274,36 +229,27 @@ namespace Numerics.Distributions
             }
             return null;
         }
-       
-        /// <summary>
-        /// Gets the Probability Density Function (PDF) of the distribution evaluated at a point x.
-        /// </summary>
-        /// <param name="x">A single point in the distribution range.</param>
+
+        /// <inheritdoc/>
         public override double PDF(double x)
         {
             // Validate parameters
             if (_parametersValid == false)
-                ValidateParameters(new[] { X0, Gamma }, true);
+                ValidateParameters([X0, Gamma], true);
             double z = (x - X0) / Gamma;
             return 1.0d / (Math.PI * Gamma * (1.0d + z * z));
         }
 
-        /// <summary>
-        /// Gets the Cumulative Distribution Function (CDF) for the distribution evaluated at a point x.
-        /// </summary>
-        /// <param name="x">A single point in the distribution range.</param>
+        /// <inheritdoc/>
         public override double CDF(double x)
         {
             // Validate parameters
             if (_parametersValid == false)
-                ValidateParameters(new[] { X0, Gamma }, true);
+                ValidateParameters([X0, Gamma], true);
             return 1.0d / Math.PI * Math.Atan2(x - X0, Gamma) + 0.5d;
         }
 
-        /// <summary>
-        /// Gets the Inverse Cumulative Distribution Function (ICFD) of the distribution evaluated at a probability.
-        /// </summary>
-        /// <param name="probability">Probability between 0 and 1.</param>
+        /// <inheritdoc/>
         public override double InverseCDF(double probability)
         {
             // Validate probability
@@ -315,13 +261,11 @@ namespace Numerics.Distributions
                 return Maximum;
             // Validate parameters
             if (_parametersValid == false)
-                ValidateParameters(new[] { X0, Gamma }, true);
+                ValidateParameters([X0, Gamma], true);
             return X0 + Gamma * Math.Tan(Math.PI * (probability - 0.5d));
         }
 
-        /// <summary>
-        /// Creates a copy of the distribution.
-        /// </summary>
+        /// <inheritdoc/>
         public override UnivariateDistributionBase Clone()
         {
             return new Cauchy(X0, Gamma);

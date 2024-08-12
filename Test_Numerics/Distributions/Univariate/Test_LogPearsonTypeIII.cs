@@ -39,7 +39,7 @@ namespace Distributions.Univariate
             double skewOfLog = LP3.Gamma;
             double mean = LP3.Mean;
             double stDev = LP3.StandardDeviation;
-            double skew = LP3.Skew;
+            double skew = LP3.Skewness;
             double true_xi = 7.53821d;
             double true_beta = 1d / -460.31089d;
             double true_alpha = 2425.57481d;
@@ -109,7 +109,7 @@ namespace Distributions.Univariate
             double skewOfLog = LP3.Gamma;
             double mean = LP3.Mean;
             double stDev = LP3.StandardDeviation;
-            double skew = LP3.Skew;
+            double skew = LP3.Skewness;
             double true_xi = 9.53033d;
             double true_beta = 1d / -643.69408d;
             double true_alpha = 4674.2179d;

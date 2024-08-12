@@ -164,7 +164,7 @@ namespace Distributions.Univariate
             double true_QVar = 26445364d;
             double true_QSigma = 5142d;
             var GEV = new GeneralizedExtremeValue(u, a, k);
-            var partials = GEV.PartialDerivatives(0.99d).ToArray();
+            var partials = GEV.QuantileGradient(0.99d).ToArray();
             var vars = GEV.ParameterVariance(sample.Length, ParameterEstimationMethod.MaximumLikelihood).ToArray();
             var covars = GEV.ParameterCovariance(sample.Length, ParameterEstimationMethod.MaximumLikelihood).ToArray();
             double qVar = GEV.QuantileVariance(0.99d, sample.Length, ParameterEstimationMethod.MaximumLikelihood);

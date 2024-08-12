@@ -27,7 +27,7 @@ namespace Distributions.Univariate
             Assert.AreEqual(U.Mean, true_mean, 0.0001d);
             Assert.AreEqual(U.Median, true_median, 0.0001d);
             Assert.AreEqual(U.StandardDeviation, true_stdDev, 0.0001d);
-            Assert.AreEqual(U.Skew, true_skew, 0.0001d);
+            Assert.AreEqual(U.Skewness, true_skew, 0.0001d);
             Assert.AreEqual(U.Kurtosis, true_kurt, 0.0001d);
             Assert.AreEqual(U.PDF(4.0d), true_pdf, 0.0001d);
             Assert.AreEqual(U.CDF(2.0d), true_cdf, 0.0001d);

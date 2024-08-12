@@ -231,7 +231,6 @@
     <Compile Include="Sampling\StratificationBin.cs" />
     <Compile Include="Sampling\StratificationOptions.cs" />
     <Compile Include="Sampling\Stratify.cs" />
-    <Compile Include="Distributions\Univariate\Uncertainty Analysis\IColesTawn.cs" />
     <Compile Include="Distributions\Univariate\Base\IDistribution.cs" />
     <Compile Include="Distributions\Univariate\Parameter Estimation\IEstimation.cs" />
     <Compile Include="Distributions\Univariate\Parameter Estimation\IMaximumLikelihoodEstimation.cs" />

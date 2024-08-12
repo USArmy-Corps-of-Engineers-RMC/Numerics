@@ -1,4 +1,4 @@
-﻿/**
+﻿/*
 * NOTICE:
 * The U.S. Army Corps of Engineers, Risk Management Center (USACE-RMC) makes no guarantees about
 * the results, or appropriateness of outputs, obtained from Numerics.
@@ -26,7 +26,7 @@
 * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
 * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-* **/
+*/
 
 using System;
 using System.Collections;
@@ -104,6 +104,7 @@ namespace Numerics.Data
         private SortOrder _orderY;
         private List<Ordinate> _ordinates;
 
+        /// <inheritdoc/>
         public event NotifyCollectionChangedEventHandler CollectionChanged;
 
         /// <summary>
@@ -1850,7 +1851,7 @@ namespace Numerics.Data
         /// </summary>
         /// <remarks>
         /// <b> Reference: </b>
-        /// <see cref="http://bost.ocks.org/mike/simplify/"/>
+        /// <see href="http://bost.ocks.org/mike/simplify/"/>
         /// </remarks>
         /// <param name="numToKeep"> The number of points to keep for the simplified curve. </param>
         /// <returns> An OrderedPairedData object that has been simplified according to the algorithm and given number of points to keep.</returns>

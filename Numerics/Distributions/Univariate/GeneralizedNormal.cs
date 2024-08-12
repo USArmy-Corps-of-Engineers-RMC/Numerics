@@ -1,4 +1,4 @@
-﻿/**
+﻿/*
 * NOTICE:
 * The U.S. Army Corps of Engineers, Risk Management Center (USACE-RMC) makes no guarantees about
 * the results, or appropriateness of outputs, obtained from Numerics.
@@ -26,7 +26,7 @@
 * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
 * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-* **/
+*/
 
 using System;
 using System.Collections.Generic;
@@ -48,7 +48,7 @@ namespace Numerics.Distributions
     /// </para>
     /// </remarks>
     [Serializable]
-    public class GeneralizedNormal : UnivariateDistributionBase, IColesTawn, IEstimation, IMaximumLikelihoodEstimation, ILinearMomentEstimation, IStandardError, IBootstrappable
+    public class GeneralizedNormal : UnivariateDistributionBase, IEstimation, IMaximumLikelihoodEstimation, ILinearMomentEstimation, IStandardError, IBootstrappable
     {
 
         /// <summary>
@@ -249,7 +249,7 @@ namespace Numerics.Distributions
         /// <summary>
         /// Gets the skew of the distribution.
         /// </summary>
-        public override double Skew
+        public override double Skewness
         {
             get
             {
@@ -644,7 +644,7 @@ namespace Numerics.Distributions
         /// Returns a list of partial derivatives of X given probability with respect to each parameter.
         /// </summary>
         /// <param name="probability">Probability between 0 and 1.</param>
-        public IList<double> PartialDerivatives(double probability)
+        public IList<double> QuantileGradient(double probability)
         {
             if (_parametersValid == false)
                 ValidateParameters(Xi, _alpha, Kappa, true);
@@ -656,6 +656,33 @@ namespace Numerics.Distributions
                 return gno.InverseCDF(probability);
             }, GetParameters);       
             return partialList;
+        }
+
+        /// <inheritdoc/>
+        public double[,] QuantileJacobian(IList<double> probabilities, out double determinant)
+        {
+            if (probabilities.Count != NumberOfParameters)
+            {
+                throw new ArgumentOutOfRangeException(nameof(Jacobian), "The number of probabilities must be the same length as the number of distribution parameters.");
+            }
+
+            // Get gradients
+            var dXt1 = QuantileGradient(probabilities[0]).ToArray();
+            var dXt2 = QuantileGradient(probabilities[1]).ToArray();
+            // Compute determinant
+            // |a b|
+            // |c d|
+            // |A| = ad − bc
+            double a = dXt1[0];
+            double b = dXt1[1];
+            double c = dXt2[0];
+            double d = dXt2[1];
+            determinant = a * d - b * c;
+            // Return Jacobian
+            var jacobian = new double[2, 2];
+            jacobian.SetRow(0, dXt1);
+            jacobian.SetRow(1, dXt2);
+            return jacobian;
         }
 
         /// <summary>
@@ -683,9 +710,9 @@ namespace Numerics.Distributions
             // |d e f|
             // |g h i|
             // |A| = a(ei − fh) − b(di − fg) + c(dh − eg)
-            var dXt1 = PartialDerivatives(probabilities[0]).ToArray();
-            var dXt2 = PartialDerivatives(probabilities[1]).ToArray();
-            var dXt3 = PartialDerivatives(probabilities[2]).ToArray();
+            var dXt1 = QuantileGradient(probabilities[0]).ToArray();
+            var dXt2 = QuantileGradient(probabilities[1]).ToArray();
+            var dXt3 = QuantileGradient(probabilities[2]).ToArray();
             double a = dXt1[0];
             double b = dXt1[1];
             double c = dXt1[2];

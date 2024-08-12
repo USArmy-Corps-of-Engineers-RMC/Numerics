@@ -1,4 +1,4 @@
-﻿/**
+﻿/*
 * NOTICE:
 * The U.S. Army Corps of Engineers, Risk Management Center (USACE-RMC) makes no guarantees about
 * the results, or appropriateness of outputs, obtained from Numerics.
@@ -26,7 +26,7 @@
 * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
 * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-* **/
+*/
 
 using System;
 using System.Collections.Generic;
@@ -57,7 +57,7 @@ namespace Numerics.Distributions
         /// </summary>
         public Binomial()
         {
-            SetParameters(new[] { 0.5d, 10d });
+            SetParameters([0.5d, 10d]);
         }
 
         /// <summary>
@@ -67,7 +67,7 @@ namespace Numerics.Distributions
         /// <param name="numberOfTrials">The number of trials (n). Range: n ≥ 0.</param>
         public Binomial(double probability, int numberOfTrials)
         {
-            SetParameters(new[] { probability, numberOfTrials });
+            SetParameters([probability, numberOfTrials]);
         }
      
         private bool _parametersValid = true;
@@ -108,41 +108,31 @@ namespace Numerics.Distributions
             }
         }
 
-        /// <summary>
-        /// Returns the number of distribution parameters.
-        /// </summary>
+        /// <inheritdoc/>
         public override int NumberOfParameters
         {
             get { return 2; }
         }
 
-        /// <summary>
-        /// Returns the univariate distribution type.
-        /// </summary>
+        /// <inheritdoc/>
         public override UnivariateDistributionType Type
         {
             get { return UnivariateDistributionType.Binomial; }
         }
 
-        /// <summary>
-        /// Returns the name of the distribution type as a string.
-        /// </summary>
+        /// <inheritdoc/>
         public override string DisplayName
         {
             get { return "Binomial"; }
         }
 
-        /// <summary>
-        /// Returns the short display name of the distribution as a string.
-        /// </summary>
+        /// <inheritdoc/>
         public override string ShortDisplayName
         {
             get { return "Bin"; }
         }
 
-        /// <summary>
-        /// Get distribution parameters in 2-column array of string.
-        /// </summary>
+        /// <inheritdoc/>
         public override string[,] ParametersToString
         {
             get
@@ -156,57 +146,43 @@ namespace Numerics.Distributions
             }
         }
 
-        /// <summary>
-        /// Gets the short form parameter names.
-        /// </summary>
+        /// <inheritdoc/>
         public override string[] ParameterNamesShortForm
         {
-            get { return new[] { "p", "n" }; }
+            get { return ["p", "n"]; }
         }
 
-        /// <summary>
-        /// Gets the full parameter names.
-        /// </summary>
+        /// <inheritdoc/>
         public override string[] GetParameterPropertyNames
         {
-            get { return new[] { nameof(ProbabilityOfSuccess), nameof(NumberOfTrials) }; }
+            get { return [nameof(ProbabilityOfSuccess), nameof(NumberOfTrials)]; }
         }
 
-        /// <summary>
-        /// Get an array of parameters.
-        /// </summary>
+        /// <inheritdoc/>
         public override double[] GetParameters
         {
-            get { return new[] { ProbabilityOfSuccess, NumberOfTrials }; }
+            get { return [ProbabilityOfSuccess, NumberOfTrials]; }
         }
 
-        /// <summary>
-        /// Determines whether the parameters are valid or not.
-        /// </summary>
+        /// <inheritdoc/>
         public override bool ParametersValid
         {
             get { return _parametersValid; }
         }
-   
-        /// <summary>
-        /// Gets the mean of the distribution.
-        /// </summary>
+
+        /// <inheritdoc/>
         public override double Mean
         {
             get { return NumberOfTrials * ProbabilityOfSuccess; }
         }
 
-        /// <summary>
-        /// Gets the median of the distribution.
-        /// </summary>
+        /// <inheritdoc/>
         public override double Median
         {
             get { return Math.Ceiling(NumberOfTrials * ProbabilityOfSuccess); }
         }
 
-        /// <summary>
-        /// Gets the mode of the distribution.
-        /// </summary>
+        /// <inheritdoc/>
         public override double Mode
         {
             get
@@ -219,77 +195,56 @@ namespace Numerics.Distributions
             }
         }
 
-        /// <summary>
-        /// Gets the standard deviation of the distribution.
-        /// </summary>
+        /// <inheritdoc/>
         public override double StandardDeviation
         {
             get { return Math.Sqrt(NumberOfTrials * ProbabilityOfSuccess * Complement); }
         }
 
-        /// <summary>
-        /// Gets the skew of the distribution.
-        /// </summary>
-        public override double Skew
+        /// <inheritdoc/>
+        public override double Skewness
         {
             get { return (1.0d - 2.0d * ProbabilityOfSuccess) / Math.Sqrt(NumberOfTrials * ProbabilityOfSuccess * Complement); }
         }
 
-        /// <summary>
-        /// Gets the kurtosis of the distribution.
-        /// </summary>
+        /// <inheritdoc/>
         public override double Kurtosis
         {
             get { return 3d + (1.0d - 6d * Complement * ProbabilityOfSuccess) / (NumberOfTrials * ProbabilityOfSuccess * Complement); }
         }
-    
-        /// <summary>
-        /// Gets the minimum of the distribution.
-        /// </summary>
+
+        /// <inheritdoc/>
         public override double Minimum
         {
             get { return 0.0d; }
         }
 
-        /// <summary>
-        /// Gets the maximum of the distribution.
-        /// </summary>
+        /// <inheritdoc/>
         public override double Maximum
         {
             get { return NumberOfTrials; }
         }
 
-        /// <summary>
-        /// Gets the minimum values allowable for each parameter.
-        /// </summary>
+        /// <inheritdoc/>
         public override double[] MinimumOfParameters
         {
-            get { return new[] { 0.0d, 0.0d }; }
+            get { return [0.0d, 0.0d]; }
         }
 
-        /// <summary>
-        /// Gets the maximum values allowable for each parameter.
-        /// </summary>
+        /// <inheritdoc/>
         public override double[] MaximumOfParameters
         {
-            get { return new[] { 1.0d, double.PositiveInfinity }; }
+            get { return [1.0d, double.PositiveInfinity]; }
         }
 
-        /// <summary>
-        /// Set the distribution parameters.
-        /// </summary>
-        /// <param name="parameters">A list of parameters.</param>
+        /// <inheritdoc/>
         public override void SetParameters(IList<double> parameters)
         {
             ProbabilityOfSuccess = parameters[0];
             NumberOfTrials = (int)parameters[1];
         }
 
-        /// <summary>
-        /// Validate the parameters.
-        /// </summary>
-        /// <param name="parameters">A list of parameters.</param>
-        /// <param name="throwException">Determines whether to throw an exception or not.</param>
+        /// <inheritdoc/>
         public override ArgumentOutOfRangeException ValidateParameters(IList<double> parameters, bool throwException)
         {
             // Validate probability
@@ -307,17 +262,13 @@ namespace Numerics.Distributions
             }
             return null;
         }
-       
-        /// <summary>
-        /// Gets the Probability Density Function (PDF) of the distribution evaluated at a point k.
-        /// </summary>
-        /// <param name="k">A single point in the distribution range.</param>
-        /// <remarks>Returns the Probability Mass Function (PMF) for discrete distributions.</remarks>
+
+        /// <inheritdoc/>
         public override double PDF(double k)
         {
             // Validate parameters
             if (_parametersValid == false)
-                ValidateParameters(new[] { ProbabilityOfSuccess, NumberOfTrials }, true);
+                ValidateParameters([ProbabilityOfSuccess, NumberOfTrials], true);
             k = Math.Floor(k);
             if (k < Minimum || k > Maximum) return 0.0d;
             if (ProbabilityOfSuccess == 0.0d)
@@ -327,14 +278,11 @@ namespace Numerics.Distributions
             return Factorial.BinomialCoefficient(NumberOfTrials, (int)k) * Math.Pow(ProbabilityOfSuccess, k) * Math.Pow(Complement, NumberOfTrials - k);
         }
 
-        /// <summary>
-        /// Gets the Cumulative Distribution Function (CDF) for the distribution evaluated at a point k.
-        /// </summary>
-        /// <param name="k">A single point in the distribution range.</param>
+        /// <inheritdoc/>
         public override double CDF(double k)
         {
             if (_parametersValid == false)
-                ValidateParameters(new[] { ProbabilityOfSuccess, NumberOfTrials }, true);
+                ValidateParameters([ProbabilityOfSuccess, NumberOfTrials], true);
             k = Math.Floor(k);
             if (k < Minimum)
                 return 0.0d;
@@ -343,10 +291,7 @@ namespace Numerics.Distributions
             return Beta.Incomplete(NumberOfTrials - k, k + 1d, Complement);
         }
 
-        /// <summary>
-        /// Gets the Inverse Cumulative Distribution Function (ICFD) of the distribution evaluated at a probability.
-        /// </summary>
-        /// <param name="probability">Probability between 0 and 1.</param>
+        /// <inheritdoc/>
         public override double InverseCDF(double probability)
         {
             // Validate probability
@@ -358,7 +303,7 @@ namespace Numerics.Distributions
                 return Maximum;
             // Validate parameters
             if (_parametersValid == false)
-                ValidateParameters(new[] { probability, NumberOfTrials }, true);
+                ValidateParameters([probability, NumberOfTrials], true);
             double k = 0d;
             for (int i = 0; i < NumberOfTrials; i++)
             {
@@ -370,10 +315,8 @@ namespace Numerics.Distributions
             }
             return k;
         }
-    
-        /// <summary>
-        /// Creates a copy of the distribution.
-        /// </summary>
+
+        /// <inheritdoc/>
         public override UnivariateDistributionBase Clone()
         {
             return new Binomial(ProbabilityOfSuccess, NumberOfTrials);

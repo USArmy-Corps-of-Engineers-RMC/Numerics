@@ -136,8 +136,8 @@ namespace Distributions.Univariate
         public void Test_EXP_Partials()
         {
             var EXP = new Exponential(30314.48d, 18907.87d);
-            double dQdLocation = EXP.PartialDerivatives(0.99d)[0];
-            double dQdScale = EXP.PartialDerivatives(0.99d)[1];
+            double dQdLocation = EXP.QuantileGradient(0.99d)[0];
+            double dQdScale = EXP.QuantileGradient(0.99d)[1];
             double true_dLocation = 1.0d;
             double true_dScale = 4.60517d;
             Assert.AreEqual((dQdLocation - true_dLocation) / true_dLocation < 0.01d, true);

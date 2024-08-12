@@ -1,4 +1,4 @@
-﻿/**
+﻿/*
 * NOTICE:
 * The U.S. Army Corps of Engineers, Risk Management Center (USACE-RMC) makes no guarantees about
 * the results, or appropriateness of outputs, obtained from Numerics.
@@ -26,7 +26,7 @@
 * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
 * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-* **/
+*/
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Numerics.Mathematics.ODESolvers;
@@ -121,7 +121,6 @@ namespace Mathematics.ODESolvers
 
             double initial = 0.5d;
             double start = 0d;
-            double end = 2d;
             double dt = 0.5d;
             var testResults = new double[testValid.Length];
             testResults[0] = initial;
@@ -155,7 +154,6 @@ namespace Mathematics.ODESolvers
 
             double initial = 0.5d;
             double start = 0d;
-            double end = 2d;
             double dt = 0.5d;
             double dtMin = 0.001;
             var testResults = new double[testValid.Length];
@@ -191,7 +189,6 @@ namespace Mathematics.ODESolvers
 
             double initial = 0.5d;
             double start = 0d;
-            double end = 2d;
             double dt = 0.5d;
             double dtMin = 0.001;
             var testResults = new double[testValid.Length];

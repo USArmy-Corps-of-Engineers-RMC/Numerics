@@ -36,7 +36,7 @@ namespace Distributions.Univariate
             double gamma = P3.Gamma;
             double mean = P3.Mean;
             double stDev = P3.StandardDeviation;
-            double skew = P3.Skew;
+            double skew = P3.Skewness;
             double true_xi = 79.84941d;
             double true_beta = 1d / 0.04846d;
             double true_alpha = 5.40148d;
@@ -104,7 +104,7 @@ namespace Distributions.Univariate
             double gamma = P3.Gamma;
             double mean = P3.Mean;
             double stDev = P3.StandardDeviation;
-            double skew = P3.Skew;
+            double skew = P3.Skewness;
             double true_xi = 39.38903d;
             double true_beta = 1d / 0.06872d;
             double true_alpha = 10.44062d;

@@ -1,4 +1,4 @@
-﻿/**
+﻿/*
 * NOTICE:
 * The U.S. Army Corps of Engineers, Risk Management Center (USACE-RMC) makes no guarantees about
 * the results, or appropriateness of outputs, obtained from Numerics.
@@ -26,7 +26,7 @@
 * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
 * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-* **/
+*/
 
 using System;
 using System.Collections.Generic;
@@ -39,16 +39,8 @@ namespace Numerics.Distributions
     /// </summary>
     /// <remarks>
     /// <para>
-    /// Authors:
-    /// Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
-    /// </para>
-    /// <para>
-    /// Versions:
-    /// <list type="bullet">
-    /// <item><description>
-    /// First created in April 2020 by Haden Smith.
-    /// </description></item>
-    /// </list>
+    ///     <b> Authors: </b>
+    ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
     /// </para>
     /// </remarks>
     public interface IUnivariateDistribution : IDistribution
@@ -126,9 +118,9 @@ namespace Numerics.Distributions
         double CoefficientOfVariation { get; }
 
         /// <summary>
-        /// Gets the skewness coefficient of the distribution.
+        /// Gets the skewness of the distribution.
         /// </summary>
-        double Skew { get; }
+        double Skewness { get; }
 
         /// <summary>
         /// Gets the kurtosis of the distribution.
@@ -162,7 +154,7 @@ namespace Numerics.Distributions
         void SetParameters(IList<double> parameters);
 
         /// <summary>
-        /// Test to see if distribution parameters are valid.
+        /// Validate the distribution parameters.
         /// </summary>
         /// <param name="parameters">Array of parameters.</param>
         /// <param name="throwException">Boolean indicating whether to throw the exception or not.</param>
@@ -173,9 +165,9 @@ namespace Numerics.Distributions
         /// The Probability Density Function (PDF) of the distribution evaluated at a point X.
         /// </summary>
         /// <param name="x">A single point in the distribution range.</param>
-        /// <returns>The probability of X occurring in the distribution.</returns>
+        /// <returns>The probability of X occurring.</returns>
         /// <remarks>
-        /// The PDF describes the probability that X will occur.
+        /// The PDF describes the probability that X will occur. Returns the Probability Mass Function (PMF) for discrete distributions.
         /// </remarks>
         double PDF(double x);
 

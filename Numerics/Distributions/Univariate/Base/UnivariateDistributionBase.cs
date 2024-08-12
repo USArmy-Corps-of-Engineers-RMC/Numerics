@@ -1,4 +1,4 @@
-﻿/**
+﻿/*
 * NOTICE:
 * The U.S. Army Corps of Engineers, Risk Management Center (USACE-RMC) makes no guarantees about
 * the results, or appropriateness of outputs, obtained from Numerics.
@@ -26,7 +26,7 @@
 * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
 * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-* **/
+*/
 
 using Numerics.Mathematics;
 using Numerics.Mathematics.Integration;
@@ -46,11 +46,8 @@ namespace Numerics.Distributions
     /// </summary>
     /// <remarks>
     /// <para>
-    ///     Authors:
+    ///     <b> Authors: </b>
     ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
-    /// </para>
-    /// <para>
-    /// This code was inspired by the statistical library developed by Will Lehman (HEC). I have also incorporated concepts used in the Accord.NET and MathNet.Numerics open source libraries.
     /// </para>
     /// </remarks>
     [Serializable]
@@ -66,19 +63,13 @@ namespace Numerics.Distributions
         /// </summary>
         public abstract UnivariateDistributionType Type { get; }
 
-        /// <summary>
-        /// Returns the display name of the distribution type as a string.
-        /// </summary>
+        /// <inheritdoc/>
         public abstract string DisplayName { get; }
 
-        /// <summary>
-        /// Returns the short display name of the distribution as a string.
-        /// </summary>
+        /// <inheritdoc/>
         public abstract string ShortDisplayName { get; }
 
-        /// <summary>
-        /// Returns a short label of the distribution and parameters as a string.
-        /// </summary>
+        /// <inheritdoc/>
         public string DisplayLabel
         {
             get
@@ -96,14 +87,10 @@ namespace Numerics.Distributions
             }
         }
 
-        /// <summary>
-        /// Returns the number of distribution parameters.
-        /// </summary>
+        /// <inheritdoc/>
         public abstract int NumberOfParameters { get; }
 
-        /// <summary>
-        /// Returns the distribution parameters in 2-column array of string.
-        /// </summary>
+        /// <inheritdoc/>
         public abstract string[,] ParametersToString { get; }
 
         /// <summary>
@@ -114,106 +101,64 @@ namespace Numerics.Distributions
             get { return ParametersToString.GetColumn(0); }
         }
 
-        /// <summary>
-        /// Returns the distribution parameter names in short form (e.g. µ, σ) in an array of string.
-        /// </summary>
+        /// <inheritdoc/>
         public abstract string[] ParameterNamesShortForm { get; }
 
-        /// <summary>
-        /// Returns the distribution parameters in an array of double.
-        /// </summary>
-        /// <returns></returns>
+        /// <inheritdoc/>
         public abstract double[] GetParameters { get; }
-        /// <summary>
-        /// Returns the distribution parameter property names in an array of string.
-        /// </summary>
-        /// <returns></returns>
+
+        /// <inheritdoc/>
         public abstract string[] GetParameterPropertyNames { get; }
 
-        /// <summary>
-        /// Returns a boolean value describing if the current parameters are valid or not.
-        /// If not, an ArgumentOutOfRange exception will be thrown when trying to use statistical functions (e.g. CDF())
-        /// </summary>
+        /// <inheritdoc/>
         public abstract bool ParametersValid { get; }
 
-        /// <summary>
-        /// Gets the mean of the distribution.
-        /// </summary>
+        /// <inheritdoc/>
         public abstract double Mean { get; }
 
-        /// <summary>
-        /// Gets the median of the distribution.
-        /// </summary>
+        /// <inheritdoc/>
         public abstract double Median { get; }
 
-        /// <summary>
-        /// Gets the mode of the distribution.
-        /// </summary>
+        /// <inheritdoc/>
         public abstract double Mode { get; }
 
-        /// <summary>
-        /// Gets the variance of the distribution.
-        /// </summary>
+        /// <inheritdoc/>
         public double Variance
         {
             get { return Math.Pow(StandardDeviation, 2d); }
         }
 
-        /// <summary>
-        /// Gets the standard deviation of the distribution.
-        /// </summary>
+        /// <inheritdoc/>
         public abstract double StandardDeviation { get; }
 
-        /// <summary>
-        /// Gets the coefficient of variation.
-        /// </summary>
+        /// <inheritdoc/>
         public double CoefficientOfVariation
         {
             get { return StandardDeviation / Mean; }
         }
 
-        /// <summary>
-        /// Gets the skew of the distribution.
-        /// </summary>
-        public abstract double Skew { get; }
+        /// <inheritdoc/>
+        public abstract double Skewness { get; }
 
-        /// <summary>
-        /// Gets the kurtosis of the distribution.
-        /// </summary>
+        /// <inheritdoc/>
         public abstract double Kurtosis { get; }
 
-        /// <summary>
-        /// Gets the minimum of the distribution.
-        /// </summary>
+        /// <inheritdoc/>
         public abstract double Minimum { get; }
 
-        /// <summary>
-        /// Gets the maximum of the distribution.
-        /// </summary>
+        /// <inheritdoc/>
         public abstract double Maximum { get; }
 
-        /// <summary>
-        /// Gets the minimum values allowable for each parameter.
-        /// </summary>
+        /// <inheritdoc/>
         public abstract double[] MinimumOfParameters { get; }
 
-        /// <summary>
-        /// Gets the maximum values allowable for each parameter.
-        /// </summary>
+        /// <inheritdoc/>
         public abstract double[] MaximumOfParameters { get; }
 
-        /// <summary>
-        /// Set the distribution parameters.
-        /// </summary>
-        /// <param name="parameters">Array of parameters.</param>
+        /// <inheritdoc/>
         public abstract void SetParameters(IList<double> parameters);
 
-        /// <summary>
-        /// Test to see if distribution parameters are valid.
-        /// </summary>
-        /// <param name="parameters">Array of parameters.</param>
-        /// <param name="throwException">Boolean indicating whether to throw the exception or not.</param>
-        /// <returns>Nothing if the parameters are valid and the exception if invalid parameters were found.</returns>
+        /// <inheritdoc/>
         public abstract ArgumentOutOfRangeException ValidateParameters(IList<double> parameters, bool throwException);
 
         /// <summary>
@@ -277,86 +222,46 @@ namespace Numerics.Distributions
             return Math.Log(interval);
         }
 
-        /// <summary>
-        /// The Probability Density Function (PDF) of the distribution evaluated at a point X.
-        /// </summary>
-        /// <param name="x">A single point in the distribution range.</param>
-        /// <returns>The probability of X occurring in the distribution.</returns>
-        /// <remarks>
-        /// The PDF describes the probability that X will occur.
-        /// </remarks>
+        /// <inheritdoc/>
         public abstract double PDF(double x);
 
-        /// <summary>
-        /// Returns the natural log of the PDF.
-        /// </summary>
-        /// <param name="x">A single point in the distribution range.</param>
+        /// <inheritdoc/>
         public virtual double LogPDF(double x)
         {
             double f = PDF(x);
             return Math.Log(f);
         }
 
-        /// <summary>
-        /// The Cumulative Distribution Function (CDF) for the distribution evaluated at a point X.
-        /// </summary>
-        /// <param name="x">A single point in the distribution range.</param>
-        /// <returns>The non-exceedance probability given a point X.</returns>
-        /// <remarks>
-        /// The CDF describes the cumulative probability that a given value or any value smaller than it will occur.
-        /// </remarks>
+        /// <inheritdoc/>
         public abstract double CDF(double x);
 
-        /// <summary>
-        /// Returns the hazard function (HF) of the distribution evaluated at a point x.
-        /// </summary>
-        /// <param name="x">A single point in the distribution range.</param>
+        /// <inheritdoc/>
         public virtual double HF(double x)
         {
             return PDF(x) / CCDF(x);
         }
 
-        /// <summary>
-        /// Returns the natural log of the CDF.
-        /// </summary>
-        /// <param name="x">A single point in the distribution range.</param>
+        /// <inheritdoc/>
         public virtual double LogCDF(double x)
         {
             double F = CDF(x);
             return Math.Log(F);
         }
 
-        /// <summary>
-        /// The complement of the CDF. This function is also known as the survival function.
-        /// </summary>
-        /// <param name="x">A single point in the distribution range.</param>
+        /// <inheritdoc/>
         public virtual double CCDF(double x)
         {
             return 1.0d - CDF(x);
         }
 
-        /// <summary>
-        /// Returns the natural log of the CCDF.
-        /// </summary>
-        /// <param name="x">A single point in the distribution range.</param>
+        /// <inheritdoc/>
         public virtual double LogCCDF(double x)
         {
             double cF = CCDF(x);
             return Math.Log(cF);
         }
 
-        /// <summary>
-        /// The Inverse Cumulative Distribution Function (InvCFD) of the distribution evaluated at a probability.
-        /// </summary>
-        /// <param name="probability">Probability between 0 and 1.</param>
-        /// <returns>
-        /// Returns for a given probability in the probability distribution of a random variable,
-        /// the value at which the probability of the random variable is less than or equal to the
-        /// given probability.
-        /// </returns>
-        /// <remarks>
-        /// This function is also know as the Quantile Function.
-        /// </remarks>
+        /// <inheritdoc/>
         public abstract double InverseCDF(double probability);
 
         /// <summary>
@@ -735,21 +640,21 @@ namespace Numerics.Distributions
         /// <summary>
         /// Generate random values of a distribution given a sample size.
         /// </summary>
-        /// <param name="samplesize"> Size of random sample to generate. </param>
+        /// <param name="sampleSize">Size of random sample to generate.</param>
         /// <returns>
         /// Array of random values.
         /// </returns>
         /// <remarks>
         /// The random number generator seed is based on the current date and time according to your system.
         /// </remarks>
-        public virtual double[] GenerateRandomValues(int samplesize)
+        public virtual double[] GenerateRandomValues(int sampleSize)
         {
             // Create seed based on date and time
             // Create PRNG for generating random numbers
             var r = new MersenneTwister();
-            var sample = new double[samplesize];
+            var sample = new double[sampleSize];
             // Generate values
-            for (int i = 0; i < samplesize; i++)
+            for (int i = 0; i < sampleSize; i++)
                 sample[i] = InverseCDF(r.NextDouble());
             // Return array of random values
             return sample;
@@ -759,17 +664,17 @@ namespace Numerics.Distributions
         /// Generate random values of a distribution given a sample size based on a user-defined seed.
         /// </summary>
         /// <param name="seed">Seed for random number generator.</param>
-        /// <param name="samplesize"> Size of random sample to generate. </param>
+        /// <param name="sampleSize"> Size of random sample to generate. </param>
         /// <returns>
         /// Array of random values.
         /// </returns>
-        public virtual double[] GenerateRandomValues(int seed, int samplesize)
+        public virtual double[] GenerateRandomValues(int seed, int sampleSize)
         {
             // Create PRNG for generating random numbers
             var r = new MersenneTwister(seed);
-            var sample = new double[samplesize];
+            var sample = new double[sampleSize];
             // Generate values
-            for (int i = 0; i < samplesize; i++)
+            for (int i = 0; i < sampleSize; i++)
                 sample[i] = InverseCDF(r.NextDouble());
             // Return array of random values
             return sample;

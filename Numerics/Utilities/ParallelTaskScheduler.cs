@@ -1,4 +1,4 @@
-﻿/**
+﻿/*
 * NOTICE:
 * The U.S. Army Corps of Engineers, Risk Management Center (USACE-RMC) makes no guarantees about
 * the results, or appropriateness of outputs, obtained from Numerics.
@@ -26,7 +26,7 @@
 * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
 * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-* **/
+*/
 
 using System;
 using System.Collections.Generic;
@@ -36,13 +36,10 @@ using System.Threading.Tasks;
 
 namespace Numerics.Utilities
 {
-    /// <summary>Custom TaskScheduler that processes work items in batches, where 
-    /// each batch is processed by a ThreadPool thread, in parallel.</summary>
-    /// <remarks>
-    /// This is used as the default scheduler in several places in this solution, by, 
-    /// for example, calling it directly in <see cref="TaskExtensions.ForEachAsync"/>, 
-    /// or by accessing the relevant property of the static <see cref="TaskSchedulers"/> 
-    /// class.</remarks>
+    /// <summary>
+    /// Custom TaskScheduler that processes work items in batches, where 
+    /// each batch is processed by a ThreadPool thread, in parallel.
+    /// </summary>
     public class ParallelTaskScheduler : TaskScheduler
     {
         [ThreadStatic]
@@ -54,6 +51,10 @@ namespace Numerics.Utilities
 
         private readonly LinkedList<Task> tasks = new LinkedList<Task>();
 
+        /// <summary>
+        /// Initialize new parallel tasks scheduler.
+        /// </summary>
+        /// <param name="maxDegreeOfParallelism">The max degree of parallelism.</param>
         public ParallelTaskScheduler(int maxDegreeOfParallelism)
         {
             if (maxDegreeOfParallelism < 1)
@@ -61,19 +62,22 @@ namespace Numerics.Utilities
 
             this.maxDegreeOfParallelism = maxDegreeOfParallelism;
         }
-
+        /// <inheritdoc/>
         public ParallelTaskScheduler() : this(Environment.ProcessorCount) { }
 
+        /// <inheritdoc/>
         public override int MaximumConcurrencyLevel
         {
             get { return maxDegreeOfParallelism; }
         }
 
+        /// <inheritdoc/>
         protected override bool TryDequeue(Task task)
         {
             lock (tasks) return tasks.Remove(task);
         }
 
+        /// <inheritdoc/>
         protected override bool TryExecuteTaskInline(Task task,
             bool taskWasPreviouslyQueued)
         {
@@ -84,6 +88,7 @@ namespace Numerics.Utilities
             return base.TryExecuteTask(task);
         }
 
+        /// <inheritdoc/>
         protected override IEnumerable<Task> GetScheduledTasks()
         {
             var lockTaken = false;
@@ -96,6 +101,7 @@ namespace Numerics.Utilities
             finally { if (lockTaken) Monitor.Exit(tasks); }
         }
 
+        /// <inheritdoc/>
         protected override void QueueTask(Task task)
         {
             lock (tasks) tasks.AddLast(task);
@@ -107,12 +113,9 @@ namespace Numerics.Utilities
             }
         }
 
-        /// <summary>Runs the work on the ThreadPool.</summary>
-        /// <remarks>
-        /// This TaskScheduler is similar to the <see cref="LimitedConcurrencyLevelTaskScheduler"/> 
-        /// sample implementation, until it reaches this method. At this point, rather than pulling 
-        /// one Task at a time from the list, up to maxDegreeOfParallelism Tasks are pulled, and run 
-        /// on a single ThreadPool thread in parallel.</remarks>
+        /// <summary>
+        /// Runs the work on the ThreadPool.
+        /// </summary>
         private void RunTasks()
         {
             ThreadPool.UnsafeQueueUserWorkItem(_ =>

@@ -106,7 +106,7 @@ namespace Distributions.Univariate
             gno.Estimate(data, ParameterEstimationMethod.MethodOfLinearMoments);
             double p = 0.999;
 
-            var pd1 = gno.PartialDerivatives(p);
+            var pd1 = gno.QuantileGradient(p);
             var pd2 = NumericalDerivative.Gradient(x =>
             {
                 var gn = new GeneralizedNormal();

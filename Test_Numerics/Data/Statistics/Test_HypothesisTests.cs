@@ -1,4 +1,4 @@
-﻿/**
+﻿/*
 * NOTICE:
 * The U.S. Army Corps of Engineers, Risk Management Center (USACE-RMC) makes no guarantees about
 * the results, or appropriateness of outputs, obtained from Numerics.
@@ -26,7 +26,7 @@
 * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
 * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-* **/
+*/
 
 using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -192,7 +192,7 @@ namespace Data.Statistics
 
 
         /// <summary>
-        /// Test the Waldo-Wolfowitz method against a known example from "The Gamma Family..."
+        /// Test the Wald-Wolfowitz method against a known example from "The Gamma Family..."
         /// </summary>
         [TestMethod]
         public void Test_WaldWolfowitz()
@@ -274,7 +274,7 @@ namespace Data.Statistics
         }
 
         /// <summary>
-        /// Test the Gurbbs-Beck method against a known example from "The Gamma Family..."
+        /// Test the Grubbs-Beck method against a known example from "The Gamma Family..."
         /// </summary>
         [TestMethod]
         public void Test_GrubbsBeck()

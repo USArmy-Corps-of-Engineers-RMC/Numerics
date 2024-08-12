@@ -1,4 +1,4 @@
-﻿/**
+﻿/*
 * NOTICE:
 * The U.S. Army Corps of Engineers, Risk Management Center (USACE-RMC) makes no guarantees about
 * the results, or appropriateness of outputs, obtained from Numerics.
@@ -26,7 +26,7 @@
 * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
 * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-* **/
+*/
 
 namespace Numerics.Distributions.Copulas
 {
@@ -42,11 +42,29 @@ namespace Numerics.Distributions.Copulas
     /// </remarks>
     public enum CopulaType
     {
+        /// <summary>
+        /// Ali-Mikhail-Haq (AMH)
+        /// </summary>
         AliMikhailHaq,
+        /// <summary>
+        /// Clayton
+        /// </summary>
         Clayton,
+        /// <summary>
+        /// Frank
+        /// </summary>
         Frank,
+        /// <summary>
+        /// Gumbel
+        /// </summary>
         Gumbel,
+        /// <summary>
+        /// Joe
+        /// </summary>
         Joe,
+        /// <summary>
+        /// Normal
+        /// </summary>
         Normal
     }
 }

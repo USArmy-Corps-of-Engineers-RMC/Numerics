@@ -1,4 +1,4 @@
-﻿/**
+﻿/*
 * NOTICE:
 * The U.S. Army Corps of Engineers, Risk Management Center (USACE-RMC) makes no guarantees about
 * the results, or appropriateness of outputs, obtained from Numerics.
@@ -26,7 +26,7 @@
 * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
 * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-* **/
+*/
 
 using System;
 using System.Collections.Generic;
@@ -267,7 +267,7 @@ namespace Numerics.Distributions
         /// <summary>
         /// Gets the skew of the distribution.
         /// </summary>
-        public override double Skew
+        public override double Skewness
         {
             get
             {
@@ -623,15 +623,15 @@ namespace Numerics.Distributions
         /// <param name="delta">The noncentrality parameter.</param>
         private double NCT_INV(double p, double df, double delta)
         {
-            double t0, t1, t2, y0, y1, y2, tInc, Slope;
+            double t0, t1, t2, y0, y1, tInc, Slope;
             int iter;
-            double tEstimate;
+            //double tEstimate;
             const double ytol = 0.0000001d;         // Y-tolerance
             const double xtol = 0.0000001d;         // X-tolerance
-            const double w = 1.5d;                 // Over-shooting parameter (>= 1)
+            //const double w = 1.5d;                 // Over-shooting parameter (>= 1)
             const int iterMax = 50;
             t0 = NCTInv0(p, df, delta);
-            tEstimate = t0;                          // Default if we run into trouble
+            //tEstimate = t0;                          // Default if we run into trouble
             y0 = NCTDist(t0, df, delta) - p;
             if (y0 > ytol)
             {

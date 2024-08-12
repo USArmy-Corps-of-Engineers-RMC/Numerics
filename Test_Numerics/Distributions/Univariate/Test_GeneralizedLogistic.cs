@@ -121,9 +121,9 @@ namespace Distributions.Univariate
         public void Test_GLO_Partials()
         {
             var GLO = new GeneralizedLogistic(30911.83d, 9305.0205d, -0.144152d);
-            double dQdLocation = GLO.PartialDerivatives(0.99d)[0];
-            double dQdScale = GLO.PartialDerivatives(0.99d)[1];
-            double dQdShape = GLO.PartialDerivatives(0.99d)[2];
+            double dQdLocation = GLO.QuantileGradient(0.99d)[0];
+            double dQdScale = GLO.QuantileGradient(0.99d)[1];
+            double dQdShape = GLO.QuantileGradient(0.99d)[2];
             double true_dLocation = 1.0d;
             double true_dScale = 6.51695d;
             double true_dShape = -154595.08d;

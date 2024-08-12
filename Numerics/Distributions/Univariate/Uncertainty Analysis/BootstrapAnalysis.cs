@@ -1,4 +1,4 @@
-﻿/**
+﻿/*
 * NOTICE:
 * The U.S. Army Corps of Engineers, Risk Management Center (USACE-RMC) makes no guarantees about
 * the results, or appropriateness of outputs, obtained from Numerics.
@@ -26,7 +26,7 @@
 * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
 * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-* **/
+*/
 
 using System;
 using System.Collections.Generic;
@@ -45,7 +45,7 @@ namespace Numerics.Distributions
     /// </summary>
     /// <remarks>
     /// <para>
-    ///     Authors:
+    ///     <b> Authors: </b>
     ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
     /// </para>
     /// <para>
@@ -131,7 +131,7 @@ namespace Numerics.Distributions
                         bootDistributions[idx] = Distribution.Bootstrap(EstimationMethod, SampleSize, seeds[idx] + 10 * m);
                         failed = false;
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
                         failed = true;
                     };
@@ -165,7 +165,7 @@ namespace Numerics.Distributions
                     bootDistributions[idx] = dist;
                     failed = false;
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     failed = true;
                 };
@@ -642,7 +642,7 @@ namespace Numerics.Distributions
                         I3[i] += Math.Pow((N - 1) * (thetaHats[i] - thetaJack[i]), 3);
                     }
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     // MLE and certain L-moments methods can fail to find a solution
                 };
@@ -705,7 +705,7 @@ namespace Numerics.Distributions
                     }
 
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     // MLE and certain L-moments methods can fail to find a solution
                     // On fail, set to null
@@ -771,7 +771,7 @@ namespace Numerics.Distributions
                         I2[i] += Math.Pow((thetaHats[i] - thetaJack[i]), 2);
                     }
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     // MLE and certain L-moments methods can fail to find a solution
                     // On fail, set to null

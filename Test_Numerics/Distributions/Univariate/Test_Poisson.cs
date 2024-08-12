@@ -29,7 +29,7 @@ namespace Distributions.Univariate
             Assert.AreEqual(P.Median, true_median, 0.0001d);
             Assert.AreEqual(P.Mode, true_mode, 0.0001d);
             Assert.AreEqual(P.StandardDeviation, true_stdDev, 0.0001d);
-            Assert.AreEqual(P.Skew, true_skew, 0.0001d);
+            Assert.AreEqual(P.Skewness, true_skew, 0.0001d);
             Assert.AreEqual(P.Kurtosis, true_kurt, 0.0001d);
             Assert.AreEqual(P.PDF(4.0d), true_pdf, 0.0001d);
             Assert.AreEqual(P.CDF(4.0d), true_cdf, 0.0001d);
