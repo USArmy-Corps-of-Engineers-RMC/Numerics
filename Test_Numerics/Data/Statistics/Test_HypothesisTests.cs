@@ -222,6 +222,7 @@ namespace Data.Statistics
             Assert.AreEqual(p2, true_p2, 1E-4);
         }
 
+        [TestMethod]
         /// <summary>
         /// Test the Mann-Whitney method against a known example from "The Gamma Family..."
         /// </summary>
