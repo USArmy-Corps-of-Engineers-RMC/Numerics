@@ -112,27 +112,13 @@ namespace Distributions.Univariate
             kappa4.Estimate(data, ParameterEstimationMethod.MethodOfLinearMoments);
             double p = 0.999;
 
-            var pd1 = kappa4.PartialDerivatives(p);
+            var pd1 = kappa4.QuantileGradient(p);
             var pd2 = NumericalDerivative.Gradient(x => 
             {
                 var K4 = new KappaFour();
                 K4.SetParameters(x);
                 return K4.InverseCDF(p);
             },kappa4.GetParameters);
-
-
-            var stopWatch = new Stopwatch();
-            stopWatch.Start();
-
-            var ps = new double[] { 0.1, 0.01, 0.001, 0.0001 };
-            var J = kappa4.Jacobian(ps);
-
-
-            // Write out results
-            stopWatch.Stop();
-            var timeSpan = stopWatch.Elapsed;
-            string elapsedTime = string.Format("{0:00}:{1:00}:{2:00}.{3:00}", timeSpan.Hours, timeSpan.Minutes, timeSpan.Seconds, timeSpan.Milliseconds / 10d);
-            Debug.WriteLine("Runtime: " + elapsedTime);
 
         }
 

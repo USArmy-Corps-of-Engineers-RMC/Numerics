@@ -114,22 +114,6 @@ namespace Distributions.Univariate
                 return gn.InverseCDF(p);
             }, gno.GetParameters);
 
-
-            var stopWatch = new Stopwatch();
-            stopWatch.Start();
-
-            var ps = new double[] { 0.1, 0.01, 0.001};
-            var J = gno.Jacobian(ps);
-
-
-            // Write out results
-            stopWatch.Stop();
-            var timeSpan = stopWatch.Elapsed;
-            string elapsedTime = string.Format("{0:00}:{1:00}:{2:00}.{3:00}", timeSpan.Hours, timeSpan.Minutes, timeSpan.Seconds, timeSpan.Milliseconds / 10d);
-            Debug.WriteLine("Runtime: " + elapsedTime);
-
-
-
         }
     }
 }

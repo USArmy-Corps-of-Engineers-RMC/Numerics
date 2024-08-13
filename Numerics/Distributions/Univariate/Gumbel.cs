@@ -84,7 +84,7 @@ namespace Numerics.Distributions
             get { return _xi; }
             set
             {
-                _parametersValid = ValidateParameters(new[] { value, Alpha }, false) is null;
+                _parametersValid = ValidateParameters([value, Alpha], false) is null;
                 _xi = value;
             }
         }
@@ -97,7 +97,7 @@ namespace Numerics.Distributions
             get { return _alpha; }
             set
             {
-                _parametersValid = ValidateParameters(new[] { Xi, value }, false) is null;
+                _parametersValid = ValidateParameters([Xi, value], false) is null;
                 _alpha = value;
             }
         }
@@ -143,19 +143,19 @@ namespace Numerics.Distributions
         /// <inheritdoc/>
         public override string[] ParameterNamesShortForm
         {
-            get { return new[] { "ξ", "α" }; }
+            get { return ["ξ", "α"]; }
         }
 
         /// <inheritdoc/>
         public override string[] GetParameterPropertyNames
         {
-            get { return new[] { nameof(Xi), nameof(Alpha) }; }
+            get { return [nameof(Xi), nameof(Alpha)]; }
         }
 
         /// <inheritdoc/>
         public override double[] GetParameters
         {
-            get { return new[] { Xi, Alpha }; }
+            get { return [Xi, Alpha]; }
         }
 
         /// <inheritdoc/>
@@ -217,13 +217,13 @@ namespace Numerics.Distributions
         /// <inheritdoc/>
         public override double[] MinimumOfParameters
         {
-            get { return new[] { double.NegativeInfinity, 0.0d }; }
+            get { return [double.NegativeInfinity, 0.0d]; }
         }
 
         /// <inheritdoc/>
         public override double[] MaximumOfParameters
         {
-            get { return new[] { double.PositiveInfinity, double.PositiveInfinity }; }
+            get { return [double.PositiveInfinity, double.PositiveInfinity]; }
         }
 
         /// <inheritdoc/>
@@ -311,7 +311,7 @@ namespace Numerics.Distributions
             // Solve for Xi
             double x = moments[0] - a * Tools.Euler;
             // return parameters
-            return new[] { x, a };
+            return [x, a];
         }
 
         /// <inheritdoc/>
@@ -323,7 +323,7 @@ namespace Numerics.Distributions
             var m2 = dist.StandardDeviation;
             var m3 = dist.Skewness;
             var m4 = dist.Kurtosis;
-            return new[] { m1, m2, m3, m4 };
+            return [m1, m2, m3, m4];
         }
 
         /// <inheritdoc/>
@@ -333,7 +333,7 @@ namespace Numerics.Distributions
             double L2 = moments[1];
             double alpha = L2 / Tools.Log2;
             double xi = L1 - alpha * Tools.Euler;
-            return new[] { xi, alpha };
+            return [xi, alpha];
         }
 
         /// <inheritdoc/>
@@ -345,7 +345,7 @@ namespace Numerics.Distributions
             double L2 = alpha * Math.Log(2.0d);
             double T3 = Math.Log(9d / 8d) / Math.Log(2.0d);
             double T4 = (16.0d * Math.Log(2.0d) - 10.0d * Math.Log(3.0d)) / Math.Log(2.0d);
-            return new[] { L1, L2, T3, T4 };
+            return [L1, L2, T3, T4];
         }
 
         /// <inheritdoc/>
@@ -493,49 +493,56 @@ namespace Numerics.Distributions
         }
 
         /// <inheritdoc/>
-        public IList<double> ParameterVariance(int sampleSize, ParameterEstimationMethod estimationMethod)
+        public override UnivariateDistributionBase Clone()
         {
-            if (estimationMethod == ParameterEstimationMethod.MethodOfMoments)
+            return new Gumbel(Xi, Alpha);
+        }
+
+        /// <inheritdoc/>
+        public double[,] ParameterCovariance(int sampleSize, ParameterEstimationMethod estimationMethod)
+        {
+            if (estimationMethod != ParameterEstimationMethod.MaximumLikelihood)
             {
                 throw new NotImplementedException();
             }
             // Validate parameters
             if (_parametersValid == false)
                 ValidateParameters(Xi, _alpha, true);
+            // Compute covariance
             double a = Alpha;
-            var varList = new List<double>();
-            varList.Add(1.1087d * a * a / sampleSize); // location
-            varList.Add(0.6079d * a * a / sampleSize); // scale
-            return varList;
+            var covar = new double[2, 2];
+            covar[0, 0] = 1.1087d * a * a / sampleSize; // location
+            covar[1, 1] = 0.6079d * a * a / sampleSize; // scale
+            covar[0, 1] = 0.257d * a * a / sampleSize;
+            covar[1, 0] = covar[0, 1];
+            return covar;
         }
 
         /// <inheritdoc/>
-        public IList<double> ParameterCovariance(int sampleSize, ParameterEstimationMethod estimationMethod)
+        public double QuantileVariance(double probability, int sampleSize, ParameterEstimationMethod estimationMethod)
         {
-            if (estimationMethod == ParameterEstimationMethod.MethodOfMoments)
+            var covar = ParameterCovariance(sampleSize, estimationMethod);
+            var grad = QuantileGradient(probability);
+            double varA = covar[0, 0];
+            double varB = covar[1, 1];
+            double covAB = covar[1, 0];
+            double dQx1 = grad[0];
+            double dQx2 = grad[1];
+            return Math.Pow(dQx1, 2d) * varA + Math.Pow(dQx2, 2d) * varB + 2d * dQx1 * dQx2 * covAB;
+        }
+
+        /// <inheritdoc/>
+        public double[] QuantileGradient(double probability)
+        {
+            // Validate parameters
+            if (_parametersValid == false)
+                ValidateParameters(Xi, _alpha, true);
+            var gradient = new double[]
             {
-                throw new NotImplementedException();
-            }
-            // Validate parameters
-            if (_parametersValid == false)
-                ValidateParameters(Xi, _alpha, true);
-            double a = Alpha;
-            var covarList = new List<double>();
-            covarList.Add(0.257d * a * a / sampleSize); // location & scale
-            return covarList;
-        }
-
-        /// <inheritdoc/>
-        public IList<double> QuantileGradient(double probability)
-        {
-            // Validate parameters
-            if (_parametersValid == false)
-                ValidateParameters(Xi, _alpha, true);
-            double a = Alpha;
-            var partialList = new List<double>();
-            partialList.Add(1.0d); // location
-            partialList.Add(-Math.Log(-Math.Log(probability))); // scale
-            return partialList;
+                1.0d, // location
+                -Math.Log(-Math.Log(probability)) // scale
+            };
+            return gradient;
         }
 
         /// <inheritdoc/>
@@ -543,65 +550,23 @@ namespace Numerics.Distributions
         {
             if (probabilities.Count != NumberOfParameters)
             {
-                throw new ArgumentOutOfRangeException(nameof(Jacobian), "The number of probabilities must be the same length as the number of distribution parameters.");
+                throw new ArgumentOutOfRangeException(nameof(probabilities), "The number of probabilities must be the same length as the number of distribution parameters.");
             }
-
             // Get gradients
-            var dXt1 = QuantileGradient(probabilities[0]).ToArray();
-            var dXt2 = QuantileGradient(probabilities[1]).ToArray();
+            var dQp1 = QuantileGradient(probabilities[0]);
+            var dQp2 = QuantileGradient(probabilities[1]);
             // Compute determinant
             // |a b|
             // |c d|
             // |A| = ad − bc
-            double a = dXt1[0];
-            double b = dXt1[1];
-            double c = dXt2[0];
-            double d = dXt2[1];
+            double a = dQp1[0];
+            double b = dQp1[1];
+            double c = dQp2[0];
+            double d = dQp2[1];
             determinant = a * d - b * c;
             // Return Jacobian
-            var jacobian = new double[2, 2];
-            jacobian.SetRow(0, dXt1);
-            jacobian.SetRow(1, dXt2);
+            var jacobian = new double[,] { { a, b }, { c, d } };
             return jacobian;
-        }
-
-        /// <inheritdoc/>
-        public double QuantileVariance(double probability, int sampleSize, ParameterEstimationMethod estimationMethod)
-        {
-            double varA = ParameterVariance(sampleSize, estimationMethod)[0];
-            double varB = ParameterVariance(sampleSize, estimationMethod)[1];
-            double covAB = ParameterCovariance(sampleSize, estimationMethod)[0];
-            double pXA = QuantileGradient(probability)[0];
-            double pXB = QuantileGradient(probability)[1];
-            return Math.Pow(pXA, 2d) * varA + Math.Pow(pXB, 2d) * varB + 2d * pXA * pXB * covAB;
-        }
-
-        /// <summary>
-        /// Returns the determinant of the Jacobian.
-        /// </summary>
-        /// <param name="probabilities">List of probabilities, must be the same length as the number of distribution parameters.</param>
-        public double Jacobian(IList<double> probabilities)
-        {
-            if (probabilities.Count != NumberOfParameters)
-            {
-                throw new ArgumentOutOfRangeException(nameof(Jacobian), "The number of probabilities must be the same length as the number of distribution parameters.");
-            }
-            // |a b|
-            // |c d|
-            // |A| = ad − bc
-            var dXt1 = QuantileGradient(probabilities[0]).ToArray();
-            var dXt2 = QuantileGradient(probabilities[1]).ToArray();
-            double a = dXt1[0];
-            double b = dXt1[1];
-            double c = dXt2[0];
-            double d = dXt2[1];
-            return a * d - b * c;
-        }
-
-        /// <inheritdoc/>
-        public override UnivariateDistributionBase Clone()
-        {
-            return new Gumbel(Xi, Alpha);
         }
 
     }

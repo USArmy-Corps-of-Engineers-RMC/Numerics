@@ -475,59 +475,60 @@ namespace Numerics.Distributions
         }
 
         /// <inheritdoc/>
-        public IList<double> ParameterVariance(int sampleSize, ParameterEstimationMethod estimationMethod)
+        public override UnivariateDistributionBase Clone()
         {
-            // lambda is scale a
-            // kappa is shape b
-            if (estimationMethod == ParameterEstimationMethod.MethodOfMoments)
+            return new Weibull(Lambda, Kappa);
+        }
+
+        /// <inheritdoc/>
+        public double[,] ParameterCovariance(int sampleSize, ParameterEstimationMethod estimationMethod)
+        {
+            if (estimationMethod != ParameterEstimationMethod.MaximumLikelihood)
             {
                 throw new NotImplementedException();
             }
             // Validate parameters
             if (_parametersValid == false)
                 ValidateParameters(_lambda, _kappa, true);
+
+            // Compute covariance
             double a = Lambda;
             double b = Kappa;
-            var varList = new List<double>
-            {
-                1.108665d * a * a / (sampleSize * b * b), // scale
-                0.607927d * b * b / sampleSize // shape
-            };
-            return varList;
+            var covar = new double[2, 2];
+            covar[0, 0] = 1.108665d * a * a / (sampleSize * b * b); // scale
+            covar[1, 1] = 0.607927d * b * b / sampleSize; // shape
+            covar[0, 1] = 0.257022d * a / sampleSize;
+            covar[1, 0] = covar[0, 1];
+            return covar;
         }
 
         /// <inheritdoc/>
-        public IList<double> ParameterCovariance(int sampleSize, ParameterEstimationMethod estimationMethod)
+        public double QuantileVariance(double probability, int sampleSize, ParameterEstimationMethod estimationMethod)
         {
-            if (estimationMethod == ParameterEstimationMethod.MethodOfMoments)
-            {
-                throw new NotImplementedException();
-            }
-            // Validate parameters
-            if (_parametersValid == false)
-                ValidateParameters(_lambda, _kappa, true);
-            double a = Lambda;
-            var covarList = new List<double>
-            {
-                0.257022d * a / sampleSize // scale & shape
-            };
-            return covarList;
+            var covar = ParameterCovariance(sampleSize, estimationMethod);
+            var grad = QuantileGradient(probability);
+            double varA = covar[0, 0];
+            double varB = covar[1, 1];
+            double covAB = covar[1, 0];
+            double dQx1 = grad[0];
+            double dQx2 = grad[1];
+            return Math.Pow(dQx1, 2d) * varA + Math.Pow(dQx2, 2d) * varB + 2d * dQx1 * dQx2 * covAB;
         }
 
         /// <inheritdoc/>
-        public IList<double> QuantileGradient(double probability)
+        public double[] QuantileGradient(double probability)
         {
             // Validate parameters
             if (_parametersValid == false)
                 ValidateParameters(_lambda, _kappa, true);
             double a = Lambda;
             double b = Kappa;
-            var partialList = new List<double>
+            var gradient = new double[]
             {
                 Math.Log(Math.Pow(1d / (1d - probability), 1d / Kappa)), // scale
                 a * Math.Log(1d - probability) / (b * b) // shape
             };
-            return partialList;
+            return gradient;
         }
 
         /// <inheritdoc/>
@@ -537,41 +538,21 @@ namespace Numerics.Distributions
             {
                 throw new ArgumentOutOfRangeException(nameof(probabilities), "The number of probabilities must be the same length as the number of distribution parameters.");
             }
-
             // Get gradients
-            var dXt1 = QuantileGradient(probabilities[0]).ToArray();
-            var dXt2 = QuantileGradient(probabilities[1]).ToArray();
+            var dQp1 = QuantileGradient(probabilities[0]);
+            var dQp2 = QuantileGradient(probabilities[1]);
             // Compute determinant
             // |a b|
             // |c d|
             // |A| = ad − bc
-            double a = dXt1[0];
-            double b = dXt1[1];
-            double c = dXt2[0];
-            double d = dXt2[1];
+            double a = dQp1[0];
+            double b = dQp1[1];
+            double c = dQp2[0];
+            double d = dQp2[1];
             determinant = a * d - b * c;
             // Return Jacobian
-            var jacobian = new double[2, 2];
-            jacobian.SetRow(0, dXt1);
-            jacobian.SetRow(1, dXt2);
+            var jacobian = new double[,] { { a, b }, { c, d } };
             return jacobian;
-        }
-
-        /// <inheritdoc/>
-        public double QuantileVariance(double probability, int sampleSize, ParameterEstimationMethod estimationMethod)
-        {
-            double varA = ParameterVariance(sampleSize, estimationMethod)[0];
-            double varB = ParameterVariance(sampleSize, estimationMethod)[1];
-            double covAB = ParameterCovariance(sampleSize, estimationMethod)[0];
-            double pXA = QuantileGradient(probability)[0];
-            double pXB = QuantileGradient(probability)[1];
-            return Math.Pow(pXA, 2d) * varA + Math.Pow(pXB, 2d) * varB + 2d * pXA * pXB * covAB;
-        }
-
-        /// <inheritdoc/>
-        public override UnivariateDistributionBase Clone()
-        {
-            return new Weibull(Lambda, Kappa);
         }
 
     }

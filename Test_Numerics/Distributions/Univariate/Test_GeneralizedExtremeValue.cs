@@ -91,23 +91,6 @@ namespace Distributions.Univariate
             Assert.AreEqual((x - true_x) / true_x < 0.01d, true);
             Assert.AreEqual((a - true_a) / true_a < 0.01d, true);
             Assert.AreEqual((k - true_k) / true_k < 0.01d, true);
-
-            //var h = GEV.ExpectedInformationMatrix(sample.Length);
-            //var b = new Matrix(h.NumberOfRows);
-            //GaussJordanElimination.Solve(ref h, ref b);
-            //var d = Matrix.Determinant(h);
-
-            //var hess = NumericalDerivative.Hessian((double[] z) =>
-            //                                        {
-            //                                            var dist = new GeneralizedExtremeValue(z[0], z[1], z[2]);
-            //                                            return dist.LogLikelihood(sample);
-            //                                        }, new double[] { x, a, k });
-            //var hessian = new Matrix(hess);
-            //hessian = hessian * -1;
-            //b = new Matrix(h.NumberOfRows);
-            //GaussJordanElimination.Solve(ref hessian, ref b);
-            //var det = Matrix.Determinant(hessian);
-
         }
 
         /// <summary>
@@ -131,8 +114,6 @@ namespace Distributions.Univariate
             double p = GEV.CDF(q100);
             double true_p = 0.99d;
             Assert.AreEqual((p - true_p) / true_p < 0.01d, true);
-
-
         }
 
         /// <summary>
@@ -165,29 +146,21 @@ namespace Distributions.Univariate
             double true_QSigma = 5142d;
             var GEV = new GeneralizedExtremeValue(u, a, k);
             var partials = GEV.QuantileGradient(0.99d).ToArray();
-            var vars = GEV.ParameterVariance(sample.Length, ParameterEstimationMethod.MaximumLikelihood).ToArray();
-            var covars = GEV.ParameterCovariance(sample.Length, ParameterEstimationMethod.MaximumLikelihood).ToArray();
+            var covar = GEV.ParameterCovariance(sample.Length, ParameterEstimationMethod.MaximumLikelihood);
             double qVar = GEV.QuantileVariance(0.99d, sample.Length, ParameterEstimationMethod.MaximumLikelihood);
             double qSigma = Math.Sqrt(qVar);
             Assert.AreEqual((partials[0] - true_dXdU) / true_dXdU < 0.01d, true);
             Assert.AreEqual((partials[1] - true_dxdA) / true_dxdA < 0.01d, true);
             Assert.AreEqual((partials[2] - true_dxdK) / true_dxdK < 0.01d, true);
-            Assert.AreEqual((vars[0] - true_VarU) / true_VarU < 0.01d, true);
-            Assert.AreEqual((vars[1] - true_VarA) / true_VarA < 0.01d, true);
-            Assert.AreEqual((vars[2] - true_VarK) / true_VarK < 0.01d, true);
-            Assert.AreEqual((covars[0] - true_CovarUA) / true_CovarUA < 0.01d, true);
-            Assert.AreEqual((covars[1] - true_CovarUK) / true_CovarUK < 0.01d, true);
-            Assert.AreEqual((covars[2] - true_CovarAK) / true_CovarAK < 0.01d, true);
+            Assert.AreEqual((covar[0, 0] - true_VarU) / true_VarU < 0.01d, true);
+            Assert.AreEqual((covar[1, 1] - true_VarA) / true_VarA < 0.01d, true);
+            Assert.AreEqual((covar[2, 2] - true_VarK) / true_VarK < 0.01d, true);
+            Assert.AreEqual((covar[0, 1] - true_CovarUA) / true_CovarUA < 0.01d, true);
+            Assert.AreEqual((covar[0, 2] - true_CovarUK) / true_CovarUK < 0.01d, true);
+            Assert.AreEqual((covar[1, 2] - true_CovarAK) / true_CovarAK < 0.01d, true);
             Assert.AreEqual((qVar - true_QVar) / true_QVar < 0.01d, true);
             Assert.AreEqual((qSigma - true_QSigma) / true_QSigma < 0.01d, true);
         }
 
-        [TestMethod()]
-        public void Test_GEV_Jacobian()
-        {
-            var GEV = new GeneralizedExtremeValue(22299.7822d, 11080.8716d, -0.0378d);
-            double J = GEV.Jacobian(new[] { 0.9d, 0.99d, 0.999d });
-          
-        }
     }
 }

@@ -55,6 +55,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Numerics.Data.Statistics;
 using Numerics.Mathematics;
@@ -230,19 +231,19 @@ namespace Numerics.Distributions
         /// <inheritdoc/>
         public override string[] ParameterNamesShortForm
         {
-            get { return new[] { "θ", "κ" }; }
+            get { return ["θ", "κ"]; }
         }
 
         /// <inheritdoc/>
         public override string[] GetParameterPropertyNames
         {
-            get { return new[] { nameof(Theta), nameof(Kappa) }; }
+            get { return [nameof(Theta), nameof(Kappa)]; }
         }
 
         /// <inheritdoc/>
         public override double[] GetParameters
         {
-            get { return new[] { Theta, Kappa }; }
+            get { return [Theta, Kappa]; }
         }
 
         /// <inheritdoc/>
@@ -313,13 +314,13 @@ namespace Numerics.Distributions
         /// <inheritdoc/>
         public override double[] MinimumOfParameters
         {
-            get { return new[] { 0.0d, 0.0d }; }
+            get { return [0.0d, 0.0d]; }
         }
 
         /// <inheritdoc/>
         public override double[] MaximumOfParameters
         {
-            get { return new[] { double.PositiveInfinity, double.PositiveInfinity }; }
+            get { return [double.PositiveInfinity, double.PositiveInfinity]; }
         }
 
         /// <inheritdoc/>
@@ -416,7 +417,7 @@ namespace Numerics.Distributions
             var m2 = dist.StandardDeviation;
             var m3 = dist.Skewness;
             var m4 = dist.Kurtosis;
-            return new[] { m1, m2, m3, m4 };
+            return [m1, m2, m3, m4];
         }
 
         /// <inheritdoc/>
@@ -444,7 +445,7 @@ namespace Numerics.Distributions
                 kappa = T * (B1 + T * B2) / (1d + T * (B3 + T * B4));
             }
             theta = L1 / kappa;     
-            return new[] { theta, kappa };
+            return [theta, kappa];
         }
 
         /// <inheritdoc/>
@@ -492,7 +493,7 @@ namespace Numerics.Distributions
                 T4 = (1d + G1 * alpha + G2 * Math.Pow(alpha, 2d) + G3 * Math.Pow(alpha, 3d)) / (1d + H1 * alpha + H2 * Math.Pow(alpha, 2d) + H3 * Math.Pow(alpha, 3d));
             }
 
-            return new[] { L1, L2, T3, T4 };
+            return [L1, L2, T3, T4];
         }
 
         /// <inheritdoc/>
@@ -759,83 +760,34 @@ namespace Numerics.Distributions
             }
         }
 
-        /// <inheritdoc/>
-        public IList<double> ParameterVariance(int sampleSize, ParameterEstimationMethod estimationMethod)
+        /// <summary>
+        /// Creates a copy of the distribution.
+        /// </summary>
+        public override UnivariateDistributionBase Clone()
         {
-            if (estimationMethod == ParameterEstimationMethod.MethodOfMoments)
+            return new GammaDistribution(Theta, Kappa);
+        }
+
+        /// <inheritdoc/>
+        public double[,] ParameterCovariance(int sampleSize, ParameterEstimationMethod estimationMethod)
+        {
+            if (estimationMethod != ParameterEstimationMethod.MaximumLikelihood)
             {
                 throw new NotImplementedException();
             }
             // Validate parameters
             if (_parametersValid == false)
                 ValidateParameters(_theta, _kappa, true);
+            // Compute covariance
             double alpha = 1d / Theta;
             double lambda = Kappa;
             double NA = Gamma.Trigamma(lambda) - 1d / lambda;
-            var varList = new List<double>();
-            varList.Add(Math.Pow(alpha, 2d) * Gamma.Trigamma(lambda) / (sampleSize * lambda * NA)); // scale
-            varList.Add(1d / (sampleSize * NA)); // shape
-            return varList;
-        }
-
-        /// <inheritdoc/>
-        public IList<double> ParameterCovariance(int sampleSize, ParameterEstimationMethod estimationMethod)
-        {
-            if (estimationMethod == ParameterEstimationMethod.MethodOfMoments)
-            {
-                throw new NotImplementedException();
-            }
-            // Validate parameters
-            if (_parametersValid == false)
-                ValidateParameters(_theta, _kappa, true);
-            double alpha = 1d / Theta;
-            double lambda = Kappa;
-            double NA = Gamma.Trigamma(lambda) - 1d / lambda;
-            var covarList = new List<double>();
-            covarList.Add(alpha / (sampleSize * lambda * NA)); // scale & shape
-            return covarList;
-        }
-
-        /// <inheritdoc/>
-        public IList<double> QuantileGradient(double probability)
-        {
-            // Validate parameters
-            if (_parametersValid == false)
-                ValidateParameters(_theta, _kappa, true);
-            double alpha = 1d / Theta;
-            double lambda = Kappa;
-            double eps = Math.Sign(alpha);
-            var partialList = new List<double>();
-            partialList.Add(-lambda / Math.Pow(alpha, 2d) * (1.0d + eps / Math.Sqrt(lambda) * FrequencyFactorKp(Skewness, probability))); // scale
-            partialList.Add(1.0d / alpha * (1.0d + eps / Math.Sqrt(lambda) * FrequencyFactorKp(Skewness, probability) / 2.0d - 1.0d / lambda * PartialKp(Skewness, probability))); // shape
-            return partialList;
-        }
-
-        /// <inheritdoc/>
-        public double[,] QuantileJacobian(IList<double> probabilities, out double determinant)
-        {
-            if (probabilities.Count != NumberOfParameters)
-            {
-                throw new ArgumentOutOfRangeException(nameof(Jacobian), "The number of probabilities must be the same length as the number of distribution parameters.");
-            }
-
-            // Get gradients
-            var dXt1 = QuantileGradient(probabilities[0]).ToArray();
-            var dXt2 = QuantileGradient(probabilities[1]).ToArray();
-            // Compute determinant
-            // |a b|
-            // |c d|
-            // |A| = ad − bc
-            double a = dXt1[0];
-            double b = dXt1[1];
-            double c = dXt2[0];
-            double d = dXt2[1];
-            determinant = a * d - b * c;
-            // Return Jacobian
-            var jacobian = new double[2, 2];
-            jacobian.SetRow(0, dXt1);
-            jacobian.SetRow(1, dXt2);
-            return jacobian;
+            var covar = new double[2, 2];
+            covar[0, 0] = Math.Pow(alpha, 2d) * Gamma.Trigamma(lambda) / (sampleSize * lambda * NA); // scale
+            covar[1, 1] = 1d / (sampleSize * NA); // shape
+            covar[0, 1] = alpha / (sampleSize * lambda * NA); // scale & shape
+            covar[1, 0] = covar[0, 1];
+            return covar;
         }
 
         /// <summary>
@@ -846,6 +798,11 @@ namespace Numerics.Distributions
         /// <param name="estimationMethod">The distribution parameter estimation method.</param>
         public double QuantileVariance(double probability, int sampleSize, ParameterEstimationMethod estimationMethod)
         {
+            if (estimationMethod != ParameterEstimationMethod.MethodOfMoments &&
+                estimationMethod != ParameterEstimationMethod.MaximumLikelihood)
+            {
+                throw new NotImplementedException();
+            }
             if (estimationMethod == ParameterEstimationMethod.MethodOfMoments)
             {
                 double CV = CoefficientOfVariation;
@@ -855,21 +812,40 @@ namespace Numerics.Distributions
             }
             else if (estimationMethod == ParameterEstimationMethod.MaximumLikelihood)
             {
-                double varA = ParameterVariance(sampleSize, estimationMethod)[0];
-                double varB = ParameterVariance(sampleSize, estimationMethod)[1];
-                double covAB = ParameterCovariance(sampleSize, estimationMethod)[0];
-                double pXA = QuantileGradient(probability)[0];
-                double pXB = QuantileGradient(probability)[1];
-                return Math.Pow(pXA, 2d) * varA + Math.Pow(pXB, 2d) * varB + 2d * pXA * pXB * covAB;
+                var covar = ParameterCovariance(sampleSize, estimationMethod);
+                var grad = QuantileGradient(probability);
+                double varA = covar[0, 0];
+                double varB = covar[1, 1];
+                double covAB = covar[1, 0];
+                double dQx1 = grad[0];
+                double dQx2 = grad[1];
+                return Math.Pow(dQx1, 2d) * varA + Math.Pow(dQx2, 2d) * varB + 2d * dQx1 * dQx2 * covAB;
             }
-            return default;
+            return double.NaN;
         }
-    
+
+        /// <inheritdoc/>
+        public double[] QuantileGradient(double probability)
+        {
+            // Validate parameters
+            if (_parametersValid == false)
+                ValidateParameters(_theta, _kappa, true);
+            double alpha = 1d / Theta;
+            double lambda = Kappa;
+            double eps = Math.Sign(alpha);
+            var gradient = new double[]
+            {
+                -lambda / Math.Pow(alpha, 2d) * (1.0d + eps / Math.Sqrt(lambda) * FrequencyFactorKp(Skewness, probability)), // scale
+                1.0d / alpha * (1.0d + eps / Math.Sqrt(lambda) * FrequencyFactorKp(Skewness, probability) / 2.0d - 1.0d / lambda * PartialKp(Skewness, probability)) // shape
+            };
+            return gradient;
+        }
+
         /// <summary>
         /// Partial derivative with respect to theta.
         /// </summary>
         /// <param name="probability">The probability to evaluate.</param>
-        public double PartialforTheta(double probability)
+        private double PartialforTheta(double probability)
         {
             return FrequencyFactorKp(Skewness, probability) * Math.Sqrt(Kappa) + Kappa;
         }
@@ -883,16 +859,14 @@ namespace Numerics.Distributions
             return Theta * (FrequencyFactorKp(Skewness, probability) / (2.0d * Math.Sqrt(Kappa)) + 1.0d - PartialKp(Skewness, probability) / Kappa);
         }
 
-        /// <summary>
-        /// Returns the determinant of the Jacobian.
-        /// </summary>
-        /// <param name="probabilities">List of probabilities, must be the same length as the number of distribution parameters.</param>
-        public double Jacobian(IList<double> probabilities)
+        /// <inheritdoc/>
+        public double[,] QuantileJacobian(IList<double> probabilities, out double determinant)
         {
             if (probabilities.Count != NumberOfParameters)
             {
-                throw new ArgumentOutOfRangeException(nameof(Jacobian), "The number of probabilities must be the same length as the number of distribution parameters.");
+                throw new ArgumentOutOfRangeException(nameof(probabilities), "The number of probabilities must be the same length as the number of distribution parameters.");
             }
+            // Compute determinant
             // |a b|
             // |c d|
             // |A| = ad − bc
@@ -900,16 +874,11 @@ namespace Numerics.Distributions
             double b = PartialforKappa(probabilities[0]);
             double c = PartialforTheta(probabilities[1]);
             double d = PartialforKappa(probabilities[1]);
-            return a * d - b * c;
+            determinant = a * d - b * c;
+            // Return Jacobian
+            var jacobian = new double[,] { { a, b }, { c, d } };
+            return jacobian;
         }
-     
-        /// <summary>
-        /// Creates a copy of the distribution.
-        /// </summary>
-        public override UnivariateDistributionBase Clone()
-        {
-            return new GammaDistribution(Theta, Kappa);
-        }
-  
+   
     }
 }

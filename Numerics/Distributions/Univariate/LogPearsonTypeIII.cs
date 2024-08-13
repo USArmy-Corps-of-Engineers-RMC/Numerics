@@ -236,7 +236,7 @@ namespace Numerics.Distributions
         /// <inheritdoc/>
         public override double[] CentralMoments(double tolerance = 1E-8)
         {
-            return new double[] { Mu, Sigma, Gamma };
+            return [Mu, Sigma, Gamma];
         }
 
         /// <inheritdoc/>
@@ -541,7 +541,6 @@ namespace Numerics.Distributions
             double L1 = moments[0];
             double L2 = moments[1];
             double T3 = moments[2];
-            double T4 = moments[3];
             var alpha = default(double);
             double z;
             // The following approximation has relative accuracy better than 5x10-5 for all values of alpha.
@@ -632,7 +631,7 @@ namespace Numerics.Distributions
             // 
             // Estimate initial values using the method of linear moments.
             var mom = IndirectMethodOfMoments(sample);
-            initialVals = new double[] { mom[0], mom[1], mom[2] };
+            initialVals = [mom[0], mom[1], mom[2]];
             // Get bounds of mean
             double real = Math.Exp(initialVals[0] / K);
             lowerVals[0] = Tools.DoubleMachineEpsilon;
@@ -778,102 +777,37 @@ namespace Numerics.Distributions
         }
 
         /// <inheritdoc/>
-        public IList<double> ParameterVariance(int sampleSize, ParameterEstimationMethod estimationMethod)
+        public override UnivariateDistributionBase Clone()
         {
-            if (estimationMethod == ParameterEstimationMethod.MethodOfMoments)
+            return new LogPearsonTypeIII(Mu, Sigma, Gamma);
+        }
+
+       
+        /// <inheritdoc/>
+        public double[,] ParameterCovariance(int sampleSize, ParameterEstimationMethod estimationMethod)
+        {
+            if (estimationMethod != ParameterEstimationMethod.MaximumLikelihood)
             {
                 throw new NotImplementedException();
             }
             // Validate parameters
             if (_parametersValid == false)
                 ValidateParameters(_mu, _sigma, _gamma, true);
+            // Compute covariance
             double alpha = 1d / Beta;
             double lambda = Alpha;
             double A = 2d * Mathematics.SpecialFunctions.Gamma.Trigamma(lambda) - 2d / (lambda - 1d) + 1d / Math.Pow(lambda - 1d, 2d);
-            var varList = new List<double>();
-            varList.Add((lambda - 2d) / (sampleSize * A) * (1d / Math.Pow(alpha, 2d)) * (Mathematics.SpecialFunctions.Gamma.Trigamma(lambda) * lambda - 1d)); // location
-            varList.Add((lambda - 2d) * Math.Pow(alpha, 2d) / (sampleSize * A) * (Mathematics.SpecialFunctions.Gamma.Trigamma(lambda) / (lambda - 2d) - 1d / Math.Pow(lambda - 1d, 2d))); // scale
-            varList.Add(2d / (sampleSize * A)); // shape
-            return varList;
-        }
-
-        /// <inheritdoc/>
-        public IList<double> ParameterCovariance(int sampleSize, ParameterEstimationMethod estimationMethod)
-        {
-            if (estimationMethod == ParameterEstimationMethod.MethodOfMoments)
-            {
-                throw new NotImplementedException();
-            }
-            // Validate parameters
-            if (_parametersValid == false)
-                ValidateParameters(_mu, _sigma, _gamma, true);
-            double alpha = 1d / Beta;
-            double lambda = Alpha;
-            double A = 2d * Mathematics.SpecialFunctions.Gamma.Trigamma(lambda) - 2d / (lambda - 1d) + 1d / Math.Pow(lambda - 1d, 2d);
-            var covarList = new List<double>();
-            covarList.Add(1d / sampleSize * ((lambda - 2d) / A) * (Mathematics.SpecialFunctions.Gamma.Trigamma(lambda) - 1d / (lambda - 1d))); // location & scale
-            covarList.Add((2d - lambda) / (sampleSize * alpha * A * (lambda - 1d))); // location & shape
-            covarList.Add(alpha / (sampleSize * A * (lambda - 1d))); // scale & shape
-            return covarList;
-        }
-
-        /// <inheritdoc/>
-        public IList<double> QuantileGradient(double probability)
-        {
-            // Validate parameters
-            if (_parametersValid == false)
-                ValidateParameters(Mu, Sigma, Gamma, true);
-            double alpha = 1d / Beta;
-            double lambda = Alpha;
-            double eps = Math.Sign(alpha);
-            var partialList = new List<double>();
-            partialList.Add(1.0d); // location
-            partialList.Add(-lambda / Math.Pow(alpha, 2d) * (1.0d + eps / Math.Sqrt(lambda) * GammaDistribution.FrequencyFactorKp(Gamma, probability))); // scale
-            partialList.Add(1.0d / alpha * (1.0d + eps / Math.Sqrt(lambda) * (GammaDistribution.FrequencyFactorKp(Gamma, probability) / 2.0d) - 1.0d / lambda * GammaDistribution.PartialKp(Gamma, probability))); // shape
-            return partialList;
-        }
-
-        /// <summary>
-        /// Returns a list of partial derivatives of X given probability with respect to each moment.
-        /// </summary>
-        /// <param name="probability">Probability between 0 and 1.</param>
-        public IList<double> PartialDerivativesWithMoments(double probability)
-        {
-            // Validate parameters
-            if (_parametersValid == false)
-                ValidateParameters(Mu, Sigma, Gamma, true);
-            var partialList = new List<double>();
-            partialList.Add(Math.Exp((Mu + Sigma * GammaDistribution.FrequencyFactorKp(Gamma, probability)) / K) / K);
-            partialList.Add(Math.Exp((Mu + Sigma * GammaDistribution.FrequencyFactorKp(Gamma, probability)) / K) * (GammaDistribution.FrequencyFactorKp(Gamma, probability) / K));
-            partialList.Add(Math.Exp((Mu + Sigma * GammaDistribution.FrequencyFactorKp(Gamma, probability)) / K) * (Sigma / K) * GammaDistribution.PartialKp(Gamma, probability));
-            return partialList;
-        }
-
-        /// <inheritdoc/>
-        public double[,] QuantileJacobian(IList<double> probabilities, out double determinant)
-        {
-            if (probabilities.Count != NumberOfParameters)
-            {
-                throw new ArgumentOutOfRangeException(nameof(Jacobian), "The number of probabilities must be the same length as the number of distribution parameters.");
-            }
-
-            // Get gradients
-            var dXt1 = QuantileGradient(probabilities[0]).ToArray();
-            var dXt2 = QuantileGradient(probabilities[1]).ToArray();
-            // Compute determinant
-            // |a b|
-            // |c d|
-            // |A| = ad − bc
-            double a = dXt1[0];
-            double b = dXt1[1];
-            double c = dXt2[0];
-            double d = dXt2[1];
-            determinant = a * d - b * c;
-            // Return Jacobian
-            var jacobian = new double[2, 2];
-            jacobian.SetRow(0, dXt1);
-            jacobian.SetRow(1, dXt2);
-            return jacobian;
+            var covar = new double[3, 3];
+            covar[0, 0] = (lambda - 2d) / (sampleSize * A) * (1d / Math.Pow(alpha, 2d)) * (Mathematics.SpecialFunctions.Gamma.Trigamma(lambda) * lambda - 1d); // location
+            covar[1, 1] = (lambda - 2d) * Math.Pow(alpha, 2d) / (sampleSize * A) * (Mathematics.SpecialFunctions.Gamma.Trigamma(lambda) / (lambda - 2d) - 1d / Math.Pow(lambda - 1d, 2d)); // scale
+            covar[2, 2] = 2d / (sampleSize * A); // shape
+            covar[0, 1] = 1d / sampleSize * ((lambda - 2d) / A) * (Mathematics.SpecialFunctions.Gamma.Trigamma(lambda) - 1d / (lambda - 1d)); // location & scale
+            covar[1, 0] = covar[0, 1];
+            covar[0, 2] = (2d - lambda) / (sampleSize * alpha * A * (lambda - 1d)); // location & shape
+            covar[2, 0] = covar[0, 2];
+            covar[1, 2] = alpha / (sampleSize * A * (lambda - 1d)); // scale & shape
+            covar[2, 1] = covar[1, 2];
+            return covar;
         }
 
         /// <inheritdoc/>
@@ -885,59 +819,95 @@ namespace Numerics.Distributions
                 double c = _gamma;
                 double c2 = Math.Pow(c, 2d);
                 int N = sampleSize;
-                double varT = Math.Pow(u2, 2d) / N * (1d + Math.Pow(GammaDistribution.FrequencyFactorKp(c, probability), 2d) / 2d * (1d + 0.75d * c2) + GammaDistribution.FrequencyFactorKp(c, probability) * c + 6d * (1d + 0.25d * c2) * GammaDistribution.PartialKp(c, probability) * (GammaDistribution.PartialKp(c, probability) * (1d + 5d * c2 / 4d) + GammaDistribution.FrequencyFactorKp(c, probability) / 2d * c));
-                return varT * Math.Pow(InverseCDF(probability) / K, 2d);
+                double varQ = Math.Pow(u2, 2d) / N * (1d + Math.Pow(GammaDistribution.FrequencyFactorKp(c, probability), 2d) / 2d * (1d + 0.75d * c2) + GammaDistribution.FrequencyFactorKp(c, probability) * c + 6d * (1d + 0.25d * c2) * GammaDistribution.PartialKp(c, probability) * (GammaDistribution.PartialKp(c, probability) * (1d + 5d * c2 / 4d) + GammaDistribution.FrequencyFactorKp(c, probability) / 2d * c));
+                return varQ * Math.Pow(InverseCDF(probability) / K, 2d);
             }
             else if (estimationMethod == ParameterEstimationMethod.MaximumLikelihood)
             {
-                double varA = ParameterVariance(sampleSize, estimationMethod)[0];
-                double varB = ParameterVariance(sampleSize, estimationMethod)[1];
-                double varG = ParameterVariance(sampleSize, estimationMethod)[2];
-                double covAB = ParameterCovariance(sampleSize, estimationMethod)[0];
-                double covAG = ParameterCovariance(sampleSize, estimationMethod)[1];
-                double covBG = ParameterCovariance(sampleSize, estimationMethod)[2];
-                double pXA = QuantileGradient(probability)[0];
-                double pXB = QuantileGradient(probability)[1];
-                double pXG = QuantileGradient(probability)[2];
-                double varT = Math.Pow(pXA, 2d) * varA + Math.Pow(pXB, 2d) * varB + Math.Pow(pXG, 2d) * varG + 2d * pXA * pXB * covAB + 2d * pXA * pXG * covAG + 2d * pXB * pXG * covBG;
-                return varT * Math.Pow(InverseCDF(probability) / K, 2d);
+                var covar = ParameterCovariance(sampleSize, estimationMethod);
+                var grad = QuantileGradient(probability);
+                double varA = covar[0, 0];
+                double varB = covar[1, 1];
+                double varG = covar[2, 2];
+                double covAB = covar[1, 0];
+                double covAG = covar[2, 0];
+                double covBG = covar[2, 1];
+                double dQx1 = grad[0];
+                double dQx2 = grad[1];
+                double dQx3 = grad[2];
+                double varQ = Math.Pow(dQx1, 2d) * varA + Math.Pow(dQx2, 2d) * varB + Math.Pow(dQx3, 2d) * varG + 2d * dQx1 * dQx2 * covAB + 2d * dQx1 * dQx3 * covAG + 2d * dQx2 * dQx3 * covBG;
+                return varQ * Math.Pow(InverseCDF(probability) / K, 2d);
             }
 
-            return default;
+            return double.NaN;
         }
 
+        /// <inheritdoc/>
+        public double[] QuantileGradient(double probability)
+        {
+            // Validate parameters
+            if (_parametersValid == false)
+                ValidateParameters(Mu, Sigma, Gamma, true);
+            double alpha = 1d / Beta;
+            double lambda = Alpha;
+            double eps = Math.Sign(alpha);
+            var gradient = new double[]
+            {
+                1.0d, // location
+                -lambda / Math.Pow(alpha, 2d) * (1.0d + eps / Math.Sqrt(lambda) * GammaDistribution.FrequencyFactorKp(Gamma, probability)), // scale
+                1.0d / alpha * (1.0d + eps / Math.Sqrt(lambda) * (GammaDistribution.FrequencyFactorKp(Gamma, probability) / 2.0d) - 1.0d / lambda * GammaDistribution.PartialKp(Gamma, probability)) // shape
+            };
+            return gradient;
+        }
+
+        /// <summary>
+        /// Returns a list of partial derivatives of X given probability with respect to each moment.
+        /// </summary>
+        /// <param name="probability">Probability between 0 and 1.</param>
+        public IList<double> QuantileGradientForMoments(double probability)
+        {
+            // Validate parameters
+            if (_parametersValid == false)
+                ValidateParameters(Mu, Sigma, Gamma, true);
+            var gradient = new double[]
+            {
+                Math.Exp((Mu + Sigma * GammaDistribution.FrequencyFactorKp(Gamma, probability)) / K) / K,
+                Math.Exp((Mu + Sigma * GammaDistribution.FrequencyFactorKp(Gamma, probability)) / K) * (GammaDistribution.FrequencyFactorKp(Gamma, probability) / K),
+                Math.Exp((Mu + Sigma * GammaDistribution.FrequencyFactorKp(Gamma, probability)) / K) * (Sigma / K) * GammaDistribution.PartialKp(Gamma, probability)
+            };
+            return gradient;
+        }
 
         /// <inheritdoc/>
-        public double Jacobian(IList<double> probabilities)
+        public double[,] QuantileJacobian(IList<double> probabilities, out double determinant)
         {
             if (probabilities.Count != NumberOfParameters)
             {
-                throw new ArgumentOutOfRangeException(nameof(Jacobian), "The number of probabilities must be the same length as the number of distribution parameters.");
+                throw new ArgumentOutOfRangeException(nameof(probabilities), "The number of probabilities must be the same length as the number of distribution parameters.");
             }
+            // Get gradients
+            var dQp1 = QuantileGradientForMoments(probabilities[0]);
+            var dQp2 = QuantileGradientForMoments(probabilities[1]);
+            var dQp3 = QuantileGradientForMoments(probabilities[2]);
+            // Compute determinant
             // |a b c|
             // |d e f|
             // |g h i|
             // |A| = a(ei − fh) − b(di − fg) + c(dh − eg)
-            var dXt1 = PartialDerivativesWithMoments(probabilities[0]).ToArray();
-            var dXt2 = PartialDerivativesWithMoments(probabilities[1]).ToArray();
-            var dXt3 = PartialDerivativesWithMoments(probabilities[2]).ToArray();
-            double a = dXt1[0];
-            double b = dXt1[1];
-            double c = dXt1[2];
-            double d = dXt2[0];
-            double e = dXt2[1];
-            double f = dXt2[2];
-            double g = dXt3[0];
-            double h = dXt3[1];
-            double i = dXt3[2];
-            return a * (e * i - f * h) - b * (d * i - f * g) + c * (d * h - e * g);
+            double a = dQp1[0];
+            double b = dQp1[1];
+            double c = dQp1[2];
+            double d = dQp2[0];
+            double e = dQp2[1];
+            double f = dQp2[2];
+            double g = dQp3[0];
+            double h = dQp3[1];
+            double i = dQp3[2];
+            determinant = a * (e * i - f * h) - b * (d * i - f * g) + c * (d * h - e * g);
+            // Return Jacobian
+            var jacobian = new double[,] { { a, b, c }, { d, e, f }, { g, h, i } };
+            return jacobian;
         }
-
-        /// <inheritdoc/>
-        public override UnivariateDistributionBase Clone()
-        {
-            return new LogPearsonTypeIII(Mu, Sigma, Gamma);
-        }
-   
+ 
     }
 }

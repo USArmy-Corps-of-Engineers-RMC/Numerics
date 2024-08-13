@@ -46,32 +46,11 @@ namespace Numerics.Distributions
     {
 
         /// <summary>
-        /// Returns a list containing the variance of each parameter given the sample size and estimation method.
+        /// Returns a matrix containing the covariances of the parameters given the sample size.
         /// </summary>
         /// <param name="sampleSize">The sample size.</param>
         /// <param name="estimationMethod">The distribution parameter estimation method.</param>
-        IList<double> ParameterVariance(int sampleSize, ParameterEstimationMethod estimationMethod);
-
-        /// <summary>
-        /// Returns a list containing the covariances of the parameters given the sample size.
-        /// </summary>
-        /// <param name="sampleSize">The sample size.</param>
-        /// <param name="estimationMethod">The distribution parameter estimation method.</param>
-        IList<double> ParameterCovariance(int sampleSize, ParameterEstimationMethod estimationMethod);
-
-        /// <summary>
-        /// Returns a list of partial derivatives of X given probability with respect to each parameter.
-        /// </summary>
-        /// <param name="probability">Probability between 0 and 1.</param>
-        IList<double> QuantileGradient(double probability);
-
-        /// <summary>
-        /// Returns the Jacobian matrix of the quantile function with respect to each parameter.
-        /// </summary>
-        /// <param name="probabilities">List of probabilities, must be the same length as the number of distribution parameters.</param>
-        /// <param name="determinant">Output. The determinant of the Jacobian matrix.</param>
-        /// <returns>Returns the Jacobian matrix of the quantile function.</returns>
-        double[,] QuantileJacobian(IList<double> probabilities, out double determinant);
+        double[,] ParameterCovariance(int sampleSize, ParameterEstimationMethod estimationMethod);
 
         /// <summary>
         /// Returns the quantile variance given probability and sample size.
@@ -81,6 +60,18 @@ namespace Numerics.Distributions
         /// <param name="estimationMethod">The distribution parameter estimation method.</param>
         double QuantileVariance(double probability, int sampleSize, ParameterEstimationMethod estimationMethod);
 
+        /// <summary>
+        /// Returns a list of partial derivatives of X given probability with respect to each parameter.
+        /// </summary>
+        /// <param name="probability">Probability between 0 and 1.</param>
+        double[] QuantileGradient(double probability);
+
+        /// <summary>
+        /// Returns the Jacobian matrix of the quantile function with respect to each parameter.
+        /// </summary>
+        /// <param name="probabilities">List of probabilities, must be the same length as the number of distribution parameters.</param>
+        /// <param name="determinant">Output. The determinant of the Jacobian matrix.</param>
+        double[,] QuantileJacobian(IList<double> probabilities, out double determinant);
 
     }
 }

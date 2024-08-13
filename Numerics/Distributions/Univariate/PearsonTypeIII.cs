@@ -141,41 +141,31 @@ namespace Numerics.Distributions
             get { return 4.0d / Math.Pow(Gamma, 2d); }
         }
 
-        /// <summary>
-        /// Returns the number of distribution parameters.
-        /// </summary>
+        /// <inheritdoc/>
         public override int NumberOfParameters
         {
             get { return 3; }
         }
 
-        /// <summary>
-        /// Returns the continuous distribution type.
-        /// </summary>
+        /// <inheritdoc/>
         public override UnivariateDistributionType Type
         {
             get { return UnivariateDistributionType.PearsonTypeIII; }
         }
 
-        /// <summary>
-        /// Returns the name of the distribution type as a string.
-        /// </summary>
+        /// <inheritdoc/>
         public override string DisplayName
         {
             get { return "Pearson Type III"; }
         }
 
-        /// <summary>
-        /// Returns the short display name of the distribution as a string.
-        /// </summary>
+        /// <inheritdoc/>
         public override string ShortDisplayName
         {
             get { return "PIII"; }
         }
 
-        /// <summary>
-        /// Get distribution parameters in 2-column array of string.
-        /// </summary>
+        /// <inheritdoc/>
         public override string[,] ParametersToString
         {
             get
@@ -191,41 +181,31 @@ namespace Numerics.Distributions
             }
         }
 
-        /// <summary>
-        /// Gets the short form parameter names.
-        /// </summary>
+        /// <inheritdoc/>
         public override string[] ParameterNamesShortForm
         {
-            get { return new[] { "µ", "σ", "γ" }; }
+            get { return ["µ", "σ", "γ"]; }
         }
 
-        /// <summary>
-        /// Gets the full parameter names.
-        /// </summary>
+        /// <inheritdoc/>
         public override string[] GetParameterPropertyNames
         {
-            get { return new[] { nameof(Mu), nameof(Sigma), nameof(Gamma) }; }
+            get { return [nameof(Mu), nameof(Sigma), nameof(Gamma)]; }
         }
 
-        /// <summary>
-        /// Get an array of parameters.
-        /// </summary>
+        /// <inheritdoc/>
         public override double[] GetParameters
         {
-            get {  return new[] { Mu, Sigma, Gamma }; }
+            get {  return [Mu, Sigma, Gamma]; }
         }
 
-        /// <summary>
-        /// Determines whether the parameters are valid or not.
-        /// </summary>
+        /// <inheritdoc/>
         public override bool ParametersValid
         {
             get { return _parametersValid; }
         }
 
-        /// <summary>
-        /// Gets the mean of the distribution.
-        /// </summary>
+        /// <inheritdoc/>
         public override double Mean
         {
             get
@@ -242,17 +222,13 @@ namespace Numerics.Distributions
             }
         }
 
-        /// <summary>
-        /// Gets the median of the distribution.
-        /// </summary>
+        /// <inheritdoc/>
         public override double Median
         {
             get { return InverseCDF(0.5d); }
         }
 
-        /// <summary>
-        /// Gets the mode of the distribution.
-        /// </summary>
+        /// <inheritdoc/>
         public override double Mode
         {
             get
@@ -269,9 +245,7 @@ namespace Numerics.Distributions
             }
         }
 
-        /// <summary>
-        /// Gets the standard deviation of the distribution.
-        /// </summary>
+        /// <inheritdoc/>
         public override double StandardDeviation
         {
             get
@@ -288,9 +262,7 @@ namespace Numerics.Distributions
             }
         }
 
-        /// <summary>
-        /// Gets the skew of the distribution.
-        /// </summary>
+        /// <inheritdoc/>
         public override double Skewness
         {
             get
@@ -307,9 +279,7 @@ namespace Numerics.Distributions
             }
         }
 
-        /// <summary>
-        /// Gets the kurtosis of the distribution.
-        /// </summary>
+        /// <inheritdoc/>
         public override double Kurtosis
         {
             get
@@ -325,9 +295,7 @@ namespace Numerics.Distributions
             }
         }
 
-        /// <summary>
-        /// Gets the minimum of the distribution.
-        /// </summary>
+        /// <inheritdoc/>
         public override double Minimum
         {
             get
@@ -348,9 +316,7 @@ namespace Numerics.Distributions
             }
         }
 
-        /// <summary>
-        /// Gets the maximum of the distribution.
-        /// </summary>
+        /// <inheritdoc/>
         public override double Maximum
         {
             get
@@ -371,27 +337,19 @@ namespace Numerics.Distributions
             }
         }
 
-        /// <summary>
-        /// Gets the minimum values allowable for each parameter.
-        /// </summary>
+        /// <inheritdoc/>
         public override double[] MinimumOfParameters
         {
-            get { return new[] { double.NegativeInfinity, 0.0d, double.NegativeInfinity }; }
+            get { return [double.NegativeInfinity, 0.0d, double.NegativeInfinity]; }
         }
 
-        /// <summary>
-        /// Gets the maximum values allowable for each parameter.
-        /// </summary>
+        /// <inheritdoc/>
         public override double[] MaximumOfParameters
         {
-            get { return new[] { double.PositiveInfinity, double.PositiveInfinity, double.PositiveInfinity }; }
+            get { return [double.PositiveInfinity, double.PositiveInfinity, double.PositiveInfinity]; }
         }
 
-        /// <summary>
-        /// Estimates the parameters of the underlying distribution given a sample of observations.
-        /// </summary>
-        /// <param name="sample">The array of sample data.</param>
-        /// <param name="estimationMethod">The parameter estimation method.</param>
+        /// <inheritdoc/>
         public void Estimate(IList<double> sample, ParameterEstimationMethod estimationMethod)
         {
             if (estimationMethod == ParameterEstimationMethod.MethodOfMoments)
@@ -408,15 +366,7 @@ namespace Numerics.Distributions
             }
         }
 
-        /// <summary>
-        /// Bootstrap the distribution based on a sample size and parameter estimation method.
-        /// </summary>
-        /// <param name="estimationMethod">The parameter estimation method.</param>
-        /// <param name="sampleSize">Size of the random sample to generate.</param>
-        /// <param name="seed">Optional. Seed for random number generator. Default = 12345.</param>
-        /// <returns>
-        /// Returns a bootstrapped distribution.
-        /// </returns>
+        /// <inheritdoc/>
         public IUnivariateDistribution Bootstrap(ParameterEstimationMethod estimationMethod, int sampleSize, int seed = 12345)
         {
             // create a new distribution with the sample 
@@ -442,10 +392,7 @@ namespace Numerics.Distributions
             _gamma = skew;
         }
 
-        /// <summary>
-        /// Set the distribution parameters based on the moments of the log transformed data.
-        /// </summary>
-        /// <param name="parameters">A list of moments of the log transformed data.</param>
+        /// <inheritdoc/>
         public override void SetParameters(IList<double> parameters)
         {
             SetParameters(parameters[0], parameters[1], parameters[2]);
@@ -481,29 +428,19 @@ namespace Numerics.Distributions
             return null;
         }
 
-        /// <summary>
-        /// Validate the parameters.
-        /// </summary>
-        /// <param name="parameters">A list of parameters.</param>
-        /// <param name="throwException">Determines whether to throw an exception or not.</param>
+        /// <inheritdoc/>
         public override ArgumentOutOfRangeException ValidateParameters(IList<double> parameters, bool throwException)
         {
             return ValidateParameters(parameters[0], parameters[1], parameters[2], throwException);
         }
 
-        /// <summary>
-        /// Returns an array of distribution parameters given the central moments of the sample.
-        /// </summary>
-        /// <param name="moments">The array of sample linear moments.</param>
+        /// <inheritdoc/>
         public double[] ParametersFromMoments(IList<double> moments)
         {
             return moments.ToArray().Subset(0, 2);
         }
 
-        /// <summary>
-        /// Returns an array of central moments given the distribution parameters.
-        /// </summary>
-        /// <param name="parameters">The list of distribution parameters.</param>
+        /// <inheritdoc/>
         public double[] MomentsFromParameters(IList<double> parameters)
         {
             var dist = new PearsonTypeIII();
@@ -512,19 +449,15 @@ namespace Numerics.Distributions
             var m2 = dist.StandardDeviation;
             var m3 = dist.Skewness;
             var m4 = dist.Kurtosis;
-            return new[] { m1, m2, m3, m4 };
+            return [m1, m2, m3, m4];
         }
 
-        /// <summary>
-        /// Returns an array of distribution parameters given the linear moments of the sample.
-        /// </summary>
-        /// <param name="moments">The array of sample linear moments.</param>
+        /// <inheritdoc/>
         public double[] ParametersFromLinearMoments(IList<double> moments)
         {
             double L1 = moments[0];
             double L2 = moments[1];
             double T3 = moments[2];
-            double T4 = moments[3];
             double alpha = double.NaN;
             double z;
             // The following approximation has relative accuracy better than 5x10-5 for all values of alpha.
@@ -542,13 +475,10 @@ namespace Numerics.Distributions
             double gamma = 2.0d * Math.Pow(alpha, -0.5d) * Math.Sign(T3);
             double sigma = L2 * Math.Pow(Math.PI, 0.5d) * Math.Pow(alpha, 0.5d) * Mathematics.SpecialFunctions.Gamma.Function(alpha) / Mathematics.SpecialFunctions.Gamma.Function(alpha + 0.5d);
             double mu = L1;
-            return new[] { mu, sigma, gamma };
+            return [mu, sigma, gamma];
         }
 
-        /// <summary>
-        /// Returns an array of linear moments given the distribution parameters.
-        /// </summary>
-        /// <param name="parameters">The list of distribution parameters.</param>
+        /// <inheritdoc/>
         public double[] LinearMomentsFromParameters(IList<double> parameters)
         {
             double mu = parameters[0];
@@ -597,14 +527,10 @@ namespace Numerics.Distributions
                 T4 = (1d + G1 * alpha + G2 * Math.Pow(alpha, 2d) + G3 * Math.Pow(alpha, 3d)) / (1d + H1 * alpha + H2 * Math.Pow(alpha, 2d) + H3 * Math.Pow(alpha, 3d));
             }
 
-            return new[] { L1, L2, T3, T4 };
+            return [L1, L2, T3, T4];
         }
 
-        /// <summary>
-        /// Get the initial, lower, and upper values for the distribution parameters for constrained optimization.
-        /// </summary>
-        /// <param name="sample">The array of sample data.</param>
-        /// <returns>Returns a Tuple of initial, lower, and upper values.</returns>
+        /// <inheritdoc/>
         public Tuple<double[], double[], double[]> GetParameterConstraints(IList<double> sample)
         {
             var initialVals = new double[NumberOfParameters];
@@ -631,10 +557,7 @@ namespace Numerics.Distributions
             return new Tuple<double[], double[], double[]>(initialVals, lowerVals, upperVals);
         }
 
-        /// <summary>
-        /// Estimate the distribution parameters using the method of maximum likelihood estimation.
-        /// </summary>
-        /// <param name="sample">The array of sample data.</param>
+        /// <inheritdoc/>
         public double[] MLE(IList<double> sample)
         {
             // Set constraints
@@ -657,10 +580,7 @@ namespace Numerics.Distributions
 
         }
 
-        /// <summary>
-        /// Gets the Probability Density Function (PDF) of the distribution evaluated at a point X.
-        /// </summary>
-        /// <param name="x">A single point in the distribution range.</param>
+        /// <inheritdoc/>
         public override double PDF(double x)
         {
             // Validate parameters
@@ -687,16 +607,7 @@ namespace Numerics.Distributions
             }
         }
 
-        /// <summary>
-        /// Gets the Cumulative Distribution Function (CDF) for the distribution evaluated at a point X.
-        /// </summary>
-        /// <param name="x">A single point in the distribution range.</param>
-        /// <returns>
-        /// The non-exceedance probability given a point X.
-        /// </returns>
-        /// <remarks>
-        /// The Cumulative Distribution Function (CDF) describes the cumulative probability that a given value or any value smaller than it will occur.
-        /// </remarks>
+        /// <inheritdoc/>
         public override double CDF(double x)
         {
             // Validate parameters
@@ -722,18 +633,7 @@ namespace Numerics.Distributions
             }
         }
 
-        /// <summary>
-        /// Gets the Inverse Cumulative Distribution Function (ICFD) of the distribution evaluated at a probability.
-        /// </summary>
-        /// <param name="probability">Probability between 0 and 1.</param>
-        /// <returns>
-        /// Returns for a given probability in the probability distribution of a random variable,
-        /// the value at which the probability of the random variable is less than or equal to the
-        /// given probability.
-        /// </returns>
-        /// <remarks>
-        /// This function is also know as the Quantile Function.
-        /// </remarks>
+        /// <inheritdoc/>
         public override double InverseCDF(double probability)
         {
             // Validate probability
@@ -783,122 +683,40 @@ namespace Numerics.Distributions
             return Mu + Sigma * GammaDistribution.FrequencyFactorKp(Gamma, probability);
         }
 
-        /// <summary>
-        /// Returns a list containing the variance of each parameter given the sample size.
-        /// </summary>
-        /// <param name="sampleSize">The sample size.</param>
-        /// <param name="estimationMethod">The distribution parameter estimation method.</param>
-        public IList<double> ParameterVariance(int sampleSize, ParameterEstimationMethod estimationMethod)
+        /// <inheritdoc/>
+        public override UnivariateDistributionBase Clone()
         {
-            if (estimationMethod == ParameterEstimationMethod.MethodOfMoments)
-            {
-                throw new NotImplementedException();
-            }
-            // Validate parameters
-            if (_parametersValid == false)
-                ValidateParameters(_mu, _sigma, _gamma, true);
-            double alpha = 1d / Beta;
-            double lambda = Alpha;
-            double A = 2d * Mathematics.SpecialFunctions.Gamma.Trigamma(lambda) - 2d / (lambda - 1d) + 1d / Math.Pow(lambda - 1d, 2d);
-            var varList = new List<double>();
-            varList.Add((lambda - 2d) / (sampleSize * A) * (1d / Math.Pow(alpha, 2d)) * (Mathematics.SpecialFunctions.Gamma.Trigamma(lambda) * lambda - 1d)); // location
-            varList.Add((lambda - 2d) * Math.Pow(alpha, 2d) / (sampleSize * A) * (Mathematics.SpecialFunctions.Gamma.Trigamma(lambda) / (lambda - 2d) - 1d / Math.Pow(lambda - 1d, 2d))); // scale
-            varList.Add(2d / (sampleSize * A)); // shape
-            return varList;
-        }
-
-        /// <summary>
-        /// Returns a list containing the covariances of the parameters given the sample size.
-        /// </summary>
-        /// <param name="sampleSize">The sample size.</param>
-        /// <param name="estimationMethod">The distribution parameter estimation method.</param>
-        public IList<double> ParameterCovariance(int sampleSize, ParameterEstimationMethod estimationMethod)
-        {
-            if (estimationMethod == ParameterEstimationMethod.MethodOfMoments)
-            {
-                throw new NotImplementedException();
-            }
-            // Validate parameters
-            if (_parametersValid == false)
-                ValidateParameters(_mu, _sigma, _gamma, true);
-            double alpha = 1d / Beta;
-            double lambda = Alpha;
-            double A = 2d * Mathematics.SpecialFunctions.Gamma.Trigamma(lambda) - 2d / (lambda - 1d) + 1d / Math.Pow(lambda - 1d, 2d);
-            var covarList = new List<double>();
-            covarList.Add(1d / sampleSize * ((lambda - 2d) / A) * (Mathematics.SpecialFunctions.Gamma.Trigamma(lambda) - 1d / (lambda - 1d))); // location & scale
-            covarList.Add((2d - lambda) / (sampleSize * alpha * A * (lambda - 1d))); // location & shape
-            covarList.Add(alpha / (sampleSize * A * (lambda - 1d))); // scale & shape
-            return covarList;
-        }
-
-        /// <summary>
-        /// Returns a list of partial derivatives of X given probability with respect to each parameter.
-        /// </summary>
-        /// <param name="probability">Probability between 0 and 1.</param>
-        public IList<double> QuantileGradient(double probability)
-        {
-            // Validate parameters
-            if (_parametersValid == false)
-                ValidateParameters(Mu, Sigma, Gamma, true);
-            double alpha = 1d / Beta;
-            double lambda = Alpha;
-            double eps = Math.Sign(alpha);
-            var partialList = new List<double>();
-            partialList.Add(1.0d); // location
-            partialList.Add(-lambda / Math.Pow(alpha, 2d) * (1.0d + eps / Math.Sqrt(lambda) * GammaDistribution.FrequencyFactorKp(Gamma, probability))); // scale
-            partialList.Add(1.0d / alpha * (1.0d + eps / Math.Sqrt(lambda) * (GammaDistribution.FrequencyFactorKp(Gamma, probability) / 2.0d) - 1.0d / lambda * GammaDistribution.PartialKp(Gamma, probability))); // shape
-            return partialList;
-        }
-
-        /// <summary>
-        /// Returns a list of partial derivatives of X given probability with respect to each moment.
-        /// </summary>
-        /// <param name="probability">Probability between 0 and 1.</param>
-        public IList<double> PartialDerivativesWithMoments(double probability)
-        {
-            // Validate parameters
-            if (_parametersValid == false)
-                ValidateParameters(Mu, Sigma, Gamma, true);
-            var partialList = new List<double>();
-            partialList.Add(1.0d);
-            partialList.Add(GammaDistribution.FrequencyFactorKp(Gamma, probability));
-            partialList.Add(Sigma * GammaDistribution.PartialKp(Gamma, probability));
-            return partialList;
+            return new PearsonTypeIII(Mu, Sigma, Gamma);
         }
 
         /// <inheritdoc/>
-        public double[,] QuantileJacobian(IList<double> probabilities, out double determinant)
+        public double[,] ParameterCovariance(int sampleSize, ParameterEstimationMethod estimationMethod)
         {
-            if (probabilities.Count != NumberOfParameters)
+            if (estimationMethod != ParameterEstimationMethod.MaximumLikelihood)
             {
-                throw new ArgumentOutOfRangeException(nameof(Jacobian), "The number of probabilities must be the same length as the number of distribution parameters.");
+                throw new NotImplementedException();
             }
-
-            // Get gradients
-            var dXt1 = QuantileGradient(probabilities[0]).ToArray();
-            var dXt2 = QuantileGradient(probabilities[1]).ToArray();
-            // Compute determinant
-            // |a b|
-            // |c d|
-            // |A| = ad − bc
-            double a = dXt1[0];
-            double b = dXt1[1];
-            double c = dXt2[0];
-            double d = dXt2[1];
-            determinant = a * d - b * c;
-            // Return Jacobian
-            var jacobian = new double[2, 2];
-            jacobian.SetRow(0, dXt1);
-            jacobian.SetRow(1, dXt2);
-            return jacobian;
+            // Validate parameters
+            if (_parametersValid == false)
+                ValidateParameters(_mu, _sigma, _gamma, true);
+            // Compute covariance
+            double alpha = 1d / Beta;
+            double lambda = Alpha;
+            double A = 2d * Mathematics.SpecialFunctions.Gamma.Trigamma(lambda) - 2d / (lambda - 1d) + 1d / Math.Pow(lambda - 1d, 2d);
+            var covar = new double[3, 3];
+            covar[0, 0] = (lambda - 2d) / (sampleSize * A) * (1d / Math.Pow(alpha, 2d)) * (Mathematics.SpecialFunctions.Gamma.Trigamma(lambda) * lambda - 1d); // location
+            covar[1, 1] = (lambda - 2d) * Math.Pow(alpha, 2d) / (sampleSize * A) * (Mathematics.SpecialFunctions.Gamma.Trigamma(lambda) / (lambda - 2d) - 1d / Math.Pow(lambda - 1d, 2d)); // scale
+            covar[2, 2] = 2d / (sampleSize * A); // shape
+            covar[0, 1] = 1d / sampleSize * ((lambda - 2d) / A) * (Mathematics.SpecialFunctions.Gamma.Trigamma(lambda) - 1d / (lambda - 1d)); // location & scale
+            covar[1, 0] = covar[0, 1];
+            covar[0, 2] = (2d - lambda) / (sampleSize * alpha * A * (lambda - 1d)); // location & shape
+            covar[2, 0] = covar[0, 2];
+            covar[1, 2] = alpha / (sampleSize * A * (lambda - 1d)); // scale & shape
+            covar[2, 1] = covar[1, 2];
+            return covar;
         }
 
-        /// <summary>
-        /// The quantile variance given probability and sample size.
-        /// </summary>
-        /// <param name="probability">Probability between 0 and 1.</param>
-        /// <param name="sampleSize">The sample size.</param>
-        /// <param name="estimationMethod">The distribution parameter estimation method.</param>
+        /// <inheritdoc/>
         public double QuantileVariance(double probability, int sampleSize, ParameterEstimationMethod estimationMethod)
         {
             if (estimationMethod == ParameterEstimationMethod.MethodOfMoments)
@@ -911,56 +729,88 @@ namespace Numerics.Distributions
             }
             else if (estimationMethod == ParameterEstimationMethod.MaximumLikelihood)
             {
-                double varA = ParameterVariance(sampleSize, estimationMethod)[0];
-                double varB = ParameterVariance(sampleSize, estimationMethod)[1];
-                double varG = ParameterVariance(sampleSize, estimationMethod)[2];
-                double covAB = ParameterCovariance(sampleSize, estimationMethod)[0];
-                double covAG = ParameterCovariance(sampleSize, estimationMethod)[1];
-                double covBG = ParameterCovariance(sampleSize, estimationMethod)[2];
-                double pXA = QuantileGradient(probability)[0];
-                double pXB = QuantileGradient(probability)[1];
-                double pXG = QuantileGradient(probability)[2];
-                return Math.Pow(pXA, 2d) * varA + Math.Pow(pXB, 2d) * varB + Math.Pow(pXG, 2d) * varG + 2d * pXA * pXB * covAB + 2d * pXA * pXG * covAG + 2d * pXB * pXG * covBG;
+                var covar = ParameterCovariance(sampleSize, estimationMethod);
+                var grad = QuantileGradient(probability);
+                double varA = covar[0, 0];
+                double varB = covar[1, 1];
+                double varG = covar[2, 2];
+                double covAB = covar[1, 0];
+                double covAG = covar[2, 0];
+                double covBG = covar[2, 1];
+                double dQx1 = grad[0];
+                double dQx2 = grad[1];
+                double dQx3 = grad[2];
+                return Math.Pow(dQx1, 2d) * varA + Math.Pow(dQx2, 2d) * varB + Math.Pow(dQx3, 2d) * varG + 2d * dQx1 * dQx2 * covAB + 2d * dQx1 * dQx3 * covAG + 2d * dQx2 * dQx3 * covBG;
             }
 
-            return default;
+            return double.NaN;
+        }
+
+        /// <inheritdoc/>
+        public double[] QuantileGradient(double probability)
+        {
+            // Validate parameters
+            if (_parametersValid == false)
+                ValidateParameters(Mu, Sigma, Gamma, true);
+            double alpha = 1d / Beta;
+            double lambda = Alpha;
+            double eps = Math.Sign(alpha);
+            var gradient = new double[]
+            {
+                1.0d, // location
+                -lambda / Math.Pow(alpha, 2d) * (1.0d + eps / Math.Sqrt(lambda) * GammaDistribution.FrequencyFactorKp(Gamma, probability)), // scale
+                1.0d / alpha * (1.0d + eps / Math.Sqrt(lambda) * (GammaDistribution.FrequencyFactorKp(Gamma, probability) / 2.0d) - 1.0d / lambda * GammaDistribution.PartialKp(Gamma, probability)) // shape
+            };
+            return gradient;
         }
 
         /// <summary>
-        /// Returns the determinant of the Jacobian.
+        /// Returns a list of partial derivatives of X given probability with respect to each moment.
         /// </summary>
-        /// <param name="probabilities">List of probabilities, must be the same length as the number of distribution parameters.</param>
-        public double Jacobian(IList<double> probabilities)
+        /// <param name="probability">Probability between 0 and 1.</param>
+        public double[] QuantileGradientForMoments(double probability)
+        {
+            // Validate parameters
+            if (_parametersValid == false)
+                ValidateParameters(Mu, Sigma, Gamma, true);
+            var gradient = new double[]
+            {
+                1.0d,
+                GammaDistribution.FrequencyFactorKp(Gamma, probability),
+                Sigma * GammaDistribution.PartialKp(Gamma, probability)
+            };
+            return gradient;
+        }
+
+        /// <inheritdoc/>
+        public double[,] QuantileJacobian(IList<double> probabilities, out double determinant)
         {
             if (probabilities.Count != NumberOfParameters)
             {
-                throw new ArgumentOutOfRangeException(nameof(Jacobian), "The number of probabilities must be the same length as the number of distribution parameters.");
+                throw new ArgumentOutOfRangeException(nameof(probabilities), "The number of probabilities must be the same length as the number of distribution parameters.");
             }
+            // Get gradients
+            var dQp1 = QuantileGradientForMoments(probabilities[0]);
+            var dQp2 = QuantileGradientForMoments(probabilities[1]);
+            var dQp3 = QuantileGradientForMoments(probabilities[2]);
+            // Compute determinant
             // |a b c|
             // |d e f|
             // |g h i|
             // |A| = a(ei − fh) − b(di − fg) + c(dh − eg)
-            var dXt1 = PartialDerivativesWithMoments(probabilities[0]).ToArray();
-            var dXt2 = PartialDerivativesWithMoments(probabilities[1]).ToArray();
-            var dXt3 = PartialDerivativesWithMoments(probabilities[2]).ToArray();
-            double a = dXt1[0];
-            double b = dXt1[1];
-            double c = dXt1[2];
-            double d = dXt2[0];
-            double e = dXt2[1];
-            double f = dXt2[2];
-            double g = dXt3[0];
-            double h = dXt3[1];
-            double i = dXt3[2];
-            return a * (e * i - f * h) - b * (d * i - f * g) + c * (d * h - e * g);
-        }
-
-        /// <summary>
-        /// Creates a copy of the distribution.
-        /// </summary>
-        public override UnivariateDistributionBase Clone()
-        {
-            return new PearsonTypeIII(Mu, Sigma, Gamma);
+            double a = dQp1[0];
+            double b = dQp1[1];
+            double c = dQp1[2];
+            double d = dQp2[0];
+            double e = dQp2[1];
+            double f = dQp2[2];
+            double g = dQp3[0];
+            double h = dQp3[1];
+            double i = dQp3[2];
+            determinant = a * (e * i - f * h) - b * (d * i - f * g) + c * (d * h - e * g);
+            // Return Jacobian
+            var jacobian = new double[,] { { a, b, c }, { d, e, f }, { g, h, i } };
+            return jacobian;
         }
 
     }

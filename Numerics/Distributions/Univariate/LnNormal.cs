@@ -155,19 +155,19 @@ namespace Numerics.Distributions
         /// <inheritdoc/>
         public override string[] ParameterNamesShortForm
         {
-            get { return new[] { "µ", "σ" }; }
+            get { return ["µ", "σ"]; }
         }
 
         /// <inheritdoc/>
         public override string[] GetParameterPropertyNames
         {
-            get { return new[] { nameof(Mean), nameof(StandardDeviation) }; }
+            get { return [nameof(Mean), nameof(StandardDeviation)]; }
         }
 
         /// <inheritdoc/>
         public override double[] GetParameters
         {
-            get { return new[] { Mean, StandardDeviation }; }
+            get { return [Mean, StandardDeviation]; }
         }
 
         /// <inheritdoc/>
@@ -231,13 +231,13 @@ namespace Numerics.Distributions
         /// <inheritdoc/>
         public override double[] MinimumOfParameters
         {
-            get { return new[] { double.NegativeInfinity, 0.0d }; }
+            get { return [double.NegativeInfinity, 0.0d]; }
         }
 
         /// <inheritdoc/>
         public override double[] MaximumOfParameters
         {
-            get { return new[] { double.PositiveInfinity, double.PositiveInfinity }; }
+            get { return [double.PositiveInfinity, double.PositiveInfinity]; }
         }
 
         /// <inheritdoc/>
@@ -380,12 +380,12 @@ namespace Numerics.Distributions
         public static double[] DirectMethodOfMoments(double mean, double standardDeviation)
         {
             if (standardDeviation <= 0)
-                return new[] { double.NaN, double.NaN };
+                return [double.NaN, double.NaN];
             double variance = Math.Pow(standardDeviation, 2d);
             double mu = Math.Log(Math.Pow(mean, 2d) / Math.Sqrt(variance + Math.Pow(mean, 2d)));
             double sigma = Math.Sqrt(Math.Log(1.0d + variance / Math.Pow(mean, 2d)));
             if (sigma < 1E-16 && Math.Sign(sigma) != -1) sigma = Tools.DoubleMachineEpsilon;
-            return new[] { mu, sigma };
+            return [mu, sigma];
         }
 
         /// <inheritdoc/>
@@ -394,12 +394,12 @@ namespace Numerics.Distributions
             var mean = moments[0];
             var standardDeviation = moments[1];
             if (standardDeviation <= 0)
-                return new[] { double.NaN, double.NaN };
+                return [double.NaN, double.NaN];
             double variance = Math.Pow(standardDeviation, 2d);
             double mu = Math.Log(Math.Pow(mean, 2d) / Math.Sqrt(variance + Math.Pow(mean, 2d)));
             double sigma = Math.Sqrt(Math.Log(1.0d + variance / Math.Pow(mean, 2d)));
             if (sigma < 1E-16 && Math.Sign(sigma) != -1) sigma = Tools.DoubleMachineEpsilon;
-            return new[] { mu, sigma };
+            return [mu, sigma];
         }
 
         /// <inheritdoc/>
@@ -411,7 +411,7 @@ namespace Numerics.Distributions
             var m2 = dist.StandardDeviation;
             var m3 = dist.Skewness;
             var m4 = dist.Kurtosis;
-            return new[] { m1, m2, m3, m4 };
+            return [m1, m2, m3, m4];
         }
 
         /// <inheritdoc/>
@@ -419,7 +419,7 @@ namespace Numerics.Distributions
         {
             double mu = moments[0];
             double sigma = moments[1] * Math.Sqrt(Math.PI);
-            return new[] { mu, sigma };
+            return [mu, sigma];
         }
 
         /// <inheritdoc/>
@@ -429,7 +429,7 @@ namespace Numerics.Distributions
             double L2 = parameters[1] * Math.Pow(Math.PI, -0.5);
             double T3 = 0d;
             double T4 = 30d * Math.Pow(Math.PI, -1d) * Math.Atan(Tools.Sqrt2) - 9d;
-            return new[] { L1, L2, T3, T4 };
+            return [L1, L2, T3, T4];
         }
 
         /// <inheritdoc/>
@@ -512,31 +512,47 @@ namespace Numerics.Distributions
         }
 
         /// <inheritdoc/>
-        public IList<double> ParameterVariance(int sampleSize, ParameterEstimationMethod estimationMethod)
+        public override UnivariateDistributionBase Clone()
         {
+            return new LnNormal() { Mu = Mu, Sigma = Sigma };
+        }
+
+        /// <inheritdoc/>
+        public double[,] ParameterCovariance(int sampleSize, ParameterEstimationMethod estimationMethod)
+        {
+            if (estimationMethod != ParameterEstimationMethod.MethodOfMoments &&
+                estimationMethod != ParameterEstimationMethod.MaximumLikelihood)
+            {
+                throw new NotImplementedException();
+            }
             // Validate parameters
             if (_parametersValid == false)
                 ValidateParameters(Mu, _sigma, true);
+            // Compute covariance
             double u2 = Sigma;
-            var varList = new List<double>();
-            varList.Add(Math.Pow(u2, 2d) / sampleSize); // location
-            varList.Add(2d * Math.Pow(u2, 4d) / sampleSize); // scale
-            return varList;
+            var covar = new double[2, 2];
+            covar[0, 0] = Math.Pow(u2, 2d) / sampleSize; // location
+            covar[1, 1] = 2d * Math.Pow(u2, 4d) / sampleSize; // scale
+            covar[0, 1] = 0.0;
+            covar[1, 0] = covar[0, 1];
+            return covar;
         }
 
         /// <inheritdoc/>
-        public IList<double> ParameterCovariance(int sampleSize, ParameterEstimationMethod estimationMethod)
+        public double QuantileVariance(double probability, int sampleSize, ParameterEstimationMethod estimationMethod)
         {
-            // Validate parameters
-            if (_parametersValid == false)
-                ValidateParameters(Mu, _sigma, true);
-            var covarList = new List<double>();
-            covarList.Add(0.0d); // location & scale
-            return covarList;
+            var covar = ParameterCovariance(sampleSize, estimationMethod);
+            var grad = QuantileGradient(probability);
+            double varA = covar[0, 0];
+            double varB = covar[1, 1];
+            double covAB = covar[1, 0];
+            double dQx1 = grad[0];
+            double dQx2 = grad[1];
+            return Math.Pow(dQx1, 2d) * varA + Math.Pow(dQx2, 2d) * varB + 2d * dQx1 * dQx2 * covAB;
         }
 
         /// <inheritdoc/>
-        public IList<double> QuantileGradient(double probability)
+        public double[] QuantileGradient(double probability)
         {
             // Validate parameters
             if (_parametersValid == false)
@@ -544,10 +560,12 @@ namespace Numerics.Distributions
             double u1 = Mu;
             double u2 = Sigma;
             double z = Normal.StandardZ(probability);
-            var partialList = new List<double>();
-            partialList.Add(Math.Exp(u1 + z * u2)); // location
-            partialList.Add(z * Math.Exp(u1 + z * u2) / (2d * u2)); // scale
-            return partialList;
+            var gradient = new double[]
+            {
+                Math.Exp(u1 + z * u2), // location
+                z * Math.Exp(u1 + z * u2) / (2d * u2) // scale
+            };
+            return gradient;
         }
 
         /// <inheritdoc/>
@@ -555,66 +573,24 @@ namespace Numerics.Distributions
         {
             if (probabilities.Count != NumberOfParameters)
             {
-                throw new ArgumentOutOfRangeException(nameof(Jacobian), "The number of probabilities must be the same length as the number of distribution parameters.");
+                throw new ArgumentOutOfRangeException(nameof(probabilities), "The number of probabilities must be the same length as the number of distribution parameters.");
             }
-
             // Get gradients
-            var dXt1 = QuantileGradient(probabilities[0]).ToArray();
-            var dXt2 = QuantileGradient(probabilities[1]).ToArray();
+            var dQp1 = QuantileGradient(probabilities[0]);
+            var dQp2 = QuantileGradient(probabilities[1]);
             // Compute determinant
             // |a b|
             // |c d|
             // |A| = ad − bc
-            double a = dXt1[0];
-            double b = dXt1[1];
-            double c = dXt2[0];
-            double d = dXt2[1];
+            double a = dQp1[0];
+            double b = dQp1[1];
+            double c = dQp2[0];
+            double d = dQp2[1];
             determinant = a * d - b * c;
             // Return Jacobian
-            var jacobian = new double[2, 2];
-            jacobian.SetRow(0, dXt1);
-            jacobian.SetRow(1, dXt2);
+            var jacobian = new double[,] { { a, b }, { c, d } };
             return jacobian;
         }
 
-        /// <inheritdoc/>
-        public double QuantileVariance(double probability, int sampleSize, ParameterEstimationMethod estimationMethod)
-        {
-            double varA = ParameterVariance(sampleSize, estimationMethod)[0];
-            double varB = ParameterVariance(sampleSize, estimationMethod)[1];
-            double covAB = ParameterCovariance(sampleSize, estimationMethod)[0];
-            double pXA = QuantileGradient(probability)[0];
-            double pXB = QuantileGradient(probability)[1];
-            return Math.Pow(pXA, 2d) * varA + Math.Pow(pXB, 2d) * varB + 2d * pXA * pXB * covAB;
-        }
-
-        /// <summary>
-        /// Returns the determinant of the Jacobian.
-        /// </summary>
-        /// <param name="probabilities">List of probabilities, must be the same length as the number of distribution parameters.</param>
-        public double Jacobian(IList<double> probabilities)
-        {
-            if (probabilities.Count != NumberOfParameters)
-            {
-                throw new ArgumentOutOfRangeException(nameof(Jacobian), "The number of probabilities must be the same length as the number of distribution parameters.");
-            }
-            // |a b|
-            // |c d|
-            // |A| = ad − bc
-            var dXt1 = QuantileGradient(probabilities[0]).ToArray();
-            var dXt2 = QuantileGradient(probabilities[1]).ToArray();
-            double a = dXt1[0];
-            double b = dXt1[1];
-            double c = dXt2[0];
-            double d = dXt2[1];
-            return a * d - b * c;
-        }
-
-        /// <inheritdoc/>
-        public override UnivariateDistributionBase Clone()
-        {
-            return new LnNormal() { Mu = Mu, Sigma = Sigma };
-        }
-   
     }
 }

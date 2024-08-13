@@ -30,7 +30,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Numerics.Data.Statistics;
 using Numerics.Mathematics.Optimization;
 
@@ -434,62 +433,63 @@ namespace Numerics.Distributions
             return new Exponential(Xi, Alpha);
         }
 
-        #region IStandardError
-
         /// <inheritdoc/>
-        public IList<double> ParameterVariance(int sampleSize, ParameterEstimationMethod estimationMethod)
+        public double[,] ParameterCovariance(int sampleSize, ParameterEstimationMethod estimationMethod)
         {
+            if (estimationMethod != ParameterEstimationMethod.MethodOfMoments && 
+                estimationMethod != ParameterEstimationMethod.MaximumLikelihood) 
+            { 
+                throw new NotImplementedException(); 
+            }
             // Validate parameters
             if (_parametersValid == false)
                 ValidateParameters([Xi, _alpha], true);
+
+            // Compute covariance
             double a = Alpha;
-            var varList = new List<double>();
+            var covar = new double[2, 2];
             if (estimationMethod == ParameterEstimationMethod.MethodOfMoments)
             {
-                varList.Add(a * a / sampleSize); // location
-                varList.Add(2d * a * a / sampleSize); // scale
+                covar[0, 0] = a * a / sampleSize; // location
+                covar[1, 1] = 2d * a * a / sampleSize; // scale
+                covar[0, 1] = -(a * a) / sampleSize; // location & scale
+                covar[1, 0] = covar[0, 1];
             }
             else if (estimationMethod == ParameterEstimationMethod.MaximumLikelihood)
             {
-                varList.Add(a * a / (sampleSize * (sampleSize - 1))); // location
-                varList.Add(a * a / (sampleSize - 1)); // scale
+                covar[0, 0] = a * a / (sampleSize * (sampleSize - 1)); // location
+                covar[1, 1] = a * a / (sampleSize - 1); // scale
+                covar[0, 1] = -(a * a) / (sampleSize * (sampleSize - 1)); // location & scale
+                covar[1, 0] = covar[0, 1];
             }
-            return varList;
+            return covar;
         }
 
+        /// <inheritdoc/>
+        public double QuantileVariance(double probability, int sampleSize, ParameterEstimationMethod estimationMethod)
+        {
+            var covar = ParameterCovariance(sampleSize, estimationMethod);
+            var grad = QuantileGradient(probability);
+            double varA = covar[0, 0];
+            double varB = covar[1, 1];
+            double covAB = covar[1, 0];
+            double dQx1 = grad[0];
+            double dQx2 = grad[1];
+            return Math.Pow(dQx1, 2d) * varA + Math.Pow(dQx2, 2d) * varB + 2d * dQx1 * dQx2 * covAB;
+        }
 
         /// <inheritdoc/>
-        public IList<double> ParameterCovariance(int sampleSize, ParameterEstimationMethod estimationMethod)
+        public double[] QuantileGradient(double probability)
         {
             // Validate parameters
             if (_parametersValid == false)
                 ValidateParameters([Xi, _alpha], true);
-            double a = Alpha;
-            var covarList = new List<double>();
-            if (estimationMethod == ParameterEstimationMethod.MethodOfMoments)
-            {
-                covarList.Add(-(a * a) / sampleSize); // location & scale
-            }
-            else if (estimationMethod == ParameterEstimationMethod.MaximumLikelihood)
-            {
-                covarList.Add(-(a * a) / (sampleSize * (sampleSize - 1))); // location & scale
-            }
-            return covarList;
-        }
-
-
-        /// <inheritdoc/>
-        public IList<double> QuantileGradient(double probability)
-        {
-            // Validate parameters
-            if (_parametersValid == false)
-                ValidateParameters([Xi, _alpha], true);
-            var partialList = new List<double>
+            var gradient = new double[]
             {
                 1.0d, // location
                 -Math.Log(1d - probability) // scale
             };
-            return partialList;
+            return gradient;
         }
 
         /// <inheritdoc/>
@@ -498,41 +498,23 @@ namespace Numerics.Distributions
             if (probabilities.Count != NumberOfParameters)
             {
                 throw new ArgumentOutOfRangeException(nameof(probabilities), "The number of probabilities must be the same length as the number of distribution parameters.");
-            }
-          
+            }        
             // Get gradients
-            var dXt1 = QuantileGradient(probabilities[0]).ToArray();
-            var dXt2 = QuantileGradient(probabilities[1]).ToArray();
+            var dQp1 = QuantileGradient(probabilities[0]);
+            var dQp2 = QuantileGradient(probabilities[1]);
             // Compute determinant
             // |a b|
             // |c d|
             // |A| = ad − bc
-            double a = dXt1[0];
-            double b = dXt1[1];
-            double c = dXt2[0];
-            double d = dXt2[1];
+            double a = dQp1[0];
+            double b = dQp1[1];
+            double c = dQp2[0];
+            double d = dQp2[1];
             determinant = a * d - b * c;
             // Return Jacobian
-            var jacobian = new double[2, 2];
-            jacobian.SetRow(0, dXt1);
-            jacobian.SetRow(1, dXt2);
+            var jacobian = new double[,] { { a, b }, { c, d } };
             return jacobian;
         }
-
-        /// <inheritdoc/>
-        public double QuantileVariance(double probability, int sampleSize, ParameterEstimationMethod estimationMethod)
-        {
-            double varA = ParameterVariance(sampleSize, estimationMethod)[0];
-            double varB = ParameterVariance(sampleSize, estimationMethod)[1];
-            double covAB = ParameterCovariance(sampleSize, estimationMethod)[0];
-            double pXA = QuantileGradient(probability)[0];
-            double pXB = QuantileGradient(probability)[1];
-            return Math.Pow(pXA, 2d) * varA + Math.Pow(pXB, 2d) * varB + 2d * pXA * pXB * covAB;
-        }
-
-        #endregion
-
-
-   
+     
     }
 }
