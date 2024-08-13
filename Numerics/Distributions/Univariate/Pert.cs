@@ -83,7 +83,6 @@ namespace Numerics.Distributions
             SetParameters(min, mode, max);
         }
 
-        private bool _parametersValid = true;
         private GeneralizedBeta _beta = new GeneralizedBeta();
         private double _min;
         private double _max;
@@ -177,12 +176,6 @@ namespace Numerics.Distributions
         public override double[] GetParameters
         {
             get { return [Min, MostLikely, Max]; }
-        }
-
-        /// <inheritdoc/>
-        public override bool ParametersValid
-        {
-            get { return _parametersValid; }
         }
 
         /// <inheritdoc/>

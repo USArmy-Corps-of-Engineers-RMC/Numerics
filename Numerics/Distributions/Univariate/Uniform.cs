@@ -70,7 +70,6 @@ namespace Numerics.Distributions
     
         private double _min;
         private double _max;
-        private bool _parametersValid = true;
 
         /// <summary>
         /// Get and set the min of the distribution.
@@ -152,12 +151,6 @@ namespace Numerics.Distributions
         public override double[] GetParameters
         {
             get { return [Min, Max]; }
-        }
-
-        /// <inheritdoc/>
-        public override bool ParametersValid
-        {
-            get { return _parametersValid; }
         }
 
         /// <inheritdoc/>

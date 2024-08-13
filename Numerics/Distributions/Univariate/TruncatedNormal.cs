@@ -78,7 +78,6 @@ namespace Numerics.Distributions
             SetParameters(mean, standardDeviation, min, max);
         }
 
-        private bool _parametersValid = true;
         private double _mu;
         private double _sigma;
         private double _min;
@@ -199,12 +198,6 @@ namespace Numerics.Distributions
         public override double[] GetParameters
         {
             get { return [Mu, Sigma, Min, Max]; }
-        }
-
-        /// <inheritdoc/>
-        public override bool ParametersValid
-        {
-            get { return _parametersValid; }
         }
 
         /// <inheritdoc/>

@@ -134,12 +134,6 @@ namespace Numerics.Distributions
         }
 
         /// <inheritdoc/>
-        public override bool ParametersValid
-        {
-            get { return true; }
-        }
-
-        /// <inheritdoc/>
         public override double Mean
         {
             get { return Value; }

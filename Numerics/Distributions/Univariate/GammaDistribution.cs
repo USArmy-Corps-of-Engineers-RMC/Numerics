@@ -55,8 +55,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
 using Numerics.Data.Statistics;
 using Numerics.Mathematics;
 using Numerics.Mathematics.Optimization;
@@ -152,7 +150,6 @@ namespace Numerics.Distributions
             SetParameters(scale, shape);
         }
 
-        private bool _parametersValid = true;
         private double _theta; // scale (θ)
         private double _kappa; // shape (κ)
 
@@ -244,12 +241,6 @@ namespace Numerics.Distributions
         public override double[] GetParameters
         {
             get { return [Theta, Kappa]; }
-        }
-
-        /// <inheritdoc/>
-        public override bool ParametersValid
-        {
-            get { return _parametersValid; }
         }
 
         /// <inheritdoc/>

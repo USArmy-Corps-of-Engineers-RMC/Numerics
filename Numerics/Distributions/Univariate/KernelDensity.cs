@@ -136,7 +136,6 @@ namespace Numerics.Distributions
         private KernelType _kernelDistribution;
         private IKernel _kernel;
         private bool _dataIsSorted;
-        private bool _parametersValid = true;
         private OrderedPairedData opd;
         private double u1, u2, u3, u4;
 
@@ -277,12 +276,6 @@ namespace Numerics.Distributions
         public override double[] GetParameters
         {
             get { throw new NotImplementedException(); }
-        }
-
-        /// <inheritdoc/>
-        public override bool ParametersValid
-        {
-            get { return _parametersValid; }
         }
 
         /// <summary>

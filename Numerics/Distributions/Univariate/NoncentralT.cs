@@ -70,7 +70,6 @@ namespace Numerics.Distributions
             SetParameters(degreesOfFreedom, noncentrality);
         }
 
-        private bool _parametersValid = true;
         private int _degreesOfFreedom;
         private double _noncentrality;
        
@@ -154,12 +153,6 @@ namespace Numerics.Distributions
         public override double[] GetParameters
         {
             get { return [DegreesOfFreedom, Noncentrality]; }
-        }
-
-        /// <inheritdoc/>
-        public override bool ParametersValid
-        {
-            get { return _parametersValid; }
         }
 
         /// <inheritdoc/>

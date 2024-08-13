@@ -59,6 +59,11 @@ namespace Numerics.Distributions
         protected double NearZero = 1E-4;
 
         /// <summary>
+        /// Protected parameter is valid property. 
+        /// </summary>
+        protected bool _parametersValid = true;
+
+        /// <summary>
         /// Returns the continuous distribution type.
         /// </summary>
         public abstract UnivariateDistributionType Type { get; }
@@ -111,7 +116,7 @@ namespace Numerics.Distributions
         public abstract string[] GetParameterPropertyNames { get; }
 
         /// <inheritdoc/>
-        public abstract bool ParametersValid { get; }
+        public bool ParametersValid => _parametersValid;
 
         /// <inheritdoc/>
         public abstract double Mean { get; }

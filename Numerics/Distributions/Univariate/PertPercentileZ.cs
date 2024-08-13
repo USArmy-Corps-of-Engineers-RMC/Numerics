@@ -78,7 +78,6 @@ namespace Numerics.Distributions
             SetParameters(fifth, fiftieth, ninetyFifth);
         }
 
-        private bool _parametersValid = true;
         private bool _parametersSolved = false;
         private GeneralizedBeta _beta = new GeneralizedBeta();
         private double _5th;
@@ -195,12 +194,6 @@ namespace Numerics.Distributions
         public override double[] GetParameters
         {
             get { return [Percentile5th, Percentile50th, Percentile95th]; }
-        }
-
-        /// <inheritdoc/>
-        public override bool ParametersValid
-        {
-            get { return _parametersValid; }
         }
 
         /// <inheritdoc/>

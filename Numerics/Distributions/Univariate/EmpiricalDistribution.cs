@@ -156,7 +156,6 @@ namespace Numerics.Distributions
 
         private double[] _xValues;
         private double[] _pValues;
-        private bool _parametersValid = true;
         private OrderedPairedData opd;
         private bool _momentsComputed = false;
         private double u1, u2, u3, u4;
@@ -263,11 +262,6 @@ namespace Numerics.Distributions
             get { throw new NotImplementedException(); }
         }
 
-        /// <inheritdoc/>
-        public override bool ParametersValid
-        {
-            get { return _parametersValid; }
-        }
 
         /// <summary>
         /// Compute central moments of the distribution.

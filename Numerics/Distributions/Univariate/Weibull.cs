@@ -71,7 +71,6 @@ namespace Numerics.Distributions
             SetParameters(scale, shape);
         }
 
-        private bool _parametersValid = true;
         private double _lambda;
         private double _kappa;
 
@@ -155,12 +154,6 @@ namespace Numerics.Distributions
         public override double[] GetParameters
         {
             get { return [Lambda, Kappa]; }
-        }
-
-        /// <inheritdoc/>
-        public override bool ParametersValid
-        {
-            get { return _parametersValid; }
         }
 
         /// <inheritdoc/>

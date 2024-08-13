@@ -82,7 +82,6 @@ namespace Numerics.Distributions
         }
        
         private int _degreesOfFreedom;
-        private bool _parametersValid = true;
        
         /// <summary>
         /// Gets and sets the degrees of freedom ν (nu) of the distribution.
@@ -149,12 +148,6 @@ namespace Numerics.Distributions
         public override double[] GetParameters
         {
             get { return [Convert.ToDouble(DegreesOfFreedom)]; }
-        }
-
-        /// <inheritdoc/>
-        public override bool ParametersValid
-        {
-            get { return _parametersValid; }
         }
 
         /// <inheritdoc/>

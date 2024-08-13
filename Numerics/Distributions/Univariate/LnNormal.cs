@@ -85,7 +85,6 @@ namespace Numerics.Distributions
 
         private double _mu;
         private double _sigma;
-        private bool _parametersValid = true;
 
         /// <summary>
         /// Gets and sets the location parameter µ (Mu).
@@ -168,12 +167,6 @@ namespace Numerics.Distributions
         public override double[] GetParameters
         {
             get { return [Mean, StandardDeviation]; }
-        }
-
-        /// <inheritdoc/>
-        public override bool ParametersValid
-        {
-            get { return _parametersValid; }
         }
 
         /// <inheritdoc/>

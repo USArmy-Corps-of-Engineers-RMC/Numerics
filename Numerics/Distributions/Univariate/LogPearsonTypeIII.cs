@@ -77,7 +77,6 @@ namespace Numerics.Distributions
         private double _sigma;
         private double _gamma;
         private double _base = 10d;
-        private bool _parametersValid = true;
 
         /// <summary>
         /// Gets and sets the Mean (of log) of the distribution.
@@ -225,12 +224,6 @@ namespace Numerics.Distributions
         public override double[] GetParameters
         {
             get { return [Mu, Sigma, Gamma]; }
-        }
-
-        /// <inheritdoc/>
-        public override bool ParametersValid
-        {
-            get { return _parametersValid; }
         }
 
         /// <inheritdoc/>

@@ -69,7 +69,6 @@ namespace Numerics.Distributions
             SetParameters([rate]);
         }
 
-        private bool _parametersValid = true;
         private double _lambda;
 
         /// <summary>
@@ -138,12 +137,6 @@ namespace Numerics.Distributions
         public override double[] GetParameters
         {
             get { return [Lambda]; }
-        }
-
-        /// <inheritdoc/>
-        public override bool ParametersValid
-        {
-            get { return _parametersValid; }
         }
 
         /// <inheritdoc/>

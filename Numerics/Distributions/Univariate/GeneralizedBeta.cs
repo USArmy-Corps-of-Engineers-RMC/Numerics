@@ -133,7 +133,6 @@ namespace Numerics.Distributions
             return new GeneralizedBeta(alpha, beta, min, max);
         }
       
-        private bool _parametersValid = true;
         private double _alpha;
         private double _beta;
         private double _min = double.MinValue;
@@ -249,12 +248,6 @@ namespace Numerics.Distributions
         public override double[] GetParameters
         {
             get { return [Alpha, Beta, Min, Max]; }
-        }
-
-        /// <inheritdoc/>
-        public override bool ParametersValid
-        {
-            get { return _parametersValid; }
         }
 
         /// <inheritdoc/>

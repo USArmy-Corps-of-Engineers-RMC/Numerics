@@ -67,7 +67,6 @@ namespace Numerics.Distributions
             SetParameters([probability]);
         }
     
-        private bool _parametersValid = true;
         private double _probabilityOfSuccess;
 
         /// <summary>
@@ -135,12 +134,6 @@ namespace Numerics.Distributions
         public override double[] GetParameters
         {
             get { return [ProbabilityOfSuccess]; }
-        }
-
-        /// <inheritdoc/>
-        public override bool ParametersValid
-        {
-            get { return _parametersValid; }
         }
 
         /// <inheritdoc/>

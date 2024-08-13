@@ -70,7 +70,6 @@ namespace Numerics.Distributions
             SetParameters([degreesOfFreedom, scale]);
         }
 
-        private bool _parametersValid = true;
         private int _degreesOfFreedom;
         private double _sigma;
 
@@ -159,12 +158,6 @@ namespace Numerics.Distributions
         public override double[] GetParameters
         {
             get { return [DegreesOfFreedom, Sigma]; }
-        }
-
-        /// <inheritdoc/>
-        public override bool ParametersValid
-        {
-            get { return _parametersValid; }
         }
 
         /// <inheritdoc/>

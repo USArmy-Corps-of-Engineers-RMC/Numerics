@@ -69,7 +69,6 @@ namespace Numerics.Distributions
         }
    
         private double _sigma;
-        private bool _parametersValid = true;
 
         /// <summary>
         /// Gets and sets the scale parameter σ (sigma).
@@ -136,12 +135,6 @@ namespace Numerics.Distributions
         public override double[] GetParameters
         {
             get { return [Sigma]; }
-        }
-
-        /// <inheritdoc/>
-        public override bool ParametersValid
-        {
-            get { return _parametersValid; }
         }
 
         /// <inheritdoc/>

@@ -75,7 +75,6 @@ namespace Numerics.Distributions
             SetParameters(location, scale, shape);
         }
 
-        private bool _parametersValid = true;
         private double _xi; // location
         private double _alpha; // scale
         private double _kappa; // shape
@@ -175,12 +174,6 @@ namespace Numerics.Distributions
         public override double[] GetParameters
         {
             get { return [Xi, Alpha, Kappa]; }
-        }
-
-        /// <inheritdoc/>
-        public override bool ParametersValid
-        {
-            get { return _parametersValid; }
         }
 
         /// <inheritdoc/>

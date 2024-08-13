@@ -74,7 +74,6 @@ namespace Numerics.Distributions
 
         private UnivariateDistributionBase[] _distributions;
         private EmpiricalDistribution _inverseCDF;
-        private bool _parametersValid = true;
         private bool _momentsComputed = false;
         private double u1, u2, u3, u4;
         private bool _inverseCDFCreated = false;
@@ -192,12 +191,6 @@ namespace Numerics.Distributions
         public override string[] GetParameterPropertyNames
         {
             get { return [nameof(Distributions)]; }
-        }
-
-        /// <inheritdoc/>
-        public override bool ParametersValid
-        {
-            get { return _parametersValid; }
         }
 
         /// <summary>

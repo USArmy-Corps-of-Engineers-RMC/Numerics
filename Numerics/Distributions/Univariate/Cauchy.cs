@@ -68,7 +68,6 @@ namespace Numerics.Distributions
             SetParameters([location, scale]);
         }
      
-        private bool _parametersValid = true;
         private double _gamma;
 
         /// <summary>
@@ -143,12 +142,6 @@ namespace Numerics.Distributions
         public override double[] GetParameters
         {
             get { return [X0, Gamma]; }
-        }
-
-        /// <inheritdoc/>
-        public override bool ParametersValid
-        {
-            get { return _parametersValid; }
         }
 
         /// <inheritdoc/>
