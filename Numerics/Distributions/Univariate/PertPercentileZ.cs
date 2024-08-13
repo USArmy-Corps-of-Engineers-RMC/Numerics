@@ -139,41 +139,31 @@ namespace Numerics.Distributions
             }
         }
 
-        /// <summary>
-        /// Returns the number of distribution parameters.
-        /// </summary>
+        /// <inheritdoc/>
         public override int NumberOfParameters
         {
             get { return 3; }
         }
 
-        /// <summary>
-        /// Returns the univariate distribution type.
-        /// </summary>
+        /// <inheritdoc/>
         public override UnivariateDistributionType Type
         {
             get { return UnivariateDistributionType.PertPercentileZ; }
         }
 
-        /// <summary>
-        /// Returns the name of the distribution type as a string.
-        /// </summary>
+        /// <inheritdoc/>
         public override string DisplayName
         {
             get { return "PERT-Percentile Z"; }
         }
 
-        /// <summary>
-        /// Returns the short display name of the distribution as a string.
-        /// </summary>
+        /// <inheritdoc/>
         public override string ShortDisplayName
         {
             get { return "PERT-% Z"; }
         }
 
-        /// <summary>
-        /// Get distribution parameters in 2-column array of string.
-        /// </summary>
+        /// <inheritdoc/>
         public override string[,] ParametersToString
         {
             get
@@ -189,41 +179,31 @@ namespace Numerics.Distributions
             }
         }
 
-        /// <summary>
-        /// Gets the short form parameter names.
-        /// </summary>
+        /// <inheritdoc/>
         public override string[] ParameterNamesShortForm
         {
-            get { return new[] { "5%", "50%", "95%" }; }
+            get { return ["5%", "50%", "95%"]; }
         }
 
-        /// <summary>
-        /// Gets the full parameter names.
-        /// </summary>
+        /// <inheritdoc/>
         public override string[] GetParameterPropertyNames
         {
-            get { return new[] { nameof(Percentile5th), nameof(Percentile50th), nameof(Percentile95th) }; }
+            get { return [nameof(Percentile5th), nameof(Percentile50th), nameof(Percentile95th)]; }
         }
 
-        /// <summary>
-        /// Get an array of parameters.
-        /// </summary>
+        /// <inheritdoc/>
         public override double[] GetParameters
         {
-            get { return new[] { Percentile5th, Percentile50th, Percentile95th }; }
+            get { return [Percentile5th, Percentile50th, Percentile95th]; }
         }
 
-        /// <summary>
-        /// Determines whether the parameters are valid or not.
-        /// </summary>
+        /// <inheritdoc/>
         public override bool ParametersValid
         {
             get { return _parametersValid; }
         }
 
-        /// <summary>
-        /// Gets the mean of the distribution.
-        /// </summary>
+        /// <inheritdoc/>
         public override double Mean
         {
             get 
@@ -233,9 +213,7 @@ namespace Numerics.Distributions
             }
         }
 
-        /// <summary>
-        /// Gets the median of the distribution.
-        /// </summary>
+        /// <inheritdoc/>
         public override double Median
         {
             get 
@@ -245,9 +223,7 @@ namespace Numerics.Distributions
             }
         }
 
-        /// <summary>
-        /// Gets the mode of the distribution.
-        /// </summary>
+        /// <inheritdoc/>
         public override double Mode
         {
             get 
@@ -257,60 +233,46 @@ namespace Numerics.Distributions
             }
         }
 
-        /// <summary>
-        /// Gets the standard deviation of the distribution.
-        /// </summary>
+        /// <inheritdoc/>
         public override double StandardDeviation
         {
             get { return _beta.StandardDeviation; }
         }
 
-        /// <summary>
-        /// Gets the skew of the distribution.
-        /// </summary>
+        /// <inheritdoc/>
         public override double Skewness
         {
             get { return _beta.Skewness; }
         }
 
-        /// <summary>
-        /// Gets the kurtosis of the distribution.
-        /// </summary>
+        /// <inheritdoc/>
         public override double Kurtosis
         {
             get { return _beta.Kurtosis; }
         }
 
-        /// <summary>
-        /// Gets the minimum of the distribution.
-        /// </summary>
+        /// <inheritdoc/>
         public override double Minimum
         {
             get { return Normal.StandardCDF(_beta.Minimum); }
         }
 
-        /// <summary>
-        /// Gets the maximum of the distribution.
-        /// </summary>
+        /// <inheritdoc/>
         public override double Maximum
         {
             get { return Normal.StandardCDF(_beta.Maximum); }
         }
 
-        /// <summary>
-        /// Gets the minimum values allowable for each parameter.
-        /// </summary>
+        /// <inheritdoc/>
         public override double[] MinimumOfParameters
         {
-            get { return new[] { 0d, Percentile5th, Percentile50th }; }
+            get { return [0d, Percentile5th, Percentile50th]; }
         }
 
-        /// <summary>
-        /// Gets the maximum values allowable for each parameter.
-        /// </summary>
+        /// <inheritdoc/>
         public override double[] MaximumOfParameters
         {
-            get { return new[] { Percentile50th, Percentile95th, 1d }; }
+            get { return [Percentile50th, Percentile95th, 1d]; }
         }
 
         /// <summary>
@@ -326,10 +288,7 @@ namespace Numerics.Distributions
             Percentile95th = ninetyFifth;
         }
 
-        /// <summary>
-        /// Set the distribution parameters.
-        /// </summary>
-        /// <param name="parameters">Array of parameters.</param>
+        /// <inheritdoc/>
         public override void SetParameters(IList<double> parameters)
         {
             SetParameters(parameters[0], parameters[1], parameters[2]);
@@ -373,11 +332,7 @@ namespace Numerics.Distributions
             return null;
         }
 
-        /// <summary>
-        /// Validate the parameters.
-        /// </summary>
-        /// <param name="parameters">A list of parameters.</param>
-        /// <param name="throwException">Determines whether to throw an exception or not.</param>
+        /// <inheritdoc/>
         public override ArgumentOutOfRangeException ValidateParameters(IList<double> parameters, bool throwException)
         {
             return ValidateParameters(parameters[0], parameters[1], parameters[2], throwException);
@@ -445,10 +400,7 @@ namespace Numerics.Distributions
             _parametersSolved = true;
         }
 
-        /// <summary>
-        /// The Probability Density Function (PDF) of the distribution evaluated at a point X.
-        /// </summary>
-        /// <param name="x">A single point in the distribution range.</param>
+        /// <inheritdoc/>
         public override double PDF(double x)
         {
             // Validate parameters
@@ -463,14 +415,7 @@ namespace Numerics.Distributions
             return _beta.PDF(Normal.StandardZ(x));
         }
 
-        /// <summary>
-        /// The Cumulative Distribution Function (CDF) for the distribution evaluated at a point X.
-        /// </summary>
-        /// <param name="x">A single point in the distribution range.</param>
-        /// <returns>The non-exceedance probability given a point X.</returns>
-        /// <remarks>
-        /// The CDF describes the cumulative probability that a given value or any value smaller than it will occur.
-        /// </remarks>
+        /// <inheritdoc/>
         public override double CDF(double x)
         {
             // Validate parameters
@@ -485,18 +430,7 @@ namespace Numerics.Distributions
             return _beta.CDF(Normal.StandardZ(x));
         }
 
-        /// <summary>
-        /// Gets the Inverse Cumulative Distribution Function (ICFD) of the distribution evaluated at a probability.
-        /// </summary>
-        /// <param name="probability">Probability between 0 and 1.</param>
-        /// <returns>
-        /// Returns for a given probability in the probability distribution of a random variable,
-        /// the value at which the probability of the random variable is less than or equal to the
-        /// given probability.
-        /// </returns>
-        /// <remarks>
-        /// This function is also know as the Quantile Function.
-        /// </remarks>
+        /// <inheritdoc/>
         public override double InverseCDF(double probability)
         {
             // Validate parameters
@@ -519,9 +453,7 @@ namespace Numerics.Distributions
             return x;
         }
 
-        /// <summary>
-        /// Creates a copy of the distribution.
-        /// </summary>
+        /// <inheritdoc/>
         public override UnivariateDistributionBase Clone()
         {
             return new PertPercentileZ(Percentile5th, Percentile50th, Percentile95th) { _parametersSolved = _parametersSolved, _parametersValid = _parametersValid, _beta = (GeneralizedBeta)_beta.Clone()};
@@ -534,8 +466,6 @@ namespace Numerics.Distributions
         {
             return new Pert(_beta.Min, _beta.Mode, _beta.Max);
         }
-
-
 
     }
 }

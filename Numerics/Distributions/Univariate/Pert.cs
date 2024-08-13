@@ -121,41 +121,31 @@ namespace Numerics.Distributions
             set { SetParameters(Min, MostLikely, value); }
         }
 
-        /// <summary>
-        /// Returns the number of distribution parameters.
-        /// </summary>
+        /// <inheritdoc/>
         public override int NumberOfParameters
         {
             get { return 3; }
         }
 
-        /// <summary>
-        /// Returns the continuous distribution type.
-        /// </summary>
+        /// <inheritdoc/>
         public override UnivariateDistributionType Type
         {
             get { return UnivariateDistributionType.Pert; }
         }
 
-        /// <summary>
-        /// Returns the name of the distribution type as a string.
-        /// </summary>
+        /// <inheritdoc/>
         public override string DisplayName
         {
             get { return "PERT"; }
         }
 
-        /// <summary>
-        /// Returns the short display name of the distribution as a string.
-        /// </summary>
+        /// <inheritdoc/>
         public override string ShortDisplayName
         {
             get { return "PERT"; }
         }
 
-        /// <summary>
-        /// Get distribution parameters in 2-column array of string.
-        /// </summary>
+        /// <inheritdoc/>
         public override string[,] ParametersToString
         {
             get
@@ -171,41 +161,31 @@ namespace Numerics.Distributions
             }
         }
 
-        /// <summary>
-        /// Gets the short form parameter names.
-        /// </summary>
+        /// <inheritdoc/>
         public override string[] ParameterNamesShortForm
         {
-            get { return new[] { "a", "c", "b" }; }
+            get { return ["a", "c", "b"]; }
         }
 
-        /// <summary>
-        /// Gets the full parameter names.
-        /// </summary>
+        /// <inheritdoc/>
         public override string[] GetParameterPropertyNames
         {
-            get { return new[] { nameof(Min), nameof(MostLikely), nameof(Max) }; }
+            get { return [nameof(Min), nameof(MostLikely), nameof(Max)]; }
         }
 
-        /// <summary>
-        /// Get an array of parameters.
-        /// </summary>
+        /// <inheritdoc/>
         public override double[] GetParameters
         {
-            get { return new[] { Min, MostLikely, Max }; }
+            get { return [Min, MostLikely, Max]; }
         }
 
-        /// <summary>
-        /// Determines whether the parameters are valid or not.
-        /// </summary>
+        /// <inheritdoc/>
         public override bool ParametersValid
         {
             get { return _parametersValid; }
         }
 
-        /// <summary>
-        /// Gets the mean of the distribution.
-        /// </summary>
+        /// <inheritdoc/>
         public override double Mean
         {
             get 
@@ -215,9 +195,7 @@ namespace Numerics.Distributions
             }
         }
 
-        /// <summary>
-        /// Gets the median of the distribution.
-        /// </summary>
+        /// <inheritdoc/>
         public override double Median
         {
             get 
@@ -227,75 +205,55 @@ namespace Numerics.Distributions
             }
         }
 
-        /// <summary>
-        /// Gets the mode of the distribution.
-        /// </summary>
+        /// <inheritdoc/>
         public override double Mode
         {
             get { return MostLikely; }
         }
 
-        /// <summary>
-        /// Gets the standard deviation of the distribution.
-        /// </summary>
+        /// <inheritdoc/>
         public override double StandardDeviation
         {
             get { return Math.Sqrt((Mean - Min) * (Max - Mean) / 7); }
         }
 
-        /// <summary>
-        /// Gets the skew of the distribution.
-        /// </summary>
+        /// <inheritdoc/>
         public override double Skewness
         {
             get { return _beta.Skewness; }
         }
 
-        /// <summary>
-        /// Gets the kurtosis of the distribution.
-        /// </summary>
+        /// <inheritdoc/>
         public override double Kurtosis
         {
             get { return _beta.Kurtosis; }
         }
 
-        /// <summary>
-        /// Gets the minimum of the distribution.
-        /// </summary>
+        /// <inheritdoc/>
         public override double Minimum
         {
             get { return _min; }
         }
 
-        /// <summary>
-        /// Gets the maximum of the distribution.
-        /// </summary>
+        /// <inheritdoc/>
         public override double Maximum
         {
             get { return _max; }
         }
 
-        /// <summary>
-        /// Gets the minimum values allowable for each parameter.
-        /// </summary>
+        /// <inheritdoc/>
         public override double[] MinimumOfParameters
         {
-            get { return new[] { double.NegativeInfinity, Min, Mode }; }
+            get { return [double.NegativeInfinity, Min, Mode]; }
         }
 
-        /// <summary>
-        /// Gets the maximum values allowable for each parameter.
-        /// </summary>
+        /// <inheritdoc/>
         public override double[] MaximumOfParameters
         {
-            get { return new[] { Mode, Max, double.PositiveInfinity }; }
+            get { return [Mode, Max, double.PositiveInfinity]; }
         }
 
-        /// <summary>
-        /// Estimates the parameters of the underlying distribution given a sample of observations.
-        /// </summary>
-        /// <param name="sample">The array of sample data.</param>
-        /// <param name="estimationMethod">The parameter estimation method.</param>
+        /// <inheritdoc/>
         public void Estimate(IList<double> sample, ParameterEstimationMethod estimationMethod)
         {
             if (estimationMethod == ParameterEstimationMethod.MethodOfPercentiles)
@@ -326,15 +284,7 @@ namespace Numerics.Distributions
             }
         }
 
-        /// <summary>
-        /// Bootstrap the distribution based on a sample size and parameter estimation method.
-        /// </summary>
-        /// <param name="estimationMethod">The parameter estimation method.</param>
-        /// <param name="sampleSize">Size of the random sample to generate.</param>
-        /// <param name="seed">Optional. Seed for random number generator. Default = 12345.</param>
-        /// <returns>
-        /// Returns a bootstrapped distribution.
-        /// </returns>
+        /// <inheritdoc/>
         public IUnivariateDistribution Bootstrap(ParameterEstimationMethod estimationMethod, int sampleSize, int seed = 12345)
         {
             var newDistribution = (Pert)Clone();
@@ -364,10 +314,7 @@ namespace Numerics.Distributions
             if (_parametersValid == true) _beta = GeneralizedBeta.PERT(_min, _mode, _max);
         }
 
-        /// <summary>
-        /// Set the distribution parameters.
-        /// </summary>
-        /// <param name="parameters">Array of parameters.</param>
+        /// <inheritdoc/>
         public override void SetParameters(IList<double> parameters)
         {
             SetParameters(parameters[0], parameters[1], parameters[2]);
@@ -396,21 +343,13 @@ namespace Numerics.Distributions
             return null;
         }
 
-        /// <summary>
-        /// Validate the parameters.
-        /// </summary>
-        /// <param name="parameters">A list of parameters.</param>
-        /// <param name="throwException">Determines whether to throw an exception or not.</param>
+        /// <inheritdoc/>
         public override ArgumentOutOfRangeException ValidateParameters(IList<double> parameters, bool throwException)
         {
             return ValidateParameters(parameters[0], parameters[1], parameters[2], throwException);
         }
 
-        /// <summary>
-        /// Get the initial, lower, and upper values for the distribution parameters for constrained optimization.
-        /// </summary>
-        /// <param name="sample">The array of sample data.</param>
-        /// <returns>Returns a Tuple of initial, lower, and upper values.</returns>
+        /// <inheritdoc/>
         public Tuple<double[], double[], double[]> GetParameterConstraints(IList<double> sample)
         {
             var initialVals = new double[NumberOfParameters];
@@ -437,10 +376,7 @@ namespace Numerics.Distributions
             return new Tuple<double[], double[], double[]>(initialVals, lowerVals, upperVals);
         }
 
-        /// <summary>
-        /// Estimate the distribution parameters using the method of maximum likelihood estimation.
-        /// </summary>
-        /// <param name="sample">The array of sample data.</param>
+        /// <inheritdoc/>
         public double[] MLE(IList<double> sample)
         {
             // Set constraints
@@ -462,10 +398,7 @@ namespace Numerics.Distributions
             return solver.BestParameterSet.Values;
         }
 
-        /// <summary>
-        /// The Probability Density Function (PDF) of the distribution evaluated at a point X.
-        /// </summary>
-        /// <param name="x">A single point in the distribution range.</param>
+        /// <inheritdoc/>
         public override double PDF(double x)
         {
             // Validate parameters
@@ -477,14 +410,7 @@ namespace Numerics.Distributions
             return _beta.PDF(x);
         }
 
-        /// <summary>
-        /// The Cumulative Distribution Function (CDF) for the distribution evaluated at a point X.
-        /// </summary>
-        /// <param name="x">A single point in the distribution range.</param>
-        /// <returns>The non-exceedance probability given a point X.</returns>
-        /// <remarks>
-        /// The CDF describes the cumulative probability that a given value or any value smaller than it will occur.
-        /// </remarks>
+        /// <inheritdoc/>
         public override double CDF(double x)
         {
             // Validate parameters
@@ -496,18 +422,7 @@ namespace Numerics.Distributions
             return _beta.CDF(x);
         }
 
-        /// <summary>
-        /// Gets the Inverse Cumulative Distribution Function (ICFD) of the distribution evaluated at a probability.
-        /// </summary>
-        /// <param name="probability">Probability between 0 and 1.</param>
-        /// <returns>
-        /// Returns for a given probability in the probability distribution of a random variable,
-        /// the value at which the probability of the random variable is less than or equal to the
-        /// given probability.
-        /// </returns>
-        /// <remarks>
-        /// This function is also know as the Quantile Function.
-        /// </remarks>
+        /// <inheritdoc/>
         public override double InverseCDF(double probability)
         {
             // Validate parameters
@@ -519,9 +434,7 @@ namespace Numerics.Distributions
             return _beta.InverseCDF(probability);
         }
 
-        /// <summary>
-        /// Creates a copy of the distribution.
-        /// </summary>
+        /// <inheritdoc/>
         public override UnivariateDistributionBase Clone()
         {
             return new Pert(Min, Mode, Max);

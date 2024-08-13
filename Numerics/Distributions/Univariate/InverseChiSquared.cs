@@ -57,7 +57,7 @@ namespace Numerics.Distributions
         /// </summary>
         public InverseChiSquared()
         {
-            SetParameters(new[] { 10d, 1d });
+            SetParameters([10d, 1d]);
         }
 
         /// <summary>
@@ -67,7 +67,7 @@ namespace Numerics.Distributions
         /// <param name="scale">The scale parameter σ (sigma).</param>
         public InverseChiSquared(int degreesOfFreedom, double scale)
         {
-            SetParameters(new[] { degreesOfFreedom, scale });
+            SetParameters([degreesOfFreedom, scale]);
         }
 
         private bool _parametersValid = true;
@@ -82,7 +82,7 @@ namespace Numerics.Distributions
             get { return _degreesOfFreedom; }
             set
             {
-                _parametersValid = ValidateParameters(new[] { value, Sigma }, false) is null;
+                _parametersValid = ValidateParameters([value, Sigma], false) is null;
                 _degreesOfFreedom = value;
             }
         }
@@ -95,7 +95,7 @@ namespace Numerics.Distributions
             get { return _sigma; }
             set
             {
-                _parametersValid = ValidateParameters(new[] { DegreesOfFreedom, value }, false) is null;
+                _parametersValid = ValidateParameters([DegreesOfFreedom, value], false) is null;
                 _sigma = value;
             }
         }
@@ -108,41 +108,31 @@ namespace Numerics.Distributions
             get { return 1d / (Sigma * Sigma); }
         }
 
-        /// <summary>
-        /// Returns the number of distribution parameters.
-        /// </summary>
+        /// <inheritdoc/>
         public override int NumberOfParameters
         {
             get { return 2; }
         }
 
-        /// <summary>
-        /// Returns the univariate distribution type.
-        /// </summary>
+        /// <inheritdoc/>
         public override UnivariateDistributionType Type
         {
             get { return UnivariateDistributionType.InverseChiSquared; }
         }
 
-        /// <summary>
-        /// Returns the name of the distribution type as a string.
-        /// </summary>
+        /// <inheritdoc/>
         public override string DisplayName
         {
             get { return "Inverse Chi-Squared (χ²)"; }
         }
 
-        /// <summary>
-        /// Returns the short display name of the distribution as a string.
-        /// </summary>
+        /// <inheritdoc/>
         public override string ShortDisplayName
         {
             get { return "Inv-χ²"; }
         }
 
-        /// <summary>
-        /// Get distribution parameters in 2-column array of string.
-        /// </summary>
+        /// <inheritdoc/>
         public override string[,] ParametersToString
         {
             get
@@ -156,41 +146,28 @@ namespace Numerics.Distributions
             }
         }
 
-        /// <summary>
-        /// Gets the short form parameter names.
-        /// </summary>
+        /// <inheritdoc/>
         public override string[] ParameterNamesShortForm
         {
-            get { return new[] { "ν", "σ" }; }
+            get { return ["ν", "σ"]; }
         }
 
-        /// <summary>
-        /// Gets the full parameter names.
-        /// </summary>
-        public override string[] GetParameterPropertyNames
-        {
-            get { return new[] { nameof(DegreesOfFreedom), nameof(Sigma) }; }
-        }
+        /// <inheritdoc/>
+        public override string[] GetParameterPropertyNames => [nameof(DegreesOfFreedom), nameof(Sigma)];
 
-        /// <summary>
-        /// Get an array of parameters.
-        /// </summary>
+        /// <inheritdoc/>
         public override double[] GetParameters
         {
-            get { return new[] { DegreesOfFreedom, Sigma }; }
+            get { return [DegreesOfFreedom, Sigma]; }
         }
 
-        /// <summary>
-        /// Determines whether the parameters are valid or not.
-        /// </summary>
+        /// <inheritdoc/>
         public override bool ParametersValid
         {
             get { return _parametersValid; }
         }
 
-        /// <summary>
-        /// Gets the mean of the distribution.
-        /// </summary>
+        /// <inheritdoc/>
         public override double Mean
         {
             get
@@ -201,25 +178,19 @@ namespace Numerics.Distributions
             }
         }
 
-        /// <summary>
-        /// Gets the median of the distribution.
-        /// </summary>
+        /// <inheritdoc/>
         public override double Median
         {
             get { return InverseCDF(0.5d); }
         }
 
-        /// <summary>
-        /// Gets the mode of the distribution.
-        /// </summary>
+        /// <inheritdoc/>
         public override double Mode
         {
             get { return DegreesOfFreedom * Sigma / (DegreesOfFreedom + 2); }
         }
 
-        /// <summary>
-        /// Gets the standard deviation of the distribution.
-        /// </summary>
+        /// <inheritdoc/>
         public override double StandardDeviation
         {
             get
@@ -232,9 +203,7 @@ namespace Numerics.Distributions
             }
         }
 
-        /// <summary>
-        /// Gets the skew of the distribution.
-        /// </summary>
+        /// <inheritdoc/>
         public override double Skewness
         {
             get
@@ -246,9 +215,7 @@ namespace Numerics.Distributions
             }
         }
 
-        /// <summary>
-        /// Gets the kurtosis of the distribution.
-        /// </summary>
+        /// <inheritdoc/>
         public override double Kurtosis
         {
             get
@@ -260,53 +227,38 @@ namespace Numerics.Distributions
             }
         }
 
-        /// <summary>
-        /// Gets the minimum of the distribution.
-        /// </summary>
+        /// <inheritdoc/>
         public override double Minimum
         {
             get { return 0.0d; }
         }
 
-        /// <summary>
-        /// Gets the maximum of the distribution.
-        /// </summary>
+        /// <inheritdoc/>
         public override double Maximum
         {
             get { return double.PositiveInfinity; }
         }
 
-        /// <summary>
-        /// Gets the minimum values allowable for each parameter.
-        /// </summary>
+        /// <inheritdoc/>
         public override double[] MinimumOfParameters
         {
-            get { return new[] { 1.0d, 0.0d }; }
+            get { return [1.0d, 0.0d]; }
         }
 
-        /// <summary>
-        /// Gets the maximum values allowable for each parameter.
-        /// </summary>
+        /// <inheritdoc/>
         public override double[] MaximumOfParameters
         {
-            get { return new[] { double.PositiveInfinity, double.PositiveInfinity }; }
+            get { return [double.PositiveInfinity, double.PositiveInfinity]; }
         }
 
-        /// <summary>
-        /// Set the distribution parameters.
-        /// </summary>
-        /// <param name="parameters">A list of parameters.</param>
+        /// <inheritdoc/>
         public override void SetParameters(IList<double> parameters)
         {
             DegreesOfFreedom = (int)parameters[0];
             Sigma = parameters[1];
         }
 
-        /// <summary>
-        /// Validate the parameters.
-        /// </summary>
-        /// <param name="parameters">A list of parameters.</param>
-        /// <param name="throwException">Determines whether to throw an exception or not.</param>
+        /// <inheritdoc/>
         public override ArgumentOutOfRangeException ValidateParameters(IList<double> parameters, bool throwException)
         {
             if (parameters[0] < 1.0d)
@@ -324,15 +276,12 @@ namespace Numerics.Distributions
             return null;
         }
 
-        /// <summary>
-        /// Gets the Probability Density Function (PDF) of the distribution evaluated at a point x.
-        /// </summary>
-        /// <param name="x">A single point in the distribution range.</param>
+        /// <inheritdoc/>
         public override double PDF(double x)
         {
             // validate parameters
             if (_parametersValid == false)
-                ValidateParameters(new[] { DegreesOfFreedom, Sigma }, true);
+                ValidateParameters([DegreesOfFreedom, Sigma], true);
             if (x < Minimum) return 0.0d;
             double v = DegreesOfFreedom;
             double t2 = Sigma;
@@ -343,15 +292,12 @@ namespace Numerics.Distributions
             return a / b * (c / d);
         }
 
-        /// <summary>
-        /// Gets the Cumulative Distribution Function (CDF) for the distribution evaluated at a point x.
-        /// </summary>
-        /// <param name="x">A single point in the distribution range.</param>
+        /// <inheritdoc/>
         public override double CDF(double x)
         {
             // Validate parameters
             if (_parametersValid == false)
-                ValidateParameters(new[] { DegreesOfFreedom, Sigma }, true);
+                ValidateParameters([DegreesOfFreedom, Sigma], true);
             if (x <= Minimum)
                 return 0d;
             double v = DegreesOfFreedom;
@@ -359,10 +305,7 @@ namespace Numerics.Distributions
             return Gamma.UpperIncomplete(v / 2.0d, v * t2 / 2.0d * x);
         }
 
-        /// <summary>
-        /// Gets the Inverse Cumulative Distribution Function (ICFD) of the distribution evaluated at a probability.
-        /// </summary>
-        /// <param name="probability">Probability between 0 and 1.</param>
+        /// <inheritdoc/>
         public override double InverseCDF(double probability)
         {
             // Validate probability
@@ -374,15 +317,13 @@ namespace Numerics.Distributions
                 return Maximum;
             // validate parameters
             if (_parametersValid == false)
-                ValidateParameters(new[] { DegreesOfFreedom, Sigma }, true);
+                ValidateParameters([DegreesOfFreedom, Sigma], true);
             double v = DegreesOfFreedom;
             double t2 = Sigma;
             return  Gamma.InverseUpperIncomplete(v / 2.0d, probability) / (t2 * v / 2.0d);
         }
 
-        /// <summary>
-        /// Creates a copy of the distribution.
-        /// </summary>
+        /// <inheritdoc/>
         public override UnivariateDistributionBase Clone()
         {
             return new InverseChiSquared(DegreesOfFreedom, Sigma);

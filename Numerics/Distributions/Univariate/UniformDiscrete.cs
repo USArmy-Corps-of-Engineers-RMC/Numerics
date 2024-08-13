@@ -106,41 +106,31 @@ namespace Numerics.Distributions
             get { return Max - Min + 1d; }
         }
 
-        /// <summary>
-        /// Returns the number of distribution parameters.
-        /// </summary>
+        /// <inheritdoc/>
         public override int NumberOfParameters
         {
             get { return 2; }
         }
 
-        /// <summary>
-        /// Returns the univariate distribution type.
-        /// </summary>
+        /// <inheritdoc/>
         public override UnivariateDistributionType Type
         {
             get { return UnivariateDistributionType.UniformDiscrete; }
         }
 
-        /// <summary>
-        /// Returns the name of the distribution type as a string.
-        /// </summary>
+        /// <inheritdoc/>
         public override string DisplayName
         {
             get { return "Uniform (Discrete)"; }
         }
 
-        /// <summary>
-        /// Returns the short display name of the distribution as a string.
-        /// </summary>
+        /// <inheritdoc/>
         public override string ShortDisplayName
         {
             get { return "UD"; }
         }
 
-        /// <summary>
-        /// Get distribution parameters in 2-column array of string.
-        /// </summary>
+        /// <inheritdoc/>
         public override string[,] ParametersToString
         {
             get
@@ -154,116 +144,88 @@ namespace Numerics.Distributions
             }
         }
 
-        /// <summary>
-        /// Gets the short form parameter names.
-        /// </summary>
+        /// <inheritdoc/>
         public override string[] ParameterNamesShortForm
         {
-            get { return new[] { "Min", "Max" }; }
+            get { return ["Min", "Max"]; }
         }
 
-        /// <summary>
-        /// Gets the full parameter names.
-        /// </summary>
+        /// <inheritdoc/>
         public override string[] GetParameterPropertyNames
         {
-            get { return new[] { nameof(Min), nameof(Max) }; }
+            get { return [nameof(Min), nameof(Max)]; }
         }
 
-        /// <summary>
-        /// Get an array of parameters.
-        /// </summary>
+        /// <inheritdoc/>
         public override double[] GetParameters
         {
-            get { return new[] { Min, Max }; }
+            get { return [Min, Max]; }
         }
 
-        /// <summary>
-        /// Determines whether the parameters are valid or not.
-        /// </summary>
+        /// <inheritdoc/>
         public override bool ParametersValid
         {
             get { return _parametersValid; }
         }
 
-        /// <summary>
-        /// Gets the mean of the distribution.
-        /// </summary>
+        /// <inheritdoc/>
         public override double Mean
         {
             get { return (Min + Max) / 2.0d; }
         }
 
-        /// <summary>
-        /// Gets the median of the distribution.
-        /// </summary>
+        /// <inheritdoc/>
         public override double Median
         {
             get { return (Min + Max) / 2.0d; }
         }
 
-        /// <summary>
-        /// Gets the mode of the distribution.
-        /// </summary>
+        /// <inheritdoc/>
         public override double Mode
         {
             get { return double.NaN; }
         }
 
-        /// <summary>
-        /// Gets the standard deviation of the distribution.
-        /// </summary>
+        /// <inheritdoc/>
         public override double StandardDeviation
         {
             get { return Math.Sqrt((Max - Min) * (Max - Min) / 12.0d); }
         }
 
-        /// <summary>
-        /// Gets the skew of the distribution.
-        /// </summary>
+        /// <inheritdoc/>
         public override double Skewness
         {
             get { return 0.0d; }
         }
 
-        /// <summary>
-        /// Gets the kurtosis of the distribution.
-        /// </summary>
+        /// <inheritdoc/>
         public override double Kurtosis
         {
             get { return 3.0d - 6d * (N * N + 1d) / (5d * (N * N - 1d)); }
         }
-     
-        /// <summary>
-        /// Gets the minimum of the distribution.
-        /// </summary>
+
+        /// <inheritdoc/>
         public override double Minimum
         {
             get { return Min; }
         }
 
-        /// <summary>
-        /// Gets the maximum of the distribution.
-        /// </summary>
+        /// <inheritdoc/>
         public override double Maximum
         {
             get { return Max; }
         }
 
-        /// <summary>
-        /// Gets the minimum values allowable for each parameter.
-        /// </summary>
+        /// <inheritdoc/>
         public override double[] MinimumOfParameters
         {
-            get { return new[] { double.NegativeInfinity, Min }; }
+            get { return [double.NegativeInfinity, Min]; }
         }
 
-        /// <summary>
-        /// Gets the maximum values allowable for each parameter.
-        /// </summary>
+        /// <inheritdoc/>
         public override double[] MaximumOfParameters
         {
-            get { return new[] { Max, double.PositiveInfinity }; }
+            get { return [Max, double.PositiveInfinity]; }
         }
 
         /// <summary>
@@ -280,10 +242,7 @@ namespace Numerics.Distributions
             _max = max;
         }
 
-        /// <summary>
-        /// Set the distribution parameters.
-        /// </summary>
-        /// <param name="parameters">Array of parameters.</param>
+        /// <inheritdoc/>
         public override void SetParameters(IList<double> parameters)
         {
             SetParameters(parameters[0], parameters[1]);
@@ -307,21 +266,13 @@ namespace Numerics.Distributions
             return null;
         }
 
-        /// <summary>
-        /// Validate the parameters.
-        /// </summary>
-        /// <param name="parameters">A list of parameters.</param>
-        /// <param name="throwException">Determines whether to throw an exception or not.</param>
+        /// <inheritdoc/>
         public override ArgumentOutOfRangeException ValidateParameters(IList<double> parameters, bool throwException)
         {
             return ValidateParameters(parameters[0], parameters[1], throwException);
         }
 
-        /// <summary>
-        /// Gets the Probability Density Function (PDF) of the distribution evaluated at a point k.
-        /// </summary>
-        /// <param name="k">A single point in the distribution range.</param>
-        /// <remarks>Returns the Probability Mass Function (PMF) for discrete distributions.</remarks>
+        /// <inheritdoc/>
         public override double PDF(double k)
         {
             // Validate parameters
@@ -331,10 +282,7 @@ namespace Numerics.Distributions
             return 1d / N;
         }
 
-        /// <summary>
-        /// Gets the Cumulative Distribution Function (CDF) for the distribution evaluated at a point k.
-        /// </summary>
-        /// <param name="k">A single point in the distribution range.</param>
+        /// <inheritdoc/>
         public override double CDF(double k)
         {
             // Validate parameters
@@ -347,10 +295,7 @@ namespace Numerics.Distributions
             return (k - Min + 1.0d) / N;
         }
 
-        /// <summary>
-        /// Gets the Inverse Cumulative Distribution Function (ICFD) of the distribution evaluated at a probability.
-        /// </summary>
-        /// <param name="probability">Probability between 0 and 1.</param>
+        /// <inheritdoc/>
         public override double InverseCDF(double probability)
         {
             // Validate probability
@@ -366,9 +311,7 @@ namespace Numerics.Distributions
             return Math.Floor(Min + probability * N);
         }
 
-        /// <summary>
-        /// Creates a copy of the distribution.
-        /// </summary>
+        /// <inheritdoc/>
         public override UnivariateDistributionBase Clone()
         {
             return new UniformDiscrete(Min, Max);

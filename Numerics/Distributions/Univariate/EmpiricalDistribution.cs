@@ -349,13 +349,13 @@ namespace Numerics.Distributions
         /// <inheritdoc/>
         public override double[] MinimumOfParameters
         {
-            get { return new double[] { double.MinValue, 0d }; }
+            get { return [double.MinValue, 0d]; }
         }
 
         /// <inheritdoc/>
         public override double[] MaximumOfParameters
         {
-            get { return new double[] { double.MaxValue, 1d }; }
+            get { return [double.MaxValue, 1d]; }
         }
 
         /// <inheritdoc/>
