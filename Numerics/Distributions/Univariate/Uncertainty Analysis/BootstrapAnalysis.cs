@@ -349,7 +349,6 @@ namespace Numerics.Distributions
             var quants = quantiles.ToArray();
             var probs = probabilities.ToArray();
             Array.Sort(quants);
-            //Array.Sort(probs);
             var expected = new double[quantiles.Count];
             var output = new double[probabilities.Count];
             var bootDistributions = distributions != null ? distributions : Distributions();
@@ -367,6 +366,8 @@ namespace Numerics.Distributions
                 expected[i] = total / bootDistributions.Count();
             }
 
+            double minY = double.MaxValue;
+            double maxY = double.MinValue;
             var yVals = new List<double>();
             var xVals = new List<double>();
             yVals.Add(quantiles[0]);
@@ -375,16 +376,18 @@ namespace Numerics.Distributions
             {
                 if (expected[i] > xVals.Last())
                 {
+                    minY = Math.Min(minY, quantiles[i]);
+                    maxY = Math.Max(maxY, quantiles[i]);
                     yVals.Add(quantiles[i]);
                     xVals.Add(expected[i]);
                 }
             }
+            bool useLogTransform = false;
+            if (minY > 0 && (Math.Log10(maxY) - Math.Log10(minY)) > 1)
+                useLogTransform = true;
 
-            Linear linint = new Linear(xVals, yVals) { XTransform = Transform.NormalZ, YTransform = Transform.Logarithmic };
-            for (int i = 0; i < probs.Length; i++)
-            {
-                output[i] = linint.Interpolate(probs[i]);
-            }
+            Linear linint = new Linear(xVals, yVals) { XTransform = Transform.NormalZ, YTransform = useLogTransform ?  Transform.Logarithmic : Transform.None };
+            output = linint.Interpolate(probs);
             return output;
         }
 
@@ -701,7 +704,7 @@ namespace Numerics.Distributions
                     for (int j = 0; j < probabilities.Count; j++)
                     {
                         xValues[i, j] = bootXValues[j];
-                        studentT[i, j] = (bootXValues[j] - populationXValues[j]) / bootSE[j];
+                        studentT[i, j] = (populationXValues[j] - bootXValues[j]) / bootSE[j];
                     }
 
                 }
@@ -751,6 +754,7 @@ namespace Numerics.Distributions
             var N = sampleData.Count;
             var I2 = new double[probabilities.Count];
             var se = new double[probabilities.Count];
+
             // Perform Jackknife
             Parallel.For(0, N, idx =>
             {
@@ -768,7 +772,7 @@ namespace Numerics.Distributions
                     for (int i = 0; i < probabilities.Count; i++)
                     {
                         thetaJack[i] = Math.Pow(newDistribution.InverseCDF(probabilities[i]), 1d / 3d);
-                        I2[i] += Math.Pow((thetaHats[i] - thetaJack[i]), 2);
+                        I2[i] += Math.Pow(thetaHats[i] - thetaJack[i], 2);
                     }
                 }
                 catch (Exception)
