@@ -61,7 +61,7 @@ namespace MachineLearning
         /// Test against R BAMMtools package.
         /// </summary>
         [TestMethod]
-        public void Test_Jenks_7Classes()
+        public void Test_Jenks_7Classes() 
         {
             var jenks = new JenksNaturalBreaks(_dataset3, 7);
             double[] trueValues = new[] { 2.769867,  6.317200,  8.810181, 11.378660, 15.062380, 22.131710, 37.001430 };

@@ -1,9 +1,58 @@
-﻿using System;
+﻿/**
+* NOTICE:
+* The U.S. Army Corps of Engineers, Risk Management Center (USACE-RMC) makes no guarantees about
+* the results, or appropriateness of outputs, obtained from Numerics.
+*
+* LIST OF CONDITIONS:
+* Redistribution and use in source and binary forms, with or without modification, are permitted
+* provided that the following conditions are met:
+* ● Redistributions of source code must retain the above notice, this list of conditions, and the
+* following disclaimer.
+* ● Redistributions in binary form must reproduce the above notice, this list of conditions, and
+* the following disclaimer in the documentation and/or other materials provided with the distribution.
+* ● The names of the U.S. Government, the U.S. Army Corps of Engineers, the Institute for Water
+* Resources, or the Risk Management Center may not be used to endorse or promote products derived
+* from this software without specific prior written permission. Nor may the names of its contributors
+* be used to endorse or promote products derived from this software without specific prior
+* written permission.
+*
+* DISCLAIMER:
+* THIS SOFTWARE IS PROVIDED BY THE U.S. ARMY CORPS OF ENGINEERS RISK MANAGEMENT CENTER
+* (USACE-RMC) "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+* THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+* DISCLAIMED. IN NO EVENT SHALL USACE-RMC BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+* SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+* PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+* INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+* LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+* THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+* **/
+
+using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Numerics.Distributions;
 
 namespace Distributions.Univariate
 {
+    /// <summary>
+    /// Testing the Exponential distribution algorithm.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    ///     <b> Authors: </b>
+    ///     <list type="bullet">
+    ///     <item> Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil </item>
+    ///     <item> Tiki Gonzalez, USACE Risk Management Center, julian.t.gonzalez@usace.army.mil</item>
+    ///     </list> 
+    /// </para>
+    /// <para>
+    /// <b> References: </b>
+    /// </para>
+    /// <para>
+    /// <see href = "https://github.com/mathnet/mathnet-numerics/blob/master/src/Numerics.Tests/DistributionTests/Discrete/BinomialTests.cs" />
+    /// </para>
+    /// </remarks>
+    
     [TestClass]
     public class Test_Exponential
     {
@@ -142,6 +191,204 @@ namespace Distributions.Univariate
             double true_dScale = 4.60517d;
             Assert.AreEqual((dQdLocation - true_dLocation) / true_dLocation < 0.01d, true);
             Assert.AreEqual((dQdScale - true_dScale) / true_dScale < 0.01d, true);
+        }
+
+        /// <summary>
+        /// Validating parameters can create exponential function
+        /// </summary>
+        [TestMethod()]
+        public void CanCreateExponential()
+        {
+            var EXP = new Exponential(-5, 100);
+            Assert.AreEqual(EXP.Xi, -5);
+            Assert.AreEqual(EXP.Alpha, 100);
+
+            var EXP2 = new Exponential(0, 1);
+            Assert.AreEqual(EXP2.Xi, 0);
+            Assert.AreEqual(EXP2.Alpha, 1);
+        }
+
+        /// <summary>
+        /// Testing Exponential distribution with bad parameters.
+        /// </summary>
+        [TestMethod()]
+        public void ExponentialFails()
+        {
+            var EXP = new Exponential(double.NaN, 5);
+            Assert.IsFalse(EXP.ParametersValid);
+
+            var EXP2 = new Exponential(double.PositiveInfinity, 100);
+            Assert.IsFalse(EXP2.ParametersValid);
+
+            var EXP3 = new Exponential(0, double.NegativeInfinity);
+            Assert.IsFalse(EXP3.ParametersValid);
+
+            var EXP4 = new Exponential(1,double.NaN);
+            Assert.IsFalse(EXP4.ParametersValid);
+        }
+
+        /// <summary>
+        /// Checking parameters to string function.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateParametersToString()
+        {
+            var EXP = new Exponential(1, 1);
+            Assert.AreEqual(EXP.ParametersToString[0, 0], "Location (ξ)");
+            Assert.AreEqual(EXP.ParametersToString[1, 0], "Scale (α)");
+            Assert.AreEqual(EXP.ParametersToString[0, 1], "1");
+            Assert.AreEqual(EXP.ParametersToString[1, 1], "1");
+        }
+
+        /// <summary>
+        /// Checking Mean of exponential distribution.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateMean()
+        {
+            var EXP = new Exponential(1, 1);
+            Assert.AreEqual(EXP.Mean, 2);
+
+            var EXP2 = new Exponential(-100, 4);
+            Assert.AreEqual(EXP2.Mean, -96);
+        }
+
+        /// <summary>
+        /// Checking median of distribution.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateMedian()
+        {
+            var EXP = new Exponential(0,1);
+            Assert.AreEqual(EXP.Median, 0.693147, 1e-04);
+
+            var EXP2 = new Exponential(-100, 1);
+            Assert.AreEqual(EXP2.Median, -99.306852, 1e-04);
+        }
+
+        /// <summary>
+        /// Checking mode of Exponential is equal to the location parameter.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateMode()
+        {
+            var EXP = new Exponential(0,1);
+            Assert.AreEqual(EXP.Mode, 0);
+
+            var EXP2 = new Exponential(-100,1);
+            Assert.AreEqual(EXP2.Mode, -100);
+        }
+
+        /// <summary>
+        /// Checking Standard deviation is equal to the scale parameter.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateStandardDeviation()
+        {
+            var EXP = new Exponential(0,1);
+            Assert.AreEqual(EXP.StandardDeviation, 1);
+
+            var EXP2 = new Exponential(-100, 1);
+            Assert.AreEqual(EXP2.StandardDeviation, 1);
+        }
+
+        /// <summary>
+        /// Checking skew is equal to 2 regardless of parameters.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateSkew()
+        {
+            var EXP = new Exponential(0, 1);
+            Assert.AreEqual(EXP.Skew, 2);
+        }
+
+        /// <summary>
+        /// Checking Kurtosis is equal to 9 regardless of parameters.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateKurtosis()
+        {
+            var EXP = new Exponential(0, 1);
+            Assert.AreEqual(EXP.Kurtosis, 9);
+        }
+
+        /// <summary>
+        /// Checking minimum function.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateMinimum()
+        {
+            var EXP = new Exponential(0, 1);
+            Assert.AreEqual(EXP.Minimum, 0);
+
+            var EXP2 = new Exponential(-100, 1);
+            Assert.AreEqual(EXP2.Minimum, -100);
+        }
+
+        /// <summary>
+        /// Checking maximum function.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateMaximum()
+        {
+            var EXP = new Exponential(0, 1);
+            Assert.AreEqual(EXP.Maximum, double.PositiveInfinity);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        [TestMethod()]
+        public void ValidatePDF()
+        {
+            //var EXP = new Exponential(0, 3);
+            //Assert.AreEqual(3, EXP.PDF(0));
+            //Assert.AreEqual(0.149361, EXP.PDF(1));
+            //Assert.AreEqual(0.00743626, EXP.PDF(2));
+            //Assert.AreEqual(0.000370229, EXP.PDF(3));
+            //Assert.AreEqual(0.0000184326, EXP.PDF(4));
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        [TestMethod()]
+        public void ValidateCDF()
+        {
+
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        [TestMethod()]
+        public void ValidateInverseCDF()
+        {
+
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        [TestMethod()]
+        public void ValidateParameterVariance()
+        {
+
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        [TestMethod()]
+        public void ValidateParameterCovariance()
+        {
+
+        }
+
+        [TestMethod()]
+        public void ValidateJacobian()
+        {
+
         }
     }
 }

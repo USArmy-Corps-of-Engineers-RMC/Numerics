@@ -1,4 +1,4 @@
-﻿/*
+﻿/**
 * NOTICE:
 * The U.S. Army Corps of Engineers, Risk Management Center (USACE-RMC) makes no guarantees about
 * the results, or appropriateness of outputs, obtained from Numerics.
@@ -26,49 +26,19 @@
 * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
 * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+* **/
 
-namespace Numerics.MachineLearning
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
+
+namespace MachineLearning
 {
-    /// <summary>
-    /// A decision node class.
-    /// </summary>
-    /// <remarks>
-    /// <para>
-    ///     <b> Authors: </b>
-    ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
-    /// </para>
-    /// </remarks>
-    public class DecisionNode
+    [TestClass]
+    public class Test_NaiveBayes
     {
-        /// <summary>
-        /// The feature index. 
-        /// </summary>
-        public int FeatureIndex { get; set; } = -1;
-
-        /// <summary>
-        /// The threshold used to split the node.
-        /// </summary>
-        public double Threshold { get; set; } = double.NaN;
-
-        /// <summary>
-        /// Nodes to the left of the threshold.
-        /// </summary>
-        public DecisionNode Left { get; set; } = null;
-
-        /// <summary>
-        /// Nodes to the right of the threshold.
-        /// </summary>
-        public DecisionNode Right { get; set; } = null;
-
-        /// <summary>
-        /// The leaf node value.
-        /// </summary>
-        public double Value { get; set; } = double.NaN;
-
-        /// <summary>
-        /// Determines if this is a leaf node.
-        /// </summary>
-        public bool IsLeafNode { get; set; } = false;
+        [TestMethod]
+        public void TestMethod1()
+        {
+        }
     }
 }

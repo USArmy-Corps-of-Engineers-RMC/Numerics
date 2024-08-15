@@ -43,14 +43,11 @@ namespace Numerics.Distributions
     /// </summary>
     /// <remarks>
     /// <para>
-    ///     Authors:
+    ///     <b> Authors: </b>
     ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
     /// </para>
     /// <para>
-    /// <see href = "https://ieeexplore.ieee.org/document/5389569" />
-    /// <see href = "https://rdrr.io/cran/nsRFA/src/R/KAPPA.R" />
-    /// </para>
-    /// <para>
+    /// <b> Description: </b>
     /// <list type="bullet">
     /// <item><description>
     /// If h = -1 , then the Kappa-4 is the Generalized Logistic distribution.
@@ -61,6 +58,13 @@ namespace Numerics.Distributions
     /// <item><description>
     /// If h = 1 , then the Kappa-4 is the Generalized Pareto distribution.
     /// </description></item>
+    /// </list>
+    /// </para>
+    /// <para>
+    /// <b> References: </b>
+    /// <list type="bullet">
+    /// <item> <see href = "https://ieeexplore.ieee.org/document/5389569" /> </item>
+    /// <item> <see href = "https://rdrr.io/cran/nsRFA/src/R/KAPPA.R" /> </item>
     /// </list>
     /// </para>
     /// </remarks>

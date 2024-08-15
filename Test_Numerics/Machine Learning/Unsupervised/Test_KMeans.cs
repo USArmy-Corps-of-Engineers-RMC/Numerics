@@ -32,6 +32,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using Numerics.MachineLearning;
 using System.Diagnostics;
+using System.Collections.Generic;
 
 namespace MachineLearning
 {
@@ -78,10 +79,10 @@ namespace MachineLearning
             }
 
             double[] trueValues = new[] { 4.141846, 8.523254, 12.64075, 20.13635, 37.00143 };
-            //for (int i = 0; i < jenks.Breaks.Length; i++)
-            //{
-            //    Assert.AreEqual(trueValues[i], jenks.Breaks[i], 1E-5);
-            //}
+            for (int i = 0; i < jenks.Breaks.Length; i++)
+            {
+                Assert.AreEqual(trueValues[i], jenks.Breaks[i], 1E-5);
+            }
         }
 
 
@@ -103,11 +104,33 @@ namespace MachineLearning
             var kmeans = new KMeans(data, 3);
             kmeans.Estimate(12345);
 
+
             double[] trueValues = new[] { 4.141846, 8.523254, 12.64075, 20.13635, 37.00143 };
-            //for (int i = 0; i < jenks.Breaks.Length; i++)
+
+            //for (int i = 0; i < kmeans.Clusters.Length; i++)
             //{
-            //    Assert.AreEqual(trueValues[i], jenks.Breaks[i], 1E-5);
+            //    Assert.AreEqual(trueValues[i], kmeans.Clusters[i].CovarianceMatrix.Mean, 1E-5);
             //}
+
+
+        }
+
+        /// <summary>
+        /// Testing the kMeans algorithm with Within Cluster Sum of Squares (WCSS).
+        /// This measures the squared average distances of all the points within a cluster to the cluster centroid.
+        /// </summary>
+        [TestMethod]
+        public void Test_KMeans_WCSS()
+        {
+            int k = 5; 
+            var kmeans = new KMeans(_dataset3,k);
+
+            kmeans.Estimate(12345);
+            
+            for (int i = 0; i < k; i++)
+            {
+                Debug.WriteLine(kmeans.Centroids[i]);
+            }
         }
 
     }

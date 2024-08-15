@@ -38,33 +38,28 @@ namespace Numerics.Sampling
     /// </summary>
     /// <remarks>
     /// <para>
-    /// A Sobol sequence is a low-discrepancy sequence with the property that for all values of N,
-    /// its subsequence (x1, ... xN) has a low discrepancy. It can be used to generate pseudo-random
-    /// points in a space S, which are equi-distributed.
-    /// </para>
-    /// <para>
-    /// The implementation already comes with support for up to 21201 dimensions with direction numbers
-    /// calculated from <see href="http://web.maths.unsw.edu.au/~fkuo/sobol/" />
     /// </para>
     /// <para>
     ///     <b> Authors: </b>
     ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
     /// </para>
-    /// <b> References:</b>
-    /// This code was converted from the Apache Math Commons.
+    /// <para>
+    /// <b> Description: </b>
+    /// </para>
+    /// <para>
+    /// A Sobol sequence is a low-discrepancy sequence with the property that for all values of N,
+    /// its subsequence (x1, ... xN) has a low discrepancy. It can be used to generate pseudo-random
+    /// points in a space S, which are equi-distributed.
+    /// </para>
+    /// <b> References: </b>
     /// <list type="bullet">
-    /// <item>
-    /// <see href = "https://commons.apache.org/proper/commons-math/apidocs/src-html/org/apache/commons/math4/random/SobolSequenceGenerator.html" />
-    /// </item>
-    /// <item>
-    /// <see href = "http://en.wikipedia.org/wiki/Sobol_sequence" />
-    /// </item>
-    /// <item>
-    /// <see href = "http://web.maths.unsw.edu.au/~fkuo/sobol/" />
-    /// </item>
-    /// <item>
-    /// "Numerical Recipes: The art of Scientific Computing, Third Edition. Press et al. 2017.
-    /// </item>
+    /// <item> The implementation already comes with support for up to 21201 dimensions with direction numbers
+    /// calculated from <see href="http://web.maths.unsw.edu.au/~fkuo/sobol/" />  </item>
+    /// <item> This code was converted from the Apache Math Commons.  
+    /// <see href = "https://commons.apache.org/proper/commons-math/apidocs/src-html/org/apache/commons/math4/random/SobolSequenceGenerator.html" /> </item>
+    /// <item> <see href = "http://en.wikipedia.org/wiki/Sobol_sequence" /> </item>
+    /// <item> <see href = "http://web.maths.unsw.edu.au/~fkuo/sobol/" /> </item>
+    /// <item> "Numerical Recipes: The art of Scientific Computing, Third Edition. Press et al. 2017. </item>
     /// </list>
     /// </remarks>
     public class SobolSequence

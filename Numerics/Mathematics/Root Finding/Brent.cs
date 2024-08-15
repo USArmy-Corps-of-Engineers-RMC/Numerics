@@ -54,15 +54,15 @@ namespace Numerics.Mathematics.RootFinding
     /// </para>
     /// <para>
     /// <b> References: </b>
-    /// </para>
-    /// <para>
-    /// "Numerical Recipes, Routines and Examples in Basic", J.C. Sprott, Cambridge University Press, 1991.
-    /// </para>
-    /// <para>
+    /// <list type="bullet">
+    /// <item> "Numerical Recipes, Routines and Examples in Basic", J.C. Sprott, Cambridge University Press, 1991.</item>
+    /// <item><description> 
     /// <see href="https://en.wikipedia.org/wiki/Root-finding_algorithm"/>
-    /// </para>
-    /// <para>
+    /// </description></item>
+    /// <item> <description> 
     /// <see href="https://en.wikipedia.org/wiki/Brent%27s_method"/>
+    /// </description></item>
+    /// </list>
     /// </para>
     /// </remarks>
     public class Brent

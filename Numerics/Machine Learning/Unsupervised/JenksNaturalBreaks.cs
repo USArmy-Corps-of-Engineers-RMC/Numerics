@@ -39,18 +39,23 @@ namespace Numerics.MachineLearning
     /// </summary>
     /// <remarks>
     /// <para>
-    ///     Authors:
+    ///     <b> Authors:</b>
     ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
     /// </para>
     /// <para>
-    /// <see href = "http://en.wikipedia.org/wiki/Jenks_natural_breaks_optimization" />
-    /// </para>
-    /// <para>
-    /// <see href = "https://github.com/simple-statistics/simple-statistics/blob/main/src/jenks.js" />
+    /// <b> Description: </b>
     /// </para>
     /// <para>
     /// The Jenks optimization method, also called the Jenks natural breaks classification method, 
     /// is a data clustering method designed to determine the best arrangement of values into different classes.
+    /// </para>
+    /// <para>
+    /// <b> References: </b>
+    /// <list type="bullet">
+    /// <item> <see href = "http://en.wikipedia.org/wiki/Jenks_natural_breaks_optimization" /> </item>
+    /// <item> <see href = "https://github.com/simple-statistics/simple-statistics/blob/main/src/jenks.js" /> </item>
+    /// <item> <see href="https://medium.com/analytics-vidhya/jenks-natural-breaks-best-range-finder-algorithm-8d1907192051"/></item>
+    /// </list>
     /// </para>
     /// </remarks>
     public class JenksNaturalBreaks

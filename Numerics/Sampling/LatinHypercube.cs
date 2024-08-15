@@ -41,6 +41,9 @@ namespace Numerics.Sampling
     ///     <b> Authors: </b>
     ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
     /// </para>
+    /// <para> 
+    /// <b> Description: </b>
+    /// </para>
     /// <para>
     /// Stratified sampling is used to generate uniform random numbers by dividing the interval [0,1) into n bins 
     /// of equal probability, where n is the total number of samples required. 

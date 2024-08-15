@@ -42,16 +42,22 @@ namespace Numerics.MachineLearning
     /// </summary>
     /// <remarks>
     /// <para>
-    ///     Authors:
+    ///     <b> Authors: </b>
     ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
     /// </para>
     /// <para>
-    /// <see href = "https://en.wikipedia.org/wiki/K-means_clustering" />
+    /// <b> Description: </b>
     /// </para>
     /// <para>
     /// k-Means clustering is a method of vector quantization, originally from signal processing, 
     /// that aims to partition n observations into k clusters in which each observation belongs to 
     /// the cluster with the nearest mean (cluster centers or cluster centroid), serving as a prototype of the cluster.
+    /// </para>
+    /// <para>
+    /// <b> References: </b>
+    /// </para>
+    /// <para>
+    /// <see href = "https://en.wikipedia.org/wiki/K-means_clustering" />
     /// </para>
     /// </remarks>
     public class KMeans
@@ -255,7 +261,7 @@ namespace Numerics.MachineLearning
                     // https://github.com/accord-net/framework/blob/development/Sources/Accord.MachineLearning/Clustering/KMeans/KMeans.cs
                     
                     // Note: the following checks could have been avoided if we added
-                    // a small value to each distance, but is kept as this to avoid 
+                    // a small value to each distance, but is kept as this to avoid 022
                     // breaking the random pattern in existing code.
 
                     if (sum == 0)

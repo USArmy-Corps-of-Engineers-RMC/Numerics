@@ -49,23 +49,20 @@ namespace Numerics.Mathematics.LinearAlgebra
     /// <para>
     /// Singular value decomposition (SVD) is one of the most useful matrix decomposition methods. Used in:
     /// <list type="bullet">
-    /// Reducing dimension of large data sets (PCA)
-    /// </list>
-    /// <list type="bullet">
-    /// Separating "signal" from "noise" in real-world data
-    /// </list>
-    /// <list type="bullet">
-    /// Identifying line / low-dim plane of best-fit  to high dimensional data
-    /// </list>
-    /// <list type="bullet">
-    /// Solving/interpreting linear systems of equations
+    /// <item> Reducing dimension of large data sets (PCA) </item>
+    /// <item>Separating "signal" from "noise" in real-world data </item>
+    /// <item>Identifying line / low-dim plane of best-fit  to high dimensional data </item>
+    /// <item>Solving/interpreting linear systems of equations </item>
     /// </list>
     /// </para>
     /// <para>
-    /// "Numerical Recipes: The art of Scientific Computing, Third Edition. Press et al. 2017.
-    /// </para>
-    /// <para>
+    /// <b> References: </b>
+    /// <list type="bullet">
+    /// <item> "Numerical Recipes: The art of Scientific Computing, Third Edition. Press et al. 2017. </item>
+    /// <item> <description> 
     /// <see href = "https://en.wikipedia.org/wiki/Singular_value_decomposition" />
+    /// </description></item>
+    /// </list>
     /// </para>
     /// </remarks>
     public class SingularValueDecomposition

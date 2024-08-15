@@ -54,13 +54,14 @@ namespace Numerics.Mathematics.LinearAlgebra
     /// </para>
     /// <para>
     /// <b> References: </b>
-    /// </para>
-    /// <para>
-    /// "Numerical Recipes: The art of Scientific Computing, Third Edition. Press et al. 2017.
-    /// </para>
-    /// <para>
+    /// <list type="bullet">
+    /// <item> "Numerical Recipes: The art of Scientific Computing, Third Edition." Press et al. 2017. </item>
+    /// <item>"Numerical Methods for Engineers, Second Edition.", D.V. Griffiths and I.M. Smith, Taylor and Francis Group, 2006. </item>
+    /// <item><description> 
     /// <see href = "https://en.wikipedia.org/wiki/Gaussian_elimination" />
-    /// </para>
+    /// </description></item>
+    ///</list>
+    ///</para>
     /// </remarks>
     public class GaussJordanElimination
     {

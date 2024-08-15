@@ -56,18 +56,16 @@ namespace Numerics.Mathematics.LinearAlgebra
     /// </para>
     /// <para>
     /// <b> References: </b>
-    /// </para>
-    /// <para>
-    /// "Numerical Recipes: The art of Scientific Computing, Third Edition." Press et al. 2017.
-    /// </para>
-    /// <para>
-    /// "Numerical Methods for Engineers, Second Edition.", D.V. Griffiths and I.M. Smith, Taylor and Francis Group, 2006.
-    /// </para>
-    /// <para>
-    /// <see href = "https://en.wikipedia.org/wiki/Cholesky_decomposition" />
-    /// </para>
-    /// <para>
-    /// <see href = "https://www.geeksforgeeks.org/cholesky-decomposition-matrix-decomposition/"/>
+    /// <list type="bullet">
+    /// <item> "Numerical Recipes: The art of Scientific Computing, Third Edition." Press et al. 2017. </item>
+    /// <item>"Numerical Methods for Engineers, Second Edition.", D.V. Griffiths and I.M. Smith, Taylor and Francis Group, 2006. </item>
+    /// <item><description> 
+    /// <see href = "https://en.wikipedia.org/wiki/Cholesky_decomposition" /> 
+    /// </description></item>
+    /// <item><description> 
+    ///  <see href = "https://www.geeksforgeeks.org/cholesky-decomposition-matrix-decomposition/"/> 
+    /// </description></item> 
+    /// </list>
     /// </para>
     /// </remarks>
 

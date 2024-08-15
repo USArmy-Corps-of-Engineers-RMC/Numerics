@@ -44,9 +44,24 @@ using Numerics.Sampling;
 
 namespace MachineLearning
 {
+    /// <summary>
+    /// A class testing k-Nearest Neighbors algorithm.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    ///     <b> Authors: </b>
+    ///     <list type="bullet"> 
+    ///     <item> Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil </item>
+    ///     <item> Tiki Gonzalez, USACE Risk Management Center, julian.t.gonzalez@usace.army.mil </item>
+    /// </list>
+    /// </para>
+    /// </remarks>
     [TestClass]
     public class Test_kNN
     {
+        /// <summary>
+        /// <see href="https://otexts.com/fpp3/least-squares.html"/>
+        /// </summary>
         [TestMethod]
         public void Test_kNN_Regression()
         {
@@ -148,6 +163,104 @@ namespace MachineLearning
             {
                 //Debug.WriteLine(rnd[i, 0] + ", " + rnd[i, 1] + ", " + rnd[i, 2] + ", " + rnd[i, 3] + ", " + rnd[i, 4]);
             }
+        }
+
+        /// <summary>
+        /// Iris-setosa = 0
+        /// Iris-versicolor = 1
+        /// Iris-virginica = 2
+        /// </summary>
+        [TestMethod]
+        public void Test_kNN_RegressionIrisDataset()
+        {
+            //FileStream irisData = new FileStream("C:\\Users\\q0rmcjtg\\Documents\\iris_datasetVS.csv", FileMode.Open, FileAccess.Read, FileShare.Read);
+
+            //Dictionary<string, double> dict = new Dictionary<string, double>();
+            //creates dictionary of the iris dataset with labels as keys and the data as list of doubles 
+            var irisData = File.ReadLines("C:\\Users\\q0rmcjtg\\Documents\\iris_datasetVS.csv")
+                .Select(line => line.Split(','));
+            //.GroupBy(arr => arr[0])
+            //.ToDictionary(gr => gr.Key,
+            // gr => gr.Select(s => s[1]).ToArray());
+            //var dataDictionary = new Dictionary<string, List<double>>();
+
+            //foreach (var row in irisData)
+            //{
+            //    string featureName = row[0]; // Assuming the first column contains feature names
+            //    List<double> featureValues = row.Skip(1).Select(double.Parse).ToList();
+
+            //    dataDictionary.Add(featureName, featureValues);
+            //}
+
+            //var splitTrain = ExtensionMethods.SplitDataTrain(dataDictionary);
+            //var splitTest = ExtensionMethods.SplitDataTest(dataDictionary);
+            //var xTrainingSubset = ExtensionMethods.SubsetFeature(splitTrain);
+            //var yTrainingSubset = ExtensionMethods.SubsetTarget(splitTrain);
+            //var xTestingSubset = ExtensionMethods.SubsetFeature(splitTest);
+            //var yTestingSubset = ExtensionMethods.SubsetTarget(splitTest);
+
+
+
+            var sepal_length = new double[] { 5.1, 4.9, 4.7, 4.6, 5, 5.4, 4.6, 5, 4.4, 4.9, 5.4, 4.8, 4.8, 4.3, 5.8, 5.7, 5.4, 5.1, 5.7, 5.1, 5.4, 5.1, 4.6, 5.1, 4.8, 5, 5, 5.2, 5.2, 4.7, 4.8, 5.4, 5.2, 5.5, 4.9, 5, 5.5, 4.9, 4.4, 5.1, 5, 4.5, 4.4, 5, 5.1, 4.8, 5.1, 4.6, 5.3, 5, 7, 6.4, 6.9, 5.5, 6.5, 5.7, 6.3, 4.9, 6.6, 5.2, 5, 5.9, 6, 6.1, 5.6, 6.7, 5.6, 5.8, 6.2, 5.6, 5.9, 6.1, 6.3, 6.1, 6.4, 6.6, 6.8, 6.7, 6, 5.7, 5.5, 5.5, 5.8, 6, 5.4, 6, 6.7, 6.3, 5.6, 5.5, 5.5, 6.1, 5.8, 5, 5.6, 5.7, 5.7, 6.2, 5.1, 5.7, 6.3, 5.8, 7.1, 6.3, 6.5, 7.6, 4.9, 7.3, 6.7, 7.2, 6.5, 6.4, 6.8, 5.7, 5.8, 6.4, 6.5, 7.7, 7.7, 6, 6.9, 5.6, 7.7, 6.3, 6.7, 7.2, 6.2, 6.1, 6.4, 7.2, 7.4, 7.9, 6.4, 6.3, 6.1, 7.7, 6.3, 6.4, 6, 6.9, 6.7, 6.9, 5.8, 6.8, 6.7, 6.7, 6.3, 6.5, 6.2, 5.9 };
+            var sepal_width = new double[] { 3.5, 3, 3.2, 3.1, 3.6, 3.9, 3.4, 3.4, 2.9, 3.1, 3.7, 3.4, 3, 3, 4, 4.4, 3.9, 3.5, 3.8, 3.8, 3.4, 3.7, 3.6, 3.3, 3.4, 3, 3.4, 3.5, 3.4, 3.2, 3.1, 3.4, 4.1, 4.2, 3.1, 3.2, 3.5, 3.1, 3, 3.4, 3.5, 2.3, 3.2, 3.5, 3.8, 3, 3.8, 3.2, 3.7, 3.3, 3.2, 3.2, 3.1, 2.3, 2.8, 2.8, 3.3, 2.4, 2.9, 2.7, 2, 3, 2.2, 2.9, 2.9, 3.1, 3, 2.7, 2.2, 2.5, 3.2, 2.8, 2.5, 2.8, 2.9, 3, 2.8, 3, 2.9, 2.6, 2.4, 2.4, 2.7, 2.7, 3, 3.4, 3.1, 2.3, 3, 2.5, 2.6, 3, 2.6, 2.3, 2.7, 3, 2.9, 2.9, 2.5, 2.8, 3.3, 2.7, 3, 2.9, 3, 3, 2.5, 2.9, 2.5, 3.6, 3.2, 2.7, 3, 2.5, 2.8, 3.2, 3, 3.8, 2.6, 2.2, 3.2, 2.8, 2.8, 2.7, 3.3, 3.2, 2.8, 3, 2.8, 3, 2.8, 3.8, 2.8, 2.8, 2.6, 3, 3.4, 3.1, 3, 3.1, 3.1, 3.1, 2.7, 3.2, 3.3, 3, 2.5, 3, 3.4, 3 };
+            var petal_length = new double[] { 1.4, 1.4, 1.3, 1.5, 1.4, 1.7, 1.4, 1.5, 1.4, 1.5, 1.5, 1.6, 1.4, 1.1, 1.2, 1.5, 1.3, 1.4, 1.7, 1.5, 1.7, 1.5, 1, 1.7, 1.9, 1.6, 1.6, 1.5, 1.4, 1.6, 1.6, 1.5, 1.5, 1.4, 1.5, 1.2, 1.3, 1.5, 1.3, 1.5, 1.3, 1.3, 1.3, 1.6, 1.9, 1.4, 1.6, 1.4, 1.5, 1.4, 4.7, 4.5, 4.9, 4, 4.6, 4.5, 4.7, 3.3, 4.6, 3.9, 3.5, 4.2, 4, 4.7, 3.6, 4.4, 4.5, 4.1, 4.5, 3.9, 4.8, 4, 4.9, 4.7, 4.3, 4.4, 4.8, 5, 4.5, 3.5, 3.8, 3.7, 3.9, 5.1, 4.5, 4.5, 4.7, 4.4, 4.1, 4, 4.4, 4.6, 4, 3.3, 4.2, 4.2, 4.2, 4.3, 3, 4.1, 6, 5.1, 5.9, 5.6, 5.8, 6.6, 4.5, 6.3, 5.8, 6.1, 5.1, 5.3, 5.5, 5, 5.1, 5.3, 5.5, 6.7, 6.9, 5, 5.7, 4.9, 6.7, 4.9, 5.7, 6, 4.8, 4.9, 5.6, 5.8, 6.1, 6.4, 5.6, 5.1, 5.6, 6.1, 5.6, 5.5, 4.8, 5.4, 5.6, 5.1, 5.1, 5.9, 5.7, 5.2, 5, 5.2, 5.4, 5.1 };
+            var petal_width = new double[] { 0.2, 0.2, 0.2, 0.2, 0.2, 0.4, 0.3, 0.2, 0.2, 0.1, 0.2, 0.2, 0.1, 0.1, 0.2, 0.4, 0.4, 0.3, 0.3, 0.3, 0.2, 0.4, 0.2, 0.5, 0.2, 0.2, 0.4, 0.2, 0.2, 0.2, 0.2, 0.4, 0.1, 0.2, 0.1, 0.2, 0.2, 0.1, 0.2, 0.2, 0.3, 0.3, 0.2, 0.6, 0.4, 0.3, 0.2, 0.2, 0.2, 0.2, 1.4, 1.5, 1.5, 1.3, 1.5, 1.3, 1.6, 1, 1.3, 1.4, 1, 1.5, 1, 1.4, 1.3, 1.4, 1.5, 1, 1.5, 1.1, 1.8, 1.3, 1.5, 1.2, 1.3, 1.4, 1.4, 1.7, 1.5, 1, 1.1, 1, 1.2, 1.6, 1.5, 1.6, 1.5, 1.3, 1.3, 1.3, 1.2, 1.4, 1.2, 1, 1.3, 1.2, 1.3, 1.3, 1.1, 1.3, 2.5, 1.9, 2.1, 1.8, 2.2, 2.1, 1.7, 1.8, 1.8, 2.5, 2, 1.9, 2.1, 2, 2.4, 2.3, 1.8, 2.2, 2.3, 1.5, 2.3, 2, 2, 1.8, 2.1, 1.8, 1.8, 1.8, 2.1, 1.6, 1.9, 2, 2.2, 1.5, 1.4, 2.3, 2.4, 1.8, 1.8, 2.1, 2.4, 2.3, 1.9, 2.3, 2.5, 2.3, 1.9, 2, 2.3, 1.8 };
+            var target = new double[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2 };
+
+            //sepal_length = Tools.Standardize(sepal_length);
+            //sepal_width = Tools.Standardize(sepal_width);
+            //petal_length = Tools.Standardize(petal_length);
+            //petal_width = Tools.Standardize(petal_width);
+
+            var arrayOfArrays = new double[5][];
+            arrayOfArrays[0] = sepal_length;
+            arrayOfArrays[1] = sepal_width;
+            arrayOfArrays[2] = petal_length;
+            arrayOfArrays[3] = petal_width;
+            arrayOfArrays[4] = target;
+
+            int dataSize = 150;
+            var rand = new Random(12345);
+            var rng = ExtensionMethods.NextNRIntegers(rand, 0, dataSize, dataSize);
+
+            var splitTraining = ExtensionMethods.TrainTestSplit(rng,dataSize,arrayOfArrays);
+            var splitTesting = ExtensionMethods.TrainTestSplit(rng,dataSize,arrayOfArrays,true);
+
+            var xTrainingSubset = ExtensionMethods.SubsetFeature(splitTraining);
+            var yTrainingSubset = ExtensionMethods.SubsetTarget(splitTraining);
+
+            var xTestingSubset = ExtensionMethods.SubsetFeature(splitTesting);
+            var yTestingSubset = ExtensionMethods.SubsetTarget(splitTesting);
+
+
+            //Split data and create training data
+            //var split = ExtensionMethods.SampleSplit(arrayOfArrays); //true = training
+            //var list = new List<double[]> { ExtensionMethods.Subset(sepal_length, split), ExtensionMethods.Subset(sepal_width, split), ExtensionMethods.Subset(petal_length, split), ExtensionMethods.Subset(petal_width, split)};
+            var X_training = new Matrix( xTrainingSubset ) { Header = new string[] { "sepal_length", "sepal_width", "petal_length", "petal_width" } };
+            var Y_training = new Vector(yTrainingSubset) { Header = "Iris Species" };
+
+            // Create test data
+            //list = list = new List<double[]> { ExtensionMethods.Subset(sepal_length, split,true), ExtensionMethods.Subset(sepal_width, split,true), ExtensionMethods.Subset(petal_length, split,true), ExtensionMethods.Subset(petal_width, split,true) };
+            var Y_test = new Vector(yTestingSubset) { Header = "Iris Species" };
+            var X_test = new Matrix(xTestingSubset) { Header = new string[] { "sepal_length", "sepal_width", "petal_length", "petal_width" } };
+
+            var knn = new KNearestNeighbors(X_training, Y_training, 3);
+            var test = knn.Predict(X_test.ToArray());
+
+            var LM = new LinearRegression(X_training, Y_training);
+            var lmTest = LM.Predict(X_test);
+            var lmPI = LM.PredictionIntervals(X_test);
+
+            var boot = knn.PredictionIntervals(X_test.ToArray());
+
+            var rmse = GoodnessOfFit.RMSE(Y_test.ToArray(), boot.GetColumn(3));
+
+
+            for (int i = 0; i < test.Length; i++)
+            {
+                Debug.WriteLine(test[i] + "," + lmTest[i] + "," + Y_test[i] + "," + boot[i, 0] + "," + boot[i, 1] + "," + boot[i, 2] + "," + boot[i, 3] + "," + lmPI[i, 0] + "," + lmPI[i, 1] + "," + lmPI[i, 2]);
+            }
+
         }
 
     }

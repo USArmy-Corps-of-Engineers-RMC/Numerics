@@ -85,6 +85,9 @@ namespace Numerics.Sampling
     ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
     /// </para>
     /// <para>
+    /// <b> References: </b>
+    /// </para>
+    /// <para>
     /// The source code can be found at:
     /// <see href="http://www.math.sci.hiroshima-u.ac.jp/m-mat/MT/MT2002/CODES/mt19937ar.c"/>
     /// </para>

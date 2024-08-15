@@ -53,15 +53,13 @@ namespace Numerics.Mathematics.LinearAlgebra
     /// </para>
     /// <para>
     /// <b> References: </b>
-    /// </para>
-    /// <para>
-    /// "Numerical Recipes: The art of Scientific Computing, Third Edition. Press et al. 2017"
-    /// </para>
-    /// <para>
-    /// "Applied Numerical Methods with MATLAB for Engineers and Scientists, Third Edition.", Steven C. Chapra, McGraw-Hill, 2012.
-    /// </para>
-    /// <para>
+    /// <list type="bullet">
+    /// <item> "Numerical Recipes: The art of Scientific Computing, Third Edition." Press et al. 2017. </item>
+    /// <item>"Applied Numerical Methods with MATLAB for Engineers and Scientists, Third Edition.", Steven C. Chapra, McGraw-Hill, 2012. </item>
+    /// <item><description> 
     /// <see href = "https://en.wikipedia.org/wiki/LU_decomposition" />
+    /// </description></item>
+    /// </list>
     /// </para>
     /// </remarks>
     public class LUDecomposition

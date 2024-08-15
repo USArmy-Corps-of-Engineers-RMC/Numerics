@@ -54,15 +54,18 @@ namespace Numerics.Mathematics.RootFinding
     /// </para>
     /// <para>
     /// <b> References: </b>
-    /// </para>
-    /// <para>
-    /// "Numerical Recipes, Routines and Examples in Basic", J.C. Sprott, Cambridge University Press, 1991.
-    /// </para>
-    /// <para>
+    /// <list type="bullet">
+    /// <item> "Numerical Recipes, Routines and Examples in Basic", J.C. Sprott, Cambridge University Press, 1991.</item>
+    /// <item><description> 
     /// <see href="https://en.wikipedia.org/wiki/Root-finding_algorithm"/>
-    /// </para>
-    /// <para>
+    /// </description></item>
+    /// <item> <description> 
     /// <see href="https://en.wikipedia.org/wiki/Secant_method"/>
+    /// </description></item>
+    /// <item> <description> 
+    /// <see href="http://www.m-hikari.com/ams/ams-2017/ams-53-56-2017/p/hahmAMS53-56-2017.pdf"/>
+    /// </description></item>
+    /// </list>
     /// </para>
     /// </remarks>
     public class Secant

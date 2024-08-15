@@ -40,8 +40,11 @@ namespace Numerics.Distributions
     /// </summary>
     /// <remarks>
     /// <para>
-    ///     Authors:
+    ///     <b> Authors: </b>
     ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
+    /// </para>
+    /// <para>
+    /// <b> Description: </b>
     /// </para>
     /// <para>
     ///     In probability and statistics, the PERT distribution is a family of continuous probability distributions
@@ -50,6 +53,9 @@ namespace Numerics.Distributions
     /// </para>
     /// <para>
     ///     This version of the PERT is parameterized using the 5th, 50th, and 95th percentiles in Normal Z space.
+    /// </para>
+    /// <para>
+    /// <b> References: </b>
     /// </para>
     /// <para>
     /// <see href = "https://en.wikipedia.org/wiki/PERT_distribution" />

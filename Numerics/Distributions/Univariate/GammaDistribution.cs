@@ -60,6 +60,7 @@ using Numerics.Mathematics;
 using Numerics.Mathematics.Optimization;
 using Numerics.Mathematics.RootFinding;
 using Numerics.Mathematics.SpecialFunctions;
+using static System.Net.WebRequestMethods;
 
 namespace Numerics.Distributions
 {
@@ -69,8 +70,11 @@ namespace Numerics.Distributions
     /// </summary>
     /// <remarks>
     /// <para>
-    ///     Authors:
+    ///     <b>Authors: </b>
     ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
+    /// </para>
+    /// <para>
+    /// <b> Description:</b>
     /// </para>
     /// <para>
     /// The gamma distribution is a two-parameter family of continuous probability
@@ -108,15 +112,15 @@ namespace Numerics.Distributions
     /// ψ(k) + ln(θ) = ψ(α) − ln(β)</c> is fixed (ψ is the digamma function).
     /// </para>
     /// <para>
-    /// References:
+    /// <b> References: </b>
     /// This code was developed using two primary sources: 1) Wikipedia; and 2) the Accord Math Library.
     /// <list type="bullet">
     /// <item><description>
     /// Wikipedia, The Free Encyclopedia. Gamma distribution. Available on:
-    /// http://en.wikipedia.org/wiki/Gamma_distribution
+    /// <see href="http://en.wikipedia.org/wiki/Gamma_distribution"/>
     /// </description></item>
     /// <item><description>
-    /// Accord Math Library, http://accord-framework.net
+    /// Accord Math Library, <see href="http://accord-framework.net"/>
     /// </description></item>
     /// </list>
     /// </para>

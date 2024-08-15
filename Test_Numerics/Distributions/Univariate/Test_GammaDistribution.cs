@@ -1,9 +1,58 @@
-﻿using System;
+﻿/**
+* NOTICE:
+* The U.S. Army Corps of Engineers, Risk Management Center (USACE-RMC) makes no guarantees about
+* the results, or appropriateness of outputs, obtained from Numerics.
+*
+* LIST OF CONDITIONS:
+* Redistribution and use in source and binary forms, with or without modification, are permitted
+* provided that the following conditions are met:
+* ● Redistributions of source code must retain the above notice, this list of conditions, and the
+* following disclaimer.
+* ● Redistributions in binary form must reproduce the above notice, this list of conditions, and
+* the following disclaimer in the documentation and/or other materials provided with the distribution.
+* ● The names of the U.S. Government, the U.S. Army Corps of Engineers, the Institute for Water
+* Resources, or the Risk Management Center may not be used to endorse or promote products derived
+* from this software without specific prior written permission. Nor may the names of its contributors
+* be used to endorse or promote products derived from this software without specific prior
+* written permission.
+*
+* DISCLAIMER:
+* THIS SOFTWARE IS PROVIDED BY THE U.S. ARMY CORPS OF ENGINEERS RISK MANAGEMENT CENTER
+* (USACE-RMC) "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+* THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+* DISCLAIMED. IN NO EVENT SHALL USACE-RMC BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+* SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+* PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+* INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+* LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+* THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+* **/
+
+using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Numerics.Distributions;
 
 namespace Distributions.Univariate
 {
+    /// <summary>
+    /// Testing the Gamma distribution algorithm.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    ///     <b> Authors: </b>
+    ///     <list type="bullet">
+    ///     <item> Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil </item>
+    ///     <item> Tiki Gonzalez, USACE Risk Management Center, julian.t.gonzalez@usace.army.mil</item>
+    ///     </list> 
+    /// </para>
+    /// <para>
+    /// <b> References: </b>
+    /// </para>
+    /// <para>
+    /// <see href = "https://github.com/mathnet/mathnet-numerics/blob/master/src/Numerics.Tests/DistributionTests/Discrete/BinomialTests.cs" />
+    /// </para>
+    /// </remarks>
+
     [TestClass]
     public class Test_GammaDistribution
     {
@@ -124,5 +173,142 @@ namespace Distributions.Univariate
             true_se1000 = 15.022d;
             Assert.AreEqual((se1000 - true_se1000) / true_se1000 < 0.01d, true);
         }
+
+        /// <summary>
+        /// Testing parameters are creating gamma distribution.
+        /// </summary>
+        [TestMethod()]
+        public void CanCreateGamma()
+        {
+            var G = new GammaDistribution(2, 10);
+            Assert.AreEqual(G.Theta, 2);
+            Assert.AreEqual(G.Kappa, 10);
+
+            var G2 = new GammaDistribution(-1, 4);
+            Assert.AreEqual(G2.Theta, -1);
+            Assert.AreEqual(G2.Kappa, 4);
+
+        }
+
+        /// <summary>
+        /// Validating inverse scale parameter.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateRate()
+        {
+            var G = new GammaDistribution(2, 2);
+            Assert.AreEqual(G.Rate, 0.5);
+
+            var G2 = new GammaDistribution();
+            Assert.AreEqual(G2.Rate, 0.1);
+        }
+
+        /// <summary>
+        /// Checking parameters to string function.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateParametersToString()
+        {
+            var G = new GammaDistribution();
+            Assert.AreEqual(G.ParametersToString[0, 0], "Scale (θ)");
+            Assert.AreEqual(G.ParametersToString[1, 0], "Shape (κ)");
+            Assert.AreEqual(G.ParametersToString[0, 1], "10");
+            Assert.AreEqual(G.ParametersToString[1, 1], "2");
+        }
+
+        /// <summary>
+        /// Checking bad parameters for Gamma distribution.
+        /// </summary>
+        [TestMethod()]
+        public void GammaFails()
+        {
+            var G = new GammaDistribution(-1, 0);
+            Assert.IsFalse(G.ParametersValid);
+
+            var G2 = new GammaDistribution(0, 0);
+            Assert.IsFalse(G2.ParametersValid);
+
+            var G3 = new GammaDistribution(0,1);
+            Assert.IsFalse(G3.ParametersValid);
+
+            var G4 = new GammaDistribution(1, 0);
+            Assert.IsFalse(G4.ParametersValid);
+        }
+
+        /// <summary>
+        /// Checking mean function.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateMean()
+        {
+            var G = new GammaDistribution();
+            Assert.AreEqual(G.Mean, 20);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        [TestMethod()]
+        public void ValidateMedian()
+        {
+
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        [TestMethod()]
+        public void ValidateMode()
+        {
+
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        [TestMethod()]
+        public void ValidateStandardDeviation()
+        {
+
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        [TestMethod()]
+        public void ValidateSkew()
+        {
+
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        [TestMethod()]
+        public void ValidateKurtosis()
+        {
+
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        [TestMethod()]
+        public void ValidateMinimum()
+        {
+
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        [TestMethod()]
+        public void ValidateMaximum()
+        {
+
+        }
+
+        [TestMethod()]
+        public void 
     }
 }

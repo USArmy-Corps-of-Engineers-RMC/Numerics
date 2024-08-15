@@ -48,10 +48,16 @@ namespace Numerics.Sampling.MCMC
     ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
     /// </para>
     /// <para>
-    ///    <see href="https://en.wikipedia.org/wiki/Hamiltonian_Monte_Carlo"/>
+    /// <b> Description:</b>
     /// </para>
     /// <para>
     ///     The optimal acceptance rate for this sampler is 65%, whereas Metropolis-Hastings samplers have an optimal rate of 23.4%. 
+    /// </para>
+    /// <para>
+    /// <b> References: </b>
+    /// </para>
+    /// <para>
+    ///    <see href="https://en.wikipedia.org/wiki/Hamiltonian_Monte_Carlo"/>
     /// </para>
     /// </remarks>
     [Serializable]
