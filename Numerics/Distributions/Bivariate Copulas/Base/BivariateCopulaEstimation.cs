@@ -28,9 +28,12 @@
 * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+using Numerics.Data.Statistics;
 using Numerics.Mathematics.Optimization;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Windows.Markup;
 
 namespace Numerics.Distributions.Copulas
 {
@@ -39,7 +42,7 @@ namespace Numerics.Distributions.Copulas
     /// </summary>
     /// <remarks>
     /// <para>
-    ///     Authors:
+    ///     <b> Authors: </b>
     ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
     /// </para>
     /// </remarks>
@@ -137,30 +140,48 @@ namespace Numerics.Distributions.Copulas
             var uppers = new double[1 + np1 + np2];
 
             // Theta
+            // get ranks of data
+            var rank1 = Statistics.RanksInplace(sampleDataX.ToArray());
+            var rank2 = Statistics.RanksInplace(sampleDataY.ToArray());
+            // get plotting positions
+            for (int i = 0; i < rank1.Length; i++)
+            {
+                rank1[i] = rank1[i] / (rank1.Length + 1d);
+                rank2[i] = rank2[i] / (rank2.Length + 1d);
+            }
+
             // Get constraints
             var LU = copula.ParameterConstraints(sampleDataX, sampleDataY);
             lowers[0] = LU[0];
             uppers[0] = LU[1];
-            initials[0] = 0.5 * (uppers[0] - lowers[0]);
+            // Estimate copula using MPL
+            MPL(copula, rank1, rank2);
+            initials[0] = copula.Theta;
+
+            // Estimate marginals
+            ((IEstimation)copula.MarginalDistributionX).Estimate(sampleDataX, ParameterEstimationMethod.MaximumLikelihood);
+            ((IEstimation)copula.MarginalDistributionY).Estimate(sampleDataY, ParameterEstimationMethod.MaximumLikelihood);
+            
 
             var con = margin1.GetParameterConstraints(sampleDataX);
+            var parms = copula.MarginalDistributionX.GetParameters;
             for (int i = 0; i < np1; i++)
             {
-                initials[i + 1] = con.Item1[i];
+                initials[i + 1] = parms[i];
                 lowers[i + 1] = con.Item2[i];
                 uppers[i + 1] = con.Item3[i];
             }
             con = margin2.GetParameterConstraints(sampleDataY);
+            parms = copula.MarginalDistributionY.GetParameters;
             for (int i = 0; i < np2; i++)
             {
-                initials[i + 1 + np1] = con.Item1[i];
+                initials[i + 1 + np1] = parms[i];
                 lowers[i + 1 + np1] = con.Item2[i];
                 uppers[i + 1 + np1] = con.Item3[i];
             }
 
-
-            // Solve using Differential Evolution
-            Func<double[], double> func = (double[] x) => {
+            // Log-likelihood function
+            Func<double[], double> logLH = (double[] x) => {
                 // Set copula
                 var C = copula.Clone();
                 C.Theta = x[0];
@@ -184,20 +205,20 @@ namespace Numerics.Distributions.Copulas
                 return C.LogLikelihood(sampleDataX, sampleDataY);
             };
 
-            var DE = new DifferentialEvolution(func, lowers.Length, lowers, uppers);
-            DE.Maximize();
+            var solver = new NelderMead(logLH, lowers.Length, initials, lowers, uppers);
+            solver.Maximize();
 
             // Set parameters for copula and marginals
-            copula.Theta = DE.BestParameterSet.Values[0];
+            copula.Theta = solver.BestParameterSet.Values[0];
 
             var par = new double[np1];
             for (int i = 0; i < np1; i++)
-                par[i] = DE.BestParameterSet.Values[i + 1];
+                par[i] = solver.BestParameterSet.Values[i + 1];
             copula.MarginalDistributionX.SetParameters(par);
 
             par = new double[np1];
             for (int i = 0; i < np2; i++)
-                par[i] = DE.BestParameterSet.Values[i + 1 + np1];
+                par[i] = solver.BestParameterSet.Values[i + 1 + np1];
             copula.MarginalDistributionY.SetParameters(par);
 
         }

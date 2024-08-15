@@ -39,7 +39,7 @@ namespace Numerics.Distributions.Copulas
     /// </summary>
     /// <remarks>
     /// <para>
-    ///     Authors:
+    ///     <b> Authors: </b>
     ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
     /// </para>
     /// </remarks>
@@ -52,19 +52,16 @@ namespace Numerics.Distributions.Copulas
         /// Protected dependency property.
         /// </summary>
         protected double _theta;
+
         /// <summary>
         /// Protected parameter is valid property.
         /// </summary>
         protected bool _parametersValid = true;
 
-        /// <summary>
-        /// Returns the Copula type.
-        /// </summary>
+        /// <inheritdoc/>
         public abstract CopulaType Type { get; }
 
-        /// <summary>
-        /// The dependency parameter, theta θ
-        /// </summary>
+        /// <inheritdoc/>
         public double Theta
         {
             get { return _theta; }
@@ -75,14 +72,10 @@ namespace Numerics.Distributions.Copulas
             }
         }
 
-        /// <summary>
-        /// Returns the minimum value allowable for the dependency parameter.
-        /// </summary>
+        /// <inheritdoc/>
         public abstract double ThetaMinimum { get; }
 
-        /// <summary>
-        /// Returns the maximum values allowable for the dependency parameter.
-        /// </summary>
+        /// <inheritdoc/>
         public abstract double ThetaMaximum { get; }
 
         /// <summary>
@@ -95,7 +88,6 @@ namespace Numerics.Distributions.Copulas
         /// Returns the distribution parameter name in short form (e.g. θ).
         /// </summary>
         public abstract string ParameterNameShortForm { get; }
-
 
         /// <summary>
         /// Returns the distribution parameter property name.
@@ -114,35 +106,23 @@ namespace Numerics.Distributions.Copulas
             get { return _parametersValid; }
         }
 
-        /// <summary>
-        /// The X marginal distribution for the copula. 
-        /// </summary>
+        /// <inheritdoc/>
         public virtual IUnivariateDistribution MarginalDistributionX { get; set; }
 
-        /// <summary>
-        /// The Y marginal distribution for the copula. 
-        /// </summary>
+        /// <inheritdoc/>
         public virtual IUnivariateDistribution MarginalDistributionY { get; set; }
 
-        /// <summary>
-        /// Returns the display name of the distribution type as a string.
-        /// </summary>
+        /// <inheritdoc/>
         public abstract string DisplayName { get; }
 
-        /// <summary>
-        /// Returns the short display name of the distribution as a string.
-        /// </summary>
+        /// <inheritdoc/>
         public abstract string ShortDisplayName { get; }
 
         #endregion
 
         #region Methods
 
-        /// <summary>
-        /// The probability density function (PDF) of the copula evaluated at reduced variates u and v.
-        /// </summary>
-        /// <param name="u">The reduced variate between 0 and 1.</param>
-        /// <param name="v">The reduced variate between 0 and 1.</param>
+        /// <inheritdoc/>
         public abstract double PDF(double u, double v);
 
         /// <summary>
@@ -153,38 +133,19 @@ namespace Numerics.Distributions.Copulas
         public double LogPDF(double u, double v)
         {
             double f = PDF(u, v);
-            // If the PDF returns an invalid probability, then return the worst log-probability.
-            if (double.IsNaN(f) || double.IsInfinity(f) || f <= 0d) return double.MinValue;
             return Math.Log(f);
         }
 
-        /// <summary>
-        /// The cumulative distribution function (CDF) of the copula evaluated at reduced variates u and v.
-        /// </summary>
-        /// <param name="u">The reduced variate between 0 and 1.</param>
-        /// <param name="v">The reduced variate between 0 and 1.</param>
+        /// <inheritdoc/>
         public abstract double CDF(double u, double v);
 
-        /// <summary>
-        /// The inverse cumulative distribution function (InvCDF) of the copula evaluated at probabilities u and v.
-        /// </summary>
-        /// <param name="u">Probability between 0 and 1.</param>
-        /// <param name="v">Probability between 0 and 1.</param>
+        /// <inheritdoc/>
         public abstract double[] InverseCDF(double u, double v);
 
-        /// <summary>
-        /// Returns the parameter constraints for the dependency parameter given the data samples. 
-        /// </summary>
-        /// <param name="sampleDataX">The sample data for the X variable.</param>
-        /// <param name="sampleDataY">The sample data for the Y variable.</param>
+        /// <inheritdoc/>
         public abstract double[] ParameterConstraints(IList<double> sampleDataX, IList<double> sampleDataY);
 
-        /// <summary>
-        /// Test to see if distribution parameters are valid.
-        /// </summary>
-        /// <param name="parameter">Dependency parameter.</param>
-        /// <param name="throwException">Boolean indicating whether to throw the exception or not.</param>
-        /// <returns>Nothing if the parameters are valid and the exception if invalid parameters were found.</returns>
+        /// <inheritdoc/>
         public abstract ArgumentOutOfRangeException ValidateParameter(double parameter, bool throwException);
 
         /// <summary>
@@ -212,11 +173,7 @@ namespace Numerics.Distributions.Copulas
             return 1 - u - v + CDF(u, v);
         }
 
-        /// <summary>
-        /// Generate random values of a distribution given a sample size.
-        /// </summary>
-        /// <param name="sampleSize"> Size of random sample to generate. </param>
-        /// <param name="seed">Optional. The prng seed. If negative or zero, then the computer clock is used as a seed.</param>
+        /// <inheritdoc/>
         public double[,] GenerateRandomValues(int sampleSize, int seed = -1)
         {
             var rand = LatinHypercube.Random(sampleSize, 2, seed);
@@ -252,6 +209,7 @@ namespace Numerics.Distributions.Copulas
             double LogLH = 0;
             for (int i = 0; i < sampleDataX.Count; i++)
                 LogLH += LogPDF(sampleDataX[i], sampleDataY[i]);
+            if (double.IsNaN(LogLH) || double.IsInfinity(LogLH)) return double.MinValue;
             return LogLH;
         }
 
@@ -269,6 +227,7 @@ namespace Numerics.Distributions.Copulas
             double LogLH = 0;
             for (int i = 0; i < sampleDataX.Count; i++)
                 LogLH += LogPDF(MarginalDistributionX.CDF(sampleDataX[i]), MarginalDistributionY.CDF(sampleDataY[i]));
+            if (double.IsNaN(LogLH) || double.IsInfinity(LogLH)) return double.MinValue;
             return LogLH;
         }
 
@@ -286,6 +245,7 @@ namespace Numerics.Distributions.Copulas
             double LogLH = 0;
             for (int i = 0; i < sampleDataX.Count; i++)
                 LogLH += LogPDF(MarginalDistributionX.CDF(sampleDataX[i]), MarginalDistributionY.CDF(sampleDataY[i])) + MarginalDistributionX.LogPDF(sampleDataX[i]) + MarginalDistributionY.LogPDF(sampleDataY[i]);
+            if (double.IsNaN(LogLH) || double.IsInfinity(LogLH)) return double.MinValue;
             return LogLH;
         }
 

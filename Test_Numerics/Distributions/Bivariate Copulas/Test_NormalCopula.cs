@@ -29,17 +29,23 @@
 */
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Numerics.Data;
 using Numerics.Data.Statistics;
 using Numerics.Distributions;
 using Numerics.Distributions.Copulas;
-using Numerics.Sampling;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 
 namespace Distributions.BivariateCopulas
 {
+    /// <summary>
+    /// Unit tests for the Normal Copula. All tests are compared against the R 'copula' package. 
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    ///     <b> Authors: </b>
+    ///     <list type="bullet">
+    ///     <item>Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil</item>
+    ///     </list>
+    /// </para>
+    /// </remarks>
     [TestClass]
     public class Test_NormalCopula
     {
@@ -62,6 +68,18 @@ namespace Distributions.BivariateCopulas
             copula = new NormalCopula(-0.9);
             Assert.AreEqual(copula.PDF(0.2, 0.8), 3.208773, 1E-6);
 
+            // Test symmetry
+            copula = new NormalCopula(0.8);
+            Assert.AreEqual(copula.PDF(0.8, 0.2), 0.09803021, 1E-6);
+
+            copula = new NormalCopula(0.1);
+            Assert.AreEqual(copula.PDF(0.8, 0.2), 0.928971, 1E-6);
+
+            copula = new NormalCopula(-0.5);
+            Assert.AreEqual(copula.PDF(0.8, 0.2), 1.462211, 1E-6);
+
+            copula = new NormalCopula(-0.9);
+            Assert.AreEqual(copula.PDF(0.8, 0.2), 3.208773, 1E-6);
         }
 
         /// <summary>
@@ -83,71 +101,43 @@ namespace Distributions.BivariateCopulas
             copula = new NormalCopula(-0.9);
             Assert.AreEqual(copula.CDF(0.2, 0.8), 0.05006756, 1E-2);
 
+            // Test symmetry
+            copula = new NormalCopula(0.8);
+            Assert.AreEqual(copula.CDF(0.8, 0.2), 0.1996831, 1E-2);
+
+            copula = new NormalCopula(0.1);
+            Assert.AreEqual(copula.CDF(0.8, 0.2), 0.1675602, 1E-2);
+
+            copula = new NormalCopula(-0.5);
+            Assert.AreEqual(copula.CDF(0.8, 0.2), 0.1128494, 1E-2);
+
+            copula = new NormalCopula(-0.9);
+            Assert.AreEqual(copula.CDF(0.8, 0.2), 0.05006756, 1E-2);
         }
 
-        /// <summary>
-        /// Test InverseCDF and random number generation.
-        /// </summary>
-        [TestMethod]
-        public void Test_Generation()
-        {
-            //var copula = new NormalCopula(0.8);
-            //copula.MarginalDistributionX = new Normal(100, 15);
-            //copula.MarginalDistributionY = new Normal(80, 25);
-
-            //var samples = copula.GenerateRandomValues(100, 12345);
-            //for (int i = 0; i < samples.GetLength(0); i++)
-            //    Debug.WriteLine(samples[i, 0] + "," + samples[i, 1]);
-        }
+        private double[] data1 = new double[] { 122.094066003419, 92.8321267206161, 86.4920318705377, 87.6183663113541, 102.558777787492, 103.627475117762, 127.084948716539, 105.908684131013, 110.065795957654, 105.924647125867, 110.009738155469, 126.490833800772, 64.1264871206211, 81.3150800229481, 92.0780134395721, 106.040322550555, 113.158086143066, 117.051057784044, 127.110531266645, 108.907371862136, 105.476247114194, 108.629403495407, 98.7803988364997, 93.217925588845, 97.7219451830075, 109.178093756809, 137.69504856252, 106.884615327674, 112.139177456202, 85.7416217661797, 71.0610938629716, 112.644166631765, 119.545871678548, 70.5169833274982, 99.6896817997206, 100.987892854545, 103.659280253554, 75.6075621013066, 118.810868919796, 109.113664695226, 113.636425353944, 100.008375355612, 113.178917359795, 80.4269472604342, 88.3638384448237, 90.2905074656314, 98.7995143316863, 98.4698060067802, 108.279297570816, 86.1578437055905, 101.183725242941, 85.5531148952956, 111.024195253862, 121.934506174556, 104.169993666179, 84.4652994609478, 99.6099259747033, 95.3130792386208, 115.45680252817, 120.213139478586, 95.5691788140058, 92.7950300448044, 102.58430893827, 86.7105161576407, 82.8059368562185, 107.335705516294, 112.603259240932, 102.780778760832, 128.958090528336, 105.139162595628, 118.272661482198, 99.8275937885748, 94.2856024560543, 108.48679008009, 100.147734981682, 88.7006383425785, 89.6441478272035, 112.24266306884, 99.8184811468069, 120.592090049738, 124.023170133661, 101.250961381805, 90.0000027551006, 108.781064635426, 94.9203320035987, 99.9491821782837, 88.7473944659517, 94.3643253649856, 105.814317118952, 92.6866900633813, 111.020330544613, 111.676189456988, 115.70235103978, 124.659106152655, 81.3866270495082, 120.178528245778, 93.6511977805724, 114.099368762143, 119.062045395294, 74.1998497412903 };
+        private double[] data2 = new double[] { 127.869024514059, 53.5970265830273, 35.6871183968043, 77.5937820397885, 84.619117510857, 110.477376636164, 114.679535976765, 109.338354392258, 88.5987759167264, 72.6695216679034, 111.932652280673, 86.3677960278751, 23.9336347978345, 51.2377830227977, 82.4565771813309, 92.9162733515069, 117.465381827514, 104.862362549521, 131.059266136887, 67.2743851584176, 100.263235166171, 113.734275000025, 73.1582387829997, 78.4353197703676, 60.0180359279642, 106.709991071405, 123.175455301514, 98.7006449949188, 99.860486991242, 55.7603096813567, 53.7716423706874, 104.659445447656, 119.899401349887, 59.8670226375024, 94.0117104763717, 101.424610891155, 114.256354904191, 53.5051841563538, 118.35993465227, 73.1605008375787, 87.4677698350712, 75.4031529479113, 105.404958657365, 53.336411944238, 61.2731445424292, 72.377272009744, 88.959659863884, 80.1301183393358, 98.624093971352, 81.9603074727622, 52.0788199186743, 75.49358652998, 90.2428259997917, 101.326931349259, 48.1343463500222, 56.9295918059918, 89.0348875829931, 69.0012535890253, 100.355241744174, 74.00820280539, 63.9482913881998, 64.4973782209222, 95.8934144135508, 85.4028102356618, 37.8958459664423, 99.2194777630975, 126.581868541047, 91.8287794302242, 143.543939198862, 108.751405708845, 100.951567564812, 73.5051068155712, 83.419507788205, 84.9090133796832, 59.3886126411711, 84.0348703304947, 78.1503115396303, 104.953483626903, 77.6450718557069, 117.615613165515, 118.131904013699, 76.3190144944821, 62.0183469143453, 97.4729901076061, 49.3396925267253, 58.6790714873228, 45.0596168059506, 85.3857426310419, 65.0772008397323, 58.8836242438228, 79.2838406333912, 102.608529398935, 83.7509120512927, 103.106132785215, 52.8403092456187, 88.4802383528401, 64.2906982187616, 93.0489784548541, 116.065815369284, 26.2779209375887 };
 
         /// <summary>
-        /// Estimate using the method of maximum pseudo likelihood.
+        /// Test fitting with the method of maximum pseudo likelihood.
         /// </summary>
         [TestMethod]
         public void Test_MPL_Fit()
         {
-            var spy = new double[] { 3.9057643, 1.8045245, 2.9633604, 2.7419766, 2.6774066, 3.1893778, 7.8361615, 9.8447683, 5.2786246, 4.1915502, 2.7293447, 2.8973314, 3.0865883, 3.7759493, 2.7534610, 1.5579397, 2.0069851, 2.2461076, 6.5123250, 3.6909549, 1.4625229, 2.5176823, 1.0641868, 2.2663723, 1.9026921, 2.4778238, 1.6084325, 1.2643252, 2.2505305, 2.1005891, 1.9748198, 1.9833167, 1.8059641, 2.0970398, 4.2106869, 2.3625876, 2.4940627, 3.5909080, 2.3934814, 1.2629584, 1.2839498, 1.7744064, 1.5590856, 0.5005273, 4.1822539, 2.2285852, 0.7467401, 3.2402393, 2.3862763, 2.5130236, 3.0073092, 1.7664685, 10.9423735, 5.7648950, 3.4414304, 3.4178928, 1.3613983 };
-            var ixc = new double[] { 3.696937, 2.107435, 3.331595, 4.309303, 5.325759, 2.324532, 11.015879, 13.150865, 7.029388, 6.184589, 3.292565, 3.442535, 4.323848, 5.238649, 3.528347, 2.652233, 3.320179, 2.918689, 8.510062, 4.353267, 2.832925, 4.126286, 1.670764, 2.405936, 2.475370, 3.623923, 1.398245, 1.777251, 2.126659, 2.838736, 1.982282, 6.923452, 4.380535, 2.154451, 5.710447, 4.006626, 4.031362, 4.779409, 3.188225, 2.112282, 2.404566, 3.460109, 1.682543, 1.613359, 4.137543, 2.587800, 3.230225, 3.676028, 2.412084, 2.774390, 3.501687, 3.520000, 19.451697, 8.943085, 3.960401, 5.517874, 3.672079 };
-
             // get ranks of data
-            var rank1 = Statistics.RanksInplace(spy);
-            var rank2 = Statistics.RanksInplace(ixc);
+            var rank1 = Statistics.RanksInplace(data1);
+            var rank2 = Statistics.RanksInplace(data2);
             // get plotting positions
-            for (int i = 0; i < spy.Length; i++)
+            for (int i = 0; i < data1.Length; i++)
             {
                 rank1[i] = rank1[i] / (rank1.Length + 1d);
                 rank2[i] = rank2[i] / (rank2.Length + 1d);
             }
-
+            // Fit copula
             BivariateCopula copula = new NormalCopula();
-            BivariateCopulaEstimation.Estimate(ref copula,  rank1, rank2 , CopulaEstimationMethod.PseudoLikelihood);
-
-            Assert.AreEqual(copula.Theta, 0.8119648, 1E-4);
-
+            BivariateCopulaEstimation.Estimate(ref copula, rank1, rank2, CopulaEstimationMethod.PseudoLikelihood);
+            Assert.AreEqual(0.800082, copula.Theta, 1E-4);
         }
-
-        [TestMethod]
-        public void Test_MPL_Fit2()
-        {
-            var spy = new double[] { 5.0161, 3.8522, 8.2091, 5.3972, 5.2427, 2.9046, 4.3363, 4.9131, 8.9404, 3.0591, 2.163, 3.5947, 5.459, 3.3063, 3.4505, 4.2848, 6.0667, 4.3981, 3.5844, 4.1509, 5.9534, 8.2194, 6.6435, 4.1406, 4.1818, 4.326, 4.1406, 3.2754, 3.6977, 4.6453, 2.4308, 4.3157, 4.7174, 8.9507, 3.8316, 3.9552, 3.2754, 6.9937, 3.4299, 5.0882, 5.0058, 6.6023, 2.9149, 5.4384, 3.3784, 4.5114, 3.8213, 3.8831, 3.5535, 3.2033, 2.9458, 5.7783, 4.3466, 4.4805, 2.9967339017, 6.3138223071, 4.1200022248, 2.9480724581, 8.7550047277, 4.8093726758, 7.3640984648 };
-            var ixc = new double[] { 10.506, 4.7277, 6.7259, 5.4693, 3.8831, 4.3672, 3.4299, 3.9552, 4.1097, 3.193, 2.7398, 2.6574, 3.7595, 4.6762, 5.1088, 5.2221, 6.489, 4.1097, 4.0891, 4.9955, 6.695, 4.7483, 3.8316, 8.0546, 4.8101, 3.6977, 3.4505, 5.3457, 3.2651, 6.4760271191, 3.5226, 5.6341, 4.2436, 7.4675, 4.4187, 3.1003, 3.7286, 4.6144, 3.2033, 7.8589, 4.7792, 6.2315, 3.6153, 5.356, 3.811, 4.2951, 2.9767, 4.2436, 4.5217, 3.3578, 4.0788, 6.2727, 3.7286, 5.0882, 3.7063799542, 3.771261879, 3.5320097813, 4.3268133601, 8.2197288481, 3.3616947287, 4.582285939 };
-
-            // get ranks of data
-            var rank1 = Statistics.RanksInplace(spy);
-            var rank2 = Statistics.RanksInplace(ixc);
-
-            // get plotting positions
-            for (int i = 0; i < spy.Length; i++)
-            {
-                rank1[i] = rank1[i] / (rank1.Length + 1d);
-                rank2[i] = rank2[i] / (rank2.Length + 1d);
-            }
-
-            BivariateCopula copula = new NormalCopula();
-            BivariateCopulaEstimation.Estimate(ref copula,  rank1, rank2 , CopulaEstimationMethod.PseudoLikelihood);
-
-        }
-
 
         /// <summary>
         /// Estimate using the inference from margins method.
@@ -155,27 +145,15 @@ namespace Distributions.BivariateCopulas
         [TestMethod]
         public void Test_IFM_Fit()
         {
-            var spy = new double[] { 3.9057643, 1.8045245, 2.9633604, 2.7419766, 2.6774066, 3.1893778, 7.8361615, 9.8447683, 5.2786246, 4.1915502, 2.7293447, 2.8973314, 3.0865883, 3.7759493, 2.7534610, 1.5579397, 2.0069851, 2.2461076, 6.5123250, 3.6909549, 1.4625229, 2.5176823, 1.0641868, 2.2663723, 1.9026921, 2.4778238, 1.6084325, 1.2643252, 2.2505305, 2.1005891, 1.9748198, 1.9833167, 1.8059641, 2.0970398, 4.2106869, 2.3625876, 2.4940627, 3.5909080, 2.3934814, 1.2629584, 1.2839498, 1.7744064, 1.5590856, 0.5005273, 4.1822539, 2.2285852, 0.7467401, 3.2402393, 2.3862763, 2.5130236, 3.0073092, 1.7664685, 10.9423735, 5.7648950, 3.4414304, 3.4178928, 1.3613983 };
-            var ixc = new double[] { 3.696937, 2.107435, 3.331595, 4.309303, 5.325759, 2.324532, 11.015879, 13.150865, 7.029388, 6.184589, 3.292565, 3.442535, 4.323848, 5.238649, 3.528347, 2.652233, 3.320179, 2.918689, 8.510062, 4.353267, 2.832925, 4.126286, 1.670764, 2.405936, 2.475370, 3.623923, 1.398245, 1.777251, 2.126659, 2.838736, 1.982282, 6.923452, 4.380535, 2.154451, 5.710447, 4.006626, 4.031362, 4.779409, 3.188225, 2.112282, 2.404566, 3.460109, 1.682543, 1.613359, 4.137543, 2.587800, 3.230225, 3.676028, 2.412084, 2.774390, 3.501687, 3.520000, 19.451697, 8.943085, 3.960401, 5.517874, 3.672079 };
-
-            // get ranks of data
-            var rank1 = Statistics.RanksInplace(spy);
-            var rank2 = Statistics.RanksInplace(ixc);
-            // get plotting positions
-            for (int i = 0; i < spy.Length; i++)
-            {
-                rank1[i] = rank1[i] / (rank1.Length + 1d);
-                rank2[i] = rank2[i] / (rank2.Length + 1d);
-            }
-
             BivariateCopula copula = new NormalCopula();
-            copula.MarginalDistributionX = new Uniform(0, 1);
-            copula.MarginalDistributionY = new Uniform(0, 1);
-
-            BivariateCopulaEstimation.Estimate(ref copula, rank1, rank2 , CopulaEstimationMethod.InferenceFromMargins);
-
-            Assert.AreEqual(copula.Theta, 0.8119648, 1E-4);
-
+            copula.MarginalDistributionX = new Normal();
+            copula.MarginalDistributionY = new Normal();
+            // Fit marginals
+            ((IEstimation)copula.MarginalDistributionX).Estimate(data1, ParameterEstimationMethod.MaximumLikelihood);
+            ((IEstimation)copula.MarginalDistributionY).Estimate(data2, ParameterEstimationMethod.MaximumLikelihood);
+            // Fit copula
+            BivariateCopulaEstimation.Estimate(ref copula, data1, data2, CopulaEstimationMethod.InferenceFromMargins);
+            Assert.AreEqual(0.7871479, copula.Theta, 1E-4);
         }
 
         /// <summary>
@@ -184,21 +162,19 @@ namespace Distributions.BivariateCopulas
         [TestMethod]
         public void Test_MLE_Fit()
         {
-            var spy = new double[] { 3.9057643, 1.8045245, 2.9633604, 2.7419766, 2.6774066, 3.1893778, 7.8361615, 9.8447683, 5.2786246, 4.1915502, 2.7293447, 2.8973314, 3.0865883, 3.7759493, 2.7534610, 1.5579397, 2.0069851, 2.2461076, 6.5123250, 3.6909549, 1.4625229, 2.5176823, 1.0641868, 2.2663723, 1.9026921, 2.4778238, 1.6084325, 1.2643252, 2.2505305, 2.1005891, 1.9748198, 1.9833167, 1.8059641, 2.0970398, 4.2106869, 2.3625876, 2.4940627, 3.5909080, 2.3934814, 1.2629584, 1.2839498, 1.7744064, 1.5590856, 0.5005273, 4.1822539, 2.2285852, 0.7467401, 3.2402393, 2.3862763, 2.5130236, 3.0073092, 1.7664685, 10.9423735, 5.7648950, 3.4414304, 3.4178928, 1.3613983 };
-            var ixc = new double[] { 3.696937, 2.107435, 3.331595, 4.309303, 5.325759, 2.324532, 11.015879, 13.150865, 7.029388, 6.184589, 3.292565, 3.442535, 4.323848, 5.238649, 3.528347, 2.652233, 3.320179, 2.918689, 8.510062, 4.353267, 2.832925, 4.126286, 1.670764, 2.405936, 2.475370, 3.623923, 1.398245, 1.777251, 2.126659, 2.838736, 1.982282, 6.923452, 4.380535, 2.154451, 5.710447, 4.006626, 4.031362, 4.779409, 3.188225, 2.112282, 2.404566, 3.460109, 1.682543, 1.613359, 4.137543, 2.587800, 3.230225, 3.676028, 2.412084, 2.774390, 3.501687, 3.520000, 19.451697, 8.943085, 3.960401, 5.517874, 3.672079 };
-
             BivariateCopula copula = new NormalCopula();
-            copula.MarginalDistributionX = new GeneralizedExtremeValue();
-            copula.MarginalDistributionY = new GeneralizedExtremeValue();
-
-            BivariateCopulaEstimation.Estimate(ref copula,  spy, ixc , CopulaEstimationMethod.FullLikelihood);
-
-            var true_m1 = new GeneralizedExtremeValue();
-            true_m1.Estimate(spy, ParameterEstimationMethod.MaximumLikelihood);
-
-            var true_m2 = new GeneralizedExtremeValue();
-            true_m2.Estimate(ixc, ParameterEstimationMethod.MaximumLikelihood);
-
+            copula.MarginalDistributionX = new Normal();
+            copula.MarginalDistributionY = new Normal();
+            // Fit copula and marginals
+            BivariateCopulaEstimation.Estimate(ref copula, data1, data2, CopulaEstimationMethod.FullLikelihood);
+            // Theta
+            Assert.AreEqual(0.7871358, copula.Theta, 1E-3);
+            // Marginal-X
+            Assert.AreEqual(102.5959, ((Normal)copula.MarginalDistributionX).Mu, 1E-2);
+            Assert.AreEqual(14.25443, ((Normal)copula.MarginalDistributionX).Sigma, 1E-2);
+            // Marginal-Y
+            Assert.AreEqual(84.17168, ((Normal)copula.MarginalDistributionY).Mu, 1E-2);
+            Assert.AreEqual(24.58027, ((Normal)copula.MarginalDistributionY).Sigma, 1E-2);
         }
     }
 }

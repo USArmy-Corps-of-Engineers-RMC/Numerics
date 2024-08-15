@@ -39,7 +39,7 @@ namespace Numerics.Distributions.Copulas
     /// </summary>
     /// <remarks>
     /// <para>
-    ///     Authors:
+    ///     <b> Authors: </b>
     ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
     /// </para>
     /// </remarks>
@@ -75,33 +75,25 @@ namespace Numerics.Distributions.Copulas
             MarginalDistributionY = marginalDistributionY;
         }
 
-        /// <summary>
-        /// Returns the Copula type.
-        /// </summary>
+        /// <inheritdoc/>
         public override CopulaType Type
         {
             get { return CopulaType.Normal; }
         }
 
-        /// <summary>
-        /// Returns the display name of the Copula distribution type as a string.
-        /// </summary>
+        /// <inheritdoc/>
         public override string DisplayName
         {
             get { return "Normal"; }
         }
 
-        /// <summary>
-        /// Returns the short display name of the Copula distribution as a string.
-        /// </summary>
+        /// <inheritdoc/>
         public override string ShortDisplayName
         {
             get { return "N"; }
         }
 
-        /// <summary>
-        /// Returns the name and value of the theta parameter in 2-column array of string.
-        /// </summary>
+        /// <inheritdoc/>
         public override string[,] ParameterToString
         {
             get
@@ -113,36 +105,25 @@ namespace Numerics.Distributions.Copulas
             }
         }
 
-        /// <summary>
-        /// Returns the distribution parameter name in short form (e.g. ρ).
-        /// </summary>
+        /// <inheritdoc/>
         public override string ParameterNameShortForm
         {
             get { return "ρ"; }
         }
 
-        /// <summary>
-        /// Returns the minimum value allowable for the dependency parameter.
-        /// </summary>
+        /// <inheritdoc/>
         public override double ThetaMinimum
         {
             get { return -1.0d; }
         }
 
-        /// <summary>
-        /// Returns the maximum values allowable for the dependency parameter.
-        /// </summary>
+        /// <inheritdoc/>
         public override double ThetaMaximum
         {
             get { return 1.0d; }
         }
 
-        /// <summary>
-        /// Test to see if distribution parameters are valid.
-        /// </summary>
-        /// <param name="parameter">Correlation parameter.</param>
-        /// <param name="throwException">Boolean indicating whether to throw the exception or not.</param>
-        /// <returns>Nothing if the parameters are valid and the exception if invalid parameters were found.</returns>
+        /// <inheritdoc/>
         public override ArgumentOutOfRangeException ValidateParameter(double parameter, bool throwException)
         {
             if (parameter < ThetaMinimum)
@@ -158,21 +139,13 @@ namespace Numerics.Distributions.Copulas
             return null;
         }
 
-        /// <summary>
-        /// Returns the parameter constraints for the dependency parameter given the data samples. 
-        /// </summary>
-        /// <param name="sampleDataX">The sample data for the X variable.</param>
-        /// <param name="sampleDataY">The sample data for the Y variable.</param>
+        /// <inheritdoc/>
         public override double[] ParameterConstraints(IList<double> sampleDataX, IList<double> sampleDataY)
         {
-            return new double[] { -1 + Tools.DoubleMachineEpsilon, 1 - Tools.DoubleMachineEpsilon };
+            return [-1 + Tools.DoubleMachineEpsilon, 1 - Tools.DoubleMachineEpsilon];
         }
 
-        /// <summary>
-        /// The probability density function (PDF) of the copula evaluated at reduced variates u and v.
-        /// </summary>
-        /// <param name="u">The reduced variate between 0 and 1.</param>
-        /// <param name="v">The reduced variate between 0 and 1.</param>
+        /// <inheritdoc/>
         public override double PDF(double u, double v)
         {
             // Validate parameters
@@ -183,11 +156,7 @@ namespace Numerics.Distributions.Copulas
             return 1d / Math.Sqrt(1d - r * r) * Math.Exp(-(r * r * s * s + r * r * t * t - 2 * r * s * t) / (2 * (1d - r * r)));
         }
 
-        /// <summary>
-        /// The cumulative distribution function (CDF) of the copula evaluated at reduced variates u and v.
-        /// </summary>
-        /// <param name="u">The reduced variate between 0 and 1.</param>
-        /// <param name="v">The reduced variate between 0 and 1.</param>
+        /// <inheritdoc/>
         public override double CDF(double u, double v)
         {
             // Validate parameters
@@ -195,11 +164,7 @@ namespace Numerics.Distributions.Copulas
             return MultivariateNormal.BivariateCDF(Normal.StandardZ(1 - u), Normal.StandardZ(1 - v), _theta);
         }
 
-        /// <summary>
-        /// The inverse cumulative distribution function (InvCDF) of the copula evaluated at probabilities u and v.
-        /// </summary>
-        /// <param name="u">Probability between 0 and 1.</param>
-        /// <param name="v">Probability between 0 and 1.</param>
+        /// <inheritdoc/>
         public override double[] InverseCDF(double u, double v)
         {
             // Validate parameters
@@ -209,12 +174,10 @@ namespace Numerics.Distributions.Copulas
             double r = _theta;
             double w2 = r * z1 + Math.Sqrt(1d - r * r) * z2;
             v = Normal.StandardCDF(w2);
-            return new[] { u, v };
+            return [u, v];
         }
 
-        /// <summary>
-        /// Create a deep copy of the copula.
-        /// </summary>
+        /// <inheritdoc/>
         public override BivariateCopula Clone()
         {
             return new NormalCopula(Theta, MarginalDistributionX, MarginalDistributionY);

@@ -38,16 +38,14 @@ namespace Numerics.Distributions.Copulas
     /// </summary>
     /// <remarks>
     /// <para>
-    ///     Authors:
+    ///     <b> Authors: </b>
     ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
     /// </para>
     /// </remarks>
     public abstract class ArchimedeanCopula : BivariateCopula, IArchimedeanCopula
     {
 
-        /// <summary>
-        /// Returns the name and value of the theta parameter in 2-column array of string.
-        /// </summary>
+        /// <inheritdoc/>
         public override string[,] ParameterToString
         {
             get
@@ -59,20 +57,13 @@ namespace Numerics.Distributions.Copulas
             }
         }
 
-        /// <summary>
-        /// Returns the distribution parameter name in short form (e.g. θ).
-        /// </summary>
+        /// <inheritdoc/>
         public override string ParameterNameShortForm
         {
             get { return "θ"; }
         }
 
-        /// <summary>
-        /// Test to see if distribution parameters are valid.
-        /// </summary>
-        /// <param name="parameter">Dependency parameter.</param>
-        /// <param name="throwException">Boolean indicating whether to throw the exception or not.</param>
-        /// <returns>Nothing if the parameters are valid and the exception if invalid parameters were found.</returns>
+        /// <inheritdoc/>
         public override ArgumentOutOfRangeException ValidateParameter(double parameter, bool throwException)
         {
             if (parameter < ThetaMinimum)
@@ -89,41 +80,22 @@ namespace Numerics.Distributions.Copulas
             return null;
         }
 
-        /// <summary>
-        /// The generator function of the copula.
-        /// </summary>
-        /// <param name="t">The reduced variate.</param>
+        /// <inheritdoc/>
         public abstract double Generator(double t);
 
-        /// <summary>
-        /// The inverse of the generator function.
-        /// </summary>
-        /// <param name="t">The reduced variate.</param>
+        /// <inheritdoc/>
         public abstract double GeneratorInverse(double t);
 
-        /// <summary>
-        /// The first derivative of the generator function.
-        /// </summary>
-        /// <param name="t">The reduced variate.</param>
+        /// <inheritdoc/>
         public abstract double GeneratorPrime(double t);
 
-        /// <summary>
-        /// The second derivative of the generator function.
-        /// </summary>
-        /// <param name="t">The reduced variate.</param>
+        /// <inheritdoc/>
         public abstract double GeneratorPrime2(double t);
 
-        /// <summary>
-        /// The inverse of the first derivative of the generator function.
-        /// </summary>
-        /// <param name="t">The reduced variate.</param>
+        /// <inheritdoc/>
         public abstract double GeneratorPrimeInverse(double t);
 
-        /// <summary>
-        /// The probability density function (PDF) of the copula evaluated at reduced variates u and v.
-        /// </summary>
-        /// <param name="u">The reduced variate between 0 and 1.</param>
-        /// <param name="v">The reduced variate between 0 and 1.</param>
+        /// <inheritdoc/>
         public override double PDF(double u, double v)
         {
             // Validate parameters
@@ -133,11 +105,7 @@ namespace Numerics.Distributions.Copulas
             return num / den;
         }
 
-        /// <summary>
-        /// The cumulative distribution function (CDF) of the copula evaluated at reduced variates u and v.
-        /// </summary>
-        /// <param name="u">The reduced variate between 0 and 1.</param>
-        /// <param name="v">The reduced variate between 0 and 1.</param>
+        /// <inheritdoc/>
         public override double CDF(double u, double v)
         {
             // Validate parameters
@@ -145,11 +113,7 @@ namespace Numerics.Distributions.Copulas
             return GeneratorInverse(Generator(u) + Generator(v));
         }
 
-        /// <summary>
-        /// The inverse cumulative distribution function (InverseCDF) of the copula evaluated at probabilities u and v.
-        /// </summary>
-        /// <param name="u">Probability between 0 and 1.</param>
-        /// <param name="v">Probability between 0 and 1.</param>
+        /// <inheritdoc/>
         /// <remarks>
         /// This method is based on Genest et al. 1986
         /// 1) Two independent uniformly distributed U(0,1) random variates, u and v, are generated.
@@ -166,7 +130,7 @@ namespace Numerics.Distributions.Copulas
             double s = GeneratorPrime(u) / v;
             double w = GeneratorPrimeInverse(s);
             v = GeneratorInverse(Generator(w) - Generator(u));
-            return new[] { u, v };
+            return [u, v];
         }
 
     }
