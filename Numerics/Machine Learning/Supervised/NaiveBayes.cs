@@ -36,7 +36,100 @@ using System.Threading.Tasks;
 
 namespace Numerics.MachineLearning
 {
+    /// <summary>
+    /// Naive-Bayes Algorithm.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    ///     <b> Authors: </b>
+    ///     Tiki Gonzalez, USACE Risk Management Center, julian.t.gonzalez@usace.army.mil
+    /// </para>
+    /// <para>
+    /// <b> Description: </b>
+    /// </para>
+    /// <para>
+    /// Naive Bayes is a simple probabilistic classifier that apply Bayes' theorem.
+    /// Naive-Bayes classification is meant to predict a discrete value.
+    /// </para>
+    /// <para>
+    /// <b> References: </b>
+    /// <list type="bullet">
+    /// <item> <see href="https://learn.microsoft.com/en-us/archive/msdn-magazine/2019/june/test-run-simplified-naive-bayes-classification-using-csharp"/></item>
+    /// <item> <see href="https://visualstudiomagazine.com/articles/2019/11/12/naive-bayes-csharp.aspx"/></item>
+    /// </list>
+    /// </para>
+    /// </remarks>
     public class NaiveBayes
     {
+        //private double NaivePredict(int predictors, int classes, double[][] data)
+        //{
+        //    int N = data.Length;
+        //    int[] classCounts = new int[classes];
+        //    //Computes counts of each class to predict
+        //    for (int i = 0; i < N; ++i)
+        //    {
+        //        int c = (int)data[i][classes + 1];
+        //        ++classCounts[c]; //holds the number of reference items of each class
+        //    }
+
+        //    //Means of each predictor variable for each class
+        //    double[][] means = new double[classes][];
+        //    for (int c = 0; c < classes; ++c)
+        //        means[c] = new double[predictors];
+
+        //    for (int i = 0; i < N; ++i)
+        //    {
+        //        int c = (int)data[i][predictors];
+        //        for (int j = 0; j < predictors; ++j)
+        //            means[c][j] += data[i][j];
+        //    }
+
+        //    for (int c = 0; c < classes; ++c)
+        //    {
+        //        for (int j = 0; j < predictors; ++j)
+        //            means[c][j] /= classCounts[c];
+        //    }
+
+        //    //Sums squared differences for each predictor
+        //    double[][] variances = new double[classes][];
+        //    for (int c = 0; c < classes; ++c)
+        //    {
+        //        variances[c] = new double[predictors];
+        //    }
+
+        //    for (int i = 0; i < N; ++i)
+        //    {
+        //        int c = (int)data[i][predictors];
+        //        for (int j = 0; j < predictors; ++j)
+        //        {
+        //            double x = data[i][j];
+        //            double u = means[c][j];
+        //            variances[c][j] += (x - u) * (x - u);
+        //        }
+        //    }
+
+        //    //Get Sample variances
+        //    for (int c = 0; c < 2; ++c)
+        //    {
+        //        for (int j = 0; j < 3; ++j)
+        //            variances[c][j] /= classCounts[c] - 1;
+        //    }
+
+        //    //Computes conditional probabilities
+        //    double[][] condProbs = new double[classes][];
+        //    for (int c = 0; c < classes; ++c)
+        //        condProbs[c] = new double[predictors];
+
+        //}
+        ////actual prediction
+        //for (int c = 0; c< 2; ++c)  // each class
+        //    {
+        //        for (int j = 0; j< 3; ++j)  // each predictor
+        //        {
+        //            double u = means[c][j];
+        //double v = variances[c][j];
+        //double x = unk[j];
+        //condProbs[c][j] = ProbDensFunc(u, v, x);
     }
 }
+ 

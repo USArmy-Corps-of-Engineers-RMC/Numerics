@@ -31,6 +31,8 @@
 using Numerics.Sampling;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace Numerics
 {
@@ -39,8 +41,11 @@ namespace Numerics
     /// </summary>
     /// <remarks>
     /// <para>
-    ///     Authors:
-    ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
+    ///     <b> Authors: </b>
+    ///     <list type="bullet"> 
+    ///     <item> Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil </item>
+    ///     <item> Tiki Gonzalez, USACE Risk Management Center, julian.t.gonzalez@usace.army.mil </item>
+    ///     </list>
     /// </para>
     /// </remarks>
     public static class ExtensionMethods
@@ -305,13 +310,95 @@ namespace Numerics
             return sub.ToArray();
         }
 
+        ///// <summary>
+        ///// 
+        ///// </summary>
+        ///// <typeparam name="T"></typeparam>
+        ///// <param name="array"></param>
+        ///// <param name="startindex"></param>
+        ///// <param name="endIndex"></param>
+        ///// <param name="indicators"></param>
+        ///// <returns></returns>
+        //public static double[] Subset(double[] array, bool[] indicators,bool useComplement = false)
+        //{
+        //    var subTrue = new List<double>();
+        //    var subFalse = new List<double>();
+        //    //int idx = 0;
+
+        //    for ( int i = 0; i < indicators.Length; i++)
+        //    {
+        //        if (indicators[i] == true)
+        //        {
+        //            subTrue.Add(array[i]);
+        //            //idx = i;
+        //            //break;
+        //        }
+        //        else if (indicators[i] == false)
+        //        {
+        //            subFalse.Add(array[i]);
+        //        }
+        //    }
+        //    //for (int j = idx + 1; j < array.Length; j++)
+        //    //{
+
+        //    //    if (indicators[j] == (useComplement ? false : true))
+        //    //    {
+        //    //        sub.Add(array[j]);
+        //    //    }
+        //    //    idx++;
+ 
+        //    //}
+        //    if (useComplement == false)
+        //    {
+        //        return subFalse.ToArray();
+        //    }
+        //    else 
+        //    {
+        //        return subTrue.ToArray();
+        //    }
+            
+        //}
+
         /// <summary>
-        /// Fills a 2-D array with the specified value.
+        /// Specific method to extract target feature from split.
         /// </summary>
-        /// <typeparam name="T">The array value type.</typeparam>
-        /// <param name="array">The array.</param>
-        /// <param name="value">The fill value.</param>
-        public static void Fill<T>(this T[,] array, T value)
+        /// <param name="split"> Split data from Iris dataset. </param>
+        /// <returns></returns>
+        public static double[] SubsetTarget(double[][] split)
+        {
+            return split[4];
+        }
+
+        /// <summary>
+        /// Assuming there is 4 features and 1 target to subset for X training or testing
+        /// we only extract the 4 features.
+        /// </summary>
+        /// <param name="split"> Split data from Iris dataset. </param>
+        /// <returns>2D array of the values from the dictionary.</returns>
+        public static List<double[]> SubsetFeature(double[][] split)
+        {
+            var feature = new List<double[]>();
+            int length = split[0].Length;
+            for (int i = 0; i < length;i++)
+            {
+                double[] valuesForFeature = new double[4];
+                for(int j = 0; j < 4; j++)
+                {
+                    //valuesForFeature[j] = split[j][i];
+                    valuesForFeature[j] = split[i][j];
+                }
+                feature.Add(valuesForFeature);
+            }
+            return feature;
+        }
+
+    /// <summary>
+    /// Fills a 2-D array with the specified value.
+    /// </summary>
+    /// <typeparam name="T">The array value type.</typeparam>
+    /// <param name="array">The array.</param>
+    /// <param name="value">The fill value.</param>
+    public static void Fill<T>(this T[,] array, T value)
         {
             for (int i = 0; i < array.GetLength(0); i++)
                 for (int j = 0; j < array.GetLength(1); j++)
@@ -341,5 +428,257 @@ namespace Numerics
         {
             return Math.Abs(a - b) < epsilon;
         }
+
+        ///// <summary>
+        ///// Splits the data into a training and testing set 70/30 respectively.
+        ///// </summary>
+        ///// <param name="data"> Original data or data table we want to split.</param>
+        ///// <returns> The training set in a dictionary. </returns>
+        //public static Dictionary<string, List<double>> SplitDataTrain(Dictionary<string, List<double>> data)
+        //{
+        //    var random = new Random();
+        //    var train = new Dictionary<string, List<double>>();
+        //    var test = new Dictionary<string, List<double>>();
+
+        //    foreach (var dataClass in data)
+        //    {
+        //        train[dataClass.Key] = dataClass.Value.ToList();
+        //        test[dataClass.Key] = new List<double>();
+
+        //        for (int i = 0; i<Math.Ceiling(0.3*dataClass.Value.Count); i++)
+        //        {
+        //            if (train[dataClass.Key].Count == 0) break;
+        //            int idx = random.Next(train[dataClass.Key].Count);
+        //            test[dataClass.Key].Add(train[dataClass.Key][idx]);
+        //            train[dataClass.Key].RemoveAt(idx);
+        //        }
+        //    }
+        //    return train;
+        //}
+
+        ///// <summary>
+        /////  Splits the data into a training and testing set 70/30 respectively.
+        ///// </summary>
+        ///// <param name="data"> Original data or data table we want to split. </param>
+        ///// <returns> The testing set in a dictionary.</returns>
+        //public static Dictionary<string, List<double>> SplitDataTest(Dictionary<string, List<double>> data)
+        //{
+        //    var random = new Random();
+        //    var train = new Dictionary<string, List<double>>();
+        //    var test = new Dictionary<string, List<double>>();
+
+        //    foreach (var dataClass in data)
+        //    {
+        //        train[dataClass.Key] = dataClass.Value.ToList();
+        //        test[dataClass.Key] = new List<double>();
+
+        //        for (int i = 0; i < Math.Ceiling(0.3 * dataClass.Value.Count); i++)
+        //        {
+        //            if (train[dataClass.Key].Count == 0) break;
+        //            int idx = random.Next(train[dataClass.Key].Count);
+        //            test[dataClass.Key].Add(train[dataClass.Key][idx]);
+        //            train[dataClass.Key].RemoveAt(idx);
+        //        }
+        //    }
+        //    return test;
+        //}
+
+        /// <summary>
+        /// Random number generates integers without replacement.
+        /// </summary>
+        /// <param name="random"> Random number generator.</param>
+        /// <param name="min">Lower bound.</param>
+        /// <param name="max"> Higher bound.</param>
+        /// <param name="length">Amount of numbers to be generated.</param>
+        /// <returns></returns>
+        public static int[] NextNRIntegers(Random random, int min, int max, int length )
+        {
+            var integers = new List<int>();
+            for(int i = min; i < max; i++)
+            {
+                integers.Add(i);
+            }
+
+            var vals = new int[length];
+            for (int i = 0; i < length; i++)
+            {
+                var r = random.Next(0,integers.Count);
+                vals[i] = integers[r];
+                integers.RemoveAt(r);
+            }
+            return vals;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="rng"> Random number generator for the indices using NextNRIntegers()</param>
+        /// <param name="data"></param>
+        /// <param name="testing"></param>
+        /// <returns></returns>
+        public static double[][] TrainTestSplit(int[] rng,int dataSize, double[][] data,bool testing = false)
+        {
+            // iterate through indices and then split 
+            //int dataSize = data[0].Length; //amount of columns (150)
+            int subSampleTraining = (int)Math.Ceiling(0.7 * dataSize); // 70% training split (105)
+            int subSampleTesting = dataSize - subSampleTraining; // 45
+
+            // Calling rng for indices with seed
+            //var rand = new Random(12345);
+            //var rng = NextNRIntegers(rand, 0, dataSize, dataSize);
+            var indicesTraining = new int[subSampleTraining]; //70% of the rng indices to training
+            for (int i = 0; i < subSampleTraining; i++)
+            {
+                indicesTraining[i] = rng[i];
+            }
+            
+            var indicesTesting = new int[subSampleTesting];
+            for (int i = 0; i < subSampleTesting; i++)
+            {
+                indicesTesting[i] = rng[i + subSampleTraining];
+            }
+            //var indicesTesting = rng.Except(indicesTraining).ToArray(); // allocates the other indices for testing
+
+            var trainingData = new double[subSampleTraining][];
+            var testingData = new double[subSampleTesting][];
+
+            for (int i = 0; i < subSampleTraining; i++)
+            {
+                trainingData[i] = new double[5]; //5 features in the dataset
+                for(int j =0; j < 5; j++)
+                {
+                    //trainingData[i][j] = data[indicesTraining[i]][j];
+                    trainingData[i][j] = data[j][indicesTraining[i]];
+                    //trainingData[i] = data[indicesTraining[i]];
+                }
+            }
+
+            for(int i =0; i < subSampleTesting; i++)
+            {
+                testingData[i] = new double[5];
+                for(int j = 0; j < 5; j++)
+                {
+                    //testingData[i][j]= data[indicesTesting[i]][j];
+                    testingData[i][j] = data[j][indicesTesting[i]];
+                    //testingData[i][j] = data[indicesTesting[i]];
+                }
+            }
+
+            if (testing)
+            {
+                return testingData;
+            }
+            else
+            {
+                return trainingData;
+            }
+        }
+        ///// <summary>
+        ///// 
+        ///// </summary>
+        ///// <typeparam name="T"></typeparam>
+        ///// <returns></returns>
+        //public static bool[] SampleSplit(double[][] array, double SplitRatio = 0.7)
+        //{
+        //    int nSamp = array.Count();
+        //    //int nGroup = group.Length;
+        //    bool[] bins = new bool[nSamp];
+        //    SplitRatio = Math.Abs(SplitRatio);
+
+        //    //if (nGroup > 0 && nGroup != nSamp)
+        //    //    throw new ArgumentException("Arrays 'array' and 'group' have to have the same length");
+        //    if (SplitRatio >= nSamp) 
+        //        throw new ArgumentException("'SplitRatio' parameter has to be in [0, 1] range or [1, length(array)] range");
+
+        //    var distinctLabels = array.Distinct();
+        //    distinctLabels = distinctLabels.ToArray();
+        //    int nDistinctLabels = distinctLabels.Count();
+
+        //    if (2 * nDistinctLabels > nSamp || nDistinctLabels == 1)
+        //    {
+        //        if (SplitRatio >= 1)
+        //        {
+        //            double n = SplitRatio;
+        //        }
+        //        else
+        //        {
+        //            double n = SplitRatio * nSamp;
+        //        }
+        //        Random random = new Random();
+        //        List<int> rnd = new List<int>(nSamp);
+        //        for (int i = 0; i < rnd.Count; i++)
+        //        {
+        //            rnd.Add(random.Next(0, nSamp));
+        //        }
+
+        //        rnd.Sort();
+
+        //        for (int j = 0; j < rnd.Count; j++)
+        //        {
+        //            bins[rnd[j]] = true;
+        //        }
+        //    }
+        //    else
+        //    {
+        //        if(SplitRatio >= 1)
+        //        {
+        //            double rat = SplitRatio/nSamp;
+        //        }
+        //        else
+        //        {
+        //            double rat = SplitRatio;
+        //        }
+        //        for (int i = 0; i < nDistinctLabels; i++)
+        //        {
+        //            var idx = Enumerable.Range(0, array.Length)
+        //                       .Where(i => array[i] == distinctLabels.ElementAt(i))
+        //                       .ToArray();
+
+        //            int n = (int)Math.Round(idx.Length * 0.5); // Adjust the ratio as needed
+
+        //            //var idx[i] = Array.IndexOf(array, distinctLabels.ElementAt(i));
+        //            //int n = (int)Math.Round(idx * 0.5);
+
+        //            Random random = new Random();
+        //            double[] rnd = idx.Select(i => random.NextDouble()).ToArray();
+
+        //            Array.Sort(rnd, idx);
+
+        //            for (int ii = 0; ii < n; ii++)
+        //            {
+        //                bins[idx[ii]] = true;
+        //            }
+        //        }
+
+        //        if(SplitRatio >= 1)
+        //        {
+        //            double n = bins.Length - SplitRatio;
+
+        //            if(n > 0)
+        //            {
+        //                var binOneIdx = Enumerable.Range(0, bins.Length).Where(i => bins[i]).ToArray();
+        //                var randIdx = binOneIdx.OrderBy(i=>Guid.NewGuid()).Take((int)n).ToArray();
+
+        //                foreach(var idx in randIdx)
+        //                {
+        //                    bins[idx] = false;
+        //                }
+        //            }
+        //            else if (n < 0)
+        //            {
+        //                var binTwoIdx = Enumerable.Range(0, bins.Length).Where(i => !bins[i]).ToArray();
+        //                var randIdx = binTwoIdx.OrderBy(_ => Guid.NewGuid()).Take(-(int)n).ToArray();
+
+        //                foreach (var idx in randIdx)
+        //                {
+        //                    bins[idx] = true;
+        //                }
+        //            }
+        //        }
+
+
+        //    }
+        //    return bins;
+        //}
     }
 }

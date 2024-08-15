@@ -34,6 +34,7 @@ using System.Linq;
 using Numerics.Data.Statistics;
 using Numerics.Mathematics.Optimization;
 using Numerics.Mathematics.SpecialFunctions;
+using static System.Net.WebRequestMethods;
 
 namespace Numerics.Distributions
 {
@@ -43,17 +44,15 @@ namespace Numerics.Distributions
     /// </summary>
     /// <remarks>
     /// <para>
-    ///     Authors:
+    ///     <b> Authors: </b>
     ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
     /// </para>
     /// <para>
-    /// References:
-    /// <list type="bullet">
-    /// <item><description>
+    /// <b> References: </b>
+    /// </para>
+    /// <para>
     /// Wikipedia contributors, "Log-normal distribution,". Wikipedia, The Free
-    /// Encyclopedia. Available at: https://en.wikipedia.org/wiki/Log-normal_distribution
-    /// </description></item>
-    /// </list>
+    /// Encyclopedia. Available at: <see href="https://en.wikipedia.org/wiki/Log-normal_distribution"/>
     /// </para>
     /// </remarks>
     [Serializable]

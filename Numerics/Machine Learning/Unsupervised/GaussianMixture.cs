@@ -36,6 +36,27 @@ using System.Threading.Tasks;
 
 namespace Numerics.MachineLearning
 {
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <remarks>
+    ///  /// <para>
+    ///     <b> Authors:</b>
+    ///     Tiki Gonzalez, USACE Risk Management Center, julian.t.gonzalez@usace.army.mil
+    /// </para>
+    /// <para>
+    /// <b> Description: </b>
+    /// </para>
+    /// <para>
+    /// 
+    /// </para>
+    /// <para>
+    /// <b> References: </b>
+    /// <list type="bullet">
+    /// 
+    /// </list>
+    /// </para>
+    /// </remarks>
     public class GaussianMixture
     {
     }

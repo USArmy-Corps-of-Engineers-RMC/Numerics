@@ -81,8 +81,11 @@ namespace Numerics.Sampling
     /// </summary>
     /// <remarks>
     /// <para>
-    ///     Authors:
+    ///     <b> Authors: </b>
     ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
+    /// </para>
+    /// <para>
+    /// <b> References: </b>
     /// </para>
     /// <para>
     /// The source code can be found at:

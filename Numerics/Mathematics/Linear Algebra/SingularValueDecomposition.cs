@@ -1,10 +1,10 @@
-﻿/***
-*NOTICE:
-*The U.S.Army Corps of Engineers, Risk Management Center (USACE-RMC) makes no guarantees about
+﻿/**
+* NOTICE:
+* The U.S. Army Corps of Engineers, Risk Management Center (USACE-RMC) makes no guarantees about
 * the results, or appropriateness of outputs, obtained from Numerics.
 *
 * LIST OF CONDITIONS:
-*Redistribution and use in source and binary forms, with or without modification, are permitted
+* Redistribution and use in source and binary forms, with or without modification, are permitted
 * provided that the following conditions are met:
 * ● Redistributions of source code must retain the above notice, this list of conditions, and the
 * following disclaimer.
@@ -17,7 +17,7 @@
 * written permission.
 *
 * DISCLAIMER:
-*THIS SOFTWARE IS PROVIDED BY THE U.S. ARMY CORPS OF ENGINEERS RISK MANAGEMENT CENTER
+* THIS SOFTWARE IS PROVIDED BY THE U.S. ARMY CORPS OF ENGINEERS RISK MANAGEMENT CENTER
 * (USACE-RMC) "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
 * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
 * DISCLAIMED. IN NO EVENT SHALL USACE-RMC BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
@@ -26,7 +26,7 @@
 * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
 * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-***/
+* **/
 
 using Numerics.Distributions;
 using System;
@@ -50,23 +50,20 @@ namespace Numerics.Mathematics.LinearAlgebra
     /// <para>
     /// Singular value decomposition (SVD) is one of the most useful matrix decomposition methods. Used in:
     /// <list type="bullet">
-    /// Reducing dimension of large data sets (PCA)
-    /// </list>
-    /// <list type="bullet">
-    /// Separating "signal" from "noise" in real-world data
-    /// </list>
-    /// <list type="bullet">
-    /// Identifying line / low-dim plane of best-fit  to high dimensional data
-    /// </list>
-    /// <list type="bullet">
-    /// Solving/interpreting linear systems of equations
+    /// <item> Reducing dimension of large data sets (PCA) </item>
+    /// <item>Separating "signal" from "noise" in real-world data </item>
+    /// <item>Identifying line / low-dim plane of best-fit  to high dimensional data </item>
+    /// <item>Solving/interpreting linear systems of equations </item>
     /// </list>
     /// </para>
     /// <para>
-    /// "Numerical Recipes: The art of Scientific Computing, Third Edition. Press et al. 2017.
-    /// </para>
-    /// <para>
+    /// <b> References: </b>
+    /// <list type="bullet">
+    /// <item> "Numerical Recipes: The art of Scientific Computing, Third Edition. Press et al. 2017. </item>
+    /// <item> <description> 
     /// <see href = "https://en.wikipedia.org/wiki/Singular_value_decomposition" />
+    /// </description></item>
+    /// </list>
     /// </para>
     /// </remarks>
     public class SingularValueDecomposition

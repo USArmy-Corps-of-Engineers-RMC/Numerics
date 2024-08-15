@@ -46,8 +46,11 @@ namespace Numerics.Distributions
     /// </summary>
     /// <remarks>
     /// <para>
-    ///     Authors:
+    ///     <b> Authors: </b>
     ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
+    /// </para>
+    /// <para>
+    /// <b> Description: </b>
     /// </para>
     /// <para>
     /// This code was inspired by the statistical library developed by Will Lehman (HEC). I have also incorporated concepts used in the Accord.NET and MathNet.Numerics open source libraries.

@@ -33,6 +33,7 @@ using Numerics.Mathematics.Optimization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using static System.Net.WebRequestMethods;
 
 namespace Numerics.Distributions
 {
@@ -42,8 +43,11 @@ namespace Numerics.Distributions
     /// </summary>
     /// <remarks>
     /// <para>
-    ///     Authors:
+    ///     <b> Authors: </b>
     ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
+    /// </para>
+    /// <para>
+    /// <b> Description: </b>
     /// </para>
     /// <para>
     ///     In probability and statistics, the PERT distribution is a family of continuous probability distributions
@@ -51,11 +55,11 @@ namespace Numerics.Distributions
     ///     It is a transformation of the four-parameter Beta distribution.
     /// </para>
     /// <para>
-    /// References:
+    /// <b> References: </b>
     /// <list type="bullet">
     /// <item><description>
     /// Wikipedia contributors, "PERT distribution,". Wikipedia, The Free
-    /// Encyclopedia. Available at: https://en.wikipedia.org/wiki/PERT_distribution.
+    /// Encyclopedia. Available at: <see href="https://en.wikipedia.org/wiki/PERT_distribution"/>
     /// </description></item>
     /// </list>
     /// </para>

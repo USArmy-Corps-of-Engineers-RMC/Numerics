@@ -38,8 +38,11 @@ namespace Numerics.Sampling
     /// </summary>
     /// <remarks>
     /// <para>
-    ///     Authors:
+    ///     <b> Authors: </b>
     ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
+    /// </para>
+    /// <para> 
+    /// <b> Description: </b>
     /// </para>
     /// <para>
     /// Uniform random numbers are sampled by stratifying U(0,1) into n bins of equal probability, 

@@ -1,4 +1,4 @@
-﻿/***
+﻿/**
 * NOTICE:
 * The U.S. Army Corps of Engineers, Risk Management Center (USACE-RMC) makes no guarantees about
 * the results, or appropriateness of outputs, obtained from Numerics.
@@ -26,7 +26,7 @@
 * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
 * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-***/
+* **/
 
 using System;
 
@@ -53,15 +53,13 @@ namespace Numerics.Mathematics.LinearAlgebra
     /// </para>
     /// <para>
     /// <b> References: </b>
-    /// </para>
-    /// <para>
-    /// "Numerical Recipes: The art of Scientific Computing, Third Edition. Press et al. 2017"
-    /// </para>
-    /// <para>
-    /// "Applied Numerical Methods with MATLAB for Engineers and Scientists, Third Edition.", Steven C. Chapra, McGraw-Hill, 2012.
-    /// </para>
-    /// <para>
+    /// <list type="bullet">
+    /// <item> "Numerical Recipes: The art of Scientific Computing, Third Edition." Press et al. 2017. </item>
+    /// <item>"Applied Numerical Methods with MATLAB for Engineers and Scientists, Third Edition.", Steven C. Chapra, McGraw-Hill, 2012. </item>
+    /// <item><description> 
     /// <see href = "https://en.wikipedia.org/wiki/LU_decomposition" />
+    /// </description></item>
+    /// </list>
     /// </para>
     /// </remarks>
     public class LUDecomposition

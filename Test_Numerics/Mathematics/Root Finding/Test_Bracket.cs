@@ -32,11 +32,20 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Numerics.Mathematics.RootFinding;
 using System;
 
-namespace Mathematics.RootFinding
+namespace Mathematics.Root_Finding
 {
     /// <summary>
-    /// Test root finding methods. 
+    /// A class of various functions unit testing the Bracketing Method.
     /// </summary>
+    /// <remarks>
+    /// <para>
+    ///     <b> Authors: </b>
+    ///     <list type="bullet"> 
+    ///     <item> Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil </item>
+    ///     <item> Tiki Gonzalez, USACE Risk Management Center, julian.t.gonzalez@usace.army.mil </item>
+    /// </list>
+    /// </para>
+    /// </remarks>
     [TestClass()]
     public class Test_Bracket
     {

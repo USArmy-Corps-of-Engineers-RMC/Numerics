@@ -30,9 +30,10 @@
 
 using Numerics.Data.Statistics;
 using System;
-using System.Collections.Generic;
+using System.Collections.Generic; 
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
 using System.Threading;
 
 namespace Numerics
@@ -42,7 +43,7 @@ namespace Numerics
     /// </summary>
     /// <remarks>
     /// <para>
-    ///     Authors:
+    ///     <b> Authors: </b>
     ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
     /// </para>
     /// </remarks>
@@ -184,7 +185,10 @@ namespace Numerics
         }
 
         /// <summary>
-        /// Returns the normalized values ranging between 0 and 1. 
+        /// Returns the normalized values ranging between 0 and 1.
+        /// <para> 
+        /// <see href="https://www.codecademy.com/article/normalization"/>
+        /// </para>
         /// </summary>
         /// <param name="values">The list of values.</param>
         public static double[] Normalize(IList<double> values)
@@ -202,7 +206,7 @@ namespace Numerics
         /// </summary>
         /// <param name="values">The list of normalized values to denormalize.</param>
         /// <param name="min">The minimum value from the original data.</param>
-        /// <param name="max">The minimum value from the original data.</param>
+        /// <param name="max">The maximum value from the original data.</param>
         public static double[] Denormalize(IList<double> values, double min, double max)
         {
             var result = new double[values.Count];

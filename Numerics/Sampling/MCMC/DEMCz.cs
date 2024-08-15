@@ -40,11 +40,11 @@ namespace Numerics.Sampling.MCMC
     /// </summary>
     /// <remarks>
     /// <para>
-    ///     Authors:
+    ///     <b> Authors: </b>
     ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
     /// </para>
     /// <para>
-    ///     References:
+    ///     <b> References: </b>
     /// <list type="bullet">
     /// <item><description>
     ///     This class was adapted from research code developed by Brian Skahill (USACE-ERDC-CHL).

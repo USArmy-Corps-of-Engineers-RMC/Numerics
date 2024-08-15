@@ -39,8 +39,11 @@ namespace Numerics.Distributions
     /// </summary>
     /// <remarks>
     /// <para>
-    ///     Authors:
+    ///     <b> Authors: </b>
     ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
+    /// </para>
+    /// <para>
+    /// <b> References: </b>
     /// </para>
     /// <para>
     /// <see href = "https://en.wikipedia.org/wiki/Cauchy_distribution" />
@@ -266,6 +269,13 @@ namespace Numerics.Distributions
         /// <param name="throwException">Determines whether to throw an exception or not.</param>
         public override ArgumentOutOfRangeException ValidateParameters(IList<double> parameters, bool throwException)
         {
+            if (double.IsNaN(parameters[0]) || double.IsInfinity(parameters[0]))
+            {
+                if (throwException)
+                    throw new ArgumentOutOfRangeException(nameof(X0), "The location parameter X0 must be valid.");
+                return new ArgumentOutOfRangeException(nameof(X0), "The location parameter X0 must be valid.");
+            }
+
             if (double.IsNaN(parameters[1]) || double.IsInfinity(parameters[1]) || parameters[1] <= 0.0d)
             {
                 if (throwException)

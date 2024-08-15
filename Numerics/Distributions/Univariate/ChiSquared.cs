@@ -40,22 +40,25 @@ namespace Numerics.Distributions
     /// </summary>
     /// <remarks>
     /// <para>
-    ///     Authors:
+    ///     <b> Authors: </b>
     ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
     /// </para>
+    /// <para> 
+    /// <b> Description:</b>
+    /// </para>
     /// <para>
-    /// In probability theory And statistics, the chi-square distribution (also chi-squared
+    /// In probability theory and statistics, the chi-square distribution (also chi-squared
     /// or χ²-distribution) with k degrees of freedom Is the distribution of a sum of the
     /// squares of k independent standard normal random variables. It Is one of the most
     /// widely used probability distributions in inferential statistics, e.g. in hypothesis
     /// testing, or in construction of confidence intervals.
     /// </para>
     /// <para>
-    /// References:
+    /// <b>References: </b>
     /// <list type="bullet">
     /// <item><description>
     /// Wikipedia contributors, "Chi-squared distribution,". Wikipedia, The Free
-    /// Encyclopedia. Available at: https://en.wikipedia.org/wiki/Chi-squared_distribution.
+    /// Encyclopedia. Available at: <see href="https://en.wikipedia.org/wiki/Chi-squared_distribution"/>
     /// </description></item>
     /// </list>
     /// </para>
@@ -340,7 +343,7 @@ namespace Numerics.Distributions
         }
 
         /// <summary>
-        /// Gets the Inverse Cumulative Distribution Function (ICFD) of the distribution evaluated at a probability.
+        /// Gets the Inverse Cumulative Distribution Function (ICDF) of the distribution evaluated at a probability.
         /// </summary>
         /// <param name="probability">Probability between 0 and 1.</param>
         /// <returns>

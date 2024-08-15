@@ -40,8 +40,11 @@ namespace Numerics.Distributions
     /// </summary>
     /// <remarks>
     /// <para>
-    ///     Authors:
+    ///     <b> Authors: </b>
     ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
+    /// </para>
+    /// <para>
+    /// <b> Description: </b>
     /// </para>
     /// <para>
     /// This is used in cases, such as event tree analysis, to represent a value or event with a single probability estimate.

@@ -31,6 +31,7 @@
 using Numerics.Data.Statistics;
 using System;
 using System.Collections.Generic;
+using static System.Net.WebRequestMethods;
 
 namespace Numerics.Distributions
 {
@@ -40,15 +41,15 @@ namespace Numerics.Distributions
     /// </summary>
     /// <remarks>
     /// <para>
-    ///     Authors:
+    ///     <b> Authors: </b>
     ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
     /// </para>
     /// <para>
-    /// References:
+    /// <b> References: </b>
     /// <list type="bullet">
     /// <item><description>
     /// Wikipedia contributors, "Truncated Normal distribution,". Wikipedia, The Free
-    /// Encyclopedia. Available at: https://en.wikipedia.org/wiki/Truncated_normal_distribution
+    /// Encyclopedia. Available at: <see href="https://en.wikipedia.org/wiki/Truncated_normal_distribution"/>
     /// </description></item>
     /// </list>
     /// </para>

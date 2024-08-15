@@ -39,8 +39,11 @@ namespace Numerics.Distributions
     /// </summary>
     /// <remarks>
     /// <para>
-    ///     Authors:
+    ///     <b> Authors: </b>
     ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
+    /// </para>
+    /// <para>
+    /// <b> References: </b>
     /// </para>
     /// <para>
     /// <see href = "https://en.wikipedia.org/wiki/Bernoulli_distribution" />
@@ -310,7 +313,7 @@ namespace Numerics.Distributions
         }
 
         /// <summary>
-        /// Gets the Inverse Cumulative Distribution Function (ICFD) of the distribution evaluated at a probability.
+        /// Gets the Inverse Cumulative Distribution Function (ICDF) of the distribution evaluated at a probability.
         /// </summary>
         /// <param name="probability">Probability between 0 and 1.</param>
         public override double InverseCDF(double probability)

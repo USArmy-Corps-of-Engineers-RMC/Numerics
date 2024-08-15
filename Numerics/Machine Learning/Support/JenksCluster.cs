@@ -37,8 +37,11 @@ namespace Numerics.MachineLearning
     /// </summary>
     /// <remarks>
     /// <para>
-    ///     Authors:
+    ///     <b> Authors: </b>
     ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
+    /// </para>
+    /// <para>
+    /// <b> Description: </b>
     /// </para>
     /// <para>
     /// The Jenks optimization method, also called the Jenks natural breaks classification method, 

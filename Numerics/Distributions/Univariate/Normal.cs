@@ -45,18 +45,18 @@ namespace Numerics.Distributions
     /// </summary>
     /// <remarks>
     /// <para>
-    ///     Authors:
+    ///     <b> Authors: </b>
     ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
     /// </para>
     /// <para>
-    /// References:
+    /// <b> References: </b>
     /// <list type="bullet">
     /// <item><description>
     /// Wikipedia contributors, "Normal distribution,". Wikipedia, The Free
-    /// Encyclopedia. Available at: https://en.wikipedia.org/wiki/Normal_distribution
+    /// Encyclopedia. Available at: <see href="https://en.wikipedia.org/wiki/Normal_distribution"/>
     /// </description></item>
     /// <item><description>
-    /// Accord Math Library, http://accord-framework.net
+    /// Accord Math Library, <see href="http://accord-framework.net"/>
     /// </description></item>
     /// </list>
     /// </para>
