@@ -28,108 +28,266 @@
 * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+using Numerics.Distributions;
+using Numerics.Mathematics.LinearAlgebra;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Numerics.MachineLearning
 {
     /// <summary>
-    /// Naive-Bayes Algorithm.
+    /// A class for Gaussian Naive Bayes Classification.
     /// </summary>
     /// <remarks>
     /// <para>
     ///     <b> Authors: </b>
-    ///     Tiki Gonzalez, USACE Risk Management Center, julian.t.gonzalez@usace.army.mil
+    ///     <list type="bullet">
+    ///     <item>Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil</item>
+    ///     <item>Tiki Gonzalez, USACE Risk Management Center, julian.t.gonzalez@usace.army.mil</item>
+    ///     </list> 
     /// </para>
     /// <para>
     /// <b> Description: </b>
     /// </para>
     /// <para>
-    /// Naive Bayes is a simple probabilistic classifier that apply Bayes' theorem.
-    /// Naive-Bayes classification is meant to predict a discrete value.
+    /// The Naive Bayes classifier is a "probabilistic classifier" based on 
+    /// applying Bayes' theorem with strong (naive) independence assumption between features.
+    /// </para>
+    /// <para>
+    /// The class implements Gaussian Naive Bayes, which assumes the features associated with each class
+    /// are continuous and distributed according to a Normal (Gaussian) distribution. 
     /// </para>
     /// <para>
     /// <b> References: </b>
     /// <list type="bullet">
-    /// <item> <see href="https://learn.microsoft.com/en-us/archive/msdn-magazine/2019/june/test-run-simplified-naive-bayes-classification-using-csharp"/></item>
-    /// <item> <see href="https://visualstudiomagazine.com/articles/2019/11/12/naive-bayes-csharp.aspx"/></item>
+    /// <item> <see href="https://en.wikipedia.org/wiki/Naive_Bayes_classifier"/></item>
     /// </list>
     /// </para>
     /// </remarks>
     public class NaiveBayes
     {
-        //private double NaivePredict(int predictors, int classes, double[][] data)
-        //{
-        //    int N = data.Length;
-        //    int[] classCounts = new int[classes];
-        //    //Computes counts of each class to predict
-        //    for (int i = 0; i < N; ++i)
-        //    {
-        //        int c = (int)data[i][classes + 1];
-        //        ++classCounts[c]; //holds the number of reference items of each class
-        //    }
 
-        //    //Means of each predictor variable for each class
-        //    double[][] means = new double[classes][];
-        //    for (int c = 0; c < classes; ++c)
-        //        means[c] = new double[predictors];
+        #region Construction
 
-        //    for (int i = 0; i < N; ++i)
-        //    {
-        //        int c = (int)data[i][predictors];
-        //        for (int j = 0; j < predictors; ++j)
-        //            means[c][j] += data[i][j];
-        //    }
+        /// <summary>
+        /// Create new Naive Bayes classifier.
+        /// </summary>
+        /// <param name="x">The training 1D array of predictor values.</param>
+        /// <param name="y">The training response vector.</param>
+        public NaiveBayes(double[] x, double[] y)
+        {
+            // Set inputs
+            Y = new Vector(y);
+            X = new Matrix(x);
+            Classes = y.Distinct().ToArray();
 
-        //    for (int c = 0; c < classes; ++c)
-        //    {
-        //        for (int j = 0; j < predictors; ++j)
-        //            means[c][j] /= classCounts[c];
-        //    }
+            if (Y.Length != X.NumberOfRows) throw new ArgumentException("The y vector must be the same length as the x matrix.");
+            if (Y.Length < 10) throw new ArgumentException("There must be at least ten training data points.");
+            if (Classes.Length < 1) throw new ArgumentException("There must be at least 1 class to predict.");
 
-        //    //Sums squared differences for each predictor
-        //    double[][] variances = new double[classes][];
-        //    for (int c = 0; c < classes; ++c)
-        //    {
-        //        variances[c] = new double[predictors];
-        //    }
+        }
 
-        //    for (int i = 0; i < N; ++i)
-        //    {
-        //        int c = (int)data[i][predictors];
-        //        for (int j = 0; j < predictors; ++j)
-        //        {
-        //            double x = data[i][j];
-        //            double u = means[c][j];
-        //            variances[c][j] += (x - u) * (x - u);
-        //        }
-        //    }
+        /// <summary>
+        /// Create new Naive Bayes classifier.
+        /// </summary>
+        /// <param name="x">The training 2D array of predictor values.</param>
+        /// <param name="y">The training response vector.</param>
+        public NaiveBayes(double[,] x, double[] y)
+        {
+            // Set inputs
+            Y = new Vector(y);
+            X = new Matrix(x);
+            Classes = y.Distinct().ToArray();
 
-        //    //Get Sample variances
-        //    for (int c = 0; c < 2; ++c)
-        //    {
-        //        for (int j = 0; j < 3; ++j)
-        //            variances[c][j] /= classCounts[c] - 1;
-        //    }
+            if (Y.Length != X.NumberOfRows) throw new ArgumentException("The y vector must be the same length as the x matrix.");
+            if (Y.Length < 10) throw new ArgumentException("There must be at least ten training data points.");
+            if (Classes.Length < 1) throw new ArgumentException("There must be at least 1 class to predict.");
+        }
 
-        //    //Computes conditional probabilities
-        //    double[][] condProbs = new double[classes][];
-        //    for (int c = 0; c < classes; ++c)
-        //        condProbs[c] = new double[predictors];
+        /// <summary>
+        /// Create new Naive Bayes classifier.
+        /// </summary>
+        /// <param name="x">The training matrix of predictor values.</param>
+        /// <param name="y">The training response vector.</param>
+        public NaiveBayes(Matrix x, Vector y)
+        {
+            // Set inputs
+            Y = y;
+            X = x;
+            Classes = y.Array.Distinct().ToArray();
 
-        //}
-        ////actual prediction
-        //for (int c = 0; c< 2; ++c)  // each class
-        //    {
-        //        for (int j = 0; j< 3; ++j)  // each predictor
-        //        {
-        //            double u = means[c][j];
-        //double v = variances[c][j];
-        //double x = unk[j];
-        //condProbs[c][j] = ProbDensFunc(u, v, x);
+            if (Y.Length != X.NumberOfRows) throw new ArgumentException("The y vector must be the same length as the x matrix.");
+            if (Y.Length < 10) throw new ArgumentException("There must be at least ten training data points.");
+            if (Classes.Length < 1) throw new ArgumentException("There must be at least 1 class to predict.");
+        }
+
+        #endregion
+
+        #region Members
+
+        /// <summary>
+        /// The training vector of response values.
+        /// </summary>
+        public Vector Y { get; private set; }
+
+        /// <summary>
+        /// The training matrix of predictor values. 
+        /// </summary>
+        public Matrix X { get; private set; }
+
+        /// <summary>
+        /// Returns the list of distinct classes from the training set. 
+        /// </summary>
+        public double[] Classes { get; private set; }
+
+        /// <summary>
+        /// The means of each feature given each class. 
+        /// </summary>
+        public double[,] Means { get; private set; }
+
+        /// <summary>
+        /// The standard deviations of each feature given each class.
+        /// </summary>
+        public double[,] StandardDeviations { get; private set; }
+
+        /// <summary>
+        /// The prior probability for each class.
+        /// </summary>
+        public double[] Priors { get; private set; }
+
+        /// <summary>
+        /// Determines if the classifier has been trained.
+        /// </summary>
+        public bool IsTrained { get; private set; } = false;
+
+        #endregion
+
+        #region Methods
+
+        /// <summary>
+        /// Train the Naive Bayes classifier. 
+        /// </summary>
+        public void Train()
+        {
+            // Set up training outputs
+            IsTrained = false;
+            int nSamples = X.NumberOfRows;
+            int nFeatures = X.NumberOfColumns;
+            int nClasses = Classes.Length;
+            Means = new double[nClasses, nFeatures];
+            StandardDeviations = new double[nClasses, nFeatures];
+            Priors = new double[nClasses];
+
+            for (int i = 0; i < nClasses; i++)
+            {
+                // Compute priors as relative frequency of classes
+                for (int k = 0; k < nSamples; k++)
+                {
+                    if (Y[k] == Classes[i])
+                    {
+                        Priors[i]++;
+                    }
+                }
+                Priors[i] /= nSamples;
+
+                // Compute the mean and standard deviation of each feature j given the class i
+                for (int j = 0; j < nFeatures; j++)
+                {
+                    double x = 0;     // sum
+                    double x2 = 0;    // sum of X^2
+                    double u1, u2;
+                    double n = 0;
+                    // Compute sums
+                    for (int k = 0; k < nSamples; k++)
+                    {
+                        if (Y[k] == Classes[i])
+                        {
+                            x += X[k, j];
+                            x2 += Math.Pow(X[k, j], 2);
+                            n++;
+                        }
+                    }
+                    // Compute averages
+                    u1 = x / n;
+                    u2 = x2 / n;
+                    // Set means
+                    Means[i, j] = u1;
+                    // Set standard deviations
+                    StandardDeviations[i, j] = Math.Sqrt((u2 - Math.Pow(u1, 2d)) * (n / (n - 1)));
+                }
+
+            }
+
+            IsTrained = true;
+        }
+
+        /// <summary>
+        /// Returns the prediction of the Naive Bayes classifier
+        /// </summary>
+        /// <param name="X">The 1D array of predictors.</param>
+        public double[] Predict(double[] X)
+        {
+            return Predict(new Matrix(X));
+        }
+
+        /// <summary>
+        /// Returns the prediction of the Naive Bayes classifier
+        /// </summary>
+        /// <param name="X">The 2D array of predictors.</param>
+        public double[] Predict(double[,] X)
+        {
+            return Predict(new Matrix(X));
+        }
+
+        /// <summary>
+        /// Returns the prediction of the Naive Bayes classifier.
+        /// </summary>
+        /// <param name="X">The matrix of predictors.</param>
+        public double[] Predict(Matrix X)
+        {
+            if (!IsTrained || X.NumberOfColumns != this.X.NumberOfColumns) return null;
+            var result = new double[X.NumberOfRows];
+            for (int i = 0; i < X.NumberOfRows; i++)
+            {
+                result[i] = MAP(X.Row(i));
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Returns the class with the maximum posterior probability.
+        /// </summary>
+        /// <param name="x">A single vector of features for a prediction point.</param>
+        private double MAP(double[] x)
+        {
+            int nFeatures = X.NumberOfColumns;
+            int nClasses = Classes.Length;
+            double max = double.MinValue;
+            int maxIdx = 0;
+
+            // P(y)  = The prior probability is the relative frequency of each class
+            // P(x|y) = The conditional probability is from the PDF of Normal distribution.
+
+            for (int i = 0; i < nClasses; i++)
+            {
+                // Compute the log-likelihood of each class
+                double logLH = Math.Log(Priors[i]);
+                for (int j = 0; j < nFeatures; j++)
+                {
+                    var norm = new Normal(Means[i, j], StandardDeviations[i, j]);
+                    logLH += norm.LogPDF(x[j]);
+                }
+                // keep track of the maximum
+                if (logLH > max)
+                {
+                    max = logLH;
+                    maxIdx = i;
+                }
+            }
+            return Classes[maxIdx];
+        }
+
+        #endregion
     }
 }
  

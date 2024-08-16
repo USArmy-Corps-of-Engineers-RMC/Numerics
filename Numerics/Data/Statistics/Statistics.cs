@@ -451,7 +451,7 @@ namespace Numerics.Data.Statistics
         {
             if (sampleData.Count == 0)
             {
-                return new[] { double.NaN, double.NaN, double.NaN, double.NaN };
+                return [double.NaN, double.NaN, double.NaN, double.NaN];
             }
 
             // Create variables
@@ -467,7 +467,7 @@ namespace Numerics.Data.Statistics
             double U1, U2, U3, U4;
 
             // Get sample size
-            long N = sampleData.Count;
+            double N = sampleData.Count;
 
             // Compute sum
             for (int i = 0; i <= (int)(N - 1L); i++)
@@ -486,14 +486,14 @@ namespace Numerics.Data.Statistics
             // Get mean
             M = U1;
             // Compute variance
-            V = (U2 - Math.Pow(U1, 2d)) * (N / (double)(N - 1L));
+            V = (U2 - Math.Pow(U1, 2d)) * (N / (N - 1));
             // Compute sample standard deviation
             S = Math.Sqrt(V);
             // Compute sample skew
             G = Math.Pow(N, 2d) * (U3 - 3d * U1 * U2 + 2d * Math.Pow(U1, 3d)) / ((N - 1L) * (N - 2L) * Math.Pow(S, 3d));
             // Compute sample kurtosis
             K = Math.Pow(N, 2d) * (N + 1L) * (U4 - 4d * U1 * U3 + 6d * U2 * Math.Pow(U1, 2d) - 3d * Math.Pow(U1, 4d)) / ((N - 1L) * (N - 2L) * (N - 3L) * Math.Pow(S, 4d)) - 3d * Math.Pow(N - 1L, 2d) / ((N - 2L) * (N - 3L));
-            return new[] { M, S, G, K };
+            return [M, S, G, K];
         }
 
         /// <summary>
@@ -505,25 +505,25 @@ namespace Numerics.Data.Statistics
             var sample = sampleData.ToArray();
             if (sample.Count() == 0)
             {
-                return new[] { double.NaN, double.NaN, double.NaN, double.NaN };
+                return [double.NaN, double.NaN, double.NaN, double.NaN];
             }
             // 
             double B0 = 0d;
             double B1 = 0d;
             double B2 = 0d;
             double B3 = 0d;
-            int N = sample.Count();
+            double N = sample.Count();
             Array.Sort(sample);
 
             for (int i = 1; i <= N; i++)
             {
                 B0 += sample[i - 1];
                 if (i > 1)
-                    B1 += (i - 1) / (double)(N - 1) * sample[i - 1];
+                    B1 += (i - 1) / (N - 1) * sample[i - 1];
                 if (i > 2)
-                    B2 += (i - 2) * (i - 1) / (double)((N - 2) * (N - 1)) * sample[i - 1];
+                    B2 += (i - 2) * (i - 1) / ((N - 2) * (N - 1)) * sample[i - 1];
                 if (i > 3)
-                    B3 += (i - 3) * (i - 2) * (i - 1) / (double)((N - 3) * (N - 2) * (N - 1)) * sample[i - 1];
+                    B3 += (i - 3) * (i - 2) * (i - 1) / ((N - 3) * (N - 2) * (N - 1)) * sample[i - 1];
             }
  
             B0 /= N;
@@ -538,7 +538,7 @@ namespace Numerics.Data.Statistics
             double L2 = 2d * B1 - B0;
             double T3 = 2d * (3d * B2 - B0) / (2d * B1 - B0) - 3d;
             double T4 = 5d * (2d * (2d * B3 - 3d * B2) + B0) / (2d * B1 - B0) + 6d;
-            return new[] { L1, L2, T3, T4 };
+            return [L1, L2, T3, T4];
         }
 
         /// <summary>

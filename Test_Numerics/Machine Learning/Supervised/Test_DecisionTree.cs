@@ -40,9 +40,70 @@ using Numerics.Data.Statistics;
 
 namespace MachineLearning
 {
+    /// <summary>
+    /// Unit tests for Decision Tree classification and regression.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    ///     <b> Authors: </b>
+    ///     <list type="bullet"> 
+    ///     <item> Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil </item>
+    ///     <item> Tiki Gonzalez, USACE Risk Management Center, julian.t.gonzalez@usace.army.mil </item>
+    /// </list>
+    /// </para>
+    /// </remarks>
     [TestClass]
     public class Test_DecisionTree
     {
+        /// <summary>
+        /// Decision Tree Classification is tested against the Iris dataset. 
+        /// </summary>
+        [TestMethod]
+        public void Test_DecisionTree_Iris()
+        {
+            // Create Training data based on 70% split
+            var sepalLengthTrain = new double[] { 5.1, 4.7, 5, 5.4, 5, 4.9, 5.4, 4.8, 5.8, 5.7, 5.1, 5.1, 5.4, 4.6, 4.8, 5, 5.2, 4.7, 4.8, 5.2, 4.9, 5, 4.9, 5.1, 5, 4.4, 5.1, 4.8, 4.6, 5, 7, 6.9, 6.5, 5.7, 4.9, 5.2, 5, 6, 5.6, 6.7, 5.8, 5.6, 5.9, 6.3, 6.4, 6.6, 6.7, 5.7, 5.5, 5.8, 5.4, 6, 6.3, 5.5, 5.5, 5.8, 5.6, 5.7, 6.2, 5.7, 6.3, 7.1, 6.5, 7.6, 7.3, 7.2, 6.5, 6.8, 5.8, 6.4, 7.7, 6, 6.9, 7.7, 6.7, 7.2, 6.1, 7.2, 7.4, 6.4, 6.1, 7.7, 6.4, 6.9, 6.7, 5.8, 6.7, 6.7, 6.5, 5.9 };
+            var sepalWidthTrain = new double[] { 3.5, 3.2, 3.6, 3.9, 3.4, 3.1, 3.7, 3, 4, 4.4, 3.5, 3.8, 3.4, 3.6, 3.4, 3, 3.5, 3.2, 3.1, 4.1, 3.1, 3.2, 3.6, 3.4, 3.5, 3.2, 3.8, 3, 3.2, 3.3, 3.2, 3.1, 2.8, 2.8, 2.4, 2.7, 2, 2.2, 2.9, 3.1, 2.7, 2.5, 3.2, 2.5, 2.9, 3, 3, 2.6, 2.4, 2.7, 3, 3.4, 2.3, 2.5, 2.6, 2.6, 2.7, 3, 2.9, 2.8, 3.3, 3, 3, 3, 2.9, 3.6, 3.2, 3, 2.8, 3.2, 3.8, 2.2, 3.2, 2.8, 3.3, 3.2, 3, 3, 2.8, 2.8, 2.6, 3, 3.1, 3.1, 3.1, 2.7, 3.3, 3, 3, 3 };
+            var petalLengthTrain = new double[] { 1.4, 1.3, 1.4, 1.7, 1.5, 1.5, 1.5, 1.4, 1.2, 1.5, 1.4, 1.5, 1.7, 1, 1.9, 1.6, 1.5, 1.6, 1.6, 1.5, 1.5, 1.2, 1.4, 1.5, 1.3, 1.3, 1.9, 1.4, 1.4, 1.4, 4.7, 4.9, 4.6, 4.5, 3.3, 3.9, 3.5, 4, 3.6, 4.4, 4.1, 3.9, 4.8, 4.9, 4.3, 4.4, 5, 3.5, 3.8, 3.9, 4.5, 4.5, 4.4, 4, 4.4, 4, 4.2, 4.2, 4.3, 4.1, 6, 5.9, 5.8, 6.6, 6.3, 6.1, 5.1, 5.5, 5.1, 5.3, 6.7, 5, 5.7, 6.7, 5.7, 6, 4.9, 5.8, 6.1, 5.6, 5.6, 6.1, 5.5, 5.4, 5.6, 5.1, 5.7, 5.2, 5.2, 5.1 };
+            var petalWidthTrain = new double[] { 0.2, 0.2, 0.2, 0.4, 0.2, 0.1, 0.2, 0.1, 0.2, 0.4, 0.3, 0.3, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.1, 0.2, 0.2, 0.1, 0.2, 0.3, 0.2, 0.4, 0.3, 0.2, 0.2, 1.4, 1.5, 1.5, 1.3, 1, 1.4, 1, 1, 1.3, 1.4, 1, 1.1, 1.8, 1.5, 1.3, 1.4, 1.7, 1, 1.1, 1.2, 1.5, 1.6, 1.3, 1.3, 1.2, 1.2, 1.3, 1.2, 1.3, 1.3, 2.5, 2.1, 2.2, 2.1, 1.8, 2.5, 2, 2.1, 2.4, 2.3, 2.2, 1.5, 2.3, 2, 2.1, 1.8, 1.8, 1.6, 1.9, 2.2, 1.4, 2.3, 1.8, 2.1, 2.4, 1.9, 2.5, 2.3, 2, 1.8 };
+            var speciesTrain = new double[] { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3 };
+
+            var trainList = new List<double[]> { sepalLengthTrain, sepalWidthTrain, petalLengthTrain, petalWidthTrain };
+            var Y_training = new Vector(speciesTrain) { Header = "Species" };
+            var X_training = new Matrix(trainList) { Header = new string[] { "Sepal Length", "Sepal Width", "Petal Length", "Petal Width" } };
+
+            // Create Decision Tree
+            var tree = new DecisionTree(X_training, Y_training, 12345) { IsRegression = false, Features = 4 };
+            tree.Train();
+
+            // Create Test data based on 30% split
+            var sepalLengthTest = new double[] { 4.9, 4.6, 4.6, 4.4, 4.8, 4.3, 5.4, 5.7, 5.1, 5.1, 5, 5.2, 5.4, 5.5, 5.5, 4.4, 4.5, 5, 5.1, 5.3, 6.4, 5.5, 6.3, 6.6, 5.9, 6.1, 5.6, 6.2, 6.1, 6.1, 6.8, 6, 5.5, 6, 6.7, 5.6, 6.1, 5, 5.7, 5.1, 5.8, 6.3, 4.9, 6.7, 6.4, 5.7, 6.5, 7.7, 5.6, 6.3, 6.2, 6.4, 7.9, 6.3, 6.3, 6, 6.9, 6.8, 6.3, 6.2 };
+            var sepalWidthTest = new double[] { 3, 3.1, 3.4, 2.9, 3.4, 3, 3.9, 3.8, 3.7, 3.3, 3.4, 3.4, 3.4, 4.2, 3.5, 3, 2.3, 3.5, 3.8, 3.7, 3.2, 2.3, 3.3, 2.9, 3, 2.9, 3, 2.2, 2.8, 2.8, 2.8, 2.9, 2.4, 2.7, 3.1, 3, 3, 2.3, 2.9, 2.5, 2.7, 2.9, 2.5, 2.5, 2.7, 2.5, 3, 2.6, 2.8, 2.7, 2.8, 2.8, 3.8, 2.8, 3.4, 3, 3.1, 3.2, 2.5, 3.4 };
+            var petalLengthTest = new double[] { 1.4, 1.5, 1.4, 1.4, 1.6, 1.1, 1.3, 1.7, 1.5, 1.7, 1.6, 1.4, 1.5, 1.4, 1.3, 1.3, 1.3, 1.6, 1.6, 1.5, 4.5, 4, 4.7, 4.6, 4.2, 4.7, 4.5, 4.5, 4, 4.7, 4.8, 4.5, 3.7, 5.1, 4.7, 4.1, 4.6, 3.3, 4.2, 3, 5.1, 5.6, 4.5, 5.8, 5.3, 5, 5.5, 6.9, 4.9, 4.9, 4.8, 5.6, 6.4, 5.1, 5.6, 4.8, 5.1, 5.9, 5, 5.4 };
+            var petalWidthTest = new double[] { 0.2, 0.2, 0.3, 0.2, 0.2, 0.1, 0.4, 0.3, 0.4, 0.5, 0.4, 0.2, 0.4, 0.2, 0.2, 0.2, 0.3, 0.6, 0.2, 0.2, 1.5, 1.3, 1.6, 1.3, 1.5, 1.4, 1.5, 1.5, 1.3, 1.2, 1.4, 1.5, 1, 1.6, 1.5, 1.3, 1.4, 1, 1.3, 1.1, 1.9, 1.8, 1.7, 1.8, 1.9, 2, 1.8, 2.3, 2, 1.8, 1.8, 2.1, 2, 1.5, 2.4, 1.8, 2.3, 2.3, 1.9, 2.3 };
+            var speciesTest = new double[] { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3 };
+
+            var testList = new List<double[]> { sepalLengthTest, sepalWidthTest, petalLengthTest, petalWidthTest };
+            var Y_test = new Vector(speciesTest) { Header = "Species" };
+            var X_test = new Matrix(testList) { Header = new string[] { "Sepal Length", "Sepal Width", "Petal Length", "Petal Width" } };
+
+            // Make predictions
+            var prediction = tree.Predict(X_test);
+            var accuracy = GoodnessOfFit.Accuracy(Y_test.Array, prediction);
+
+            // Accuracy should be greater than or equal to 90%
+            Assert.IsTrue(accuracy >= 90);
+
+        }
+
+        /// <summary>
+        /// Testing the Decision Tree (DT) regression method. This test is mainly meant for demonstration. 
+        /// I compare the DT regression against linear regression, and show the DT has worse performance against the observed data. 
+        /// Use a Random Forest to get better performance.
+        /// <para>
+        /// <see cref="https://otexts.com/fpp3/least-squares.html"/>
+        /// </para>
+        /// </summary>
         [TestMethod]
         public void Test_DecisionTree_Regression()
         {
@@ -63,53 +124,22 @@ namespace MachineLearning
             var Y_test = new Vector(consumption.Subset(tIdx + 1)) { Header = "Consumption" };
             var X_test = new Matrix(list) { Header = new string[] { "Income", "Production", "Savings", "Unemployment" } };
 
-            var tree = new DecisionTree(X_training, Y_training, 12345);
+            var tree = new DecisionTree(X_training, Y_training, 12345) { Features = 4 };
             tree.Train();
-            var test = tree.Predict(X_test);
+            var treePredict = tree.Predict(X_test);
 
-            var rmse = GoodnessOfFit.RMSE(Y_test.ToArray(), test);
-            for (int i = 0; i < test.Length; i++)
-            {
-                Debug.WriteLine(test[i].ToString());
-            }
+            // Create linear regression
+            var lm = new LinearRegression(X_training, Y_training);
+            var lmPredict = lm.Predict(X_test);
 
-        }
+            // Get R-Squared of predictions
+            var treeR2 = GoodnessOfFit.RSquared(Y_test.Array, treePredict);
+            var lmR2 = GoodnessOfFit.RSquared(Y_test.Array, lmPredict);
 
-        [TestMethod]
-        public void Test_DecisionTree_Iris()
-        {
-            var sepal_length = new double[] { 5.1, 4.9, 4.7, 4.6, 5, 5.4, 4.6, 5, 4.4, 4.9, 5.4, 4.8, 4.8, 4.3, 5.8, 5.7, 5.4, 5.1, 5.7, 5.1, 5.4, 5.1, 4.6, 5.1, 4.8, 5, 5, 5.2, 5.2, 4.7, 4.8, 5.4, 5.2, 5.5, 4.9, 5, 5.5, 4.9, 4.4, 5.1, 5, 4.5, 4.4, 5, 5.1, 4.8, 5.1, 4.6, 5.3, 5, 7, 6.4, 6.9, 5.5, 6.5, 5.7, 6.3, 4.9, 6.6, 5.2, 5, 5.9, 6, 6.1, 5.6, 6.7, 5.6, 5.8, 6.2, 5.6, 5.9, 6.1, 6.3, 6.1, 6.4, 6.6, 6.8, 6.7, 6, 5.7, 5.5, 5.5, 5.8, 6, 5.4, 6, 6.7, 6.3, 5.6, 5.5, 5.5, 6.1, 5.8, 5, 5.6, 5.7, 5.7, 6.2, 5.1, 5.7, 6.3, 5.8, 7.1, 6.3, 6.5, 7.6, 4.9, 7.3, 6.7, 7.2, 6.5, 6.4, 6.8, 5.7, 5.8, 6.4, 6.5, 7.7, 7.7, 6, 6.9, 5.6, 7.7, 6.3, 6.7, 7.2, 6.2, 6.1, 6.4, 7.2, 7.4, 7.9, 6.4, 6.3, 6.1, 7.7, 6.3, 6.4, 6, 6.9, 6.7, 6.9, 5.8, 6.8, 6.7, 6.7, 6.3, 6.5, 6.2, 5.9 };
-            var sepal_width = new double[] { 3.5, 3, 3.2, 3.1, 3.6, 3.9, 3.4, 3.4, 2.9, 3.1, 3.7, 3.4, 3, 3, 4, 4.4, 3.9, 3.5, 3.8, 3.8, 3.4, 3.7, 3.6, 3.3, 3.4, 3, 3.4, 3.5, 3.4, 3.2, 3.1, 3.4, 4.1, 4.2, 3.1, 3.2, 3.5, 3.1, 3, 3.4, 3.5, 2.3, 3.2, 3.5, 3.8, 3, 3.8, 3.2, 3.7, 3.3, 3.2, 3.2, 3.1, 2.3, 2.8, 2.8, 3.3, 2.4, 2.9, 2.7, 2, 3, 2.2, 2.9, 2.9, 3.1, 3, 2.7, 2.2, 2.5, 3.2, 2.8, 2.5, 2.8, 2.9, 3, 2.8, 3, 2.9, 2.6, 2.4, 2.4, 2.7, 2.7, 3, 3.4, 3.1, 2.3, 3, 2.5, 2.6, 3, 2.6, 2.3, 2.7, 3, 2.9, 2.9, 2.5, 2.8, 3.3, 2.7, 3, 2.9, 3, 3, 2.5, 2.9, 2.5, 3.6, 3.2, 2.7, 3, 2.5, 2.8, 3.2, 3, 3.8, 2.6, 2.2, 3.2, 2.8, 2.8, 2.7, 3.3, 3.2, 2.8, 3, 2.8, 3, 2.8, 3.8, 2.8, 2.8, 2.6, 3, 3.4, 3.1, 3, 3.1, 3.1, 3.1, 2.7, 3.2, 3.3, 3, 2.5, 3, 3.4, 3 };
-            var petal_length = new double[] { 1.4, 1.4, 1.3, 1.5, 1.4, 1.7, 1.4, 1.5, 1.4, 1.5, 1.5, 1.6, 1.4, 1.1, 1.2, 1.5, 1.3, 1.4, 1.7, 1.5, 1.7, 1.5, 1, 1.7, 1.9, 1.6, 1.6, 1.5, 1.4, 1.6, 1.6, 1.5, 1.5, 1.4, 1.5, 1.2, 1.3, 1.5, 1.3, 1.5, 1.3, 1.3, 1.3, 1.6, 1.9, 1.4, 1.6, 1.4, 1.5, 1.4, 4.7, 4.5, 4.9, 4, 4.6, 4.5, 4.7, 3.3, 4.6, 3.9, 3.5, 4.2, 4, 4.7, 3.6, 4.4, 4.5, 4.1, 4.5, 3.9, 4.8, 4, 4.9, 4.7, 4.3, 4.4, 4.8, 5, 4.5, 3.5, 3.8, 3.7, 3.9, 5.1, 4.5, 4.5, 4.7, 4.4, 4.1, 4, 4.4, 4.6, 4, 3.3, 4.2, 4.2, 4.2, 4.3, 3, 4.1, 6, 5.1, 5.9, 5.6, 5.8, 6.6, 4.5, 6.3, 5.8, 6.1, 5.1, 5.3, 5.5, 5, 5.1, 5.3, 5.5, 6.7, 6.9, 5, 5.7, 4.9, 6.7, 4.9, 5.7, 6, 4.8, 4.9, 5.6, 5.8, 6.1, 6.4, 5.6, 5.1, 5.6, 6.1, 5.6, 5.5, 4.8, 5.4, 5.6, 5.1, 5.1, 5.9, 5.7, 5.2, 5, 5.2, 5.4, 5.1 };
-            var petal_width = new double[] { 0.2, 0.2, 0.2, 0.2, 0.2, 0.4, 0.3, 0.2, 0.2, 0.1, 0.2, 0.2, 0.1, 0.1, 0.2, 0.4, 0.4, 0.3, 0.3, 0.3, 0.2, 0.4, 0.2, 0.5, 0.2, 0.2, 0.4, 0.2, 0.2, 0.2, 0.2, 0.4, 0.1, 0.2, 0.1, 0.2, 0.2, 0.1, 0.2, 0.2, 0.3, 0.3, 0.2, 0.6, 0.4, 0.3, 0.2, 0.2, 0.2, 0.2, 1.4, 1.5, 1.5, 1.3, 1.5, 1.3, 1.6, 1, 1.3, 1.4, 1, 1.5, 1, 1.4, 1.3, 1.4, 1.5, 1, 1.5, 1.1, 1.8, 1.3, 1.5, 1.2, 1.3, 1.4, 1.4, 1.7, 1.5, 1, 1.1, 1, 1.2, 1.6, 1.5, 1.6, 1.5, 1.3, 1.3, 1.3, 1.2, 1.4, 1.2, 1, 1.3, 1.2, 1.3, 1.3, 1.1, 1.3, 2.5, 1.9, 2.1, 1.8, 2.2, 2.1, 1.7, 1.8, 1.8, 2.5, 2, 1.9, 2.1, 2, 2.4, 2.3, 1.8, 2.2, 2.3, 1.5, 2.3, 2, 2, 1.8, 2.1, 1.8, 1.8, 1.8, 2.1, 1.6, 1.9, 2, 2.2, 1.5, 1.4, 2.3, 2.4, 1.8, 1.8, 2.1, 2.4, 2.3, 1.9, 2.3, 2.5, 2.3, 1.9, 2, 2.3, 1.8 };
-            var target = new double[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2 };
-
-            //sepal_length = Tools.Standardize(sepal_length);
-            //sepal_width = Tools.Standardize(sepal_width);
-            //petal_length = Tools.Standardize(petal_length);
-            //petal_width = Tools.Standardize(petal_width);
-
-            var arrayOfArrays = new double[5][];
-            arrayOfArrays[0] = sepal_length;
-            arrayOfArrays[1] = sepal_width;
-            arrayOfArrays[2] = petal_length;
-            arrayOfArrays[3] = petal_width;
-            arrayOfArrays[4] = target;
-
-            int dataSize = 150;
-            var rand = new Random(12345);
-            var rng = ExtensionMethods.NextNRIntegers(rand, 0, dataSize, dataSize);
-
-            var splitTraining = ExtensionMethods.TrainTestSplit(rng, dataSize, arrayOfArrays);
-            var splitTesting = ExtensionMethods.TrainTestSplit(rng, dataSize, arrayOfArrays, true);
-
-            var xTrainingSubset = ExtensionMethods.SubsetFeature(splitTraining);
-            var yTrainingSubset = ExtensionMethods.SubsetTarget(splitTraining);
-
-            var xTestingSubset = ExtensionMethods.SubsetFeature(splitTesting);
-            var yTestingSubset = ExtensionMethods.SubsetTarget(splitTesting);
-
+            // Linear regress is better
+            Assert.IsTrue(treeR2 < lmR2);
 
         }
+
     }
 }

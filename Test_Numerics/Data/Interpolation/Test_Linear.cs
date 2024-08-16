@@ -31,7 +31,6 @@
 using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Numerics.Data;
-using System.Diagnostics;
 
 namespace Data.Interpolation
 {

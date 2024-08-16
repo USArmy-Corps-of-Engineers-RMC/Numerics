@@ -222,6 +222,29 @@ namespace Numerics.Data.Statistics
         }
 
         /// <summary>
+        /// Gets the accuracy of the modeled data compared to the observed data.
+        /// </summary>
+        /// <param name="observedValues">The list of observed values to measure against.</param>
+        /// <param name="modeledValues">The list of modeled values to compare against the observed values.</param>
+        /// <returns>Th accuracy as percent.</returns>
+        public static double Accuracy(IList<double> observedValues, IList<double> modeledValues)
+        {
+            // Check if the lists are the same size
+            if (observedValues.Count != modeledValues.Count)
+                throw new ArgumentOutOfRangeException(nameof(observedValues), "The number of observed values must equal the number of modeled values.");
+
+            double accuracy = 0;
+            for (int i = 0; i < observedValues.Count; ++i)
+            {
+                if (observedValues[i]  == modeledValues[i])
+                {
+                    accuracy++;
+                }
+            }
+            return 100 * accuracy / observedValues.Count;
+        }
+
+        /// <summary>
         /// Computes the Kolmogorov-Smirnov test statistic, which is used to decide if a sample comes from a population with a specified distribution.
         /// </summary>
         /// <remarks>

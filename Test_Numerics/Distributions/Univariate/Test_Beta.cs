@@ -239,13 +239,13 @@ namespace Distributions.Univariate
         public void ValidateSkew()
         {
             var b = new BetaDistribution(0, 0);
-            Assert.AreEqual(double.NaN, b.Skew);
+            Assert.AreEqual(double.NaN, b.Skewness);
 
             var b4 = new BetaDistribution(1, 1);
-            Assert.AreEqual(0, b4.Skew);
+            Assert.AreEqual(0, b4.Skewness);
 
             var b5 = new BetaDistribution(9, 1);
-            Assert.AreEqual(-1.474055, b5.Skew,1e-04);
+            Assert.AreEqual(-1.474055, b5.Skewness,1e-04);
         }
 
         /// <summary>

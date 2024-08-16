@@ -179,10 +179,7 @@ namespace Numerics.Distributions.Copulas
         /// <inheritdoc/>
         public override double[] ParameterConstraints(IList<double> sampleDataX, IList<double> sampleDataY)
         {
-            var tau = Correlation.KendallsTau(sampleDataX, sampleDataY);
-            double L = tau > 0 ? 0.001d : -1d + Tools.DoubleMachineEpsilon;
-            double U = tau > 0 ? 100d : -0.001d;
-            return [L, U];
+            return [-1, 100];
         }
 
     }

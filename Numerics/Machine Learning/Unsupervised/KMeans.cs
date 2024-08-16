@@ -29,8 +29,10 @@
 */
 
 using Numerics.Mathematics.LinearAlgebra;
+using Numerics.Mathematics.SpecialFunctions;
 using Numerics.Sampling;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -138,7 +140,7 @@ namespace Numerics.MachineLearning
         public int Dimension { get; private set; }
 
         /// <summary>
-        /// The cluster centroid indices.
+        /// The cluster centroid indexes.
         /// </summary>
         public double[][] Centroids { get; private set; }
 
@@ -318,13 +320,13 @@ namespace Numerics.MachineLearning
             double[][] centroids = new double[K][];
             for (int i = 0; i < K; ++i)
                 centroids[i] = new double[Dimension];
-            
+
             // Get sums and counts
             for (int i = 0; i < X.NumberOfRows; i++)
             {
                 count[labels[i]]++;
                 for (int j = 0; j < Dimension; ++j)
-                    centroids[labels[i]][j] += X[i, j];               
+                    centroids[labels[i]][j] += X[i, j];
             };
 
             // Get mean of clusters

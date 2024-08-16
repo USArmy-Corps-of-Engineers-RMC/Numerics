@@ -174,13 +174,13 @@ namespace Distributions.Univariate
         public void ValidateSkew()
         {
             var x = new ChiSquared(2);
-            Assert.AreEqual(2, x.Skew);
+            Assert.AreEqual(2, x.Skewness);
 
             var x2 = new ChiSquared(8);
-            Assert.AreEqual(1, x2.Skew);
+            Assert.AreEqual(1, x2.Skewness);
 
             var x3 = new ChiSquared(32);
-            Assert.AreEqual(0.5, x3.Skew);
+            Assert.AreEqual(0.5, x3.Skewness);
         }
 
         /// <summary>

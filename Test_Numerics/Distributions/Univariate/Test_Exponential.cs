@@ -299,7 +299,7 @@ namespace Distributions.Univariate
         public void ValidateSkew()
         {
             var EXP = new Exponential(0, 1);
-            Assert.AreEqual(EXP.Skew, 2);
+            Assert.AreEqual(EXP.Skewness, 2);
         }
 
         /// <summary>

@@ -308,7 +308,5 @@ namespace Distributions.Univariate
 
         }
 
-        [TestMethod()]
-        public void 
     }
 }

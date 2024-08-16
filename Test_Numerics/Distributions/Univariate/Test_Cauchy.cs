@@ -188,7 +188,7 @@ namespace Distributions.Univariate
         public void ValidateSkew()
         {
             var c = new Cauchy(0, 1);
-            Assert.AreEqual(double.NaN, c.Skew);
+            Assert.AreEqual(double.NaN, c.Skewness);
         }
 
         /// <summary>

@@ -29,14 +29,20 @@
 */
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
 using Numerics.MachineLearning;
-using System.Linq.Expressions;
-using System.Diagnostics;
-using Numerics.Mathematics.SpecialFunctions;
 
 namespace MachineLearning
 {
+
+    /// <summary>
+    /// Unit tests for Jenks Natural Breaks.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    ///     <b> Authors: </b>
+    ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
+    /// </para>
+    /// </remarks>
     [TestClass]
     public class Test_JenksNaturalBreaks
     {

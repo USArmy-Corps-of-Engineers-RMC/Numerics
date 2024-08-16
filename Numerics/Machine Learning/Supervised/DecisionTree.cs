@@ -29,6 +29,7 @@
 */
 
 using Numerics.Data.Statistics;
+using Numerics.Distributions;
 using Numerics.Mathematics.LinearAlgebra;
 using Numerics.Sampling;
 using System;
@@ -171,9 +172,9 @@ namespace Numerics.MachineLearning
         public bool IsRegression { get; set; } = true;
 
         /// <summary>
-        /// Determines if the decision tree has been estimated.
+        /// Determines if the decision tree has been trained.
         /// </summary>
-        public bool IsEstimated { get; private set; } = false;
+        public bool IsTrained { get; private set; } = false;
 
         #endregion
 
@@ -184,10 +185,10 @@ namespace Numerics.MachineLearning
         /// </summary>
         public void Train()
         {
-            IsEstimated = false;
+            IsTrained = false;
             Features = Math.Min(Features, Dimensions);
             Root = GrowTree(X, Y);
-            IsEstimated = true;
+            IsTrained = true;
         }
 
         /// <summary>
@@ -346,8 +347,8 @@ namespace Numerics.MachineLearning
             var rightIdxs = new List<int>();
             Split(x, threshold, out leftIdxs, out rightIdxs);
 
-            if (leftIdxs.Count < MinimumSplitSize || rightIdxs.Count < MinimumSplitSize)
-                return 0;
+            if (leftIdxs.Count == 0 || rightIdxs.Count == 0)
+                return double.MinValue;
 
             // calculate the weighted average entropy of children
             var n = (double)y.Length;
@@ -372,17 +373,25 @@ namespace Numerics.MachineLearning
         /// <param name="y">The column of y-values.</param>
         private double Entropy(double[] y)
         {
-            //if (IsRegression == true)
-            //{
-            //    // use kernel density
-            //    var kde = new KernelDensity(y);
-            //    return Statistics.Entropy(y, kde.PDF);
-            //}
-            //else
-            //{
-
-            //}
-            return double.NaN;
+            if (IsRegression == true)
+            {
+                // use kernel density
+                var kde = new KernelDensity(y);
+                return Statistics.Entropy(y, kde.PDF);
+            }
+            else
+            {
+                // Use histogram
+                return Statistics.Entropy(y, (x) => 
+                {
+                    double n = 0;
+                    for (int i = 0; i < y.Length; i++)
+                    {
+                        if (x == y[i]){ n++; }
+                    }
+                    return n / y.Length;          
+                });
+            }
         }
 
         /// <summary>
@@ -447,7 +456,7 @@ namespace Numerics.MachineLearning
         /// <param name="X">The matrix of predictors.</param>
         public double[] Predict(Matrix X)
         {
-            if (!IsEstimated || X.NumberOfColumns != Dimensions) return null;
+            if (!IsTrained || X.NumberOfColumns != Dimensions) return null;
             var result = new double[X.NumberOfRows];
             for (int i = 0; i < X.NumberOfRows; i++)
             {

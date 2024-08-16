@@ -169,9 +169,7 @@ namespace Numerics.Distributions.Copulas
         /// <inheritdoc/>
         public override double[] ParameterConstraints(IList<double> sampleDataX, IList<double> sampleDataY)
         {
-            double L = 1d;
-            double U = 100d;
-            return [L, U];
+            return [1, 100];
         }
     }
 }

@@ -36,12 +36,72 @@ using Numerics;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using Numerics.Data;
 
 namespace MachineLearning
 {
+    /// <summary>
+    /// Unit tests for Random Forest classification and regression.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    ///     <b> Authors: </b>
+    ///     <list type="bullet"> 
+    ///     <item> Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil </item>
+    /// </list>
+    /// </para>
+    /// </remarks>
     [TestClass]
     public class Test_RandomForest
     {
+        /// <summary>
+        /// Random Forest Classification is tested against the Iris dataset. 
+        /// </summary>
+        [TestMethod]
+        public void Test_RandomForest_Iris()
+        {
+            // Create Training data based on 70% split
+            var sepalLengthTrain = new double[] { 5.1, 4.7, 5, 5.4, 5, 4.9, 5.4, 4.8, 5.8, 5.7, 5.1, 5.1, 5.4, 4.6, 4.8, 5, 5.2, 4.7, 4.8, 5.2, 4.9, 5, 4.9, 5.1, 5, 4.4, 5.1, 4.8, 4.6, 5, 7, 6.9, 6.5, 5.7, 4.9, 5.2, 5, 6, 5.6, 6.7, 5.8, 5.6, 5.9, 6.3, 6.4, 6.6, 6.7, 5.7, 5.5, 5.8, 5.4, 6, 6.3, 5.5, 5.5, 5.8, 5.6, 5.7, 6.2, 5.7, 6.3, 7.1, 6.5, 7.6, 7.3, 7.2, 6.5, 6.8, 5.8, 6.4, 7.7, 6, 6.9, 7.7, 6.7, 7.2, 6.1, 7.2, 7.4, 6.4, 6.1, 7.7, 6.4, 6.9, 6.7, 5.8, 6.7, 6.7, 6.5, 5.9 };
+            var sepalWidthTrain = new double[] { 3.5, 3.2, 3.6, 3.9, 3.4, 3.1, 3.7, 3, 4, 4.4, 3.5, 3.8, 3.4, 3.6, 3.4, 3, 3.5, 3.2, 3.1, 4.1, 3.1, 3.2, 3.6, 3.4, 3.5, 3.2, 3.8, 3, 3.2, 3.3, 3.2, 3.1, 2.8, 2.8, 2.4, 2.7, 2, 2.2, 2.9, 3.1, 2.7, 2.5, 3.2, 2.5, 2.9, 3, 3, 2.6, 2.4, 2.7, 3, 3.4, 2.3, 2.5, 2.6, 2.6, 2.7, 3, 2.9, 2.8, 3.3, 3, 3, 3, 2.9, 3.6, 3.2, 3, 2.8, 3.2, 3.8, 2.2, 3.2, 2.8, 3.3, 3.2, 3, 3, 2.8, 2.8, 2.6, 3, 3.1, 3.1, 3.1, 2.7, 3.3, 3, 3, 3 };
+            var petalLengthTrain = new double[] { 1.4, 1.3, 1.4, 1.7, 1.5, 1.5, 1.5, 1.4, 1.2, 1.5, 1.4, 1.5, 1.7, 1, 1.9, 1.6, 1.5, 1.6, 1.6, 1.5, 1.5, 1.2, 1.4, 1.5, 1.3, 1.3, 1.9, 1.4, 1.4, 1.4, 4.7, 4.9, 4.6, 4.5, 3.3, 3.9, 3.5, 4, 3.6, 4.4, 4.1, 3.9, 4.8, 4.9, 4.3, 4.4, 5, 3.5, 3.8, 3.9, 4.5, 4.5, 4.4, 4, 4.4, 4, 4.2, 4.2, 4.3, 4.1, 6, 5.9, 5.8, 6.6, 6.3, 6.1, 5.1, 5.5, 5.1, 5.3, 6.7, 5, 5.7, 6.7, 5.7, 6, 4.9, 5.8, 6.1, 5.6, 5.6, 6.1, 5.5, 5.4, 5.6, 5.1, 5.7, 5.2, 5.2, 5.1 };
+            var petalWidthTrain = new double[] { 0.2, 0.2, 0.2, 0.4, 0.2, 0.1, 0.2, 0.1, 0.2, 0.4, 0.3, 0.3, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.1, 0.2, 0.2, 0.1, 0.2, 0.3, 0.2, 0.4, 0.3, 0.2, 0.2, 1.4, 1.5, 1.5, 1.3, 1, 1.4, 1, 1, 1.3, 1.4, 1, 1.1, 1.8, 1.5, 1.3, 1.4, 1.7, 1, 1.1, 1.2, 1.5, 1.6, 1.3, 1.3, 1.2, 1.2, 1.3, 1.2, 1.3, 1.3, 2.5, 2.1, 2.2, 2.1, 1.8, 2.5, 2, 2.1, 2.4, 2.3, 2.2, 1.5, 2.3, 2, 2.1, 1.8, 1.8, 1.6, 1.9, 2.2, 1.4, 2.3, 1.8, 2.1, 2.4, 1.9, 2.5, 2.3, 2, 1.8 };
+            var speciesTrain = new double[] { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3 };
+
+            var trainList = new List<double[]> { sepalLengthTrain, sepalWidthTrain, petalLengthTrain, petalWidthTrain };
+            var Y_training = new Vector(speciesTrain) { Header = "Species" };
+            var X_training = new Matrix(trainList) { Header = new string[] { "Sepal Length", "Sepal Width", "Petal Length", "Petal Width" } };
+
+            // Create Random Forest
+            var rf = new RandomForest(X_training, Y_training, 12345) { IsRegression = false, Features = 4 };
+            rf.Train();
+
+            // Create Test data based on 30% split
+            var sepalLengthTest = new double[] { 4.9, 4.6, 4.6, 4.4, 4.8, 4.3, 5.4, 5.7, 5.1, 5.1, 5, 5.2, 5.4, 5.5, 5.5, 4.4, 4.5, 5, 5.1, 5.3, 6.4, 5.5, 6.3, 6.6, 5.9, 6.1, 5.6, 6.2, 6.1, 6.1, 6.8, 6, 5.5, 6, 6.7, 5.6, 6.1, 5, 5.7, 5.1, 5.8, 6.3, 4.9, 6.7, 6.4, 5.7, 6.5, 7.7, 5.6, 6.3, 6.2, 6.4, 7.9, 6.3, 6.3, 6, 6.9, 6.8, 6.3, 6.2 };
+            var sepalWidthTest = new double[] { 3, 3.1, 3.4, 2.9, 3.4, 3, 3.9, 3.8, 3.7, 3.3, 3.4, 3.4, 3.4, 4.2, 3.5, 3, 2.3, 3.5, 3.8, 3.7, 3.2, 2.3, 3.3, 2.9, 3, 2.9, 3, 2.2, 2.8, 2.8, 2.8, 2.9, 2.4, 2.7, 3.1, 3, 3, 2.3, 2.9, 2.5, 2.7, 2.9, 2.5, 2.5, 2.7, 2.5, 3, 2.6, 2.8, 2.7, 2.8, 2.8, 3.8, 2.8, 3.4, 3, 3.1, 3.2, 2.5, 3.4 };
+            var petalLengthTest = new double[] { 1.4, 1.5, 1.4, 1.4, 1.6, 1.1, 1.3, 1.7, 1.5, 1.7, 1.6, 1.4, 1.5, 1.4, 1.3, 1.3, 1.3, 1.6, 1.6, 1.5, 4.5, 4, 4.7, 4.6, 4.2, 4.7, 4.5, 4.5, 4, 4.7, 4.8, 4.5, 3.7, 5.1, 4.7, 4.1, 4.6, 3.3, 4.2, 3, 5.1, 5.6, 4.5, 5.8, 5.3, 5, 5.5, 6.9, 4.9, 4.9, 4.8, 5.6, 6.4, 5.1, 5.6, 4.8, 5.1, 5.9, 5, 5.4 };
+            var petalWidthTest = new double[] { 0.2, 0.2, 0.3, 0.2, 0.2, 0.1, 0.4, 0.3, 0.4, 0.5, 0.4, 0.2, 0.4, 0.2, 0.2, 0.2, 0.3, 0.6, 0.2, 0.2, 1.5, 1.3, 1.6, 1.3, 1.5, 1.4, 1.5, 1.5, 1.3, 1.2, 1.4, 1.5, 1, 1.6, 1.5, 1.3, 1.4, 1, 1.3, 1.1, 1.9, 1.8, 1.7, 1.8, 1.9, 2, 1.8, 2.3, 2, 1.8, 1.8, 2.1, 2, 1.5, 2.4, 1.8, 2.3, 2.3, 1.9, 2.3 };
+            var speciesTest = new double[] { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3 };
+
+            var testList = new List<double[]> { sepalLengthTest, sepalWidthTest, petalLengthTest, petalWidthTest };
+            var Y_test = new Vector(speciesTest) { Header = "Species" };
+            var X_test = new Matrix(testList) { Header = new string[] { "Sepal Length", "Sepal Width", "Petal Length", "Petal Width" } };
+
+            // Make predictions
+            var prediction = rf.Predict(X_test);
+            var accuracy = GoodnessOfFit.Accuracy(Y_test.Array, prediction.GetColumn(1));
+
+            // Accuracy should be greater than or equal to 90%
+            Assert.IsTrue(accuracy >= 90);
+
+        }
+
+        /// <summary>
+        /// Testing the Random Forest (RF) regression method. This test is mainly meant for demonstration. 
+        /// I compare the RF regression against linear regression, and show the RF has better performance against the observed data. 
+        /// <para>
+        /// <see cref="https://otexts.com/fpp3/least-squares.html"/>
+        /// </para>
+        /// </summary>
         [TestMethod]
         public void Test_RandomForest_Regression()
         {
@@ -62,15 +122,20 @@ namespace MachineLearning
             var Y_test = new Vector(consumption.Subset(tIdx + 1)) { Header = "Consumption" };
             var X_test = new Matrix(list) { Header = new string[] { "Income", "Production", "Savings", "Unemployment" } };
 
-            var tree = new RandomForest(X_training, Y_training, 12345);
-            tree.Train();
-            var test = tree.Predict(X_test);
+            var rf = new RandomForest(X_training, Y_training, 12345) { Features = 4 };
+            rf.Train();
+            var rfPredict = rf.Predict(X_test);
 
-            var rmse = GoodnessOfFit.RMSE(Y_test.ToArray(), test.GetColumn(3));
-            for (int i = 0; i < X_test.NumberOfRows; i++)
-            {
-                Debug.WriteLine(test[i,0] + "," + test[i, 1] + "," + test[i, 2] + "," + test[i, 3]);
-            }
+            // Create linear regression
+            var lm = new LinearRegression(X_training, Y_training);
+            var lmPredict = lm.Predict(X_test);
+
+            // Get R-Squared of predictions
+            var rfR2 = GoodnessOfFit.RSquared(Y_test.Array, rfPredict.GetColumn(3));
+            var lmR2 = GoodnessOfFit.RSquared(Y_test.Array, lmPredict);
+
+            // Random Forest is better
+            Assert.IsTrue(rfR2 > lmR2);
 
         }
     }

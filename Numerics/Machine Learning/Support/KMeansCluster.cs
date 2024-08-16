@@ -51,7 +51,7 @@ namespace Numerics.MachineLearning
         public KMeansCluster(int dimension = 1)
         {
             Dimension = dimension;
-            Indices = new List<int>();
+            Indexes = new List<int>();
             CovarianceMatrix = new RunningCovarianceMatrix(Dimension);
         }
 
@@ -61,12 +61,12 @@ namespace Numerics.MachineLearning
         public int Dimension { get; }
 
         /// <summary>
-        /// The list of sample indices for this cluster.
+        /// The list of sample indexes for this cluster.
         /// </summary>
-        public List<int> Indices { get; }
+        public List<int> Indexes { get; }
 
         /// <summary>
-        /// The mean vectr and covariance matrix for the cluster.
+        /// The mean vector and covariance matrix for the cluster.
         /// </summary>
         public RunningCovarianceMatrix CovarianceMatrix { get; }
 
@@ -77,7 +77,7 @@ namespace Numerics.MachineLearning
         /// <param name="sample">Vector of data sample values.</param>
         public void Push(int index, double[] sample)
         {
-            Indices.Add(index);
+            Indexes.Add(index);
             CovarianceMatrix.Push(sample);
         }
 

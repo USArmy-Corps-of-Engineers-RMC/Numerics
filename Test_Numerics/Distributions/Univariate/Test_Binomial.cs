@@ -203,10 +203,10 @@ namespace Distributions.Univariate
         public void ValidateSkew()
         {
             var b = new Binomial(0.5, 5);
-            Assert.AreEqual(0, b.Skew);
+            Assert.AreEqual(0, b.Skewness);
 
             var b2 = new Binomial(0.3, 3);
-            Assert.AreEqual(0.503952, b2.Skew, 1e-04);
+            Assert.AreEqual(0.503952, b2.Skewness, 1e-04);
         }
 
         /// <summary>

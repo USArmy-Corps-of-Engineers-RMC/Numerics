@@ -256,13 +256,13 @@ namespace Distributions.Univariate
         public void ValidateSkew()
         {
             var b = new Bernoulli(0d);
-           Assert.AreEqual(double.PositiveInfinity,b.Skew);
+           Assert.AreEqual(double.PositiveInfinity,b.Skewness);
 
             var b2 = new Bernoulli(0.3);
-            Assert.AreEqual(0.8728715, b2.Skew,1e-04);
+            Assert.AreEqual(0.8728715, b2.Skewness,1e-04);
 
             var b3 = new Bernoulli(1);
-            Assert.AreEqual(double.NegativeInfinity, b3.Skew);
+            Assert.AreEqual(double.NegativeInfinity, b3.Skewness);
         }
 
         /// <summary>

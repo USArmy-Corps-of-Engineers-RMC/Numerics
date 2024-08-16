@@ -174,9 +174,9 @@ namespace Numerics.MachineLearning
         public bool IsRegression { get; set; } = true;
 
         /// <summary>
-        /// Determines if the decision tree has been estimated.
+        /// Determines if the Random Forest has been trained.
         /// </summary>
-        public bool IsEstimated { get; private set; } = false;
+        public bool IsTrained { get; private set; } = false;
 
         #endregion
 
@@ -187,7 +187,7 @@ namespace Numerics.MachineLearning
         /// </summary>
         public void Train()
         {
-            IsEstimated = false;
+            IsTrained = false;
             Features = Math.Min(Features, Dimensions);
             DecisionTrees = new DecisionTree[NumberOfTrees];
             var seeds = Random.NextIntegers(NumberOfTrees);
@@ -199,7 +199,7 @@ namespace Numerics.MachineLearning
                 DecisionTrees[idx].Train();
             });
 
-            IsEstimated = true;
+            IsTrained = true;
         }
 
         /// <summary>
@@ -250,7 +250,7 @@ namespace Numerics.MachineLearning
         /// <param name="alpha">The confidence level; Default = 0.1, which will result in the 90% confidence intervals.</param>
         public double[,] Predict(Matrix X, double alpha = 0.1)
         {
-            if (!IsEstimated) return null;
+            if (!IsTrained) return null;
 
             var percentiles = new double[] { alpha / 2d, 0.5, 1d - alpha / 2d };
             var output = new double[X.NumberOfRows, 4]; // lower, median, upper, mean
@@ -266,11 +266,21 @@ namespace Numerics.MachineLearning
                 var values = bootResults.GetRow(idx);
                 Array.Sort(values);
 
-                // Record percentiles for CIs
-                for (int j = 0; j < percentiles.Length; j++)
-                    output[idx, j] = Statistics.Percentile(values, percentiles[j], true);
+                if (IsRegression)
+                {
+                    // Record percentiles for CIs
+                    for (int j = 0; j < percentiles.Length; j++)
+                        output[idx, j] = Statistics.Percentile(values, percentiles[j], true);
+                    output[idx, 3] = Statistics.ParallelMean(values);
+                }
+                else
+                {
+                    // Record percentiles for CIs
+                    for (int j = 0; j < percentiles.Length; j++)
+                        output[idx, j] = Math.Floor(Statistics.Percentile(values, percentiles[j], true));
+                    output[idx, 3] = Math.Floor(Statistics.ParallelMean(values));
+                }
 
-                output[idx, 3] = Statistics.ParallelMean(values);
             });
 
             return output;
