@@ -99,6 +99,8 @@ namespace Mathematics.LinearAlgebra
                 }
             }
 
+            /// Replicated LU decomposition in R and compared with decomposition results.
+            /// Used lu() function for recreation. Test passed. 
         }
         /// <summary>
         /// Testing Solve with vector input 
@@ -125,6 +127,7 @@ namespace Mathematics.LinearAlgebra
             for (int i = 0; i < x.Length; i++)
                 Assert.AreEqual(x[i], true_x[i], 0.0001d);
         }
+
         /// <summary>
         /// Testing Solve with matrix input 
         /// </summary>
@@ -189,6 +192,7 @@ namespace Mathematics.LinearAlgebra
             Assert.AreEqual(det, true_det, 0.0001d);
 
         }
+
         /// <summary>
         /// Testing inverse function on matrix A
         /// </summary>
@@ -228,9 +232,5 @@ namespace Mathematics.LinearAlgebra
             }
         }
 
-        ///[TestMethod()]
-        /// public void Test_LUDecompInR()
-        /// Replicated LU decomposition in R and compared with decomposition results.
-        /// Used lu() function for recreation. Test passed. 
     }
 }

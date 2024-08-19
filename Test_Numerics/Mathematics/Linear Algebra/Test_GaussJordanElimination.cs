@@ -63,12 +63,9 @@ namespace Mathematics.LinearAlgebra
                     Assert.AreEqual(A[i, j] == true_IA[i, j], true);
             }
 
+            /// Recreated Gauss Jordan test in R to compare the inverted A matrices.
+            /// I utilized library(matlib), gaussianElimination(), and inv() functions. Test passed.
         }
 
-        /// [TestMethod()]
-        /// public void Test_GaussJordanElimInR()
-        /// Recreated Gauss Jordan test in R to compare the 
-        /// inverted A matrices. I utilized library(matlib), gaussianElimination(), and inv() functions.
-        /// Test passed.
     }
 }

@@ -140,7 +140,6 @@ namespace Mathematics.LinearAlgebra
             var b = new Vector(new[] { 0, 2d, 4 });
             var result = Vector.Distance(a, b);
             var true_result = Math.Sqrt(6);
-
             Assert.AreEqual(true_result, result);
         }
 
@@ -167,7 +166,6 @@ namespace Mathematics.LinearAlgebra
             var u = new Vector(new[] { 4d, 3d });
             var v = new Vector(new[] { 2d, 8d });
             var vp = Vector.Project(u, v);
-
             Assert.AreEqual(16d / 17d, vp[0], 1E-6);
             Assert.AreEqual(64d / 17d, vp[1], 1E-6);
         }
@@ -194,11 +192,9 @@ namespace Mathematics.LinearAlgebra
         public void Test_MultiplicationVector()
         {
             var a = new Vector(new[] { 1, 2, 3d });
-            var b = new Vector(new[] {4,5,6d});
-
+            var b = new Vector(new[] { 4, 5, 6d });
             var result = a * b;
             var true_result = new Vector(new[] { 4, 10, 18d });
-
             for (int i = 0; i < result.Length; i++)
             {
                 Assert.AreEqual(result[i], true_result[i]);
@@ -214,8 +210,6 @@ namespace Mathematics.LinearAlgebra
             var a = new Vector(new[] { 1, 2, 3d });
             var pow = a ^ 2;
             var result = new Vector(new[] { 1, 4, 9d });
-
-
             for (int i = 0; i < result.Length; i++)
             {
                 Assert.AreEqual(result[i], pow[i]);
@@ -232,7 +226,6 @@ namespace Mathematics.LinearAlgebra
             var b = new Vector(new[] { 4, 5, 6d });
             var result = a + b;
             var true_result = new Vector(new[] { 5, 7, 9d });
-
             for (int i = 0; i < result.Length; i++)
             {
                 Assert.AreEqual(result[i], true_result[i]);
@@ -247,9 +240,8 @@ namespace Mathematics.LinearAlgebra
         {
             var a = new Vector(new[] { 1, 2, 3d });
             var b = new Vector(new[] { 4, 5, 6d });
-            var result = b-a;
+            var result = b - a;
             var true_result = new Vector(new[] { 3, 3, 3d });
-
             for (int i = 0; i < result.Length; i++)
             {
                 Assert.AreEqual(result[i], true_result[i]);

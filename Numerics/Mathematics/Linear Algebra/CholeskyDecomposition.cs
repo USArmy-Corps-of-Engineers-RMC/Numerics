@@ -77,7 +77,6 @@ namespace Numerics.Mathematics.LinearAlgebra
         /// </summary>
         /// <param name="A">The positive-definite symmetric input matrix A [0..n-1][0..n-1] that is to be Cholesky decomposed.</param>
         public CholeskyDecomposition(Matrix A)
-
         {
 
             IsPositiveDefinite = false;
@@ -113,7 +112,7 @@ namespace Numerics.Mathematics.LinearAlgebra
                 }
             }
             
-            // making sure 0 entries for upper triangular matrix
+            // Making sure 0 entries for upper triangular matrix
             for (i = 0; i < n; i++)
             {
                 for (j = 0; j < i; j++)
@@ -144,20 +143,20 @@ namespace Numerics.Mathematics.LinearAlgebra
         /// <summary>
         /// Solves the set of n linear equations A*x=b using the stored Cholesky decomposition of A=L*L^T.
         /// </summary>
-        /// <returns> x vector from L*L^T {x} = {y} </returns>
-        /// <param name="B">Right-hand side vector b [0..n-1].</param>
-        public Vector Solve(Vector B)
+        /// <returns> x vector from A*x=b </returns>
+        /// <param name="b">Right-hand side vector b [0..n-1].</param>
+        public Vector Solve(Vector b)
         {
             int i, k;
             double sum;
             var x = new Vector(n);
-            if (B.Length != n)
+            if (b.Length != n)
             {
-                throw new ArgumentOutOfRangeException(nameof(B), "The vector b must have the same number of rows as the matrix A.");
+                throw new ArgumentOutOfRangeException(nameof(b), "The vector b must have the same number of rows as the matrix A.");
             }
             for (i = 0; i < n; i++)
             {
-                for (sum = B[i], k = i - 1; k >= 0; k--) sum -= L[i,k] * x[k];
+                for (sum = b[i], k = i - 1; k >= 0; k--) sum -= L[i,k] * x[k];
                 x[i] = sum / L[i,i];
             }
             for (i = n - 1; i >= 0; i--)
@@ -173,10 +172,10 @@ namespace Numerics.Mathematics.LinearAlgebra
         /// </summary>
         /// <param name="y">The input vector y [0..n-1].</param>
 
-        public double[] Back(double[] y)
+        public Vector Backward(Vector y)
         {
             int i, j;
-            var x = new double[n];
+            var x = new Vector(n);
 
             if (y.Length != n)
             {
@@ -201,10 +200,10 @@ namespace Numerics.Mathematics.LinearAlgebra
         /// Solving the L * y = b equation using Forward substitution
         /// </summary>
         /// <param name="b">The right-hand side vector b [0..n-1].</param>
-        public double[] Forward(double[] b)
+        public Vector Forward(Vector b)
         {
             int i, j;
-            var y = new double[n];
+            var y = new Vector(n);
             double sum;
             if (b.Length != n)
             {

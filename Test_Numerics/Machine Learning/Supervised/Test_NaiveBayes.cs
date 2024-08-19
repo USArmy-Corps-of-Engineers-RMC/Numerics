@@ -36,7 +36,7 @@ using System.Collections.Generic;
 namespace MachineLearning
 {
     /// <summary>
-    /// Unit tests for Naive Bayes.
+    /// Unit tests for Naive Bayes classification.
     /// </summary>
     /// <remarks>
     /// <para>

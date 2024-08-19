@@ -75,7 +75,7 @@ namespace Numerics.Mathematics.RootFinding
         /// <param name="lowerBound">The lower bound (a) of the interval containing the root.</param>
         /// <param name="upperBound">The upper bound (b) of the interval containing the root.</param>
         /// <param name="tolerance">Optional. Desired tolerance for both the root and the function value at the root.
-        /// The root will be refined until the tolerance is achieved or the maximum number of iterations is reached. Default = 1e-12.</param>
+        /// The root will be refined until the tolerance is achieved or the maximum number of iterations is reached. Default = 1e-8.</param>
         /// <param name="maxIterations">Optional. Maximum number of iterations. Default = 1000.</param>
         /// <param name="reportFailure">Optional. If set to true, an exception will be thrown if the routine fails to converge.
         /// If set to false, the root from the last iteration will be returned if the routine fails to converge. Default = True.</param>
@@ -88,7 +88,7 @@ namespace Numerics.Mathematics.RootFinding
             // validate inputs
             if (upperBound < lowerBound)
             {
-                throw new ArgumentOutOfRangeException("upperBound", "The upper bound (b) cannot be less than the lower bound (a).");
+                throw new ArgumentOutOfRangeException(nameof(upperBound), "The upper bound (b) cannot be less than the lower bound (a).");
             }
 
             // This algorithm is implemented as shown in:
@@ -108,7 +108,7 @@ namespace Numerics.Mathematics.RootFinding
             // Brent's loop
             for (int i = 1; i <= maxIterations; i++)
             {
-                //If both upperbounds are same sign switch c lower bound then rearrange points
+                //If both upper bounds are same sign switch c lower bound then rearrange points
                 if ((fb > 0.0 && fc > 0.0) || (fb < 0.0 && fc < 0.0))
                 {
                     c = a;

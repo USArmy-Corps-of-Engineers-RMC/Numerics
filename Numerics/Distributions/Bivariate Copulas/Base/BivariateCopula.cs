@@ -180,7 +180,6 @@ namespace Numerics.Distributions.Copulas
             var sample = new double[sampleSize, 2];
             for (int i = 0; i < sampleSize; i++)
             {
-                //var vals = InverseCDF(r.NextDouble(), r.NextDouble());
                 var vals = InverseCDF(rand[i, 0], rand[i, 1]);
                 if (MarginalDistributionX != null && MarginalDistributionY != null)
                 {

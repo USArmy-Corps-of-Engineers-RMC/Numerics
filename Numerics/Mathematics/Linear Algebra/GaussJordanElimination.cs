@@ -74,10 +74,10 @@ namespace Numerics.Mathematics.LinearAlgebra
         /// <remarks>
         /// On output, A is replaced by its matrix inverse, and B is replaced by the corresponding set of solution vectors.
         /// </remarks>
-        public static void Solve(ref Matrix A, [Optional, DefaultParameterValue(null)] ref Matrix B)
+        public static void Solve(ref Matrix A, ref Matrix B)
         {
             // No right-hand sides. Replaces A by its inverse.
-            if (B is null)
+            if (B == null)
             {
                 // Dummy vector with zero columns
                 B = new Matrix(A.NumberOfRows, 0);
@@ -192,7 +192,6 @@ namespace Numerics.Mathematics.LinearAlgebra
                 }
             }
             // And we are done.
-
         }
     }
 }

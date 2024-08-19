@@ -182,6 +182,7 @@
     <Compile Include="Mathematics\Optimization\Local\Test_Powell.cs" />
     <Compile Include="Mathematics\Optimization\Global\Test_ShuffledComplexEvolution.cs" />
     <Compile Include="Mathematics\Optimization\Global\Test_SimulatedAnnealing.cs" />
+    <Compile Include="Mathematics\Root Finding\TestFunctions.cs" />
     <Compile Include="Mathematics\Root Finding\Test_Bracket.cs" />
     <Compile Include="Mathematics\Root Finding\Test_Bisection.cs" />
     <Compile Include="Mathematics\Root Finding\Test_Brent.cs" />

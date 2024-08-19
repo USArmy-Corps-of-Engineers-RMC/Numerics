@@ -86,14 +86,14 @@ namespace Numerics.Mathematics.RootFinding
         /// <param name="df">The first derivative of the function to find roots from.</param>
         /// <param name="firstGuess">This is the first guess at the root (c).</param>
         /// <param name="tolerance">Optional. Desired tolerance for both the root and the function value at the root.
-        /// The root will be refined until the tolerance is achieved or the maximum number of iterations is reached. Default = 1e-6.</param>
-        /// <param name="maxIterations">Optional. Maximum number of iterations. Default = 100.</param>
+        /// The root will be refined until the tolerance is achieved or the maximum number of iterations is reached. Default = 1e-8.</param>
+        /// <param name="maxIterations">Optional. Maximum number of iterations. Default = 1000.</param>
         /// <param name="reportFailure">Optional. If set to true, an exception will be thrown if the routine fails to converge.
         /// If set to false, the root from the last iteration will be returned if the routine fails to converge. Default = True.</param>
         /// <returns>
         /// The root to the equation f(x)=0 given the specified tolerance.
         /// </returns>
-        public static double Solve(Func<double, double> f, Func<double, double> df, double firstGuess, double tolerance = 0.000001d, int maxIterations = 100, bool reportFailure = true)
+        public static double Solve(Func<double, double> f, Func<double, double> df, double firstGuess, double tolerance = 1E-8, int maxIterations = 1000, bool reportFailure = true)
         {
 
             // Define variables
@@ -153,115 +153,99 @@ namespace Numerics.Mathematics.RootFinding
         /// <param name="lowerBound">The lower bound of the interval containing the root. Aborts if it leaves the interval.</param>
         /// <param name="upperBound">The upper bound of the interval containing the root. Aborts if it leaves the interval.</param>
         /// <param name="tolerance">Optional. Desired tolerance for both the root and the function value at the root.
-        /// The root will be refined until the tolerance is achieved or the maximum number of iterations is reached. Default = 1e-6.</param>
-        /// <param name="maxIterations">Optional. Maximum number of iterations. Default = 100.</param>
+        /// The root will be refined until the tolerance is achieved or the maximum number of iterations is reached. Default = 1e-8.</param>
+        /// <param name="maxIterations">Optional. Maximum number of iterations. Default = 1000.</param>
         /// <param name="reportFailure">Optional. If set to true, an exception will be thrown if the routine fails to converge.
         /// If set to false, the root from the last iteration will be returned if the routine fails to converge. Default = True.</param>
         /// <returns>
         /// The root to the equation f(x)=0 given the specified tolerance.
         /// </returns>
-        public static double RobustSolve(Func<double, double> f, Func<double, double> df, double firstGuess, double lowerBound, double upperBound, double tolerance = 0.000001d, int maxIterations = 100, bool reportFailure = true)
+        public static double RobustSolve(Func<double, double> f, Func<double, double> df, double firstGuess, double lowerBound, double upperBound, double tolerance = 1E-8, int maxIterations = 1000, bool reportFailure = true)
         {
 
             // Define variables
             double root = firstGuess;
             bool solutionFound = false;
-            double XL = lowerBound;
-            double XH = upperBound;
-            double FL = f(XL);
-            double FH = f(XH);
-            double y;
-            double yPrime;
-            double x0;
-            double x1 = 0;
-            double eps = Tools.DoubleMachineEpsilon; // Don't want to divide by a number smaller than this
+            double xl = lowerBound;
+            double xh = upperBound;
+            double fl = f(xl);
+            double fh = f(xh);
 
             // validate inputs
             if (upperBound < lowerBound)
             {
-                throw new ArgumentOutOfRangeException("upperBound", "The upper bound (b) cannot be less than the lower bound (a).");
+                throw new ArgumentOutOfRangeException(nameof(upperBound), "The upper bound (b) cannot be less than the lower bound (a).");
             }
-
             if (root < lowerBound || root > upperBound)
             {
-                throw new ArgumentOutOfRangeException("firstGuess", "The first guess must be between the upper and lower bound.");
+                throw new ArgumentOutOfRangeException(nameof(firstGuess), "The first guess must be between the upper and lower bound.");
             }
-
-            if (FL * FH >= 0d)
+            if (fl * fh >= 0d)
             {
                 throw new ArgumentException("Robust Newton-Raphson method failed because the root is not bracketed.");
             }
 
-            if (FL < 0d)
+            if (fl < 0d)
             {
                 // Orient the search so that f(lowerBound)<0
-                XL = lowerBound;
-                XH = upperBound;
+                xl = lowerBound;
+                xh = upperBound;
             }
             else
             {
-                XH = lowerBound;
-                XL = upperBound;
+                xh = lowerBound;
+                xl = upperBound;
             }
             // The "step-size before last"
-            double DXOLD = Math.Abs(upperBound - lowerBound);
+            double dxold = Math.Abs(upperBound - lowerBound);
             // The last step
-            double DX = DXOLD;
+            double dx = dxold;
+            double F = f(root);
+            double dF = df(root);
             // Robust Newton-Raphson loop
             for (int i = 1; i <= maxIterations; i++)
             {
-                // do Newton's computation
-                x0 = root;
-                y = f(x0);
-                yPrime = df(x0);
-                if (Math.Abs(yPrime) < eps)
+                // Bisect if Newton is out of range, or not decreasing fast enough.
+                if ((((root - xh) * dF - F) * ((root - xl) * dF - F) > 0.0)
+                    || (Math.Abs(2.0 * F) > Math.Abs(dxold * dF)))
                 {
-                    // the denominator is too small
-                    solutionFound = false;
-                    break;
-                }
-                double DUM = ((root - XH) * yPrime - y) * ((root - XL) * yPrime - y);
-                if (DUM >= 0d || Math.Abs(2d * y) > Math.Abs(DXOLD * yPrime))
-                {
-                    // Bisect if Newton is out of range, or not decreasing fast enough
-                    DXOLD = DX;
-                    DX = 0.5d * (XH - XL);
-                    root = XL + DX;
-                    if (XL == root)
+                    dxold = dx;
+                    dx = 0.5 * (xh - xl);
+                    root = xl + dx;
+                    if (xl == root)
                     {
-                        // Change in root is negligible
-                        solutionFound = false;
+                        // Change in root is negligible.
+                        // Bisection step acceptable. 
+                        solutionFound = true;
                         break;
                     }
                 }
                 else
                 {
-                    DXOLD = DX;
-                    DX = y / yPrime;
-                    x1 = x0 - DX;
-                    root = x1;
-                    if (x0 == root)
+                    dxold = dx;
+                    dx = F / dF;
+                    double temp = root;
+                    root -= dx;
+                    if (temp == root)
                     {
-                        // Change in root is negligible
-                        solutionFound = false;
-                        break;
+                        // Change in root is negligible.
+                        // Newton step acceptable. 
                     }
                 }
-                // check if the result is within the desired tolerance
-                if (Math.Abs(x1 - x0) < tolerance)
+                // Check convergence
+                if (Math.Abs(dx) < tolerance)
                 {
                     solutionFound = true;
                     break;
                 }
-                // Maintain the bracket on the root
-                if (f(root) < 0d)
-                {
-                    XL = root;
-                }
+                // The one new function evaluation per iteration.
+                F = f(root);
+                dF = df(root);
+                // Maintain the bracket on the root.
+                if (F < 0.0)
+                    xl = root;
                 else
-                {
-                    XH = root;
-                }
+                    xh = root;
             }
 
             // return results of solver

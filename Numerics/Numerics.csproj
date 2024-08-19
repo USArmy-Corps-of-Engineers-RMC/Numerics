@@ -314,8 +314,6 @@
     <Compile Include="Mathematics\Root Finding\NewtonRaphson.cs" />
     <Compile Include="Data\Regression\LinearRegression.cs" />
     <Compile Include="Utilities\ExtensionMethods.cs" />
-    <Compile Include="Utilities\OptionalOut.cs" />
-    <Compile Include="Utilities\ParallelTaskScheduler.cs" />
     <Compile Include="Utilities\SafeProgressReporter.cs" />
     <Compile Include="Utilities\Tools.cs" />
   </ItemGroup>

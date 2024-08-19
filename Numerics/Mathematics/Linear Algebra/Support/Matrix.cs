@@ -199,6 +199,11 @@ namespace Numerics.Mathematics.LinearAlgebra
         /// </summary>
         public bool IsSquare => NumberOfRows == NumberOfColumns;
 
+        /// <summary>
+        /// Returns the underlying array as-is.
+        /// </summary>
+        public double[,] Array => _matrix;
+
         #endregion
 
         #region Methods
@@ -328,10 +333,6 @@ namespace Numerics.Mathematics.LinearAlgebra
             }
             _matrix = t;
         }
-
-
-
-
 
         #endregion
 

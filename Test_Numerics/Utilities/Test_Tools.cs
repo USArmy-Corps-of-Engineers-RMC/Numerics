@@ -30,9 +30,7 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Numerics;
-using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 
 namespace Utilities
 {
@@ -110,7 +108,7 @@ namespace Utilities
         {
             double x = 100;
             var result = Tools.Log10(x);
-            Assert.AreEqual(result, 2);
+            Assert.AreEqual(2, result);
 
             double x2 = 1;
             var result2 = Tools.Log10(x2);
@@ -180,9 +178,9 @@ namespace Utilities
         [TestMethod]
         public void Test_Standardize()
         {
-            List<double> values = new List<double> { 3,3,4,4,6 };
+            List<double> values = new List<double> { 3, 3, 4, 4, 6 };
             var result = Tools.Standardize(values);
-            var true_result = new double[] {-0.8164,-0.8164,0,0, 1.63299 };
+            var true_result = new double[] { -0.8164, -0.8164, 0, 0, 1.63299 };
             for(int i = 0;i < values.Count; i++)
             {
                 Assert.AreEqual(result[i], true_result[i], 1E-04);
@@ -197,7 +195,7 @@ namespace Utilities
         public void Test_Destandardize()
         {
             List<double> values = new List<double> { -0.8164, -0.8164, 0, 0, 1.63299 };
-            var result = Tools.Destandardize(values,4,1.224745);
+            var result = Tools.Destandardize(values, 4, 1.224745);
             var true_result = new double[] { 3, 3, 4, 4, 6 };
             for (int i = 0; i < values.Count; i++)
             {
@@ -233,7 +231,7 @@ namespace Utilities
         [TestMethod]
         public void Test_SumIndicator()
         {
-            List<double> values = new List<double> {1.4,2.3,3.2,3.3d };
+            List<double> values = new List<double> { 1.4, 2.3, 3.2, 3.3d };
             List<int> predictors = new List<int> { 1, 1, 1, 0 };
             var result = Tools.Sum(values,predictors);
             Assert.AreEqual(result, 6.9);
@@ -389,10 +387,8 @@ namespace Utilities
             data[0] = 0;
             data[1] = 128;
             data[2] = 255;
-
             var result = Tools.Compress(data);
-
-            Assert.IsTrue(data.Length<=result.Length);
+            Assert.IsTrue(data.Length <= result.Length);
         }
 
         /// <summary>
@@ -405,9 +401,7 @@ namespace Utilities
             data[0] = 0;
             data[1] = 128;
             data[2] = 255;
-
             var result = Tools.Decompress(data);
-
             Assert.IsTrue(data.Length >= result.Length);
         }
     }

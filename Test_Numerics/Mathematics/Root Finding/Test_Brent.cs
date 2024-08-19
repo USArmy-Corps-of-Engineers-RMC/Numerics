@@ -32,7 +32,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Numerics.Mathematics.RootFinding;
 using System;
 
-namespace Mathematics.Root_Finding
+namespace Mathematics.RootFinding
 {
     /// <summary>
     /// A class of various functions unit testing the Brent Method.
@@ -49,66 +49,70 @@ namespace Mathematics.Root_Finding
     [TestClass]
     public class Test_Brent
     {
-
         /// <summary>
-        /// Third degree polynomial
+        /// Testing with a quadratic function.
         /// </summary>
-        public double Cubic_FX(double x)
+        [TestMethod()]
+        public void Test_Quadratic()
         {
-            double F = x * x * x - x - 1d;
-            return F;
+            double lower = 0;
+            double upper = 4;
+            double X = Brent.Solve(TestFunctions.Quadratic, lower, upper);
+            double trueX = Math.Sqrt(2);
+            Assert.AreEqual(X, trueX, 1E-5);
         }
 
         /// <summary>
-        /// Trignometric function.
-        /// </summary>
-        public double Trig_FX(double x)
-        {
-            double F = 2 * Math.Sin(x) - 3 * Math.Cos(x) - 0.5;
-            return F;
-        }
-
-        /// <summary>
-        /// First derivative of Trignometric function.
-        /// </summary>
-        public double Trig_Deriv(double x)
-        {
-            double F = 2 * Math.Cos(x) + 3 * Math.Sin(x);
-            return F;
-        }
-
-        /// <summary>
-        /// Testing Brent's method with a nonlinear polynomial.
+        /// Testing with a cubic function.
         /// </summary>
         [TestMethod()]
         public void Test_Cubic()
         {
             double lower = -1;
-            double upper = 5d;
-            double X = Brent.Solve(Cubic_FX, lower, upper);
-            double trueX = 1.32472d;
-            Assert.AreEqual(X, trueX, 1E-4);
+            double upper = 5;
+            double X = Brent.Solve(TestFunctions.Cubic, lower, upper);
+            double trueX = 1.32472;
+            Assert.AreEqual(X, trueX, 1E-5);
         }
 
         /// <summary>
-        /// Testing Brent's method with trignometric function.
+        /// Testing with a trigonometric function.
         /// </summary>
         [TestMethod()]
-        public void Test_Trig()
+        public void Test_Trigonometric()
         {
             double lower = 0;
-            double upper = 2.5;
-            double X = Brent.Solve(Trig_FX, lower, upper);
+            double upper = Math.PI;
+            double X = Brent.Solve(TestFunctions.Trigonometric, lower, upper);
             double trueX = 1.12191713d;
-            Assert.AreEqual(X, trueX, 1E-4);
+            Assert.AreEqual(X, trueX, 1E-5);
         }
 
-        /// [TestMethod()]
-        /// Test_BrentInR()
-        /// Recreated Brent's method in R with the trig function used above 
-        /// and it returned the same root in 6 calls. Utilized  the 'pracma' package
-        /// and the brent() function.
+        /// <summary>
+        /// Testing with an exponential function.
+        /// </summary>
+        [TestMethod()]
+        public void Test_Exponential()
+        {
+            double lower = -2;
+            double upper = 2;
+            double X = Brent.Solve(TestFunctions.Exponential, lower, upper);
+            double trueX = 0.567143290;
+            Assert.AreEqual(X, trueX, 1E-5);
+        }
 
+        /// <summary>
+        /// Testing with a power function.
+        /// </summary>
+        [TestMethod()]
+        public void Test_Power()
+        {
+            double lower = 0;
+            double upper = 2;
+            double X = Brent.Solve(TestFunctions.Power, lower, upper);
+            double trueX = 1.0;
+            Assert.AreEqual(X, trueX, 1E-5);
+        }
 
     }
 }

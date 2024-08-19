@@ -136,9 +136,9 @@ namespace Distributions.Univariate
         [TestMethod()]
         public void ValidateMedian()
         {
-            var x = new ChiSquared(1);
-            var true_median = x.DegreesOfFreedom * (1 - (2 / (9 * x.DegreesOfFreedom))) ^ 3;
-            Assert.AreEqual(x.Median, true_median);
+            var x = new ChiSquared(2);
+            var approx_median = x.DegreesOfFreedom * Math.Pow(1d - 2d / (9d * x.DegreesOfFreedom), 3d);
+            Assert.AreEqual(x.Median, approx_median, 1E-1);
         }
 
         /// <summary>
@@ -236,7 +236,7 @@ namespace Distributions.Univariate
         }
 
         /// <summary>
-        /// Valdating CDF function.
+        /// Validating CDF function.
         /// </summary>
         [TestMethod()]
         public void ValidateCDF()

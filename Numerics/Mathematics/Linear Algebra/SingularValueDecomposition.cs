@@ -82,7 +82,7 @@ namespace Numerics.Mathematics.LinearAlgebra
             W = new Vector(n);
             Decompose();
             Reorder();
-            Threshold = 0.5*Math.Sqrt(m+n+1d)*W[0]*eps; // Default threshold for nonzero singular values.
+            Threshold = 0.5 * Math.Sqrt(m + n + 1d) * W[0] * eps; // Default threshold for nonzero singular values.
         }
 
         private readonly double eps = Tools.DoubleMachineEpsilon;      
@@ -105,7 +105,7 @@ namespace Numerics.Mathematics.LinearAlgebra
         public Matrix U { get; private set; }
 
         /// <summary>
-        /// Transpose of an N xN orthogonal matrix V.
+        /// Transpose of an N x N orthogonal matrix V.
         /// </summary>
         public Matrix V { get; private set; }
 
@@ -152,7 +152,8 @@ namespace Numerics.Mathematics.LinearAlgebra
         /// <summary>
         /// Gives an orthonormal basis for the range of A as the columns of a return matrix. 
         /// </summary>
-        /// <param name="threshold">The threshold to evaluate.</param>
+        /// <param name="threshold">The threshold to evaluate.
+        /// If the threshold is negative, a default value based on estimated roundoff is used.</param>
         public Matrix Range(double threshold = -1)
         {
             int i, j, nr = 0;
@@ -411,7 +412,7 @@ namespace Numerics.Mathematics.LinearAlgebra
                         }
                         break;
                     }
-                    if (its == 99) throw new ArgumentException("There was no convergence in 100 Singular Value Decomposition iterations");
+                    if (its == 99) throw new ArgumentException("There was no convergence in 100 iterations");
                     x = W[l];
                     nm = k - 1;
                     y = W[nm];
@@ -468,6 +469,9 @@ namespace Numerics.Mathematics.LinearAlgebra
             }
         }
 
+        /// <summary>
+        /// Axillary function to reorder.
+        /// </summary>
         private void Reorder()
         {
             int i, j, k, s, inc = 1;
@@ -511,11 +515,15 @@ namespace Numerics.Mathematics.LinearAlgebra
             }
         }
 
+        /// <summary>
+        /// Computes (a^2 + b^2)^1/2 without destructive underflow or overflow.
+        /// </summary>
         private double Pythag(double a, double b) {
             double absa = Math.Abs(a), absb = Math.Abs(b);
             return (absa > absb ? absa * Math.Sqrt(1.0 + Math.Pow(absb / absa, 2)) :
                 (absb == 0.0 ? 0.0 : absb * Math.Sqrt(1.0 + Math.Pow(absa / absb, 2))));
         }
+
         /// <summary>
         /// Takes Log determinant of the Matrix W
         /// </summary>

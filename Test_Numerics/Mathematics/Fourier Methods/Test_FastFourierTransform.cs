@@ -39,7 +39,7 @@ namespace Mathematics.FourierMethods
     /// </summary>
     /// <remarks>
     ///     <b> Authors: </b>
-    /// Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
+    ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
     /// </remarks>
     [TestClass]
     public class Test_FastFourierTransform

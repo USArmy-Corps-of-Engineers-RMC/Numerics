@@ -84,39 +84,6 @@ namespace Numerics.Mathematics.SpecialFunctions
             return value;
         }
 
-
-        //public static double Polynomial(double[] coefficients, double x, int n)
-        //{
-        //    double val = coefficients[0];
-        //    for (int i = 1; i <= n; i++)
-        //        val = val * x + coefficients[i];
-        //    return val;
-        //}
-
-
-
-        ///// <summary>
-        ///// Evaluates a double precision polynomial. Coefficients are in reverse order.
-        ///// </summary>
-        ///// <param name="coefficients">The coefficients of the polynomial. The last element in the list is the constant term.</param>
-        ///// <param name="x">The point at which the polynomial is to be evaluated.</param>
-        ///// <returns>
-        ///// The polynomial with the given coefficients in reverse order evaluated at x
-        ///// </returns>
-        //public static double PolynomialRev(double[] coefficients, double x)
-        //{
-        //    int n = coefficients.Length;
-        //    double value = coefficients[0];
-        //    for (int i = 1; i < n; i++)
-        //    {
-        //        value *= x;
-        //        value += coefficients[i];
-        //    }
-
-        //    return value;
-        //}
-
-
         /// <summary>
         /// Evaluates a double precision polynomial. Coefficients are in reverse order.
         /// </summary>
@@ -150,7 +117,6 @@ namespace Numerics.Mathematics.SpecialFunctions
 
             return value;
         }
-
 
         /// <summary>
         /// Evaluates a double precision polynomial. Coefficients are in reverse order, and coefficient(N) = 1.0.

@@ -81,18 +81,16 @@ namespace Numerics.Mathematics
         /// </summary>
         /// <param name="f">Function for which the derivative is to be evaluated.</param>
         /// <param name="point">The location where the derivative is to be evaluated.</param>
-        /// <param name="stepSize">The initial estimate of the finite difference step size.</param>
-        /// <param name="err">An estimate of the error in the derivative is returned by reference.</param>
+        /// <param name="err">Output. An estimate of the error in the derivative.</param>
+        /// <param name="stepSize">Optional. The finite difference step size.</param>
         /// <remarks>
         /// References: Taken from "Numerical Recipes: The art of Scientific Computing, Third Edition. Press et al. 2017.
         /// </remarks>
         /// <returns>
         /// The derivative of the function f, evaluated at the given point
         /// </returns>
-        public static double RiddersMethod(Func<double, double> f, double point, double stepSize = -1, OptionalOut<double> err = null)
+        public static double RiddersMethod(Func<double, double> f, double point, out double err, double stepSize = -1)
         {
-
-            if (err == null) { err = new OptionalOut<double>() { Result = 0 }; }
             int ntab = 10;        // Sets maximum size of tableau.
             double con = 1.4d;         // Step size decreased by CON as each iteration
             double con2 = Math.Pow(con, 2d);
@@ -104,7 +102,7 @@ namespace Numerics.Mathematics
             var ans = default(double);
             var a = new double[ntab + 1, ntab + 1];
             a[0, 0] = (f(point + hh) - f(point - hh)) / (2d * hh);
-            err.Result = big;
+            err = big;
             for (int i = 1; i < ntab; i++)
             {
                 // Successive columns in the Neville tableau will go to smaller step sizes and higher order of extrapolation.
@@ -119,14 +117,14 @@ namespace Numerics.Mathematics
                     errt = Math.Max(Math.Abs(a[j, i] - a[j - 1, i]), Math.Abs(a[j, i] - a[j - 1, i - 1]));
                     // The error strategy is to compare each new extrapolation to one order lower, both
                     // at the present step size and the previous one. 
-                    if (errt <= err.Result) // If error is decreased, save the improved answer.
+                    if (errt <= err) // If error is decreased, save the improved answer.
                     {
-                        err.Result = errt;
+                        err = errt;
                         ans = a[j, i];
                     }
                 }
 
-                if (Math.Abs(a[i, i] - a[i - 1, i - 1]) >= safe * err.Result)
+                if (Math.Abs(a[i, i] - a[i - 1, i - 1]) >= safe * err)
                     break;
                 // If higher order is worse by a significant factor SAFE, then quit early. 
             }

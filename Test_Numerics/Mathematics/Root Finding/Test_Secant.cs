@@ -32,7 +32,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Numerics.Mathematics.RootFinding;
 using System;
 
-namespace Mathematics.Root_Finding
+namespace Mathematics.RootFinding
 {
     /// <summary>
     /// A class of various functions unit testing the Secant Method.
@@ -49,58 +49,46 @@ namespace Mathematics.Root_Finding
     [TestClass]
     public class Test_Secant
     {
+
         /// <summary>
-        /// Third degree polynomial
+        /// Testing with a quadratic function.
         /// </summary>
-        public double Cubic_FX(double x)
+        [TestMethod()]
+        public void Test_Quadratic()
         {
-            double F = x * x * x - x - 1d;
-            return F;
+            double lower = 0;
+            double upper = 4;
+            double X = Secant.Solve(TestFunctions.Quadratic, lower, upper);
+            double trueX = Math.Sqrt(2);
+            Assert.AreEqual(X, trueX, 1E-5);
         }
 
         /// <summary>
-        /// Quadratic function
-        /// </summary>
-        public double Quadratic(double x)
-        {
-            double F = Math.Pow(x, 2) - 2;
-            return F;
-        }
-
-        /// <summary>
-        /// First derivative of Quadratic function
-        /// </summary
-        public double Quadratic_Deriv(double x)
-        {
-            double F = 2 * x;
-            return F;
-        }
-
-        /// <summary>
-        /// Testing Secant method with a nonlinear polynomial.
+        /// Testing with a cubic function.
         /// </summary>
         [TestMethod()]
         public void Test_Cubic()
         {
             double lower = -1;
-            double upper = 5d;
-            double X = Secant.Solve(Cubic_FX, lower, upper);
-            double trueX = 1.32472d;
-            Assert.AreEqual(X, trueX, 1E-4);
+            double upper = 5;
+            double X = Secant.Solve(TestFunctions.Cubic, lower, upper);
+            double trueX = 1.32472;
+            Assert.AreEqual(X, trueX, 1E-5);
         }
 
         /// <summary>
-        /// Testing Secant method to approximate the square root of 2.
+        /// Testing with an exponential function.
         /// </summary>
         [TestMethod()]
-        public void Test_SquareRoot()
+        public void Test_Exponential()
         {
-            double lower = -6d;
-            double upper = 5d;
-            double X = Secant.Solve(Quadratic, lower, upper);
-            double trueX = Math.Sqrt(2);
-            Assert.AreEqual(X, trueX, 1E-4);
+            double lower = -2;
+            double upper = 2;
+            double X = Secant.Solve(TestFunctions.Exponential, lower, upper);
+            double trueX = 0.567143290;
+            Assert.AreEqual(X, trueX, 1E-5);
         }
+
         /// <summary>
         /// Testing edge case where the function is discontinuous within the interval        
         /// </summary>
@@ -109,6 +97,7 @@ namespace Mathematics.Root_Finding
             double F = 1 / x;
             return F;
         }
+
         [TestMethod()]
         [ExpectedException(typeof(ArgumentException),"Secant method failed to find root")]
         public void Test_Edge()
@@ -120,9 +109,5 @@ namespace Mathematics.Root_Finding
             Assert.AreEqual(X, trueX, 1E-4);
         }
 
-        ///[TestMethod()]
-        /// Test_SecantInR()
-        /// Recreated Secant method with the Quadratic() function and received the same result in 10 iterations. 
-        /// Test passed. Utilized 'pracma' package and secant() function. 
     }
 }

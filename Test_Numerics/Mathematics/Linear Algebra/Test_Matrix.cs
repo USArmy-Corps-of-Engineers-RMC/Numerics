@@ -145,6 +145,7 @@ namespace Mathematics.LinearAlgebra
             bool true_result = true;
             bool result = A.IsSymmetric;
             Assert.AreEqual(result, true_result);
+            //
             var B = new Matrix(3);
             B[0, 0] = 1d;
             B[0, 1] = 1d;
@@ -179,7 +180,6 @@ namespace Mathematics.LinearAlgebra
             A[2, 1] = 0d;
             A[2, 2] = 1d;
             A[2, 3] = 1d;
-
             Assert.IsFalse(A.IsSquare);
         }
 
@@ -202,14 +202,14 @@ namespace Mathematics.LinearAlgebra
             A[2, 1] = 0d;
             A[2, 2] = 1d;
             A[2, 3] = 1d;
-
-           var clone = A.Clone();
+            var clone = A.Clone();
             for (int i = 0; i < A.NumberOfRows; i++)
             {
                 for (int j = 0; j < A.NumberOfColumns; j++)
                     Assert.AreEqual(A[i, j], clone[i, j], 0.0001d);
             }
         }
+
         ///<summary>
         /// Test Inverse
         /// </summary>
@@ -316,7 +316,6 @@ namespace Mathematics.LinearAlgebra
             A[2,0] = 7;
             A[2,1] = 8;
             A[2,2] = 9;
-
             var result = Matrix.Diagonal(A);
 
             var true_result = new Matrix(3);
@@ -353,7 +352,6 @@ namespace Mathematics.LinearAlgebra
             A[2,0] = 7;
             A[2,1] = 8;
             A[2,2] = 9;
-
             var sum = A.Sum();
             Assert.AreEqual(45, sum);
         }
@@ -432,7 +430,7 @@ namespace Mathematics.LinearAlgebra
         /// Multiply matrices.
         /// </summary>
         [TestMethod()]
-        public void Test_MultiplybyMatrix()
+        public void Test_MultiplyByMatrix()
         {
             var A = new Matrix(2, 3);
             A[0, 0] = 1d;
@@ -465,7 +463,7 @@ namespace Mathematics.LinearAlgebra
         /// Multiple matrix by vector.
         /// </summary>
         [TestMethod()]
-        public void Test_MultiplybyVector()
+        public void Test_MultiplyByVector()
         {
             var vector = new[] { 2d, 1d, 3d };
             var A = new Matrix(3);
@@ -488,7 +486,7 @@ namespace Mathematics.LinearAlgebra
         /// Multiply matrix by scalar. 
         /// </summary>
         [TestMethod()]
-        public void Test_MultiplybyScalar()
+        public void Test_MultiplyByScalar()
         {
             double scalar = 5d;
             var A = new Matrix(3, 2);
@@ -524,7 +522,6 @@ namespace Mathematics.LinearAlgebra
             A[0, 1] = 2d;
             A[1, 0] = 3d;
             A[1, 1] = 4d;
-
             // determinant
             double true_result = -2.0d;
             double result = A.Determinant();

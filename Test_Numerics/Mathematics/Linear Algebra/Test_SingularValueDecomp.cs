@@ -29,7 +29,6 @@
 */
 
 using System;
-using System.Runtime.Remoting.Messaging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Numerics.Mathematics.LinearAlgebra;
 
@@ -113,9 +112,7 @@ namespace Mathematics.LinearAlgebra
 
             var svd = new SingularValueDecomposition(A);
             var nn = svd.Nullity();
-            Assert.AreEqual(1,nn);
-
-
+            Assert.AreEqual(1, nn);
         }
 
         /// <summary>
@@ -130,9 +127,7 @@ namespace Mathematics.LinearAlgebra
             A[0, 1] = 0;
             A[1, 0] = 4;
             A[1, 1] = 5;
-
             var svd = new SingularValueDecomposition(A); ;
-
 
             var ranB = new Matrix(4, 3);
             ranB[0, 0] = 0;
@@ -147,7 +142,6 @@ namespace Mathematics.LinearAlgebra
             ranB[3, 0] = 1;
             ranB[3, 1] = 1;
             ranB[3, 2] = 0;
-
 
             var true_range = new Matrix(3, 2);
             true_range[0, 0] = 1/Math.Sqrt(10);
@@ -256,6 +250,7 @@ namespace Mathematics.LinearAlgebra
 
             }
         }
+
         /// <summary>
         /// Testing known square matrix with positive singular values to check correct decomposition
         /// </summary>
@@ -299,6 +294,10 @@ namespace Mathematics.LinearAlgebra
                 for (int j = 0; j < V.NumberOfColumns; j++)
                     Assert.AreEqual(V[i, j], svd.V[i, j], 0.0001d);
             }
+
+            ///Tested with the Test_Decompose() matrix to see if U and V were equal
+            ///svd() function assigns switched left and right singular vectors, however 
+            ///the overall decomposition is the same for both functions. Test passed.
         }
 
         /// <summary>
@@ -322,8 +321,6 @@ namespace Mathematics.LinearAlgebra
             // Test Determinant
             double true_det = 6.356108; //Math.Log(576) 
             double det = svd.LogDeterminant();
-            //double true_det = 576;
-            //double det = chol.Determinant();
             Assert.AreEqual(det, true_det, 0.0001d);
         }
 
@@ -351,10 +348,5 @@ namespace Mathematics.LinearAlgebra
             Assert.AreEqual(det, true_det, 0.0001d);
         }
 
-        ///[TestMethod()]
-        ///public void Test_SVDInR()
-        ///Tested with the Test_Decompose() matrix to see if U and V were equal
-        ///svd() function assigns switched left and right singular vectors, however 
-        ///the overall decomposition is the same for both functions. Test passed.
     }
 }

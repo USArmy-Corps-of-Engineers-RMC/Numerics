@@ -32,7 +32,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Numerics.Mathematics.RootFinding;
 using System;
 
-namespace Mathematics.Root_Finding
+namespace Mathematics.RootFinding
 {
     /// <summary>
     /// A class of various functions unit testing the Newton-Raphson Method.
@@ -50,118 +50,134 @@ namespace Mathematics.Root_Finding
     public class Test_NewtonRaphson
     {
         /// <summary>
-        /// Third degree polynomial
+        /// Testing with a quadratic function.
         /// </summary>
-        public double Cubic_FX(double x)
+        [TestMethod()]
+        public void Test_Quadratic()
         {
-            double F = x * x * x - x - 1d;
-            return F;
+            double initial = 1.0;
+            double X = NewtonRaphson.Solve(TestFunctions.Quadratic, TestFunctions.Quadratic_Deriv, initial);
+            double trueX = Math.Sqrt(2);
+            Assert.AreEqual(X, trueX, 1E-5);
         }
 
         /// <summary>
-        /// First derivative of third degree polynomial.
+        /// Testing robust Newton-Raphson with a quadratic function.
         /// </summary>
-        public double Cubic_Deriv(double x)
+        [TestMethod()]
+        public void Test_Robust_Quadratic()
         {
-            double F = 3d * (x * x) - 1d;
-            return F;
+            double initial = 1.0;
+            double lower = 0;
+            double upper = 4;
+            double X = NewtonRaphson.RobustSolve(TestFunctions.Quadratic, TestFunctions.Quadratic_Deriv, initial, lower, upper);
+            double trueX = Math.Sqrt(2);
+            Assert.AreEqual(X, trueX, 1E-5);
         }
 
         /// <summary>
-        /// Exponential function.
-        /// </summary>
-        public double Exponential_FX(double x)
-        {
-            double F = Math.Exp(-x) - x;
-            return F;
-        }
-
-        /// <summary>
-        /// First derivative of Exponential function.
-        /// </summary>
-        public double Exponential_Deriv(double x)
-        {
-            double F = -Math.Exp(-x) - 1;
-            return F;
-        }
-
-        /// <summary>
-        /// Testing Newton-Raphson method with a nonlinear polynomial.
+        /// Testing with a cubic function.
         /// </summary>
         [TestMethod()]
         public void Test_Cubic()
         {
             double initial = 1d;
-            double X = NewtonRaphson.Solve(Cubic_FX, Cubic_Deriv, initial);
-            double trueX = 1.32472d;
-            Assert.AreEqual(X, trueX, 1E-4);
+            double X = NewtonRaphson.Solve(TestFunctions.Cubic, TestFunctions.Cubic_Deriv, initial);
+            double trueX = 1.32472;
+            Assert.AreEqual(X, trueX, 1E-5);
         }
 
         /// <summary>
-        /// Testing Newton-Raphson method with an exponential function.
+        /// Testing robust Newton-Raphson with a cubic function.
+        /// </summary>
+        [TestMethod()]
+        public void Test_Robust_Cubic()
+        {
+            double initial = 1.0;
+            double lower = -1;
+            double upper = 5;
+            double X = NewtonRaphson.RobustSolve(TestFunctions.Cubic, TestFunctions.Cubic_Deriv, initial, lower, upper);
+            double trueX = 1.32472d;
+            Assert.AreEqual(X, trueX, 1E-5);
+        }
+
+        /// <summary>
+        /// Testing with a trigonometric function.
+        /// </summary>
+        [TestMethod()]
+        public void Test_Trigonometric()
+        {
+            double initial = 0.5;
+            double X = NewtonRaphson.Solve(TestFunctions.Trigonometric, TestFunctions.Trigonometric_Deriv, initial);
+            double trueX = 1.12191713d;
+            Assert.AreEqual(X, trueX, 1E-5);
+        }
+
+        /// <summary>
+        /// Testing robust Newton-Raphson with a trigonometric function.
+        /// </summary>
+        [TestMethod()]
+        public void Test_Robust_Trigonometric()
+        {
+            double initial = 0.5;
+            double lower = 0;
+            double upper = Math.PI;
+            double X = NewtonRaphson.RobustSolve(TestFunctions.Trigonometric, TestFunctions.Trigonometric_Deriv, initial, lower, upper);
+            double trueX = 1.12191713d;
+            Assert.AreEqual(X, trueX, 1E-5);
+        }
+
+        /// <summary>
+        /// Testing with an exponential function.
         /// </summary>
         [TestMethod()]
         public void Test_Exponential()
         {
             double initial = 1d;
-            double X = NewtonRaphson.Solve(Exponential_FX, Exponential_Deriv, initial);
+            double X = NewtonRaphson.Solve(TestFunctions.Exponential, TestFunctions.Exponential_Deriv, initial);
             double trueX = 0.567143290d;
-            Assert.AreEqual(X, trueX, 1E-4);
+            Assert.AreEqual(X, trueX, 1E-5);
         }
 
         /// <summary>
-        /// Robust Newton-Raphson, falls back to bisection with a nonlinear polynomial.
+        /// Testing robust Newton-Raphson with a exponential function.
         /// </summary>
         [TestMethod()]
-        public void Test_RobustNewtonRaphsonCubic()
+        public void Test_Robust_Exponential()
         {
-            double initial = 1d;
-            double lower = -1;
-            double upper = 5d;
-            double X = NewtonRaphson.RobustSolve(Cubic_FX, Cubic_Deriv, initial, lower, upper);
-            double trueX = 1.32472d;
-            Assert.AreEqual(X, trueX, 1E-4);
+            double initial = 1.0;
+            double lower = -2;
+            double upper = 2;
+            double X = NewtonRaphson.RobustSolve(TestFunctions.Exponential, TestFunctions.Exponential_Deriv, initial, lower, upper);
+            double trueX = 0.567143290d;
+            Assert.AreEqual(X, trueX, 1E-5);
         }
 
         /// <summary>
-        /// Testing Robust Newton-Raphson method with an exponential function.
+        /// Testing with a power function.
         /// </summary>
         [TestMethod()]
-        public void Test_RobustNewtonRaphsonExponential()
+        public void Test_Power()
         {
-            double initial = 1d;
-            double lower = -1;
-            double upper = 5d;
-            double X = NewtonRaphson.RobustSolve(Exponential_FX, Exponential_Deriv, initial, lower, upper);
-            double trueX = 0.567143290d;
-            Assert.AreEqual(X, trueX, 1E-4);
+            double initial = 0.2;
+            double X = NewtonRaphson.Solve(TestFunctions.Power, TestFunctions.Power_Deriv, initial);
+            double trueX = 1.0;
+            Assert.AreEqual(X, trueX, 1E-5);
         }
 
-        ///// <summary>
-        ///// Testing Edge case where Newton's method fails. This is due to local minima and maxima around the root 
-        //// or initial guess. 
-        ///// </summary>
-        //public double Edge_FX(double x)
-        //{
-        //    double f = 27 * Math.Pow(x, 3) - 3 * x + 1;
-            
-        //    return f; 
-        //}
+        /// <summary>
+        /// Testing robust Newton-Raphson with a power function.
+        /// </summary>
+        [TestMethod()]
+        public void Test_Robust_Power()
+        {
+            double initial = 0.2;
+            double lower = 0;
+            double upper = 2;
+            double X = NewtonRaphson.RobustSolve(TestFunctions.Power, TestFunctions.Power_Deriv, initial, lower, upper);
+            double trueX = 1.0;
+            Assert.AreEqual(X, trueX, 1E-5);
+        }
 
-        //[TestMethod()]
-        //public void Test_RobustNewtonRaphsonEdge()
-        //{
-        //    double initial = 0d;
-        //    double lower = -2d;
-        //    double upper = 5d;
-        //    double X = NewtonRaphson.RobustSolve(Edge_FX, Exponential_Deriv, initial, lower, upper);
-        //    double trueX = -0.44157265d;
-        //    Assert.AreEqual(X, trueX, 1E-4);
-        
-        ///[TestMethod()]
-        /// Test_NewtonRaphsonInR()
-        /// Recreated Robust Newton Raphson method in R with the same exponential function.
-        /// All tests passed. Utilized 'pracma' package and newtonRaphson() function. Returned 
-        /// result in 4 iterations.
     }
 }

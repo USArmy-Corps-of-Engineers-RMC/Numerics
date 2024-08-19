@@ -33,9 +33,7 @@ using Numerics.Data.Statistics;
 using Numerics.MachineLearning;
 using Numerics.Mathematics.LinearAlgebra;
 using Numerics;
-using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using Numerics.Data;
 
 namespace MachineLearning

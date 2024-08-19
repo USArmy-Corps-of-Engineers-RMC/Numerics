@@ -28,14 +28,17 @@
 * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Numerics.Mathematics.RootFinding;
+using Numerics.Mathematics;
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace Mathematics.RootFinding
 {
     /// <summary>
-    /// A class of various functions unit testing the Bracketing Method.
+    /// Functions designed to test root finding algorithms.
     /// </summary>
     /// <remarks>
     /// <para>
@@ -46,80 +49,86 @@ namespace Mathematics.RootFinding
     /// </list>
     /// </para>
     /// </remarks>
-    [TestClass()]
-    public class Test_Bracket
+    public class TestFunctions
     {
-
         /// <summary>
-        /// Test with a quadratic function. 
+        /// A quadratic test function. [0, 4] x = sqrt(2)
         /// </summary>
-        [TestMethod()]
-        public void Test_Quadratic()
+        public static double Quadratic(double x)
         {
-            double lower = 0;
-            double upper = 4;
-            bool X = Brent.Bracket(TestFunctions.Quadratic, ref lower, ref upper, out double f1, out double f2);
-            Assert.IsTrue(X);
+            return Math.Pow(x, 2) - 2;
         }
 
         /// <summary>
-        /// Test with a cubic function. 
+        /// First derivative of quadratic function. 
         /// </summary>
-        [TestMethod()]
-        public void Test_Cubic()
+        public static double Quadratic_Deriv(double x)
         {
-            double lower = -1;
-            double upper = 5;
-            bool X = Brent.Bracket(TestFunctions.Cubic, ref lower, ref upper, out double f1, out double f2);
-            Assert.IsTrue(X);
+            return 2 * x;
         }
 
         /// <summary>
-        /// Test with a trigonometric function. 
+        /// A cubic test function. [-1, 5] x = 1.32472
         /// </summary>
-        [TestMethod()]
-        public void Test_Trigonometric()
+        public static double Cubic(double x)
         {
-            double lower = 0;
-            double upper = Math.PI;
-            bool X = Brent.Bracket(TestFunctions.Trigonometric, ref lower, ref upper, out double f1, out double f2);
-            Assert.IsTrue(X);
+            return x * x * x - x - 1d;
         }
 
         /// <summary>
-        /// Test with an exponential function.
+        /// First derivative of cubic function.
         /// </summary>
-        [TestMethod()]
-        public void Test_Exponential()
+        public static double Cubic_Deriv(double x)
         {
-            double lower = -2;
-            double upper = 2;
-            bool X = Brent.Bracket(TestFunctions.Exponential, ref lower, ref upper, out double f1, out double f2);
-            Assert.IsTrue(X);
+            return 3d * (x * x) - 1d;
         }
 
         /// <summary>
-        /// Test with a power function.
+        /// A trigonometric test function. [0, 3.14] x = 1.12191713 
         /// </summary>
-        [TestMethod()]
-        public void Test_Power()
+        public static double Trigonometric(double x)
         {
-            double lower = 0;
-            double upper = 2;
-            bool X = Brent.Bracket(TestFunctions.Power, ref lower, ref upper, out double f1, out double f2);
-            Assert.IsTrue(X);
+            return 2 * Math.Sin(x) - 3 * Math.Cos(x) - 0.5;
         }
 
         /// <summary>
-        /// Test bad bracket.
+        /// First derivative of the trigonometric function.
         /// </summary>
-        [TestMethod()]
-        [ExpectedException(typeof(Exception), "Bad initial range in bracket.")]
-        public void Test_BracketEdge()
+        public static double Trigonometric_Deriv(double x)
         {
-            double lower = 1;
-            double upper = 1;
-            bool X = Brent.Bracket(TestFunctions.Quadratic, ref lower, ref upper, out double f1, out double f2);
+            return 2 * Math.Cos(x) + 3 * Math.Sin(x);
+        }
+
+        /// <summary>
+        /// An exponential test function. [-2, 2] x = 0.567143290
+        /// </summary>
+        public static double Exponential(double x)
+        {
+            return Math.Exp(-x) - x;
+        }
+
+        /// <summary>
+        /// First derivative of the exponential function.
+        /// </summary>
+        public static double Exponential_Deriv(double x)
+        {
+            return -Math.Exp(-x) - 1;
+        }
+
+        /// <summary>
+        /// A power test function. [0, 2] x = 1.0
+        /// </summary>
+        public static double Power(double x)
+        {
+            return Math.Pow(x, 10) - 1;
+        }
+
+        /// <summary>
+        /// First derivative of the power function.
+        /// </summary>
+        public static double Power_Deriv(double x)
+        {
+            return 10 * Math.Pow(x, 9);
         }
     }
 }

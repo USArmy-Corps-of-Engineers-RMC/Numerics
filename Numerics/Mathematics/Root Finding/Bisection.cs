@@ -78,14 +78,14 @@ namespace Numerics.Mathematics.RootFinding
         /// <param name="lowerBound">The lower bound of the interval containing the root.</param>
         /// <param name="upperBound">The upper bound of the interval containing the root.</param>
         /// <param name="tolerance">Optional. Desired tolerance for both the root and the function value at the root.
-        /// The root will be refined until the tolerance is achieved or the maximum number of iterations is reached. Default = 1e-12.</param>
+        /// The root will be refined until the tolerance is achieved or the maximum number of iterations is reached. Default = 1e-8.</param>
         /// <param name="maxIterations">Optional. Maximum number of iterations. Default = 1000.</param>
         /// <param name="reportFailure">Optional. If set to true, an exception will be thrown if the routine fails to converge.
         /// If set to false, the root from the last iteration will be returned if the routine fails to converge. Default = True.</param>
         /// <returns>
         /// The root to the equation f(x)=0 given the specified tolerance.
         /// </returns>
-        public static double Solve(Func<double, double> f, double firstGuess, double lowerBound, double upperBound, double tolerance = 0.000000000001d, int maxIterations = 1000, bool reportFailure = true)
+        public static double Solve(Func<double, double> f, double firstGuess, double lowerBound, double upperBound, double tolerance = 1E-8, int maxIterations = 1000, bool reportFailure = true)
         {
 
             // INPUT: Function f(), endpoint values a, b, tolerance TOL, maximum iterations NMAX
@@ -104,13 +104,13 @@ namespace Numerics.Mathematics.RootFinding
             // validate inputs
             if (upperBound < lowerBound)
             {
-                throw new ArgumentOutOfRangeException("upperBound", "The upper bound (b) cannot be less than the lower bound (a).");
+                throw new ArgumentOutOfRangeException(nameof(upperBound), "The upper bound (b) cannot be less than the lower bound (a).");
             }
             if (root < lowerBound || root > upperBound)
             {
-                throw new ArgumentOutOfRangeException("firstGuess", "The first guess must be between the upper and lower bound.");
+                throw new ArgumentOutOfRangeException(nameof(firstGuess), "The first guess must be between the upper and lower bound.");
             }
-            if (fl*fmid >=0.0)
+            if (fl * fmid >=0.0)
             {
                 throw new ArgumentException("Bisection method failed because the root is not bracketed.");
             }

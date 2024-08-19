@@ -29,10 +29,10 @@
 */
 
 using Numerics.Sampling;
+using Numerics.Mathematics.LinearAlgebra;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
+
 
 namespace Numerics
 {
@@ -51,6 +51,8 @@ namespace Numerics
     public static class ExtensionMethods
     {
 
+        #region Enum
+
         /// <summary>
         /// Gets an attribute on an enum field value
         /// </summary>
@@ -64,6 +66,25 @@ namespace Numerics
             var attributes = memInfo[0].GetCustomAttributes(typeof(T), false);
             return (attributes.Length > 0) ? (T)attributes[0] : null;
         }
+
+        #endregion
+
+        #region Double
+
+        /// <summary>
+        /// Determines if the values are almost equal to each other.
+        /// </summary>
+        /// <param name="a">The left-side value.</param>
+        /// <param name="b">The right-side value.</param>
+        /// <param name="epsilon">The absolute tolerance level. Default = 1E-15.</param>
+        public static bool AlmostEquals(this double a, double b, double epsilon = 1E-15)
+        {
+            return Math.Abs(a - b) < epsilon;
+        }
+
+        #endregion
+
+        #region Random
 
         /// <summary>
         /// Returns an array of random integers.
@@ -111,7 +132,10 @@ namespace Numerics
                 return values;
             }
             else
-            {              
+            {       
+                if (length > maxValue - minValue)
+                    throw new ArgumentException("When sampling without replacement, the length must be less than or equal to the range of values.");
+
                 var bins = new List<int>();
                 for (int i = minValue; i < maxValue; i++)
                     bins.Add(i);
@@ -128,7 +152,6 @@ namespace Numerics
             }
 
         }
-
 
         /// <summary>
         /// Returns an array of random doubles.
@@ -152,10 +175,10 @@ namespace Numerics
         public static double[,] NextDoubles(this Random random, int length, int dimension)
         {
             var values = new double[length, dimension];
-            var prngs = new MersenneTwister[dimension];
+            var prngs = new Random[dimension];
             for (int i = 0; i < dimension; i++)
             {
-                prngs[i] = new MersenneTwister(random.Next());
+                prngs[i] = random.GetType() == typeof(MersenneTwister) ? new MersenneTwister(random.Next()) : new Random(random.Next());
                 for (int j = 0; j < length; j++)
                 {
                     values[j, i] = prngs[i].NextDouble();
@@ -164,60 +187,9 @@ namespace Numerics
             return values;
         }
 
+        #endregion
 
-        /// <summary>
-        /// Gets a specific column from a 2-D array.
-        /// </summary>
-        /// <typeparam name="T">The array value type.</typeparam>
-        /// <param name="array">The array.</param>
-        /// <param name="index">Zero-based index of the column.</param>
-        public static T[] GetColumn<T>(this T[,] array, int index)
-        {
-            var col = new T[array.GetLength(0)];
-            for (int i = 0; i < array.GetLength(0); i++)
-                col[i] = array[i, index];
-            return col;
-        }
-
-        /// <summary>
-        /// Gets a specific row from a 2-D array.
-        /// </summary>
-        /// <typeparam name="T">The array value type.</typeparam>
-        /// <param name="array">The array.</param>
-        /// <param name="index">Zero-based index of the row.</param>
-        public static T[] GetRow<T>(this T[,] array, int index)
-        {
-            var row = new T[array.GetLength(1)];
-            for (int i = 0; i < array.GetLength(1); i++)
-                row[i] = array[index, i];
-            return row;
-        }
-
-        /// <summary>
-        /// Sets a specific row in a 2-D array.
-        /// </summary>
-        /// <typeparam name="T">The array value type.</typeparam>
-        /// <param name="array">The array</param>
-        /// <param name="index">Zero-based index of the row.</param>
-        /// <param name="values">The new values.</param>
-        public static void SetRow<T>(this T[,] array, int index, T[] values)
-        {
-            for (int i = 0; i < array.GetLength(1); i++)
-                array[index, i] = values[i];
-        }
-
-        /// <summary>
-        /// Sets a specific column in a 2-D array.
-        /// </summary>
-        /// <typeparam name="T">The array value type.</typeparam>
-        /// <param name="array">The array</param>
-        /// <param name="index">Zero-based index of the column.</param>
-        /// <param name="values">The new values.</param>
-        public static void SetColumn<T>(this T[,] array, int index, T[] values)
-        {
-            for (int i = 0; i < array.GetLength(0); i++)
-                array[i, index] = values[i];
-        }
+        #region 1-D Array
 
         /// <summary>
         /// Adds corresponding elements of arrays.
@@ -285,12 +257,14 @@ namespace Numerics
         /// <param name="startIndex">The start index.</param>
         public static T[] Subset<T>(this T[] array, int startIndex)
         {
-            var sub = new List<T>();
+            int t = 0;
+            var result = new T[array.Length - startIndex];
             for (int i = startIndex; i < array.Length; i++)
             {
-                sub.Add(array[i]);
+                result[t] = array[i];
+                t++;
             }
-            return sub.ToArray();
+            return result;
         }
 
         /// <summary>
@@ -302,107 +276,35 @@ namespace Numerics
         /// <param name="endIndex">The end index.</param>
         public static T[] Subset<T>(this T[] array, int startIndex, int endIndex)
         {
-            var sub = new List<T>();
+            int t = 0;
+            var result = new T[endIndex - startIndex + 1];
             for (int i = startIndex; i <= endIndex; i++)
             {
-                sub.Add(array[i]);
+                result[t] = array[i];
+                t++;
             }
-            return sub.ToArray();
-        }
-
-        ///// <summary>
-        ///// 
-        ///// </summary>
-        ///// <typeparam name="T"></typeparam>
-        ///// <param name="array"></param>
-        ///// <param name="startindex"></param>
-        ///// <param name="endIndex"></param>
-        ///// <param name="indicators"></param>
-        ///// <returns></returns>
-        //public static double[] Subset(double[] array, bool[] indicators,bool useComplement = false)
-        //{
-        //    var subTrue = new List<double>();
-        //    var subFalse = new List<double>();
-        //    //int idx = 0;
-
-        //    for ( int i = 0; i < indicators.Length; i++)
-        //    {
-        //        if (indicators[i] == true)
-        //        {
-        //            subTrue.Add(array[i]);
-        //            //idx = i;
-        //            //break;
-        //        }
-        //        else if (indicators[i] == false)
-        //        {
-        //            subFalse.Add(array[i]);
-        //        }
-        //    }
-        //    //for (int j = idx + 1; j < array.Length; j++)
-        //    //{
-
-        //    //    if (indicators[j] == (useComplement ? false : true))
-        //    //    {
-        //    //        sub.Add(array[j]);
-        //    //    }
-        //    //    idx++;
- 
-        //    //}
-        //    if (useComplement == false)
-        //    {
-        //        return subFalse.ToArray();
-        //    }
-        //    else 
-        //    {
-        //        return subTrue.ToArray();
-        //    }
-            
-        //}
-
-        /// <summary>
-        /// Specific method to extract target feature from split.
-        /// </summary>
-        /// <param name="split"> Split data from Iris dataset. </param>
-        /// <returns></returns>
-        public static double[] SubsetTarget(double[][] split)
-        {
-            return split[4];
+            return result;
         }
 
         /// <summary>
-        /// Assuming there is 4 features and 1 target to subset for X training or testing
-        /// we only extract the 4 features.
+        /// Returns a random subset of the array.
         /// </summary>
-        /// <param name="split"> Split data from Iris dataset. </param>
-        /// <returns>2D array of the values from the dictionary.</returns>
-        public static List<double[]> SubsetFeature(double[][] split)
+        /// <typeparam name="T">The array value type.</typeparam>
+        /// <param name="array">The array.</param>
+        /// <param name="length">The number of samples to return.</param>
+        /// <param name="seed">Optional. The prng seed. If negative or zero, then the computer clock is used as a seed.</param>
+        /// <param name="replace">Optional. Determines whether or not to sample with replacement. Default = false.</param>
+        public static T[] RandomSubset<T>(this T[] array, int length, int seed = -1, bool replace = false)
         {
-            var feature = new List<double[]>();
-            int length = split[0].Length;
-            for (int i = 0; i < length;i++)
-            {
-                double[] valuesForFeature = new double[4];
-                for(int j = 0; j < 4; j++)
-                {
-                    //valuesForFeature[j] = split[j][i];
-                    valuesForFeature[j] = split[i][j];
-                }
-                feature.Add(valuesForFeature);
-            }
-            return feature;
-        }
+            if (length > array.Length)
+                throw new ArgumentException("The subset length must be less than or equal to the array length.");
 
-    /// <summary>
-    /// Fills a 2-D array with the specified value.
-    /// </summary>
-    /// <typeparam name="T">The array value type.</typeparam>
-    /// <param name="array">The array.</param>
-    /// <param name="value">The fill value.</param>
-    public static void Fill<T>(this T[,] array, T value)
-        {
-            for (int i = 0; i < array.GetLength(0); i++)
-                for (int j = 0; j < array.GetLength(1); j++)
-                    array[i, j] = value;
+            Random random = seed > 0 ? new Random(seed) : new Random();
+            var indexes = random.NextIntegers(0, array.Length, length, replace);
+            var result = new T[indexes.Length];
+            for (int i = 0; i < indexes.Length; i++)
+                result[i] = array[indexes[i]];
+            return result;
         }
 
         /// <summary>
@@ -417,268 +319,350 @@ namespace Numerics
                 array[i] = value;
         }
 
+        #endregion
+
+        #region 2-D Array
 
         /// <summary>
-        /// Determines if the values are almost equal to each other.
+        /// Gets a specific column from a 2-D array.
         /// </summary>
-        /// <param name="a">The left-side value.</param>
-        /// <param name="b">The right-side value.</param>
-        /// <param name="epsilon">The absolute tolerance level. Default = 1E-15.</param>
-        public static bool AlmostEquals(this double a, double b, double epsilon = 1E-15)
+        /// <typeparam name="T">The array value type.</typeparam>
+        /// <param name="array">The array.</param>
+        /// <param name="index">Zero-based index of the column.</param>
+        public static T[] GetColumn<T>(this T[,] array, int index)
         {
-            return Math.Abs(a - b) < epsilon;
-        }
-
-        ///// <summary>
-        ///// Splits the data into a training and testing set 70/30 respectively.
-        ///// </summary>
-        ///// <param name="data"> Original data or data table we want to split.</param>
-        ///// <returns> The training set in a dictionary. </returns>
-        //public static Dictionary<string, List<double>> SplitDataTrain(Dictionary<string, List<double>> data)
-        //{
-        //    var random = new Random();
-        //    var train = new Dictionary<string, List<double>>();
-        //    var test = new Dictionary<string, List<double>>();
-
-        //    foreach (var dataClass in data)
-        //    {
-        //        train[dataClass.Key] = dataClass.Value.ToList();
-        //        test[dataClass.Key] = new List<double>();
-
-        //        for (int i = 0; i<Math.Ceiling(0.3*dataClass.Value.Count); i++)
-        //        {
-        //            if (train[dataClass.Key].Count == 0) break;
-        //            int idx = random.Next(train[dataClass.Key].Count);
-        //            test[dataClass.Key].Add(train[dataClass.Key][idx]);
-        //            train[dataClass.Key].RemoveAt(idx);
-        //        }
-        //    }
-        //    return train;
-        //}
-
-        ///// <summary>
-        /////  Splits the data into a training and testing set 70/30 respectively.
-        ///// </summary>
-        ///// <param name="data"> Original data or data table we want to split. </param>
-        ///// <returns> The testing set in a dictionary.</returns>
-        //public static Dictionary<string, List<double>> SplitDataTest(Dictionary<string, List<double>> data)
-        //{
-        //    var random = new Random();
-        //    var train = new Dictionary<string, List<double>>();
-        //    var test = new Dictionary<string, List<double>>();
-
-        //    foreach (var dataClass in data)
-        //    {
-        //        train[dataClass.Key] = dataClass.Value.ToList();
-        //        test[dataClass.Key] = new List<double>();
-
-        //        for (int i = 0; i < Math.Ceiling(0.3 * dataClass.Value.Count); i++)
-        //        {
-        //            if (train[dataClass.Key].Count == 0) break;
-        //            int idx = random.Next(train[dataClass.Key].Count);
-        //            test[dataClass.Key].Add(train[dataClass.Key][idx]);
-        //            train[dataClass.Key].RemoveAt(idx);
-        //        }
-        //    }
-        //    return test;
-        //}
-
-        /// <summary>
-        /// Random number generates integers without replacement.
-        /// </summary>
-        /// <param name="random"> Random number generator.</param>
-        /// <param name="min">Lower bound.</param>
-        /// <param name="max"> Higher bound.</param>
-        /// <param name="length">Amount of numbers to be generated.</param>
-        /// <returns></returns>
-        public static int[] NextNRIntegers(Random random, int min, int max, int length )
-        {
-            var integers = new List<int>();
-            for(int i = min; i < max; i++)
-            {
-                integers.Add(i);
-            }
-
-            var vals = new int[length];
-            for (int i = 0; i < length; i++)
-            {
-                var r = random.Next(0,integers.Count);
-                vals[i] = integers[r];
-                integers.RemoveAt(r);
-            }
-            return vals;
+            var col = new T[array.GetLength(0)];
+            for (int i = 0; i < array.GetLength(0); i++)
+                col[i] = array[i, index];
+            return col;
         }
 
         /// <summary>
-        /// 
+        /// Gets a specific row from a 2-D array.
         /// </summary>
-        /// <param name="rng"> Random number generator for the indices using NextNRIntegers()</param>
-        /// <param name="data"></param>
-        /// <param name="testing"></param>
-        /// <returns></returns>
-        public static double[][] TrainTestSplit(int[] rng,int dataSize, double[][] data,bool testing = false)
+        /// <typeparam name="T">The array value type.</typeparam>
+        /// <param name="array">The array.</param>
+        /// <param name="index">Zero-based index of the row.</param>
+        public static T[] GetRow<T>(this T[,] array, int index)
         {
-            // iterate through indices and then split 
-            //int dataSize = data[0].Length; //amount of columns (150)
-            int subSampleTraining = (int)Math.Ceiling(0.7 * dataSize); // 70% training split (105)
-            int subSampleTesting = dataSize - subSampleTraining; // 45
+            var row = new T[array.GetLength(1)];
+            for (int i = 0; i < array.GetLength(1); i++)
+                row[i] = array[index, i];
+            return row;
+        }
 
-            // Calling rng for indices with seed
-            //var rand = new Random(12345);
-            //var rng = NextNRIntegers(rand, 0, dataSize, dataSize);
-            var indicesTraining = new int[subSampleTraining]; //70% of the rng indices to training
-            for (int i = 0; i < subSampleTraining; i++)
-            {
-                indicesTraining[i] = rng[i];
-            }
-            
-            var indicesTesting = new int[subSampleTesting];
-            for (int i = 0; i < subSampleTesting; i++)
-            {
-                indicesTesting[i] = rng[i + subSampleTraining];
-            }
-            //var indicesTesting = rng.Except(indicesTraining).ToArray(); // allocates the other indices for testing
+        /// <summary>
+        /// Sets a specific row in a 2-D array.
+        /// </summary>
+        /// <typeparam name="T">The array value type.</typeparam>
+        /// <param name="array">The array.</param>
+        /// <param name="index">Zero-based index of the row.</param>
+        /// <param name="values">The new values.</param>
+        public static void SetRow<T>(this T[,] array, int index, T[] values)
+        {
+            for (int i = 0; i < array.GetLength(1); i++)
+                array[index, i] = values[i];
+        }
 
-            var trainingData = new double[subSampleTraining][];
-            var testingData = new double[subSampleTesting][];
+        /// <summary>
+        /// Sets a specific column in a 2-D array.
+        /// </summary>
+        /// <typeparam name="T">The array value type.</typeparam>
+        /// <param name="array">The array.</param>
+        /// <param name="index">Zero-based index of the column.</param>
+        /// <param name="values">The new values.</param>
+        public static void SetColumn<T>(this T[,] array, int index, T[] values)
+        {
+            for (int i = 0; i < array.GetLength(0); i++)
+                array[i, index] = values[i];
+        }
 
-            for (int i = 0; i < subSampleTraining; i++)
+
+        /// <summary>
+        /// Returns a subset of the array.
+        /// </summary>
+        /// <typeparam name="T">The array value type.</typeparam>
+        /// <param name="array">The array.</param>
+        /// <param name="startIndex">The start index.</param>
+        public static T[,] Subset<T>(this T[,] array, int startIndex)
+        {
+            int t = 0;
+            var result = new T[array.GetLength(0) - startIndex, array.GetLength(1)];
+            for (int i = startIndex; i < array.GetLength(0); i++)
             {
-                trainingData[i] = new double[5]; //5 features in the dataset
-                for(int j =0; j < 5; j++)
+                for (int j = 0; j < array.GetLength(1); j++)
                 {
-                    //trainingData[i][j] = data[indicesTraining[i]][j];
-                    trainingData[i][j] = data[j][indicesTraining[i]];
-                    //trainingData[i] = data[indicesTraining[i]];
+                    result[t, j] = array[i, j];
+                }
+                t++;
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Returns a subset of the array.
+        /// </summary>
+        /// <typeparam name="T">The array value type.</typeparam>
+        /// <param name="array">The array.</param>
+        /// <param name="startIndex">The start index.</param>
+        /// <param name="endIndex">The end index.</param>
+        public static T[,] Subset<T>(this T[,] array, int startIndex, int endIndex)
+        {
+            int t = 0;
+            var result = new T[endIndex - startIndex + 1, array.GetLength(1)];
+            for (int i = startIndex; i <= endIndex; i++)
+            {
+                for (int j = 0; j < array.GetLength(1); j++)
+                {
+                    result[t, j] = array[i, j];
+                }
+                t++;
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Returns a random subset of the array.
+        /// </summary>
+        /// <typeparam name="T">The array value type.</typeparam>
+        /// <param name="array">The array.</param>
+        /// <param name="length">The number of samples to return.</param>
+        /// <param name="seed">Optional. The prng seed. If negative or zero, then the computer clock is used as a seed.</param>
+        /// <param name="replace">Optional. Determines whether or not to sample with replacement. Default = false.</param>
+        public static T[,] RandomSubset<T>(this T[,] array, int length, int seed = -1, bool replace = false)
+        {
+            if (length > array.GetLength(0))
+                throw new ArgumentException("The subset length must be less than or equal to the array length.");
+
+            Random random = seed > 0 ? new Random(seed) : new Random();
+            var indexes = random.NextIntegers(0, array.GetLength(0), length, replace);
+            var result = new T[indexes.Length, array.GetLength(1)];
+            for (int i = 0; i < indexes.Length; i++)
+            {
+                for (int j = 0; j < array.GetLength(1); j++)
+                {
+                    result[i, j] = array[indexes[i], j];
                 }
             }
+            return result;
+        }
 
-            for(int i =0; i < subSampleTesting; i++)
+        /// <summary>
+        /// Fills a 2-D array with the specified value.
+        /// </summary>
+        /// <typeparam name="T">The array value type.</typeparam>
+        /// <param name="array">The array.</param>
+        /// <param name="value">The fill value.</param>
+        public static void Fill<T>(this T[,] array, T value)
+        {
+            for (int i = 0; i < array.GetLength(0); i++)
+                for (int j = 0; j < array.GetLength(1); j++)
+                    array[i, j] = value;
+        }
+
+        #endregion
+
+        #region Vector
+
+        /// <summary>
+        /// Returns a subset of the vector.
+        /// </summary>
+        /// <param name="vector">The vector.</param>
+        /// <param name="startIndex">The start index.</param>
+        public static Vector Subset(this Vector vector, int startIndex)
+        {
+            int t = 0;
+            var result = new Vector(vector.Length - startIndex);
+            for (int i = startIndex; i < vector.Length; i++)
             {
-                testingData[i] = new double[5];
-                for(int j = 0; j < 5; j++)
+                result[t] = vector[i];
+                t++;
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Returns a subset of the vector.
+        /// </summary>
+        /// <param name="vector">The vector.</param>
+        /// <param name="startIndex">The start index.</param>
+        /// <param name="endIndex">The end index.</param>
+        public static Vector Subset(this Vector vector, int startIndex, int endIndex)
+        {
+            int t = 0;
+            var result = new Vector(endIndex - startIndex + 1);
+            for (int i = startIndex; i <= endIndex; i++)
+            {
+                result[t] = vector[i];
+                t++;
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Returns a random subset of the vector.
+        /// </summary>
+        /// <param name="vector">The vector.</param>
+        /// <param name="length">The number of samples to return.</param>
+        /// <param name="seed">Optional. The prng seed. If negative or zero, then the computer clock is used as a seed.</param>
+        /// <param name="replace">Optional. Determines whether or not to sample with replacement. Default = false.</param>
+        public static Vector RandomSubset(this Vector vector, int length, int seed = -1, bool replace = false)
+        {
+            if (length > vector.Length)
+                throw new ArgumentException("The subset length must be less than or equal to the vector length.");
+
+            Random random = seed > 0 ? new Random(seed) : new Random();
+            var indexes = random.NextIntegers(0, vector.Length, length, replace);
+            var result = new Vector(indexes.Length);
+            for (int i = 0; i < indexes.Length; i++)
+                result[i] = vector[indexes[i]];
+            return result;
+        }
+
+        /// <summary>
+        /// Fills a vector with the specified value.
+        /// </summary>
+        /// <param name="vector">The vector.</param>
+        /// <param name="value">The fill value.</param>
+        public static void Fill(this Vector vector, double value)
+        {
+            for (int i = 0; i < vector.Length; i++)
+                vector[i] = value;
+        }
+
+        #endregion
+
+        #region Matrix
+
+        /// <summary>
+        /// Gets a specific column from a matrix.
+        /// </summary>
+        /// <param name="matrix">The matrix.</param>
+        /// <param name="index">Zero-based index of the column.</param>
+        public static double[] GetColumn(this Matrix matrix, int index)
+        {
+            var col = new double[matrix.NumberOfRows];
+            for (int i = 0; i < matrix.NumberOfRows; i++)
+                col[i] = matrix[i, index];
+            return col;
+        }
+
+        /// <summary>
+        /// Gets a specific row from a matrix.
+        /// </summary>
+        /// <param name="matrix">The matrix.</param>
+        /// <param name="index">Zero-based index of the row.</param>
+        public static double[] GetRow(this Matrix matrix, int index)
+        {
+            var row = new double[matrix.NumberOfColumns];
+            for (int i = 0; i < matrix.NumberOfColumns; i++)
+                row[i] = matrix[index, i];
+            return row;
+        }
+
+        /// <summary>
+        /// Sets a specific row in a matrix.
+        /// </summary>
+        /// <param name="matrix">The matrix.</param>
+        /// <param name="index">Zero-based index of the row.</param>
+        /// <param name="values">The new values.</param>
+        public static void SetRow(this Matrix matrix, int index, double[] values)
+        {
+            for (int i = 0; i < matrix.NumberOfColumns; i++)
+                matrix[index, i] = values[i];
+        }
+
+        /// <summary>
+        /// Sets a specific column in a matrix.
+        /// </summary>
+        /// <param name="matrix">The matrix.</param>
+        /// <param name="index">Zero-based index of the column.</param>
+        /// <param name="values">The new values.</param>
+        public static void SetColumn(this Matrix matrix, int index, double[] values)
+        {
+            for (int i = 0; i < matrix.NumberOfRows; i++)
+                matrix[i, index] = values[i];
+        }
+
+        /// <summary>
+        /// Returns a subset of the matrix.
+        /// </summary>
+        /// <param name="matrix">The matrix.</param>
+        /// <param name="startIndex">The start index.</param>
+        public static Matrix Subset(this Matrix matrix, int startIndex)
+        {
+            int t = 0;
+            var result = new Matrix(matrix.NumberOfRows - startIndex, matrix.NumberOfColumns);
+            for (int i = startIndex; i < matrix.NumberOfRows; i++)
+            {
+                for (int j = 0; j < matrix.NumberOfColumns; j++)
                 {
-                    //testingData[i][j]= data[indicesTesting[i]][j];
-                    testingData[i][j] = data[j][indicesTesting[i]];
-                    //testingData[i][j] = data[indicesTesting[i]];
+                    result[t, j] = matrix[i, j];
+                }
+                t++;
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Returns a subset of the matrix.
+        /// </summary>
+        /// <param name="matrix">The matrix.</param>
+        /// <param name="startIndex">The start index.</param>
+        /// <param name="endIndex">The end index.</param>
+        public static Matrix Subset(this Matrix matrix, int startIndex, int endIndex)
+        {
+            int t = 0;
+            var result = new Matrix(endIndex - startIndex + 1, matrix.NumberOfColumns);
+            for (int i = startIndex; i <= endIndex; i++)
+            {
+                for (int j = 0; j < matrix.NumberOfColumns; j++)
+                {
+                    result[t, j] = matrix[i, j];
+                }
+                t++;
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Returns a random subset of the matrix.
+        /// </summary>
+        /// <param name="matrix">The matrix.</param>
+        /// <param name="length">The number of samples to return.</param>
+        /// <param name="seed">Optional. The prng seed. If negative or zero, then the computer clock is used as a seed.</param>
+        /// <param name="replace">Optional. Determines whether or not to sample with replacement. Default = false.</param>
+        public static Matrix RandomSubset(this Matrix matrix, int length, int seed = -1, bool replace = false)
+        {
+            if (length > matrix.NumberOfRows)
+                throw new ArgumentException("The subset length must be less than or equal to the number of rows in the matrix.");
+
+            Random random = seed > 0 ? new Random(seed) : new Random();
+            var indexes = random.NextIntegers(0, matrix.NumberOfRows, length, replace);
+            var result = new Matrix(indexes.Length, matrix.NumberOfColumns);
+            for (int i = 0; i < indexes.Length; i++)
+            {
+                for (int j = 0; j < matrix.NumberOfColumns; j++)
+                {
+                    result[i, j] = matrix[indexes[i], j];
                 }
             }
-
-            if (testing)
-            {
-                return testingData;
-            }
-            else
-            {
-                return trainingData;
-            }
+            return result;
         }
-        ///// <summary>
-        ///// 
-        ///// </summary>
-        ///// <typeparam name="T"></typeparam>
-        ///// <returns></returns>
-        //public static bool[] SampleSplit(double[][] array, double SplitRatio = 0.7)
-        //{
-        //    int nSamp = array.Count();
-        //    //int nGroup = group.Length;
-        //    bool[] bins = new bool[nSamp];
-        //    SplitRatio = Math.Abs(SplitRatio);
 
-        //    //if (nGroup > 0 && nGroup != nSamp)
-        //    //    throw new ArgumentException("Arrays 'array' and 'group' have to have the same length");
-        //    if (SplitRatio >= nSamp) 
-        //        throw new ArgumentException("'SplitRatio' parameter has to be in [0, 1] range or [1, length(array)] range");
+        /// <summary>
+        /// Fills a matrix with the specified value.
+        /// </summary>
+        /// <param name="matrix">The matrix.</param>
+        /// <param name="value">The fill value.</param>
+        public static void Fill(this Matrix matrix, double value)
+        {
+            for (int i = 0; i < matrix.NumberOfRows; i++)
+                for (int j = 0; j < matrix.NumberOfColumns; j++)
+                    matrix[i, j] = value;
+        }
 
-        //    var distinctLabels = array.Distinct();
-        //    distinctLabels = distinctLabels.ToArray();
-        //    int nDistinctLabels = distinctLabels.Count();
+        #endregion
 
-        //    if (2 * nDistinctLabels > nSamp || nDistinctLabels == 1)
-        //    {
-        //        if (SplitRatio >= 1)
-        //        {
-        //            double n = SplitRatio;
-        //        }
-        //        else
-        //        {
-        //            double n = SplitRatio * nSamp;
-        //        }
-        //        Random random = new Random();
-        //        List<int> rnd = new List<int>(nSamp);
-        //        for (int i = 0; i < rnd.Count; i++)
-        //        {
-        //            rnd.Add(random.Next(0, nSamp));
-        //        }
-
-        //        rnd.Sort();
-
-        //        for (int j = 0; j < rnd.Count; j++)
-        //        {
-        //            bins[rnd[j]] = true;
-        //        }
-        //    }
-        //    else
-        //    {
-        //        if(SplitRatio >= 1)
-        //        {
-        //            double rat = SplitRatio/nSamp;
-        //        }
-        //        else
-        //        {
-        //            double rat = SplitRatio;
-        //        }
-        //        for (int i = 0; i < nDistinctLabels; i++)
-        //        {
-        //            var idx = Enumerable.Range(0, array.Length)
-        //                       .Where(i => array[i] == distinctLabels.ElementAt(i))
-        //                       .ToArray();
-
-        //            int n = (int)Math.Round(idx.Length * 0.5); // Adjust the ratio as needed
-
-        //            //var idx[i] = Array.IndexOf(array, distinctLabels.ElementAt(i));
-        //            //int n = (int)Math.Round(idx * 0.5);
-
-        //            Random random = new Random();
-        //            double[] rnd = idx.Select(i => random.NextDouble()).ToArray();
-
-        //            Array.Sort(rnd, idx);
-
-        //            for (int ii = 0; ii < n; ii++)
-        //            {
-        //                bins[idx[ii]] = true;
-        //            }
-        //        }
-
-        //        if(SplitRatio >= 1)
-        //        {
-        //            double n = bins.Length - SplitRatio;
-
-        //            if(n > 0)
-        //            {
-        //                var binOneIdx = Enumerable.Range(0, bins.Length).Where(i => bins[i]).ToArray();
-        //                var randIdx = binOneIdx.OrderBy(i=>Guid.NewGuid()).Take((int)n).ToArray();
-
-        //                foreach(var idx in randIdx)
-        //                {
-        //                    bins[idx] = false;
-        //                }
-        //            }
-        //            else if (n < 0)
-        //            {
-        //                var binTwoIdx = Enumerable.Range(0, bins.Length).Where(i => !bins[i]).ToArray();
-        //                var randIdx = binTwoIdx.OrderBy(_ => Guid.NewGuid()).Take(-(int)n).ToArray();
-
-        //                foreach (var idx in randIdx)
-        //                {
-        //                    bins[idx] = true;
-        //                }
-        //            }
-        //        }
-
-
-        //    }
-        //    return bins;
-        //}
     }
 }

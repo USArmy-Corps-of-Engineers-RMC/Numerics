@@ -78,49 +78,48 @@ namespace Numerics.Mathematics.RootFinding
         /// <param name="lowerBound">The lower bound (a) of the interval containing the root.</param>
         /// <param name="upperBound">The upper bound (b) of the interval containing the root.</param>
         /// <param name="tolerance">Optional. Desired tolerance for both the root and the function value at the root.
-        /// The root will be refined until the tolerance is achieved or the maximum number of iterations is reached. Default = 1e-12.</param>
+        /// The root will be refined until the tolerance is achieved or the maximum number of iterations is reached. Default = 1e-8.</param>
         /// <param name="maxIterations">Optional. Maximum number of iterations. Default = 1000.</param>
         /// <param name="reportFailure">Optional. If set to true, an exception will be thrown if the routine fails to converge.
         /// If set to false, the root from the last iteration will be returned if the routine fails to converge. Default = True.</param>
         /// <returns>
         /// The root to the equation f(x)=0 given the specified tolerance.
         /// </returns>
-        public static double Solve(Func<double, double> f, double lowerBound, double upperBound, double tolerance = 0.000000000001d, int maxIterations = 1000, bool reportFailure = true)
+        public static double Solve(Func<double, double> f, double lowerBound, double upperBound, double tolerance = 1E-8, int maxIterations = 1000, bool reportFailure = true)
         {
 
             // validate inputs
             if (upperBound < lowerBound)
             {
-                throw new ArgumentOutOfRangeException("upperBound", "The upper bound (b) cannot be less than the lower bound (a).");
+                throw new ArgumentOutOfRangeException(nameof(upperBound), "The upper bound (b) cannot be less than the lower bound (a).");
             }
 
             // Define variables
             bool solutionFound = false;
-            double root;
-            double fl = f(lowerBound);
-            double fh = f(upperBound);
-            double swap;
-            double dx;
+            double xl, root;
+            double x1 = lowerBound;
+            double x2 = upperBound;
+            double fl = f(x1);
+            double fh = f(x2);
 
             // Pick the bound with the smaller function value as the most recent guess
             if (Math.Abs(fl) < Math.Abs(fh))
             {
-                root = lowerBound;
-                lowerBound = upperBound;
-                swap = fl;
-                fl = fh;
-                fh = swap;
+                root = x1;
+                xl = x2;
+                Tools.Swap(ref fl, ref fh);
             }
             else
             {
-                root = upperBound;
+                xl = x1;
+                root = x2;
             }
 
             // Secant loop
             for (int i = 1; i <= maxIterations; i++)
             {
-                dx = (lowerBound - root) * fh / (fh - fl);
-                lowerBound = root;
+                double dx = (xl - root) * fh / (fh - fl);
+                xl = root;
                 fl = fh;
                 root += dx;
                 fh = f(root);

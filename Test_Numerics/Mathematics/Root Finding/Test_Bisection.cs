@@ -32,7 +32,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Numerics.Mathematics.RootFinding;
 using System;
 
-namespace Mathematics.Root_Finding
+namespace Mathematics.RootFinding
 {
     /// <summary>
     /// A class of various functions unit testing the Bisection Method.
@@ -49,28 +49,77 @@ namespace Mathematics.Root_Finding
     [TestClass]
     public class Test_Bisection
     {
+
         /// <summary>
-        /// Third degree polynomial
+        /// Testing with a quadratic function.
         /// </summary>
-        public double Cubic_FX(double x)
+        [TestMethod()]
+        public void Test_Quadratic()
         {
-            double F = x * x * x - x - 1d;
-            return F;
+            double initial = 1.0;
+            double lower = 0;
+            double upper = 4;
+            double X = Bisection.Solve(TestFunctions.Quadratic, initial, lower, upper);
+            double trueX = Math.Sqrt(2);
+            Assert.AreEqual(X, trueX, 1E-5);
         }
 
         /// <summary>
-        /// Testing the Bisection method with a nonlinear polynomial.  
+        /// Testing with a cubic function.
         /// </summary>
         [TestMethod()]
         public void Test_Cubic()
         {
-            double initial = 1d;
+            double initial = 1.0;
             double lower = -1;
-            double upper = 5d;
-            double X = Bisection.Solve(Cubic_FX, initial, lower, upper);
-            double trueX = 1.32472d;
-            Assert.AreEqual(X, trueX, 1E-4);
+            double upper = 5;
+            double X = Bisection.Solve(TestFunctions.Cubic, initial, lower, upper);
+            double trueX = 1.32472;
+            Assert.AreEqual(X, trueX, 1E-5);
         }
+
+        /// <summary>
+        /// Testing with a trigonometric function.
+        /// </summary>
+        [TestMethod()]
+        public void Test_Trigonometric()
+        {
+            double initial = 0.5;
+            double lower = 0;
+            double upper = Math.PI;
+            double X = Bisection.Solve(TestFunctions.Trigonometric, initial, lower, upper);
+            double trueX = 1.12191713d;
+            Assert.AreEqual(X, trueX, 1E-5);
+        }
+
+        /// <summary>
+        /// Testing with an exponential function.
+        /// </summary>
+        [TestMethod()]
+        public void Test_Exponential()
+        {
+            double initial = 1.0;
+            double lower = -2;
+            double upper = 2;
+            double X = Bisection.Solve(TestFunctions.Exponential, initial, lower, upper);
+            double trueX = 0.567143290;
+            Assert.AreEqual(X, trueX, 1E-5);
+        }
+
+        /// <summary>
+        /// Testing with a power function.
+        /// </summary>
+        [TestMethod()]
+        public void Test_Power()
+        {
+            double initial = 0.2;
+            double lower = 0;
+            double upper = 2;
+            double X = Bisection.Solve(TestFunctions.Power, initial, lower, upper);
+            double trueX = 1.0;
+            Assert.AreEqual(X, trueX, 1E-5);
+        }
+
         [TestMethod()]
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void Test_BisectionEdge1()
@@ -78,7 +127,7 @@ namespace Mathematics.Root_Finding
             double initial = -1d;
             double lower = 1d;
             double upper = 5d;
-            double X = Bisection.Solve(Cubic_FX, initial, lower, upper);
+            double X = Bisection.Solve(TestFunctions.Cubic, initial, lower, upper);
         }
 
         [TestMethod()]
@@ -88,7 +137,7 @@ namespace Mathematics.Root_Finding
             double initial = 1d;
             double lower = 5;
             double upper = 0d;
-            double X = Bisection.Solve(Cubic_FX, initial, lower, upper);
+            double X = Bisection.Solve(TestFunctions.Cubic, initial, lower, upper);
         }
 
         [TestMethod()]
@@ -98,11 +147,8 @@ namespace Mathematics.Root_Finding
             double initial = 3d;
             double lower = 2;
             double upper = 5d;
-            double X = Bisection.Solve(Cubic_FX, initial, lower, upper);
+            double X = Bisection.Solve(TestFunctions.Cubic, initial, lower, upper);
         }
-        ///[TestMethod()]
-        ///Test_BisectionInR()
-        /// Recreated Bisection method in R comparing Test_Cubic(). Test passed.
-        /// Used 'pracma' package and bisect() function. Returned in 7 iterations.
+
     }
 }

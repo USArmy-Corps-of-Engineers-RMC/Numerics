@@ -164,15 +164,15 @@ namespace Mathematics.Differentiation
         [TestMethod()]
         public void Test_RiddersMethod_FX()
         {
-            double derivFX = NumericalDerivative.RiddersMethod(FX, 2d);
+            double derivFX = NumericalDerivative.RiddersMethod(FX, 2d, out var err);
             double ansFX = 12d;
             Assert.AreEqual(derivFX, ansFX, 0.000001d);
         
-            double derivEX = NumericalDerivative.RiddersMethod(EX, 4d);
+            double derivEX = NumericalDerivative.RiddersMethod(EX, 4d, out err);
             double ansEX = Math.Exp(4);
             Assert.AreEqual(derivEX, ansEX, 1E-4);
         
-            double derivLN = NumericalDerivative.RiddersMethod(LN, 2d);
+            double derivLN = NumericalDerivative.RiddersMethod(LN, 2d, out err);
             double ansLN = 0.5d;
             Assert.AreEqual(derivLN, ansLN, 1E-4);
         }

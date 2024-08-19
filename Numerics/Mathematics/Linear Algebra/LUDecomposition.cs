@@ -243,7 +243,8 @@ namespace Numerics.Mathematics.LinearAlgebra
         public double Determinant()
         {
             double dd = d;
-            for (int i = 0; i < n; i++) dd *= LU[i, i];
+            for (int i = 0; i < n; i++) 
+                dd *= LU[i, i];
             return dd;
         }
 

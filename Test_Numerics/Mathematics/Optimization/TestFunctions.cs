@@ -35,6 +35,14 @@ namespace Mathematics.Optimization
     /// <summary>
     /// Functions designed to test optimization algorithms.
     /// </summary>
+    /// <remarks>
+    /// <para>
+    ///     <b> Authors: </b>
+    ///     <list type="bullet"> 
+    ///     <item> Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil </item>
+    /// </list>
+    /// </para>
+    /// </remarks>
     public class TestFunctions
     {
 
@@ -359,5 +367,7 @@ namespace Mathematics.Optimization
             }
             return F;
         }
+
+
     }
 }

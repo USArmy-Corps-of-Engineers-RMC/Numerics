@@ -71,8 +71,6 @@ namespace Mathematics.LinearAlgebra
             // Test Determinant
             double true_det = Math.Log(lu.Determinant());
             double det = chol.LogDeterminant();
-            //double true_det = lu.Determinant();
-            //double det = chol.Determinant();
             Assert.AreEqual(det, true_det, 0.0001d);
 
             // Test Inverse
@@ -155,8 +153,6 @@ namespace Mathematics.LinearAlgebra
             // Test Determinant
             double true_det = 6.356108; //Math.Log(576) 
             double det = chol.LogDeterminant();
-            //double true_det = 576;
-            //double det = chol.Determinant();
             Assert.AreEqual(det, true_det, 0.0001d);
         }
 
@@ -241,9 +237,8 @@ namespace Mathematics.LinearAlgebra
             A[2, 1] = -4d;
             A[2, 2] = 22d;
             var chol = new CholeskyDecomposition(A);
-
-            
-            var b = new double[] { 16d, 18d, -22d };
+      
+            var b = new Vector(new double[] { 16d, 18d, -22d });
             var true_y = new double[] { 4d, 7d, -3d };
             var y = chol.Forward(b);
             for (int i = 0; i < y.Length; i++)
@@ -267,27 +262,14 @@ namespace Mathematics.LinearAlgebra
             A[2, 1] = -4d;
             A[2, 2] = 22d;
             var chol = new CholeskyDecomposition(A);
-
             
-            var Y = new double[] { 4d, 7d, -3d };
+            var Y = new Vector(new double[] { 4d, 7d, -3d });
             var right_x = new double[] { 1d, 2d, -1d };
-            var x = chol.Back(Y);
+            var x = chol.Backward(Y);
             for (int i = 0; i < x.Length; i++)
                 Assert.AreEqual(x[i], right_x[i], 0.0001d);
         }
-
-        ///[TestMethod()]
-        /// <b> TestCholeskyDecompMethodsR() </b>
-        /// </para>
-        /// <para>
-        /// <summary>
-        /// Compared method by testing same input values into an R script using 
-        /// RStudio. The functions used in R to crosscheck this method was as.matrix(),
-        /// chol(), solve(), and det(). All values reported were the same, therefore 
-        /// Test_CholeskyDecompMethodsR() passes.
-        /// </summary>
-        /// </para>    
-
+  
     }
 }
 

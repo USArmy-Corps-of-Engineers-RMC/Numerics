@@ -216,13 +216,17 @@ namespace Numerics.Utilities
         }
 
         /// <summary>
-        /// 
+        /// Performs action when progress is reported.
         /// </summary>
-        /// <param name="prog"></param>
+        /// <param name="prog">The progress level.</param>
         protected virtual void OnProgressReported(double prog)
         {
         }
 
+        /// <summary>
+        /// Performs action when message is reported.
+        /// </summary>
+        /// <param name="msg">The message.</param>
         protected virtual void OnMessageReported(MessageContentStruct msg)
         {
         }
@@ -238,18 +242,26 @@ namespace Numerics.Utilities
         }
 
         /// <summary>
-        /// 
+        /// Performs action when external process is reported.
         /// </summary>
-        /// <param name="p"></param>
-        protected virtual void OnExternalProcessReported(Process p)
+        /// <param name="process">The external process.</param>
+        protected virtual void OnExternalProcessReported(Process process)
         {
         }
 
-        public void ReportError(string msg)
+        /// <summary>
+        /// Report the error message.
+        /// </summary>
+        /// <param name="message">The error message.</param>
+        public void ReportError(string message)
         {
-            ReportMessage(msg, MessageType.FatalError);
+            ReportMessage(message, MessageType.FatalError);
         }
 
+        /// <summary>
+        /// Invokes the progress handlers.
+        /// </summary>
+        /// <param name="state">The object.</param>
         private void InvokeProgressHandlers(object state)
         {
             double prog = ((double[])state)[0];
@@ -260,6 +272,10 @@ namespace Numerics.Utilities
             ProgressReported?.Invoke(this, prog, prog - prevProg);
         }
 
+        /// <summary>
+        /// Invokes the message handlers.
+        /// </summary>
+        /// <param name="state">The object.</param>
         private void InvokeMessageHandlers(object state)
         {
             MessageContentStruct prog = (MessageContentStruct)state;

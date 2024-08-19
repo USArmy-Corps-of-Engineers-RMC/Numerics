@@ -150,6 +150,7 @@ namespace Numerics.Mathematics.LinearAlgebra
             return Math.Sqrt(d);
         }
 
+  
 
         /// <summary>
         /// Returns the Euclidean distance between two vectors ||x - y||.
