@@ -28,114 +28,95 @@
 * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 * **/
 
-using System;
-using System.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Numerics.Data.Statistics;
+using Numerics;
+using Numerics.Data;
 using Numerics.Distributions;
 
 namespace Distributions.Univariate
 {
     /// <summary>
-    /// Testing the Empirical distribution algorithm.
+    /// Testing the Empirical distribution.
     /// </summary>
     /// <remarks>
     /// <para>
     ///     <b> Authors: </b>
     ///     <list type="bullet">
     ///     <item> Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil </item>
-    ///     <item> Tiki Gonzalez, USACE Risk Management Center, julian.t.gonzalez@usace.army.mil</item>
     ///     </list> 
-    /// </para>
-    /// <para>
-    /// <b> References: </b>
-    /// </para>
-    /// <para>
-    /// <see href = "https://github.com/mathnet/mathnet-numerics/blob/master/src/Numerics.Tests/DistributionTests/Discrete/BinomialTests.cs" />
     /// </para>
     /// </remarks>
     [TestClass]
     public class Test_EmpiricalDistribution
     {
         /// <summary>
-        /// 
+        /// This test creates an empirical distribution that is designed to closely match a Normal distribution. 
+        /// The test compares the moments of the two distributions.
         /// </summary>
        [TestMethod]
-        public void Test_Empirical()
+        public void Test_Empirical_Normal_Moments()
         {
-            var xValues = new double[] { 60, 62.4, 64.8, 67.2, 69.6, 72, 74.4, 76.8, 79.2, 81.6, 84, 86.4, 88.8, 91.2, 93.6, 96, 98.4, 100.8, 103.2, 105.6, 108, 110.4, 112.8, 115.2, 117.6, 120, 122.4, 124.8, 127.2, 129.6, 132, 134.4, 136.8, 139.2, 141.6, 144, 146.4, 148.8, 151.2, 153.6, 156, 158.4, 160.8, 163.2, 165.6, 168, 170.4, 172.8, 175.2, 177.6, 180 };
-            var yValues = new double[] { 0.00656255299999997, 0.011235394, 0.0182305659999999, 0.028188409, 0.041732992, 0.0594110450000001, 0.0816336, 0.10862863, 0.140410952, 0.176772673, 0.217294242, 0.261373384, 0.308267235, 0.357142059, 0.407124886, 0.457352183, 0.507011821, 0.555375994, 0.60182409, 0.645855616, 0.687094171, 0.72528395, 0.760280572, 0.792038023, 0.820593355, 0.846050583, 0.868564861, 0.888327776, 0.905554271, 0.920471492, 0.933309648, 0.944294835, 0.953643664, 0.961559494, 0.968230023, 0.973825984, 0.978500726, 0.982390458, 0.985614972, 0.988278692, 0.99047192, 0.992272179, 0.993745587, 0.994948194, 0.995927251, 0.99672239, 0.997366695, 0.997887667, 0.998308071, 0.998646683, 0.998918935 };
+            var norm = new Normal(100, 15);
+            var eCDF = norm.CreateCDFGraph();
+            var emp  = new EmpiricalDistribution(eCDF.GetColumn(0), eCDF.GetColumn(1));
 
-            var zValues = new double[] { 0.0065625533783763, 0.0190603864061158, 0.0446793337039374, 0.0883823576250979, 0.152531525445008, 0.235660550894875, 0.332704646887913, 0.436424142578906, 0.53925460323174, 0.634847734825551, 0.718918986533906, 0.789391568445138, 0.846050583035643, 0.889763316925072, 0.92261118427365, 0.946632041977346, 0.963783003861332, 0.975773793010283, 0.984002715097366 };
-            var true_values = new double[] { 60, 65, 70, 75, 80, 85, 90, 95, 100, 105, 110, 115, 120, 125, 130, 135, 140, 145, 150 };
-            double[] output = new double[zValues.Length];
-            var emp = new EmpiricalDistribution(xValues, yValues);
-
-            for (int i = 0; i < zValues.Length; i++)
-            {
-                output[i] = emp.InverseCDF(zValues[i]);
-            }
-
-
+            // Test moments
+            Assert.AreEqual(norm.Mean, emp.Mean, 1E-1);
+            Assert.AreEqual(norm.StandardDeviation, emp.StandardDeviation, 1E-1);
+            Assert.AreEqual(norm.Skewness, emp.Skewness, 1E-1);
+            Assert.AreEqual(norm.Kurtosis, emp.Kurtosis, 1E-1);
 
         }
 
         /// <summary>
-        /// 
+        /// This test creates an empirical distribution that is designed to closely match a Normal distribution. 
+        /// The test compares the distribution functions of the two distributions.
         /// </summary>
         [TestMethod]
-        public void Test_SRP()
+        public void Test_Empirical_Normal_Dist()
         {
-            var xValues = new double[] { 535, 563.6, 574.3, 582.8, 587.7 };
-            var yValues = new double[] { 0.00000002142, 0.0000014994, 0.00000745416, 0.0000369852, 0.0001272348 };
+            var norm = new Normal(100, 15);
+            var eCDF = norm.CreateCDFGraph();
+            var emp = new EmpiricalDistribution(eCDF.GetColumn(0), eCDF.GetColumn(1));
 
-
-            var emp = new EmpiricalDistribution(xValues, yValues);
-
-            var p = emp.CDF(525.5);
-
-
-
+            // Test distribution functions
+            Assert.AreEqual(norm.PDF(80), emp.PDF(80), 1E-4);
+            Assert.AreEqual(norm.CDF(80), emp.CDF(80), 1E-4);
+            Assert.AreEqual(norm.CCDF(80), emp.CCDF(80), 1E-4);
+            Assert.AreEqual(80, emp.InverseCDF(emp.CDF(80)), 1E-4);
 
         }
-
 
         /// <summary>
-        /// 
+        /// This test compares against Palisades '@Risk' empirical CDF function. 
+        /// This test is described in the RMC-BestFit verification report. 
         /// </summary>
         [TestMethod]
-        public void TestMethod1()
+        public void Test_Empirical_PalisadesAtRisk()
         {
+            // nonparametric distribution for USGS 01562000 from Bulletin 17C test sites
+            var xValues = new double[] { 3180, 4340, 4670, 4720, 5020, 6180, 6270, 7410, 7800, 8130, 8320, 8400, 8450, 8640, 8690, 8900, 8990, 9040, 9220, 9640, 9830, 10200, 10300, 10600, 10800, 10800, 11100, 11100, 11300, 11600, 11700, 11700, 11800, 11800, 12000, 12200, 12200, 12300, 12500, 12600, 12700, 12700, 12900, 13200, 13200, 13400, 13400, 13600, 13800, 14000, 14100, 14500, 14500, 14600, 15100, 15100, 15200, 15600, 16200, 17200, 17400, 17700, 17700, 17800, 18000, 18300, 18400, 18400, 18400, 18500, 18500, 18600, 18900, 19100, 19200, 19400, 19900, 20400, 20900, 21000, 21200, 21500, 21800, 22100, 22300, 22400, 22500, 22700, 22800, 23600, 26800, 29000, 31300, 39200, 40200, 42900, 45800, 71300, 80500 };
+            var pValues = new double[] { 0.010036801605888, 0.020073603211777, 0.030110404817665, 0.040147206423553, 0.050184008029441, 0.0602208096353291, 0.070257611241218, 0.080294412847106, 0.090331214452994, 0.100368016058882, 0.110404817664771, 0.120441619270659, 0.130478420876547, 0.140515222482436, 0.150552024088324, 0.160588825694212, 0.1706256273001, 0.180662428905989, 0.190699230511877, 0.200736032117765, 0.210772833723653, 0.220809635329542, 0.23084643693543, 0.240883238541318, 0.250920040147206, 0.260956841753095, 0.270993643358983, 0.281030444964871, 0.291067246570759, 0.301104048176648, 0.311140849782536, 0.321177651388424, 0.331214452994312, 0.341251254600201, 0.351288056206089, 0.361324857811977, 0.371361659417865, 0.381398461023754, 0.391435262629642, 0.40147206423553, 0.411508865841419, 0.421545667447307, 0.431582469053195, 0.441619270659083, 0.451656072264972, 0.46169287387086, 0.471729675476748, 0.481766477082636, 0.491803278688525, 0.501840080294413, 0.511876881900301, 0.521913683506189, 0.531950485112078, 0.541987286717966, 0.552024088323854, 0.562060889929742, 0.572097691535631, 0.582134493141519, 0.592171294747407, 0.602208096353295, 0.612244897959184, 0.622281699565072, 0.63231850117096, 0.642355302776848, 0.652392104382737, 0.662428905988625, 0.672465707594513, 0.682502509200401, 0.69253931080629, 0.702576112412178, 0.712612914018066, 0.722649715623955, 0.732686517229843, 0.742723318835731, 0.752760120441619, 0.762796922047508, 0.772833723653396, 0.782870525259284, 0.792907326865172, 0.802944128471061, 0.812980930076949, 0.823017731682837, 0.833054533288725, 0.843091334894614, 0.853128136500502, 0.86316493810639, 0.873201739712278, 0.883238541318167, 0.893275342924055, 0.903312144529943, 0.913348946135831, 0.92338574774172, 0.933422549347608, 0.943459350953496, 0.953496152559384, 0.963532954165273, 0.973569755771161, 0.989071038251366, 0.994535519125683 };
+            
+            // @Risk does not do any interpolation transforms
+            var emp = new EmpiricalDistribution(xValues, pValues) { ProbabilityTransform = Transform.None };
 
-            var data = new double[] { 57985, 14607, 8403, 23479, 66629, 30925, 25046, 37772, 9074, 21382, 43769, 50678, 7360, 15617, 23189, 12637, 30064, 52914, 22607, 14191, 19098, 35383, 25046, 13355, 20330, 25701, 26897, 20019, 18240, 21084, 28886, 17032, 45014, 12637, 17037, 9074, 36066, 15261, 23886, 22432, 55536, 43938, 22490, 26955, 53417, 36920, 42584, 39587, 12996, 30294, 8952, 28109, 12637, 15142, 16624, 81464, 13952, 40946, 29317, 24930, 42076, 26551, 30122, 32586, 34357, 32586, 45065, 29547, 14310, 44107, 15676, 18922, 17981, 40097, 42471, 17451, 14964, 20798, 19157, 33729, 58319, 35041, 32700, 35212, 34585, 46921, 15795, 42189, 55982, 34585, 48324 };
-            var emp = new EmpiricalDistribution(data);
-            var hist = new Histogram(data);
+            // Test moments
+            // The method included in Numerics is more accurate than the method in @Risk
+            // Compare at 10% relative difference
+            Assert.AreEqual(16763.82, emp.Mean, 1E-1 * 16763.82);
+            Assert.AreEqual(11405.12, emp.StandardDeviation, 1E-1 * 11405.12);
+            Assert.AreEqual(3.0303, emp.Skewness, 1E-1 * 3.0303);
+            Assert.AreEqual(15.4169, emp.Kurtosis, 1E-1 * 15.4169);
 
-            var LP3 = new LogPearsonTypeIII();
-            LP3.Estimate(data, ParameterEstimationMethod.MaximumLikelihood);
+            // Test percentiles
+            Assert.AreEqual(5014.50, emp.InverseCDF(0.05), 1E-2);
+            Assert.AreEqual(10781.67, emp.InverseCDF(0.25), 1E-2);
+            Assert.AreEqual(13963.33, emp.InverseCDF(0.50), 1E-2);
+            Assert.AreEqual(19172.50, emp.InverseCDF(0.75), 1E-2);
+            Assert.AreEqual(39851.67, emp.InverseCDF(0.95), 1E-2);
 
-            //var p3PDF = LP3.CreatePDFGraph();
-            //for (int i = 0; i < p3PDF.Length; i++)
-            //{
-            //    Debug.WriteLine(p3PDF[i, 0] + "," + p3PDF[i, 1]);
-            //}
-
-
-
-            double sum = 0;
-            double sum2 = 0;
-            for (int i = 0; i < hist.NumberOfBins; i++)
-            {
-                sum += (double)hist[i].Frequency * hist.BinWidth;
-                sum2 += emp.PDF(hist[i].Midpoint) * hist.BinWidth;
-            }
-            for (int i = 0; i < hist.NumberOfBins; i++)
-            {
-                var epdf = emp.PDF(hist[i].Midpoint) / sum2;
-               
-                var hpdf = (double)hist[i].Frequency / sum;
-                Debug.WriteLine(hist[i].Midpoint + "," + epdf );
-            }
         }
+
     }
 }

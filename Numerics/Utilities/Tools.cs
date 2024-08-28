@@ -398,6 +398,44 @@ namespace Numerics
         }
 
         /// <summary>
+        /// Returns the index of the minimum value.
+        /// </summary>
+        /// <param name="values">The list of values.</param>
+        public static int ArgMin(IList<double> values)
+        {
+            double min = double.MaxValue;
+            int index = -1;
+            for (int i = 0; i < values.Count; i++)
+            {
+                if (values[i] < min)
+                {
+                    min = values[i];
+                    index = i;
+                }
+            }
+            return index;
+        }
+
+        /// <summary>
+        /// Returns the index of the maximum value.
+        /// </summary>
+        /// <param name="values">The list of values.</param>
+        public static int ArgMax(IList<double> values)
+        {
+            double max = double.MinValue;
+            int index = -1;
+            for (int i = 0; i < values.Count; i++)
+            {
+                if (values[i] > max)
+                {
+                    max = values[i];
+                    index = i;
+                }
+            }
+            return index;
+        }
+
+        /// <summary>
         /// Returns the smallest value from a list of values.
         /// Returns NaN if the list is empty or any entry is NaN.
         /// </summary>

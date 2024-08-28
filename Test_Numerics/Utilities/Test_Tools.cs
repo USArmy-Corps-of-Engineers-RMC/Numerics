@@ -308,6 +308,17 @@ namespace Utilities
         }
 
         /// <summary>
+        /// Testing arg min value in a list
+        /// </summary>
+        [TestMethod]
+        public void Test_ArgMin()
+        {
+            List<double> values = new List<double> { 1, 2, 3 };
+            var result = Tools.ArgMin(values);
+            Assert.AreEqual(result, 0);
+        }
+
+        /// <summary>
         /// Testing max value in a list
         /// </summary>
         [TestMethod]
@@ -316,6 +327,18 @@ namespace Utilities
             List<double> values = new List<double> { 1, 2, 3 };
             var result = Tools.Max(values);
             Assert.AreEqual(result, 3);
+        }
+
+
+        /// <summary>
+        /// Testing arg max value in a list
+        /// </summary>
+        [TestMethod]
+        public void Test_ArgMax()
+        {
+            List<double> values = new List<double> { 1, 2, 3 };
+            var result = Tools.ArgMax(values);
+            Assert.AreEqual(result, 2);
         }
 
         /// <summary>

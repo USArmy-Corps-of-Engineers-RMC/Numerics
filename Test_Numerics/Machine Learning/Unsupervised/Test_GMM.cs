@@ -32,13 +32,11 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Numerics.MachineLearning;
 using System.Collections.Generic;
 using Numerics.Mathematics.LinearAlgebra;
-using System.Reflection.Emit;
-using System.Linq;
 
 namespace MachineLearning
 {
     /// <summary>
-    /// Unit tests for K-Means classification.
+    /// Unit tests for Gaussian Mixture Model (GMM) classification.
     /// </summary>
     /// <remarks>
     /// <para>
@@ -47,13 +45,13 @@ namespace MachineLearning
     /// </para>
     /// </remarks>
     [TestClass]
-    public class Test_KMeans
+    public class Test_GMM
     {
         /// <summary>
-        /// K-Means is tested against the Iris dataset in R.
+        /// Gaussian Mixture Model (GMM) is tested against the Iris dataset in R using the 'mclust' package.
         /// </summary>
         [TestMethod]
-        public void Test_KMeans_Iris()
+        public void Test_GMM_Iris()
         {
             var sepalLength = new double[] { 5.1, 4.9, 4.7, 4.6, 5, 5.4, 4.6, 5, 4.4, 4.9, 5.4, 4.8, 4.8, 4.3, 5.8, 5.7, 5.4, 5.1, 5.7, 5.1, 5.4, 5.1, 4.6, 5.1, 4.8, 5, 5, 5.2, 5.2, 4.7, 4.8, 5.4, 5.2, 5.5, 4.9, 5, 5.5, 4.9, 4.4, 5.1, 5, 4.5, 4.4, 5, 5.1, 4.8, 5.1, 4.6, 5.3, 5, 7, 6.4, 6.9, 5.5, 6.5, 5.7, 6.3, 4.9, 6.6, 5.2, 5, 5.9, 6, 6.1, 5.6, 6.7, 5.6, 5.8, 6.2, 5.6, 5.9, 6.1, 6.3, 6.1, 6.4, 6.6, 6.8, 6.7, 6, 5.7, 5.5, 5.5, 5.8, 6, 5.4, 6, 6.7, 6.3, 5.6, 5.5, 5.5, 6.1, 5.8, 5, 5.6, 5.7, 5.7, 6.2, 5.1, 5.7, 6.3, 5.8, 7.1, 6.3, 6.5, 7.6, 4.9, 7.3, 6.7, 7.2, 6.5, 6.4, 6.8, 5.7, 5.8, 6.4, 6.5, 7.7, 7.7, 6, 6.9, 5.6, 7.7, 6.3, 6.7, 7.2, 6.2, 6.1, 6.4, 7.2, 7.4, 7.9, 6.4, 6.3, 6.1, 7.7, 6.3, 6.4, 6, 6.9, 6.7, 6.9, 5.8, 6.8, 6.7, 6.7, 6.3, 6.5, 6.2, 5.9 };
             var sepalWidth = new double[] { 3.5, 3, 3.2, 3.1, 3.6, 3.9, 3.4, 3.4, 2.9, 3.1, 3.7, 3.4, 3, 3, 4, 4.4, 3.9, 3.5, 3.8, 3.8, 3.4, 3.7, 3.6, 3.3, 3.4, 3, 3.4, 3.5, 3.4, 3.2, 3.1, 3.4, 4.1, 4.2, 3.1, 3.2, 3.5, 3.6, 3, 3.4, 3.5, 2.3, 3.2, 3.5, 3.8, 3, 3.8, 3.2, 3.7, 3.3, 3.2, 3.2, 3.1, 2.3, 2.8, 2.8, 3.3, 2.4, 2.9, 2.7, 2, 3, 2.2, 2.9, 2.9, 3.1, 3, 2.7, 2.2, 2.5, 3.2, 2.8, 2.5, 2.8, 2.9, 3, 2.8, 3, 2.9, 2.6, 2.4, 2.4, 2.7, 2.7, 3, 3.4, 3.1, 2.3, 3, 2.5, 2.6, 3, 2.6, 2.3, 2.7, 3, 2.9, 2.9, 2.5, 2.8, 3.3, 2.7, 3, 2.9, 3, 3, 2.5, 2.9, 2.5, 3.6, 3.2, 2.7, 3, 2.5, 2.8, 3.2, 3, 3.8, 2.6, 2.2, 3.2, 2.8, 2.8, 2.7, 3.3, 3.2, 2.8, 3, 2.8, 3, 2.8, 3.8, 2.8, 2.8, 2.6, 3, 3.4, 3.1, 3, 3.1, 3.1, 3.1, 2.7, 3.2, 3.3, 3, 2.5, 3, 3.4, 3 };
@@ -62,25 +60,24 @@ namespace MachineLearning
             var featureList = new List<double[]> { sepalLength, sepalWidth, petalLength, petalWidth };
             var features = new Matrix(featureList) { Header = new string[] { "Sepal Length", "Sepal Width", "Petal Length", "Petal Width" } };
 
-            var kMeans = new KMeans(features, 3);
-            kMeans.Train(12345);
+            var gmm = new GaussianMixtureModel(features, 3);
+            gmm.Train(12345);
 
             // Test cluster counts
-            Assert.AreEqual(62, kMeans.Labels.Where(x => x == 0).Count());
-            Assert.AreEqual(38, kMeans.Labels.Where(x => x == 1).Count());
-            Assert.AreEqual(50, kMeans.Labels.Where(x => x == 2).Count());
+            Assert.AreEqual(0.3005423, gmm.Weights[0], 1E-2);
+            Assert.AreEqual(0.3661243, gmm.Weights[1], 1E-2);
+            Assert.AreEqual(0.3333333, gmm.Weights[2], 1E-2);
 
             // Test cluster means
-            var trueMean1 = new double[] { 5.901613, 2.748387, 4.393548, 1.433871 };
-            var trueMean2 = new double[] { 6.850000, 3.073684, 5.742105, 2.071053 };
+            var trueMean1 = new double[] { 5.915044, 2.777451, 4.204002, 1.298935 };
+            var trueMean2 = new double[] { 6.546807, 2.949613, 5.482252, 1.985523 };
             var trueMean3 = new double[] { 5.006000, 3.428000, 1.462000, 0.246000 };
             for (int i = 0; i < 4; i++)
             {
-                Assert.AreEqual(trueMean1[i], kMeans.Means[0, i], 1E-6);
-                Assert.AreEqual(trueMean2[i], kMeans.Means[1, i], 1E-6);
-                Assert.AreEqual(trueMean3[i], kMeans.Means[2, i], 1E-6);                
+                Assert.AreEqual(trueMean1[i], gmm.Means[0, i], 1E-2);
+                Assert.AreEqual(trueMean2[i], gmm.Means[1, i], 1E-2);
+                Assert.AreEqual(trueMean3[i], gmm.Means[2, i], 1E-2);
             }
         }
-
     }
 }

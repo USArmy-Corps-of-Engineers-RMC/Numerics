@@ -43,12 +43,13 @@ namespace Numerics.Data.Statistics
     /// </summary>
     /// <remarks>
     /// <para>
-    ///     Authors:
+    ///     <b> Authors: </b>
     ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
     /// </para>
     /// </remarks>
     public class Probability
     {
+
         /// <summary>
         /// Enumeration of dependency types. 
         /// </summary>
@@ -80,7 +81,7 @@ namespace Numerics.Data.Statistics
         /// <param name="A">Marginal probability of A.</param>
         /// <param name="B">Marginal probability of B.</param>
         /// <param name="rho">Pearson's correlation coefficient. Default = 0.</param>
-        public static double AandB(double A, double B, double rho = 0d)
+        public static double AAndB(double A, double B, double rho = 0d)
         {
             if (Math.Abs(rho) <= 1E-3) return A * B;
             if (rho >= 0.999) return Math.Min(A, B);
@@ -93,9 +94,9 @@ namespace Numerics.Data.Statistics
         /// <param name="A">Marginal probability of A.</param>
         /// <param name="B">Marginal probability of B.</param>
         /// <param name="rho">Pearson's correlation coefficient. Default = 0.</param>
-        public static double AorB(double A, double B, double rho = 0d)
+        public static double AOrB(double A, double B, double rho = 0d)
         {
-            return A + B - AandB(A, B, rho);
+            return A + B - AAndB(A, B, rho);
         }
 
         /// <summary>
@@ -104,9 +105,9 @@ namespace Numerics.Data.Statistics
         /// <param name="A">Marginal probability of A.</param>
         /// <param name="B">Marginal probability of B.</param>
         /// <param name="rho">Pearson's correlation coefficient. Default = 0.</param>
-        public static double AnotB(double A, double B, double rho = 0d)
+        public static double ANotB(double A, double B, double rho = 0d)
         {
-            return A - AandB(A, B, rho);
+            return A - AAndB(A, B, rho);
         }
 
         /// <summary>
@@ -115,9 +116,9 @@ namespace Numerics.Data.Statistics
         /// <param name="A">Marginal probability of A.</param>
         /// <param name="B">Marginal probability of B.</param>
         /// <param name="rho">Pearson's correlation coefficient. Default = 0.</param>
-        public static double BnotA(double A, double B, double rho = 0d)
+        public static double BNotA(double A, double B, double rho = 0d)
         {
-            return B - AandB(A, B, rho);
+            return B - AAndB(A, B, rho);
         }
 
         /// <summary>
@@ -126,9 +127,9 @@ namespace Numerics.Data.Statistics
         /// <param name="A">Marginal probability of A.</param>
         /// <param name="B">Marginal probability of B.</param>
         /// <param name="rho">Pearson's correlation coefficient. Default = 0.</param>
-        public static double AgivenB(double A, double B, double rho = 0d)
+        public static double AGivenB(double A, double B, double rho = 0d)
         {
-            return AandB(A, B, rho) / B;
+            return AAndB(A, B, rho) / B;
         }
 
         /// <summary>
@@ -137,9 +138,9 @@ namespace Numerics.Data.Statistics
         /// <param name="A">Marginal probability of A.</param>
         /// <param name="B">Marginal probability of B.</param>
         /// <param name="rho">Pearson's correlation coefficient. Default = 0.</param>
-        public static double BgivenA(double A, double B, double rho = 0d)
+        public static double BGivenA(double A, double B, double rho = 0d)
         {
-            return AandB(A, B, rho) / A;
+            return AAndB(A, B, rho) / A;
         }
 
         #endregion
@@ -181,26 +182,6 @@ namespace Numerics.Data.Statistics
             if (dependency == DependencyType.CorrelationMatrix && correlationMatrix != null)
             {
                 return JointProbabilityHPCM(probabilities, indicators, correlationMatrix);
-
-                // Add some logic to decide which PCM method to use
-                //if (probabilities.Count == 2)
-                //{
-                //    // Use H-PCM when there are only 2 events
-                //    return JointProbabilityHPCM(probabilities, indicators, correlationMatrix);
-                //}
-                //else
-                //{
-                //    if (Tools.Max(Normal.StandardZ(probabilities)) < 0)
-                //    {
-                //        // Use regular PCM 
-                //        return JointProbabilityPCM(probabilities, indicators, correlationMatrix);
-                //    }
-                //    else
-                //    {
-                //        // Use H-PCM for positive z values
-                //        return JointProbabilityHPCM(probabilities, indicators, correlationMatrix);
-                //    }
-                //}
             }
             else if (dependency == DependencyType.Independent)
             {
@@ -266,7 +247,7 @@ namespace Numerics.Data.Statistics
         /// <param name="probabilities">List of probabilities.</param>
         public static double NegativeJointProbability(IList<double> probabilities)
         {
-            return Math.Max(0, Tools.Sum(probabilities) - 1);
+            return Math.Max(0, Math.Min(1, Tools.Sum(probabilities)) - 1);
         }
 
         /// <summary>
@@ -357,102 +338,7 @@ namespace Numerics.Data.Statistics
                     }
                 }
             }
-            //if (Rout !=null)
-            //    Array.Copy(R, Rout, R.Length);
 
-            // Calculate the product of conditional marginals (PCM)
-            jp = Math.Log(Normal.StandardCDF(R[0, 0]));
-            if (conditionalProbabilities != null && conditionalProbabilities.Length == n)
-                conditionalProbabilities[0] = Normal.StandardCDF(R[0, 0]);
-            for (i = 1; i < n; i++)
-            {
-                jp += Math.Log(Normal.StandardCDF(R[i, i - 1]));
-                if (conditionalProbabilities != null && conditionalProbabilities.Length == n)
-                    conditionalProbabilities[i] = Normal.StandardCDF(R[i, i - 1]);
-            }
-            jp = Math.Exp(jp);
-            jp = Math.Min(1, Math.Max(0, jp));
-            if (double.IsNaN(jp)) jp = 0;
-            return jp;
-        }
-
-        /// <summary>
-        /// Returns the joint probability of multiple events with dependency, using the Product of Conditional Marginals (PCM) method.
-        /// </summary>
-        /// <param name="probabilities">An array of probabilities for each event.</param>
-        /// <param name="indicators">An array of indicators, 0 means the event did not occur, 1 means the event did occur.</param>
-        /// <param name="correlationMatrix">The correlation matrix defining the dependency.</param>
-        /// <param name="conditionalProbabilities">Returns the array of conditional probabilities for each event.</param>
-        public static double JointProbabilityIPCM(IList<double> probabilities, int[] indicators, double[,] correlationMatrix, double[] conditionalProbabilities = null)
-        {
-            // Get z-values
-            int n = probabilities.Count;
-            var R = new double[n, n];
-            Array.Copy(correlationMatrix, R, correlationMatrix.Length);
-            int i, j, k, ir, ic;
-            double pdf, cdf, A, B, z1, z2, r12, z21, p21, jp;
-            for (i = 0; i < n; i++)
-            {
-                if (indicators[i] == 0)
-                {
-                    R[i, i] = Normal.StandardZ(1);
-                }
-                else
-                {
-                    R[i, i] = Normal.StandardZ(probabilities[i]);
-                }
-            }
-            // Update the conditional correlation matrix
-            // First cycle
-            z1 = R[0, 0];
-            pdf = Normal.StandardPDF(z1);
-            cdf = Normal.StandardCDF(z1);
-            A = pdf / cdf;
-            B = A * (z1 + A);
-            // calculate c[k|0] and store them in R[k,0], k = 1,...,n
-            for (k = 1; k < n; k++)
-            {
-                z2 = R[k, k];
-                r12 = R[0, k];
-                p21 = MultivariateNormal.BivariateCDF(-z1, -z2, r12) / cdf;
-                p21 = Math.Max(0, Math.Min(1, p21));
-                z21 = Normal.StandardZ(p21);
-                R[k, 0] = z21;
-
-            }
-            // update conditional correlation r[ir|ic] and store them in R[ir,ic]
-            for (ir = 1; ir < n - 1; ir++)
-            {
-                for (ic = ir + 1; ic < n; ic++)
-                {
-                    R[ir, ic] = (R[ir, ic] - R[0, ir] * R[0, ic] * B) / Math.Sqrt((1d - R[0, ir] * R[0, ir] * B) * (1d - R[0, ic] * R[0, ic] * B));
-                }
-            }
-            // Remaining cycles
-            for (j = 1; j < n - 1; j++)
-            {
-                z1 = R[j, j - 1];
-                pdf = Normal.StandardPDF(z1);
-                cdf = Normal.StandardCDF(z1);
-                A = pdf / cdf;
-                B = A * (z1 + A);
-                for (k = j + 1; k < n; k++)
-                {
-                    z2 = R[k, j - 1];
-                    r12 = R[j, k];
-                    p21 = MultivariateNormal.BivariateCDF(-z1, -z2, r12) / cdf;
-                    p21 = Math.Max(0, Math.Min(1, p21));
-                    z21 = Normal.StandardZ(p21);
-                    R[k, j] = z21;
-                }
-                for (ir = j + 1; ir < n - 1; ir++)
-                {
-                    for (ic = ir + 1; ic < n; ic++)
-                    {
-                        R[ir, ic] = (R[ir, ic] - R[j, ir] * R[j, ic] * B) / Math.Sqrt((1d - R[j, ir] * R[j, ir] * B) * (1d - R[j, ic] * R[j, ic] * B));
-                    }
-                }
-            }
             // Calculate the product of conditional marginals (PCM)
             jp = Math.Log(Normal.StandardCDF(R[0, 0]));
             if (conditionalProbabilities != null && conditionalProbabilities.Length == n)

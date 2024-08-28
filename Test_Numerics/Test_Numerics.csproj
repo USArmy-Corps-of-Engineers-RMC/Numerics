@@ -149,6 +149,7 @@
     <Compile Include="Machine Learning\Supervised\Test_NaiveBayes.cs" />
     <Compile Include="Machine Learning\Unsupervised\Test_JenksNaturalBreaks.cs" />
     <Compile Include="Machine Learning\Unsupervised\Test_KMeans.cs" />
+    <Compile Include="Machine Learning\Unsupervised\Test_GMM.cs" />
     <Compile Include="Mathematics\Differentiation\Test_Differentiation.cs" />
     <Compile Include="Mathematics\Fourier Methods\Test_FastFourierTransform.cs" />
     <Compile Include="Mathematics\Integration\Integrands.cs" />

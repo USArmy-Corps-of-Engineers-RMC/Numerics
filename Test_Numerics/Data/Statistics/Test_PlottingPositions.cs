@@ -39,7 +39,7 @@ namespace Data.Statistics
     /// <remarks>
     ///     <b> Authors: </b>
     ///     <list type="bullet">
-    ///     <item> Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil</item>
+    ///     <item>Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil</item>
     ///     <item>Sadie Niblett, USACE Risk Management Center, sadie.s.niblett@usace.army.mil</item>
     ///     </list>
     /// </remarks>

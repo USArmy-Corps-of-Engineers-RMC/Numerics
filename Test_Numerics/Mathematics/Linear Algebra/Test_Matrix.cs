@@ -457,6 +457,7 @@ namespace Mathematics.LinearAlgebra
                 for (int j = 0; j < result.NumberOfColumns; j++)
                     Assert.AreEqual(result[i, j], true_result[i, j]);
             }
+
         }
 
         /// <summary>

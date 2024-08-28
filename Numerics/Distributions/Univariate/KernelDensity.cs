@@ -35,6 +35,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using Numerics.Data;
 using Numerics.Data.Statistics;
+using Numerics.Sampling;
+using static Numerics.Data.Statistics.Histogram;
 
 namespace Numerics.Distributions
 {
@@ -135,7 +137,7 @@ namespace Numerics.Distributions
         private double _bandwidth;
         private KernelType _kernelDistribution;
         private IKernel _kernel;
-        private bool _dataIsSorted;
+        private bool _cdfCreated = false;
         private OrderedPairedData opd;
         private double u1, u2, u3, u4;
 
@@ -200,14 +202,14 @@ namespace Numerics.Distributions
         }
 
         /// <summary>
-        /// Determines the interpolation transform for the sample data values.
+        /// Determines the interpolation transform for the sample data X-values.
         /// </summary>
-        public Transform DataTransform { get; set; } = Transform.None;
+        public Transform XTransform { get; set; } = Transform.None;
 
         /// <summary>
         /// Determines the interpolation transform for the Probability-values.
         /// </summary>
-        public Transform ProbabilityTransform { get; set; } = Transform.None;
+        public Transform ProbabilityTransform { get; set; } = Transform.NormalZ;
 
         /// <inheritdoc/>
         public override int NumberOfParameters
@@ -334,8 +336,7 @@ namespace Numerics.Distributions
             {
                 if (_sampleData is null) return double.NaN;
                 if (_sampleData.Count() == 0) return double.NaN;
-                SortSampleData();
-                return _sampleData.First();
+                return Tools.Min(SampleData) - 3 * Bandwidth;
             }
         }
 
@@ -346,8 +347,7 @@ namespace Numerics.Distributions
             {
                 if (_sampleData is null) return double.NaN;
                 if (_sampleData.Count() == 0) return double.NaN;
-                SortSampleData();
-                return _sampleData.Last();
+                return Tools.Max(SampleData) + 3 * Bandwidth;
             }
         }
 
@@ -478,53 +478,14 @@ namespace Numerics.Distributions
         }
 
         /// <summary>
-        /// Sort the sample data in ascending order.
-        /// </summary>
-        public void SortSampleData()
-        {
-            if (!_dataIsSorted)
-            {
-                Array.Sort(_sampleData);
-                opd = new OrderedPairedData(_sampleData, _pValues, true, SortOrder.Ascending, true, SortOrder.Ascending);
-                _dataIsSorted = true;
-            }
-        }
-
-        /// <summary>
         /// Set the sample data for the distribution.
         /// </summary>
         /// <param name="sampleData">Sample of data, no sorting is assumed.</param>
-        /// <param name="plottingPostionType">The plotting position formula type. Default = Weibull.</param>
-        public void SetSampleData(IList<double> sampleData, PlottingPositions.PlottingPostionType plottingPostionType = PlottingPositions.PlottingPostionType.Weibull)
+        public void SetSampleData(IList<double> sampleData)
         {
             _sampleData = sampleData.ToArray();
-            _pValues = PlottingPositions.Function(SampleSize, plottingPostionType);
-            ComputeMoments(_sampleData);      
-            _dataIsSorted = false;
-        }
-
-        /// <summary>
-        /// Append new data to sample data.
-        /// </summary>
-        /// <param name="newData">Sample of data, no sorting is assumed.</param>
-        /// <param name="plottingPostionType">The plotting position formula type. Default = Weibull.</param>
-        public void AppendSampleData(IList<double> newData, PlottingPositions.PlottingPostionType plottingPostionType = PlottingPositions.PlottingPostionType.Weibull)
-        {
-            int StartIndex = newData.Count;
-            int Count = _sampleData.Count();
-            Array.Resize(ref _sampleData, Count + StartIndex);
-            Array.Copy(newData.ToArray(), 0, _sampleData, StartIndex, StartIndex);
-            _pValues = PlottingPositions.Function(SampleSize, plottingPostionType);
             ComputeMoments(_sampleData);
-            _dataIsSorted = false;
-        }
-
-        /// <summary>
-        /// Clear sample data.
-        /// </summary>
-        public void ClearSampleData()
-        {
-            Array.Clear(_sampleData, 0, _sampleData.Count());
+            _cdfCreated = false;
         }
 
         /// <inheritdoc/>
@@ -542,22 +503,22 @@ namespace Numerics.Distributions
         /// <inheritdoc/>
         public override double CDF(double x)
         {
-            SortSampleData();
-            if (x <= Minimum) return 0d;
-            if (x >= Maximum) return 1d;
-            return opd.Interpolate(x, true, DataTransform, ProbabilityTransform);
+            if (x < Minimum) return 0.0;
+            if (x > Maximum) return 1.0;
+            if (!_cdfCreated) CreateCDF();
+            return opd.Interpolate(x, true, XTransform, ProbabilityTransform);
         }
 
         /// <inheritdoc/>
         public override double InverseCDF(double probability)
         {
-            SortSampleData();
             // Validate probability
             if (probability < 0.0d || probability > 1.0d)
                 throw new ArgumentOutOfRangeException("probability", "Probability must be between 0 and 1.");
-            if (probability == 0.0d) return Minimum;
-            if (probability == 1.0d) return Maximum;
-            return opd.Interpolate(probability, false, DataTransform, ProbabilityTransform);
+            if (probability == 0.0) return Minimum;
+            if (probability == 1.0) return Maximum;
+            if (!_cdfCreated) CreateCDF();
+            return opd.Interpolate(probability, false, XTransform, ProbabilityTransform);
         }
 
         /// <inheritdoc/>
@@ -566,5 +527,34 @@ namespace Numerics.Distributions
             return new KernelDensity(SampleData, KernelDistribution, Bandwidth);
         }
  
+        /// <summary>
+        /// Create the empirical CDF.
+        /// </summary>
+        private void CreateCDF()
+        {
+            // Create wide bins
+            int n = 1000; 
+            var bins = Stratify.XValues(new StratificationOptions(Minimum, Maximum, n));
+            var xValues = new double[n];
+            var pValues = new double[n];
+
+            // Create empirical cdf
+            xValues[0] = bins[0].Midpoint;
+            pValues[0] = PDF(xValues[0]) * bins[0].Weight;
+            for (int i = 1; i < n; i++)
+            {
+                xValues[i] = bins[i].Midpoint;
+                pValues[i] = pValues[i - 1] + PDF(xValues[i]) * bins[i].Weight;
+            }
+            // Normalize the cdf to sum to 1
+            for (int i = 0; i < n; i++)
+            {
+                pValues[i] /= pValues.Last();
+            }
+
+            opd = new OrderedPairedData(xValues, pValues, true, SortOrder.Ascending, true, SortOrder.Ascending);
+            _cdfCreated = true;
+        }
+
     }
 }

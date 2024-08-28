@@ -39,7 +39,7 @@ namespace Numerics
     /// </summary>
     /// <remarks>
     ///     <b> Authors: </b>
-    ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
+    ///     Woodrow Fields, USACE Risk Management Center, woodrow.l.fields@usace.army.mil
     /// </remarks>
     public static class Classification
     {

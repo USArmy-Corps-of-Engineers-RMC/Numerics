@@ -346,7 +346,7 @@ namespace Numerics.Distributions
         {
             double a = InverseCDF(1E-8);
             double b = InverseCDF(1 - 1E-8);
-            if (a >= b) return new double[] { a, double.NaN, double.NaN, double.NaN };
+            if (a >= b) return [a, double.NaN, double.NaN, double.NaN];
 
             var bins = Stratify.XValues(new StratificationOptions(a, b, steps));
             var dFx = new double[steps];
@@ -384,7 +384,7 @@ namespace Numerics.Distributions
             sumU4 += Math.Pow((bins.Last().LowerBound - u1) / u2, 4d) * dFx[steps - 1];
             u3 = sumU3;
             u4 = sumU4;
-            return new double[] { u1, u2, u3, u4 };
+            return [u1, u2, u3, u4];
         }
 
         /// <summary>
