@@ -552,10 +552,28 @@ namespace Numerics
         /// <param name="start">The starting value.</param>
         /// <param name="end">The ending value.</param>
         /// <param name="step">The step size.</param>
-        public static int[] IntegerSequence(int start, int end, int step = 1)
+        public static int[] Sequence(int start, int end, int step = 1)
         {
             var result = new List<int>();
             int val = start;
+            while (val <= end)
+            {
+                result.Add(val);
+                val += step;
+            };
+            return result.ToArray();
+        }
+
+        /// <summary>
+        /// Returns a sequence of doubles.
+        /// </summary>
+        /// <param name="start">The starting value.</param>
+        /// <param name="end">The ending value.</param>
+        /// <param name="step">The step size.</param>
+        public static double[] Sequence(double start, double end, double step = 1)
+        {
+            var result = new List<double>();
+            double val = start;
             while (val <= end)
             {
                 result.Add(val);

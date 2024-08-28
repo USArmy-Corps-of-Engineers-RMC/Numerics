@@ -35,6 +35,7 @@ using System.Linq;
 using Numerics.Data;
 using Numerics.Data.Statistics;
 using Numerics.Mathematics;
+using Numerics.Mathematics.Optimization;
 
 namespace Numerics.Distributions
 {
@@ -298,7 +299,12 @@ namespace Numerics.Distributions
         /// <inheritdoc/>
         public override double Mode
         {
-            get { return double.NaN; }
+            get
+            {
+                var brent = new BrentSearch(PDF, InverseCDF(0.001), InverseCDF(0.999));
+                brent.Maximize();
+                return brent.BestParameterSet.Values[0];
+            }
         }
 
         /// <inheritdoc/>
@@ -356,9 +362,9 @@ namespace Numerics.Distributions
         }
 
         /// <inheritdoc/>
-        public IUnivariateDistribution Bootstrap(ParameterEstimationMethod estimationMethod, int sampleSize, int seed = 12345)
+        public IUnivariateDistribution Bootstrap(ParameterEstimationMethod estimationMethod, int sampleSize, int seed = -1)
         {
-            var sample = GenerateRandomValues(seed, sampleSize);
+            var sample = GenerateRandomValues(sampleSize, seed);
             return new EmpiricalDistribution(sample);
         }
 

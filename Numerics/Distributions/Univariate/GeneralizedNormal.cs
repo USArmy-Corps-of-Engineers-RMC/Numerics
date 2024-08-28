@@ -196,7 +196,12 @@ namespace Numerics.Distributions
         /// <inheritdoc/>
         public override double Mode
         {
-            get { return double.NaN; }
+            get
+            {
+                var brent = new BrentSearch(PDF, InverseCDF(0.001), InverseCDF(0.999));
+                brent.Maximize();
+                return brent.BestParameterSet.Values[0];
+            }
         }
 
         /// <inheritdoc/>
@@ -303,10 +308,10 @@ namespace Numerics.Distributions
         }
 
         /// <inheritdoc/>
-        public IUnivariateDistribution Bootstrap(ParameterEstimationMethod estimationMethod, int sampleSize, int seed = 12345)
+        public IUnivariateDistribution Bootstrap(ParameterEstimationMethod estimationMethod, int sampleSize, int seed = -1)
         {
             var newDistribution = new GeneralizedNormal(Xi, Alpha, Kappa);
-            var sample = newDistribution.GenerateRandomValues(seed, sampleSize);
+            var sample = newDistribution.GenerateRandomValues(sampleSize, seed);
             newDistribution.Estimate(sample, estimationMethod);
             if (newDistribution.ParametersValid == false)
                 throw new Exception("Bootstrapped distribution parameters are invalid.");

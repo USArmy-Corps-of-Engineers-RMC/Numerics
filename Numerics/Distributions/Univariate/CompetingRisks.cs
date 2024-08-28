@@ -28,9 +28,12 @@
 * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+using Microsoft.VisualBasic.ApplicationServices;
 using Numerics.Data;
 using Numerics.Data.Statistics;
+using Numerics.Mathematics;
 using Numerics.Mathematics.Optimization;
+using Numerics.Mathematics.RootFinding;
 using Numerics.Sampling;
 using System;
 using System.Collections.Generic;
@@ -84,7 +87,7 @@ namespace Numerics.Distributions
         /// <summary>
         /// Returns the array of univariate probability distributions.
         /// </summary>
-        public ReadOnlyCollection<UnivariateDistributionBase> Distributions => new ReadOnlyCollection<UnivariateDistributionBase>(_distributions);
+        public ReadOnlyCollection<UnivariateDistributionBase> Distributions => new(_distributions);
 
         /// <summary>
         /// Determines the interpolation transform for the X-values.
@@ -228,7 +231,12 @@ namespace Numerics.Distributions
         /// <inheritdoc/>
         public override double Mode
         {
-            get { return double.NaN; }
+            get 
+            {
+                var brent = new BrentSearch(PDF, InverseCDF(0.001), InverseCDF(0.999));
+                brent.Maximize();
+                return brent.BestParameterSet.Values[0];
+            }
         }
 
         /// <inheritdoc/>
@@ -295,10 +303,10 @@ namespace Numerics.Distributions
         }
 
         /// <inheritdoc/>
-        public IUnivariateDistribution Bootstrap(ParameterEstimationMethod estimationMethod, int sampleSize, int seed = 12345)
+        public IUnivariateDistribution Bootstrap(ParameterEstimationMethod estimationMethod, int sampleSize, int seed = -1)
         {
             var newDistribution = (CompetingRisks)Clone();
-            var sample = newDistribution.GenerateRandomValues(seed, sampleSize);
+            var sample = newDistribution.GenerateRandomValues(sampleSize, seed);
             newDistribution.Estimate(sample, estimationMethod);
             if (newDistribution.ParametersValid == false)
                 throw new Exception("Bootstrapped distribution parameters are invalid.");
@@ -417,11 +425,10 @@ namespace Numerics.Distributions
 
         /// <inheritdoc/>
         public override double PDF(double x)
-        {
-       
+        {     
             double f = double.NaN;
 
-            // Only compute the PDF for independent random variables
+            // Only compute the exact PDF for independent random variables
             if (Dependency == Probability.DependencyType.Independent)
             {
                 double hf = 0d;
@@ -442,40 +449,13 @@ namespace Numerics.Distributions
                 }
                 f = hf * sf;
             }
+            else
+            {
+                // Compute the PDF using numerical differentiation
+                f = NumericalDerivative.Derivative(CDF, x);
+            }
 
             return f < 0d ? 0d : f;
-        }
-
-
-        /// <inheritdoc/>
-        public override double LogPDF(double x)
-        {
-            double f = double.NaN;
-
-            // Only compute the PDF for independent random variables
-            if (Dependency == Probability.DependencyType.Independent)
-            {
-                var lnhf = new List<double>();
-                double lnsf = 0d;
-                for (int i = 0; i < Distributions.Count; i++)
-                {
-
-                    if (MinimumOfRandomVariables == true)
-                    {
-                        lnhf.Add(Distributions[i].LogPDF(x) - Distributions[i].LogCCDF(x));
-                        lnsf += Distributions[i].LogCCDF(x);
-                    }
-                    else
-                    {
-                        lnhf.Add(Distributions[i].LogPDF(x) - Distributions[i].LogCDF(x));
-                        lnsf += Distributions[i].LogCDF(x);
-                    }
-                }
-                f = Tools.LogSumExp(lnhf) + lnsf;
-            }
-            // If the PDF returns an invalid probability, then return the worst log-probability.
-            if (double.IsNaN(f) || double.IsInfinity(f)) return double.MinValue;
-            return f;
         }
 
         /// <inheritdoc/>
@@ -507,13 +487,33 @@ namespace Numerics.Distributions
             if (probability == 1.0d) return Maximum;
             // Validate parameters
             if (_parametersValid == false)
-                ValidateParameters(new double[] { 0 }, true);
-            if (_inverseCDFCreated == false)
-                CreateInverseCDF();
+                ValidateParameters([0], true);
 
+            // If there is only one distribution, return its inverse CDF
+            if (Distributions.Count() == 1)
+            {
+                return Distributions[0].InverseCDF(probability);
+            }
+
+            // Otherwise use a root finder to solve the inverse CDF
+            var xVals = Distributions.Select(d => d.InverseCDF(probability));
+            double minX = xVals.Min();
+            double maxX = xVals.Max();
+            double x = 0;
+            try
+            {
+                Brent.Bracket((y) => { return probability - CDF(y); }, ref minX, ref maxX, out var f1, out var f2);
+                x = Brent.Solve((y) => { return probability - CDF(y); }, minX, maxX, 1E-6, 100, true);
+            }
+            catch (Exception)
+            {
+                // If the root finder fails, create an empirical inverse CDF
+                if (_inverseCDFCreated == false)
+                    CreateInverseCDF();
+                x = _inverseCDF.InverseCDF(probability);
+            }
             double min = Minimum;
             double max = Maximum;
-            var x = _inverseCDF.InverseCDF(probability);
             return x < min ? min : x > max ? max : x;
         }
 
@@ -775,11 +775,10 @@ namespace Numerics.Distributions
         }
 
         /// <inheritdoc/>
-        public override double[] GenerateRandomValues(int sampleSize)
+        public override double[] GenerateRandomValues(int sampleSize, int seed = -1)
         {
-            // Create seed based on date and time
             // Create PRNG for generating random numbers
-            var r = new MersenneTwister();
+            var rnd = seed > 0 ? new MersenneTwister(seed) : new MersenneTwister();
             var sample = new double[sampleSize];
             // Generate values
             for (int i = 0; i < sampleSize; i++)
@@ -788,34 +787,11 @@ namespace Numerics.Distributions
                 double xMax = double.MinValue;
                 for (int j = 0; j < Distributions.Count; j++)
                 {
-                    var x = Distributions[j].InverseCDF(r.NextDouble());
+                    var x = Distributions[j].InverseCDF(rnd.NextDouble());
                     if (x < xMin) xMin = x;
                     if (x > xMax) xMax = x;
                 }
                 sample[i] = MinimumOfRandomVariables == true ? xMin : xMax;            
-            }
-            // Return array of random values
-            return sample;
-        }
-
-        /// <inheritdoc/>
-        public override double[] GenerateRandomValues(int seed, int sampleSize)
-        {
-            // Create PRNG for generating random numbers
-            var r = new MersenneTwister(seed);
-            var sample = new double[sampleSize];
-            // Generate values
-            for (int i = 0; i < sampleSize; i++)
-            {
-                double xMin = double.MaxValue;
-                double xMax = double.MinValue;
-                for (int j = 0; j < Distributions.Count; j++)
-                {
-                    var x = Distributions[j].InverseCDF(r.NextDouble());
-                    if (x < xMin) xMin = x;
-                    if (x > xMax) xMax = x;
-                }
-                sample[i] = MinimumOfRandomVariables == true ? xMin : xMax;
             }
             // Return array of random values
             return sample;

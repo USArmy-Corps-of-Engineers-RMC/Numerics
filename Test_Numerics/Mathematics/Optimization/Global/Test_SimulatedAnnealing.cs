@@ -39,6 +39,14 @@ namespace Mathematics.Optimization
     /// Unit tests for the Simulated Annealing (SA) optimization algorithm.
     /// SA is an inefficient optimizer. Therefore, the precision of the unit tests are relaxed.
     /// </summary>
+    /// <remarks>
+    /// <para>
+    ///     <b> Authors: </b>
+    ///     <list type="bullet"> 
+    ///     <item> Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil </item>
+    /// </list>
+    /// </para>
+    /// </remarks>
     [TestClass]
     public class Test_SimulatedAnnealing
     {

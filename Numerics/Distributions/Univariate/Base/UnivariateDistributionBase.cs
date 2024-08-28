@@ -646,41 +646,18 @@ namespace Numerics.Distributions
         /// Generate random values of a distribution given a sample size.
         /// </summary>
         /// <param name="sampleSize">Size of random sample to generate.</param>
+        /// <param name="seed">Optional. The prng seed. If negative or zero, then the computer clock is used as a seed.</param>
         /// <returns>
         /// Array of random values.
         /// </returns>
-        /// <remarks>
-        /// The random number generator seed is based on the current date and time according to your system.
-        /// </remarks>
-        public virtual double[] GenerateRandomValues(int sampleSize)
+        public virtual double[] GenerateRandomValues(int sampleSize, int seed = -1)
         {
-            // Create seed based on date and time
             // Create PRNG for generating random numbers
-            var r = new MersenneTwister();
+            var rnd = seed > 0 ? new MersenneTwister(seed) : new MersenneTwister();
             var sample = new double[sampleSize];
             // Generate values
             for (int i = 0; i < sampleSize; i++)
-                sample[i] = InverseCDF(r.NextDouble());
-            // Return array of random values
-            return sample;
-        }
-
-        /// <summary>
-        /// Generate random values of a distribution given a sample size based on a user-defined seed.
-        /// </summary>
-        /// <param name="seed">Seed for random number generator.</param>
-        /// <param name="sampleSize"> Size of random sample to generate. </param>
-        /// <returns>
-        /// Array of random values.
-        /// </returns>
-        public virtual double[] GenerateRandomValues(int seed, int sampleSize)
-        {
-            // Create PRNG for generating random numbers
-            var r = new MersenneTwister(seed);
-            var sample = new double[sampleSize];
-            // Generate values
-            for (int i = 0; i < sampleSize; i++)
-                sample[i] = InverseCDF(r.NextDouble());
+                sample[i] = InverseCDF(rnd.NextDouble());
             // Return array of random values
             return sample;
         }

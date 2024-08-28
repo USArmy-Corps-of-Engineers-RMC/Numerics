@@ -238,7 +238,7 @@ namespace Numerics.Distributions
             var seeds = r.NextIntegers(Replications);
             Parallel.For(0, Replications, idx =>
             {
-                var moments = Statistics.ProductMoments(Distribution.GenerateRandomValues(seeds[idx], SampleSize));
+                var moments = Statistics.ProductMoments(Distribution.GenerateRandomValues(SampleSize, seeds[idx]));
                 for (int i = 0; i < moments.Length; i++) bootMoments[idx, i] = moments[i];
             });
             return bootMoments;
@@ -254,7 +254,7 @@ namespace Numerics.Distributions
             var seeds = r.NextIntegers(Replications);
             Parallel.For(0, Replications, idx =>
             {
-                var moments = Statistics.LinearMoments(Distribution.GenerateRandomValues(seeds[idx], SampleSize));
+                var moments = Statistics.LinearMoments(Distribution.GenerateRandomValues(SampleSize, seeds[idx]));
                 for (int i = 0; i < moments.Length; i++) bootMoments[idx, i] = moments[i];
             });
             return bootMoments;
@@ -690,7 +690,7 @@ namespace Numerics.Distributions
                 try
                 {
                     var newDistribution = ((UnivariateDistributionBase)Distribution).Clone();
-                    var sample = newDistribution.GenerateRandomValues(seeds[i], SampleSize);
+                    var sample = newDistribution.GenerateRandomValues(SampleSize, seeds[i]);
                     ((IEstimation)newDistribution).Estimate(sample, EstimationMethod);
                     bootDistributions[i] = newDistribution;
 

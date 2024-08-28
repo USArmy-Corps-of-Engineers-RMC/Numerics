@@ -60,7 +60,6 @@ using Numerics.Mathematics;
 using Numerics.Mathematics.Optimization;
 using Numerics.Mathematics.RootFinding;
 using Numerics.Mathematics.SpecialFunctions;
-using static System.Net.WebRequestMethods;
 
 namespace Numerics.Distributions
 {
@@ -336,10 +335,10 @@ namespace Numerics.Distributions
         }
 
         /// <inheritdoc/>
-        public IUnivariateDistribution Bootstrap(ParameterEstimationMethod estimationMethod, int sampleSize, int seed = 12345)
+        public IUnivariateDistribution Bootstrap(ParameterEstimationMethod estimationMethod, int sampleSize, int seed = -1)
         {
             var newDistribution = new GammaDistribution(Theta, Kappa);
-            var sample = newDistribution.GenerateRandomValues(seed, sampleSize);
+            var sample = newDistribution.GenerateRandomValues(sampleSize, seed);
             newDistribution.Estimate(sample, estimationMethod);
             if (newDistribution.ParametersValid == false)
                 throw new Exception("Bootstrapped distribution parameters are invalid.");

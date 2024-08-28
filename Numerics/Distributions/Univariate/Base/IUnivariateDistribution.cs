@@ -229,23 +229,8 @@ namespace Numerics.Distributions
         /// Generate random values of a distribution given a sample size.
         /// </summary>
         /// <param name="sampleSize"> Size of random sample to generate. </param>
-        /// <returns>
-        /// Array of random values.
-        /// </returns>
-        /// <remarks>
-        /// The random number generator seed is based on the current date and time according to your system.
-        /// </remarks>
-        double[] GenerateRandomValues(int sampleSize);
-
-        /// <summary>
-        /// Generate random values of a distribution given a sample size based on a user-defined seed.
-        /// </summary>
-        /// <param name="seed"> Seed for random number generator. </param>
-        /// <param name="sampleSize"> Size of random sample to generate. </param>
-        /// <returns>
-        /// Array of random values.
-        /// </returns>
-        double[] GenerateRandomValues(int seed, int sampleSize);
+        /// <param name="seed">Optional. The prng seed. If negative or zero, then the computer clock is used as a seed.</param>
+        double[] GenerateRandomValues(int sampleSize, int seed = -1);
 
     }
 }

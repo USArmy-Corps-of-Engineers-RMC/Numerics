@@ -32,13 +32,20 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using Numerics.Mathematics.Optimization;
 using Numerics;
-using System.Runtime.InteropServices;
 
 namespace Mathematics.Optimization
 {
     /// <summary>
     /// Unit tests for the Augmented Lagrange optimization algorithm
     /// </summary>
+    /// <remarks>
+    /// <para>
+    ///     <b> Authors: </b>
+    ///     <list type="bullet"> 
+    ///     <item> Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil </item>
+    /// </list>
+    /// </para>
+    /// </remarks>
     [TestClass]
     public class Test_AugmentedLagrange
     {

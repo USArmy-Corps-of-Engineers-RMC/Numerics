@@ -392,7 +392,7 @@ namespace Utilities
         {
             int start = 0;
             int end = 3;
-            var result = Tools.IntegerSequence(start, end);
+            var result = Tools.Sequence(start, end);
             var true_result = new int[] { 0, 1, 2, 3 };
             for (int i = 0;  i < true_result.Length; i++)
             {

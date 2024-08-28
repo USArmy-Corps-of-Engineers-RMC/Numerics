@@ -37,6 +37,14 @@ namespace Mathematics.Optimization
     /// <summary>
     /// Unit tests for the Multi-Start (MS) optimization algorithm
     /// </summary>
+    /// <remarks>
+    /// <para>
+    ///     <b> Authors: </b>
+    ///     <list type="bullet"> 
+    ///     <item> Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil </item>
+    /// </list>
+    /// </para>
+    /// </remarks>
     [TestClass]
     public class Test_MultiStart
     {

@@ -140,7 +140,7 @@
     <Compile Include="Distributions\Univariate\Test_UniformDiscrete.cs" />
     <Compile Include="Distributions\Univariate\Test_Weibull.cs" />
     <Compile Include="Distributions\Univariate\Test_GeneralizedNormal.cs" />
-    <Compile Include="Distributions\Univariate\Test_Competing.cs" />
+    <Compile Include="Distributions\Univariate\Test_CompetingRisks.cs" />
     <Compile Include="Distributions\Univariate\Test_Mixture.cs" />
     <Compile Include="Functions\Test_Functions.cs" />
     <Compile Include="Machine Learning\Supervised\Test_kNN.cs" />

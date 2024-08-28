@@ -37,27 +37,137 @@ using Numerics.Distributions;
 namespace Distributions.Univariate
 {
     /// <summary>
-    /// Testing the Competing Risks distribution algorithm.
+    /// Testing the Competing Risks distribution.
     /// </summary>
     /// <remarks>
     /// <para>
     ///     <b> Authors: </b>
     ///     <list type="bullet">
     ///     <item> Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil </item>
-    ///     <item> Tiki Gonzalez, USACE Risk Management Center, julian.t.gonzalez@usace.army.mil</item>
     ///     </list> 
     /// </para>
     /// <para>
     /// <b> References: </b>
     /// </para>
     /// <para>
-    /// <see href = "https://github.com/mathnet/mathnet-numerics/blob/master/src/Numerics.Tests/DistributionTests/Discrete/BinomialTests.cs" />
+    /// <see href = "https://reliability.readthedocs.io/en/latest/Competing%20risk%20models.html" />
     /// </para>
     /// </remarks>
 
     [TestClass]
-    public class Test_Competing
+    public class Test_CompetingRisks
     {
+
+        /// <summary>
+        /// Test the moments of the Competing Risk model against the Python package 'reliability'.
+        /// </summary>
+        [TestMethod]
+        public void Test_CR_Moments()
+        {
+            var d1 = new LogNormal(4, 0.1) { Base = Math.E };
+            var d2 = new Weibull(50, 2);
+            var d3 = new GammaDistribution(30, 1.5);
+            var dists = new IUnivariateDistribution[] { d1, d2, d3 };
+            var cr = new CompetingRisks(dists);
+
+            // Numerics computes the moments using numerical integration
+            Assert.AreEqual(27.0445, cr.Mean, 1E-2);
+            Assert.AreEqual(25.0845, cr.Median, 1E-2);
+            Assert.AreEqual(16.6581, cr.Mode, 1E-2);
+            Assert.AreEqual(15.60225, cr.StandardDeviation, 1E-2);
+            Assert.AreEqual(0.3371, cr.Skewness, 1E-2);
+            Assert.AreEqual(-0.8719, cr.Kurtosis - 3, 1E-2); // Package reports excess kurtosis.
+
+        }
+
+        /// <summary>
+        /// Test the CDF and Inverse CDF of the Competing Risk model against the Python package 'reliability'.
+        /// </summary>
+        [TestMethod]
+        public void Test_CR_CDF()
+        {
+            var d1 = new LogNormal(4, 0.1) { Base = Math.E };
+            var d2 = new Weibull(50, 2);
+            var d3 = new GammaDistribution(30, 1.5);
+            var dists = new IUnivariateDistribution[] { d1, d2, d3 };
+            var cr = new CompetingRisks(dists);
+
+            Assert.AreEqual(4.6431, cr.InverseCDF(0.05), 1E-3);
+            Assert.AreEqual(25.0845, cr.InverseCDF(0.50), 1E-3);
+            Assert.AreEqual(54.2056, cr.InverseCDF(0.95), 1E-3);
+
+        }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        [TestMethod]
+        public void Test_CR_MLE_Independent()
+        {
+
+            var D1 = new LogNormal(4, 0.1) { Base = Math.E };
+            var D2 = new Weibull(50, 2);
+            var cr = new CompetingRisks(new UnivariateDistributionBase[] { D1, D2 });
+            cr.MinimumOfRandomVariables = true;
+            cr.Dependency = Numerics.Data.Statistics.Probability.DependencyType.Independent;
+            
+            var sample = cr.GenerateRandomValues(1000, 12345);
+            cr.Estimate(sample, ParameterEstimationMethod.MaximumLikelihood);
+
+            var pdf = cr.CreateCDFGraph();
+            for (int i = 0; i < pdf.GetLength(0); i++)
+            {
+                Debug.Print(pdf[i, 0] + ", " + pdf[i, 1]);
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        [TestMethod]
+        public void Test_CR_MLE_Positive()
+        {
+
+            var D1 = new LogNormal(4, 0.1) { Base = Math.E };
+            var D2 = new Weibull(50, 2);
+            var cr = new CompetingRisks(new UnivariateDistributionBase[] { D1, D2 });
+            cr.MinimumOfRandomVariables = true;
+            cr.Dependency = Numerics.Data.Statistics.Probability.DependencyType.PerfectlyPositive;
+
+            var sample = cr.GenerateRandomValues(1000, 12345);
+            cr.Estimate(sample, ParameterEstimationMethod.MaximumLikelihood);
+
+            var pdf = cr.CreateCDFGraph();
+            for (int i = 0; i < pdf.GetLength(0); i++)
+            {
+                Debug.Print(pdf[i, 0] + ", " + pdf[i, 1]);
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        [TestMethod]
+        public void Test_CR_MLE_Negative()
+        {
+
+            var D1 = new LogNormal(4, 0.1) { Base = Math.E };
+            var D2 = new Weibull(50, 2);
+            var cr = new CompetingRisks(new UnivariateDistributionBase[] { D1, D2 });
+            cr.MinimumOfRandomVariables = true;
+            cr.Dependency = Numerics.Data.Statistics.Probability.DependencyType.PerfectlyNegative;
+
+            var sample = cr.GenerateRandomValues(1000, 12345);
+            cr.Estimate(sample, ParameterEstimationMethod.MaximumLikelihood);
+
+            var pdf = cr.CreateCDFGraph();
+            for (int i = 0; i < pdf.GetLength(0); i++)
+            {
+                Debug.Print(pdf[i, 0] + ", " + pdf[i, 1]);
+            }
+        }
+
         /// <summary>
         /// 
         /// </summary>

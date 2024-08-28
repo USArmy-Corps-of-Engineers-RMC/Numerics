@@ -363,11 +363,11 @@ namespace Numerics.Distributions
         }
 
         /// <inheritdoc/>
-        public IUnivariateDistribution Bootstrap(ParameterEstimationMethod estimationMethod, int sampleSize, int seed = 12345)
+        public IUnivariateDistribution Bootstrap(ParameterEstimationMethod estimationMethod, int sampleSize, int seed = -1)
         {
             // create a new distribution with the sample 
             var newDistribution = new PearsonTypeIII(Mu, Sigma, Gamma);
-            var sample = newDistribution.GenerateRandomValues(seed, sampleSize);
+            var sample = newDistribution.GenerateRandomValues(sampleSize, seed);
             newDistribution.Estimate(sample, estimationMethod);
             if (newDistribution.ParametersValid == false)
                 throw new Exception("Bootstrapped distribution parameters are invalid.");

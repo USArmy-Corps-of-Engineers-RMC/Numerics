@@ -47,10 +47,10 @@ namespace Numerics.Distributions
         /// </summary>
         /// <param name="estimationMethod">The parameter estimation method.</param>
         /// <param name="sampleSize">Size of the random sample to generate.</param>
-        /// <param name="seed">Optional. Seed for random number generator. Default = 12345.</param>
+        /// <param name="seed">Optional. The prng seed. If negative or zero, then the computer clock is used as a seed.</param>
         /// <returns>
         /// Returns a bootstrapped distribution.
         /// </returns>
-        IUnivariateDistribution Bootstrap(ParameterEstimationMethod estimationMethod, int sampleSize, int seed = 12345);
+        IUnivariateDistribution Bootstrap(ParameterEstimationMethod estimationMethod, int sampleSize, int seed = -1);
     }
 }

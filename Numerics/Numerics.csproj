@@ -140,8 +140,6 @@
     <Compile Include="Machine Learning\Supervised\KNearestNeighbors.cs" />
     <Compile Include="Machine Learning\Supervised\NaiveBayes.cs" />
     <Compile Include="Machine Learning\Supervised\RandomForest.cs" />
-    <Compile Include="Machine Learning\Support\DenseLayer.cs" />
-    <Compile Include="Machine Learning\Support\ILayer.cs" />
     <Compile Include="Machine Learning\Support\JenksCluster.cs" />
     <Compile Include="Machine Learning\Support\DecisionNode.cs" />
     <Compile Include="Machine Learning\Unsupervised\GaussianMixtureModel.cs" />

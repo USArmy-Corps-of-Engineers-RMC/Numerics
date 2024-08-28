@@ -509,18 +509,15 @@ namespace Numerics.Distributions
         /// Generate random values of a distribution given a sample size.
         /// </summary>
         /// <param name="sampleSize"> Size of random sample to generate. </param>
+        /// <param name="seed">Optional. The prng seed. If negative or zero, then the computer clock is used as a seed.</param>
         /// <returns>
         /// Array of random values. The number of rows are equal to the sample size.
         /// The number of columns are equal to the dimensions of this distribution.
         /// </returns>
-        /// <remarks>
-        /// The random number generator seed is based on the current date and time according to your system.
-        /// </remarks>
-        public double[,] GenerateRandomValues(int sampleSize)
+        public double[,] GenerateRandomValues(int sampleSize, int seed = -1)
         {
-            // Create seed based on date and time
             // Create PRNG for generating random numbers
-            var r = new MersenneTwister();
+            var rnd = seed > 0 ? new MersenneTwister(seed) : new MersenneTwister();
             var sample = new double[sampleSize, Dimension];
             // Generate values
             for (int i = 0; i < sampleSize; i++)
@@ -528,36 +525,7 @@ namespace Numerics.Distributions
                 // Create vector z of standard normal variates for each dimension
                 var z = new double[Dimension];
                 for (int j = 0; j < Dimension; j++)
-                    z[j] = Normal.StandardZ(r.NextDouble());
-                // x = A*z + mu
-                var Az = _cholesky.L * z;
-                for (int j = 0; j < Dimension; j++)
-                    sample[i, j] = Az[j] + _mean[j];
-            }
-            // Return array of random values
-            return sample;
-        }
-
-        /// <summary>
-        /// Generate random values of a distribution given a sample size based on a user-defined seed.
-        /// </summary>
-        /// <param name="sampleSize"> Size of random sample to generate. </param>
-        /// <param name="seed"> Seed for random number generator. </param>
-        /// <returns>
-        /// Array of random values.
-        /// </returns>
-        public double[,] GenerateRandomValues(int sampleSize, int seed)
-        {
-            // Create PRNG for generating random numbers
-            var r = new MersenneTwister(seed);
-            var sample = new double[sampleSize, Dimension];
-            // Generate values
-            for (int i = 0; i < sampleSize; i++)
-            {
-                // Create vector z of standard normal variates for each dimension
-                var z = new double[Dimension];
-                for (int j = 0; j < Dimension; j++)
-                    z[j] = Normal.StandardZ(r.NextDouble());
+                    z[j] = Normal.StandardZ(rnd.NextDouble());
                 // x = A*z + mu
                 var Az = _cholesky.L * z;
                 for (int j = 0; j < Dimension; j++)
@@ -2188,7 +2156,6 @@ namespace Numerics.Distributions
 
             return mvn;
 
-           //return new MultivariateNormal(Mean, Covariance);
         }
 
     }

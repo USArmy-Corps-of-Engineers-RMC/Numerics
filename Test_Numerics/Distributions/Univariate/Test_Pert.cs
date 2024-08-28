@@ -102,7 +102,7 @@ namespace Distributions.Univariate
         public void Test_Pert_MOM()
         {
             var dist = new Pert(-2, 10, 35);
-            var sample = dist.GenerateRandomValues(12345, 1000);
+            var sample = dist.GenerateRandomValues(1000, 12345);
             dist.Estimate(sample, ParameterEstimationMethod.MethodOfMoments);
             Assert.AreEqual(-2, dist.Min, 1);
             Assert.AreEqual(10, dist.MostLikely, 1);
@@ -113,7 +113,7 @@ namespace Distributions.Univariate
         public void Test_Pert_MLE()
         {
             var dist = new Pert(-2, 10, 35);
-            var sample = dist.GenerateRandomValues(12345, 1000);
+            var sample = dist.GenerateRandomValues(1000, 12345);
             dist.Estimate(sample, ParameterEstimationMethod.MaximumLikelihood);
             Assert.AreEqual(-2, dist.Min, 1);
             Assert.AreEqual(10, dist.MostLikely, 1);

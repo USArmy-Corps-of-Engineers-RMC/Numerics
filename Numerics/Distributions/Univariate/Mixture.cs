@@ -35,6 +35,7 @@ using Numerics.Sampling;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Xml.Linq;
 
 namespace Numerics.Distributions
@@ -262,7 +263,12 @@ namespace Numerics.Distributions
         /// <inheritdoc/>
         public override double Mode
         {
-            get { return double.NaN; }
+            get
+            {
+                var brent = new BrentSearch(PDF, InverseCDF(0.001), InverseCDF(0.999));
+                brent.Maximize();
+                return brent.BestParameterSet.Values[0];
+            }
         }
 
         /// <inheritdoc/>
@@ -358,10 +364,10 @@ namespace Numerics.Distributions
         }
 
         /// <inheritdoc/>
-        public IUnivariateDistribution Bootstrap(ParameterEstimationMethod estimationMethod, int sampleSize, int seed = 12345)
+        public IUnivariateDistribution Bootstrap(ParameterEstimationMethod estimationMethod, int sampleSize, int seed = -1)
         {
             var newDistribution = (Mixture)Clone();
-            var sample = newDistribution.GenerateRandomValues(seed, sampleSize);
+            var sample = newDistribution.GenerateRandomValues(sampleSize, seed);
             newDistribution.Estimate(sample, estimationMethod);
             if (newDistribution.ParametersValid == false)
                 throw new Exception("Bootstrapped distribution parameters are invalid.");
@@ -411,7 +417,23 @@ namespace Numerics.Distributions
         /// <inheritdoc/>
         public override void SetParameters(IList<double> parameters)
         {
-            SetParametersFromArray(parameters.ToArray());
+            // Set weights         
+            _weights = parameters.ToArray().Subset(0, Distributions.Length - 1);
+            int t = Distributions.Length;
+
+            // Set distribution parameters
+            for (int i = 0; i < Distributions.Count(); i++)
+            {
+                var parms = new List<double>();
+                for (int j = t; j < t + Distributions[i].NumberOfParameters; j++)
+                {
+                    parms.Add(parameters[j]);
+                }
+                Distributions[i].SetParameters(parms);
+                t += Distributions[i].NumberOfParameters;
+            }
+
+            //SetParametersFromArray(parameters.ToArray());
             //if (Distributions == null || Distributions.Count() == 0) return;
             //if (Distributions.Count() == 1 && parameters.Count() == Distributions[0].NumberOfParameters)
             //{
@@ -607,8 +629,8 @@ namespace Numerics.Distributions
             for (int i = 0; i < Distributions.Count(); i++)
             {
                 initialVals[i] = 0.5;
-                lowerVals[i] = 0;
-                upperVals[i] = 1;
+                lowerVals[i] = 0.0;
+                upperVals[i] = 1.0;
                 t += 1;
             }
 
@@ -643,15 +665,22 @@ namespace Numerics.Distributions
             double logLH(double[] parameters)
             {
                 var dist = (Mixture)Clone();
-                dist.SetParametersFromArray(parameters);
+                dist.SetParameters(parameters);
                 double lh = dist.LogLikelihood(sample);
                 if (double.IsNaN(lh) || double.IsInfinity(lh)) return double.MinValue;
                 return lh;
             }
-            var solver = new DifferentialEvolution(logLH, NumberOfParameters, Lowers, Uppers);
+            //var solver = new DifferentialEvolution(logLH, NumberOfParameters, Lowers, Uppers);
+            var solver = new NelderMead(logLH, NumberOfParameters, Initials, Lowers, Uppers);
+
+            //var constraint = new Constraint((x) => { return Tools.Sum(x.Subset(0, Distributions.Length - 1)); ; }, 
+            //    NumberOfParameters, 1, ConstraintType.EqualTo);
+            //var innerSolver = new NelderMead(logLH, NumberOfParameters, Initials, Lowers, Uppers);
+            //var solver = new AugmentedLagrange(logLH, innerSolver, new IConstraint[] { constraint });
             solver.Maximize();
             return solver.BestParameterSet.Values;
         }
+
 
         /// <inheritdoc/>
         public override double PDF(double x)
@@ -775,11 +804,13 @@ namespace Numerics.Distributions
             if (_parametersValid == false)
                 ValidateParameters(GetParameters, true);
 
+            // If there is only one distribution, return its inverse CDF
             if (Distributions.Count() == 1)
             {
                 return Distributions[0].InverseCDF(probability);
             }
 
+            // Otherwise use a root finder to solve the inverse CDF
             var xVals = Distributions.Select(d => d.InverseCDF(probability));
             double minX = xVals.Min();
             double maxX = xVals.Max();
@@ -790,10 +821,11 @@ namespace Numerics.Distributions
                 {
                     Brent.Bracket((y) => { return probability - CDF(y); }, ref minX, ref maxX, out var f1, out var f2);
                 }
-                x = Brent.Solve((y) => { return probability - CDF(y); }, minX, maxX, 1E-4, 100, true);
+                x = Brent.Solve((y) => { return probability - CDF(y); }, minX, maxX, 1E-6, 100, true);
             }
             catch (Exception)
             {
+                // If the root finder fails, create an empirical inverse CDF
                 if (_inverseCDFCreated == false)
                     CreateInverseCDF();
                 x = _inverseCDF.InverseCDF(probability);
@@ -850,45 +882,10 @@ namespace Numerics.Distributions
         }
 
         /// <inheritdoc/>
-        public override double[] GenerateRandomValues(int sampleSize)
-        {
-            // Create seed based on date and time
-            var r = new MersenneTwister();
-            var weights = new List<double>();
-            var distributions = new List<UnivariateDistributionBase>();
-            if (IsZeroInflated)
-            {
-                weights.Add(ZeroWeight);
-                distributions.Add(new Deterministic(0.0));
-            }
-            weights.AddRange(Weights);
-            distributions.AddRange(Distributions);
-
-            var sample = new double[sampleSize];
-            // Generate values
-            for (int i = 0; i < sampleSize; i++)
-            {
-                var u = r.NextDouble();
-                var cdfW = new double[distributions.Count()];
-                for (int j = 0; j < distributions.Count(); j++)
-                {
-                    cdfW[j] = j == 0 ? weights[j] : cdfW[j - 1] + weights[j];
-                    if (u <= cdfW[j])
-                    {
-                        sample[i] = distributions[j].InverseCDF(r.NextDouble());
-                        break;
-                    }
-                }
-            }
-            // Return array of random values
-            return sample;
-        }
-
-        /// <inheritdoc/>
-        public override double[] GenerateRandomValues(int seed, int sampleSize)
+        public override double[] GenerateRandomValues(int sampleSize, int seed = -1)
         {
             // Create PRNG for generating random numbers
-            var r = new MersenneTwister(seed);
+            var rnd = seed > 0 ? new MersenneTwister(seed) : new MersenneTwister();
             var weights = new List<double>();
             var distributions = new List<UnivariateDistributionBase>();
             if (IsZeroInflated)
@@ -903,14 +900,14 @@ namespace Numerics.Distributions
             // Generate values
             for (int i = 0; i < sampleSize; i++)
             {
-                var u = r.NextDouble();
+                var u = rnd.NextDouble();
                 var cdfW = new double[distributions.Count()];
                 for (int j = 0; j < distributions.Count(); j++)
                 {
                     cdfW[j] = j == 0 ? weights[j] : cdfW[j - 1] + weights[j];
                     if (u <= cdfW[j])
                     {
-                        sample[i] = distributions[j].InverseCDF(r.NextDouble());
+                        sample[i] = distributions[j].InverseCDF(rnd.NextDouble());
                         break;
                     }
                 }
