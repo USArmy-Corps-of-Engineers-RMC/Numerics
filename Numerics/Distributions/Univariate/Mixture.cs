@@ -29,11 +29,13 @@
 */
 
 using Numerics.Data;
+using Numerics.Mathematics.LinearAlgebra;
 using Numerics.Mathematics.Optimization;
 using Numerics.Mathematics.RootFinding;
 using Numerics.Sampling;
 using System;
 using System.Collections.Generic;
+using System.Drawing.Text;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Xml.Linq;
@@ -116,12 +118,27 @@ namespace Numerics.Distributions
         /// </summary>
         public Transform ProbabilityTransform { get; set; } = Transform.NormalZ;
 
+        /// <summary>
+        /// The maximum iterations in the Expectation Maximization algorithm. Default = 1,000. 
+        /// </summary>
+        public int MaxIterations { get; set; } = 1000;
+
+        /// <summary>
+        /// The relative tolerance for convergence. Default = 1E-8.
+        /// </summary>
+        public double Tolerance { get; set; } = 1E-8;
+
+        /// <summary>
+        /// The total number of iterations required to find the MLE.
+        /// </summary>
+        public int Iterations { get; private set; }
+
         /// <inheritdoc/>
         public override int NumberOfParameters
         {
             get
             {
-                int sum = IsZeroInflated ? 1 : 0;
+                int sum = 0;
                 sum += Distributions.Count();
                 for (int i = 0; i < Distributions.Count(); i++)
                     sum += Distributions[i].NumberOfParameters;
@@ -414,14 +431,23 @@ namespace Numerics.Distributions
             _inverseCDFCreated = false;
         }
 
-        /// <inheritdoc/>
-        public override void SetParameters(IList<double> parameters)
+        /// <summary>
+        /// Set the distribution parameters.
+        /// </summary>
+        /// <param name="weights">The mixture weights.</param>
+        /// <param name="parameters">The mixture distribution parameters.</param>
+        public void SetParameters(double[] weights, double[] parameters)
         {
-            // Set weights         
-            _weights = parameters.ToArray().Subset(0, Distributions.Length - 1);
-            int t = Distributions.Length;
+            if (weights == null) throw new ArgumentNullException(nameof(Weights));
+            if (parameters.Length != Distributions.Sum(x => x.NumberOfParameters))
+            {
+                throw new ArgumentException("The length of the parameter array is invalid.", nameof(parameters));
+            }
 
+            // Set weights
+            _weights = weights;
             // Set distribution parameters
+            int t = 0;
             for (int i = 0; i < Distributions.Count(); i++)
             {
                 var parms = new List<double>();
@@ -432,63 +458,22 @@ namespace Numerics.Distributions
                 Distributions[i].SetParameters(parms);
                 t += Distributions[i].NumberOfParameters;
             }
-
-            //SetParametersFromArray(parameters.ToArray());
-            //if (Distributions == null || Distributions.Count() == 0) return;
-            //if (Distributions.Count() == 1 && parameters.Count() == Distributions[0].NumberOfParameters)
-            //{
-            //    if (IsZeroInflated)
-            //    {
-            //        Weights[0] = 1 - ZeroWeight;
-            //    }
-            //    else
-            //    {
-            //        Weights[0] = 1;
-            //    }
-            //    Distributions[0].SetParameters(parameters);
-            //}
-            //else if (Distributions.Count() == 2)
-            //{
-            //    // Get the weights
-            //    int k = Distributions.Count();
-            //    int t = 1; // keep track of parameter index
-
-            //    // Get weights
-            //    if (IsZeroInflated)
-            //    {
-            //        Weights[0] = parameters[0];
-            //        Weights[1] = 1d - parameters[0];
-            //        Weights[0] *= (1d - ZeroWeight);
-            //        Weights[1] *= (1d - ZeroWeight);
-            //        parameters[0] = Weights[0];
-            //    }
-            //    else
-            //    {
-            //        Weights[0] = parameters[0];
-            //        Weights[1] = 1d - parameters[0];
-            //    }
-
-            //    // Set distribution parameters
-            //    for (int i = 0; i < Distributions.Count(); i++)
-            //    {
-            //        var parms = new List<double>();
-            //        for (int j = t; j < t + Distributions[i].NumberOfParameters; j++)
-            //        {
-            //            parms.Add(parameters[j]);
-            //        }
-            //        Distributions[i].SetParameters(parms);
-            //        t += Distributions[i].NumberOfParameters;
-            //    }
-            //}
-
-            //// Validate parameters
-            //_parametersValid = ValidateParameters(parameters, false) is null;
-            //_momentsComputed = false;
-            //_inverseCDFCreated = false;
+            _momentsComputed = false;
+            _inverseCDFCreated = false;
         }
 
+        /// <inheritdoc/>
+        public override void SetParameters(IList<double> parameters)
+        {
+            var x = parameters as double[];
+            SetParameters(ref x);
+        }
 
-        public void SetParametersFromArray(double[] parameters)
+        /// <summary>
+        /// Set the distribution parameters from a referenced array.
+        /// </summary>
+        /// <param name="parameters">The array of parameters.</param>
+        public void SetParameters(ref double[] parameters)
         {
             if (Distributions == null || Distributions.Count() == 0) return;
             if (Distributions.Count() == 1 && parameters.Length == Distributions[0].NumberOfParameters)
@@ -628,7 +613,7 @@ namespace Numerics.Distributions
             int t = 0;
             for (int i = 0; i < Distributions.Count(); i++)
             {
-                initialVals[i] = 0.5;
+                initialVals[i] = IsZeroInflated ? (1d - ZeroWeight) / Distributions.Count() : 1d / Distributions.Count();
                 lowerVals[i] = 0.0;
                 upperVals[i] = 1.0;
                 t += 1;
@@ -655,30 +640,125 @@ namespace Numerics.Distributions
         /// <inheritdoc/>
         public double[] MLE(IList<double> sample)
         {
+
+            int N = sample.Count;
+            int Np = Distributions.Sum(x => x.NumberOfParameters);
+            int K = Distributions.Count();
+
             // Set constraints
             var tuple = GetParameterConstraints(sample);
-            var Initials = tuple.Item1;
-            var Lowers = tuple.Item2;
-            var Uppers = tuple.Item3;
+            var Initials = tuple.Item1.Subset(K);
+            var Lowers = tuple.Item2.Subset(K);
+            var Uppers = tuple.Item3.Subset(K);
 
-            // Solve using Nelder-Mead (Downhill Simplex)
+            // Set up EM parameters
+            var mleWeights = tuple.Item1.Subset(0 , K - 1);
+            var mleParameters = Initials;
+            var likelihood = new double[N, K];
+            double oldLogLH = double.MinValue, newLogLH = double.MinValue;
+
+            // The expectation step. 
+            double EStep(double[] parameters)
+            {
+                var dist = (Mixture)Clone();
+                dist.SetParameters(mleWeights, parameters);
+                // Outer loop for computing the likelihoods
+                for (int k = 0; k < K; k++)
+                {
+                    for (int i = 0; i < N; i++)
+                    {
+                        if (IsZeroInflated && sample[i] <= 0.0)
+                        {
+                            likelihood[i, k] = Math.Log(ZeroWeight);
+                        }
+                        else
+                        {
+                            likelihood[i, k] = Math.Log(mleWeights[k]) + dist.Distributions[k].LogPDF(sample[i]);
+                        }
+                    }
+                }
+                // At this point we have unnormalized log likelihoods.
+                // We need to normalize using log-sum-exp and compute the true log-likelihoods.
+                double logLH = 0;
+                for (int i = 0; i < N; i++)
+                {
+                    // Get max likelihood
+                    double max = double.MinValue;
+                    for (int k = 0; k < K; k++)
+                    {
+                        if (likelihood[i, k] > max)
+                        {
+                            max = likelihood[i, k];
+                        }
+                    }
+                    // log-sum-exp trick begins here
+                    double sum = 0;
+                    for (int k = 0; k < K; k++)
+                        sum += Math.Exp(likelihood[i, k] - max);
+                    double tmp = max + Math.Log(sum);
+                    for (int k = 0; k < K; k++)
+                        likelihood[i, k] = Math.Exp(likelihood[i, k] - tmp);
+                    logLH += tmp;
+                }
+                return logLH;
+            }
+
+            // The maximization step
+            double[] MStep(double[] parameters)
+            {
+                // Get updated weights
+                for (int k = 0; k < K; k++)
+                {
+                    double wgt = 0d;
+                    for (int i = 0; i < N; i++)
+                    {
+                        if (!IsZeroInflated || sample[i] > 0.0 )
+                        {
+                            wgt += likelihood[i, k];
+                        }
+                    }  
+                    mleWeights[k] = wgt / N;
+                }
+                // MLE
+                var solver = new NelderMead(logLH, Np, parameters, Lowers, Uppers);
+                solver.Maximize();
+                return solver.BestParameterSet.Values;
+            }
+
+            // The log-likelihood to maximize in the M-Step
+            // Weights are held fixed, only the distribution parameters are solved.
             double logLH(double[] parameters)
             {
                 var dist = (Mixture)Clone();
-                dist.SetParameters(parameters);
+                dist.SetParameters(mleWeights, parameters);
                 double lh = dist.LogLikelihood(sample);
                 if (double.IsNaN(lh) || double.IsInfinity(lh)) return double.MinValue;
                 return lh;
             }
-            //var solver = new DifferentialEvolution(logLH, NumberOfParameters, Lowers, Uppers);
-            var solver = new NelderMead(logLH, NumberOfParameters, Initials, Lowers, Uppers);
 
-            //var constraint = new Constraint((x) => { return Tools.Sum(x.Subset(0, Distributions.Length - 1)); ; }, 
-            //    NumberOfParameters, 1, ConstraintType.EqualTo);
-            //var innerSolver = new NelderMead(logLH, NumberOfParameters, Initials, Lowers, Uppers);
-            //var solver = new AugmentedLagrange(logLH, innerSolver, new IConstraint[] { constraint });
-            solver.Maximize();
-            return solver.BestParameterSet.Values;
+            // Estimate using the EM Algorithm
+            for (Iterations = 1; Iterations <= MaxIterations; Iterations++)
+            {
+                // Perform the expectation step
+                newLogLH = EStep(mleParameters);
+
+                // Check convergence
+                if (Math.Abs((oldLogLH - newLogLH) / oldLogLH) < Tolerance)
+                    break;
+
+                // Perform the maximization step
+                mleParameters = MStep(mleParameters);
+
+                // Update log-likelihood state
+                oldLogLH = newLogLH;
+
+            }
+
+            // Return the full list of distribution parameters
+            var result = new List<double>();
+            result.AddRange(mleWeights);
+            result.AddRange(mleParameters);
+            return result.ToArray();
         }
 
 
@@ -690,17 +770,9 @@ namespace Numerics.Distributions
                 ValidateParameters(GetParameters, true);
 
             double f = 0.0;
-            if (IsZeroInflated)
+            if (IsZeroInflated && x <= 0.0)
             {
-                if (x <= 0.0)
-                {
-                    f = ZeroWeight;
-                }
-                else
-                {
-                    for (int i = 0; i < Distributions.Count(); i++)
-                        f += Weights[i] * Distributions[i].PDF(x);
-                }
+                f = ZeroWeight;
             }
             else
             {
@@ -718,17 +790,9 @@ namespace Numerics.Distributions
                 ValidateParameters(GetParameters, true);
 
             var lnf = new List<double>();
-            if (IsZeroInflated)
+            if (IsZeroInflated && x <= 0.0)
             {
-                if (x <= 0.0)
-                {
-                    lnf.Add(Math.Log(ZeroWeight));
-                }
-                else
-                {
-                    for (int i = 0; i < Distributions.Count(); i++)
-                        lnf.Add(Math.Log(Weights[i]) + Distributions[i].LogPDF(x));
-                }
+                lnf.Add(Math.Log(ZeroWeight));
             }
             else
             {

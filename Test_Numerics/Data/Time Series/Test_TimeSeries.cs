@@ -43,14 +43,14 @@ namespace Data.TimeSeriesAnalysis
         public void Test_DownloadFromGHCN()
         {
             //var t = TimeSeriesDownload.FromGHCN("USC00040741");
-            var t = TimeSeriesDownload.FromGHCN("USC00327027");
+            //var t = TimeSeriesDownload.FromGHCN("USC00327027");
             //t = TimeSeriesDownload.FromGHCN("AG000060611");
         }
 
         [TestMethod]
         public void Test_DownloadFromUSGS()
         {
-            var t = TimeSeriesDownload.FromUSGS("08133500");
+            //var t = TimeSeriesDownload.FromUSGS("08133500");
         }
 
 

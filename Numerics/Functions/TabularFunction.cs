@@ -166,7 +166,7 @@ namespace Numerics.Functions
         {
             // Validate parameters
             if (ParametersValid == false) ValidateParameters(new double[] {0}, true);
-            double y = opd.Interpolate(x, true, XTransform, YTransform);
+            double y = opd.GetYFromX(x, XTransform, YTransform);
             y = AllowNegativeYValues == false && y < 0 ? 0 : y;
             return y;
         }
@@ -177,7 +177,7 @@ namespace Numerics.Functions
             // Validate parameters
             if (ParametersValid == false) ValidateParameters(new double[] { 0 }, true);
             y = AllowNegativeYValues == false && y < 0 ? 0 : y;          
-            return opd.Interpolate(y, false, XTransform, YTransform);
+            return opd.GetXFromY(y, XTransform, YTransform);
         }
     }
 }

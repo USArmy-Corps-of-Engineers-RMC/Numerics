@@ -193,39 +193,6 @@ namespace Numerics.Data
 
         #region Construction
 
-        /*/// <summary>
-        /// Create empty instance of the ordered paired data class.
-        /// </summary>
-        /// <param name="strictOnX">Boolean indicating if x values are strictly increasing/decreasing. True means x values cannot be equal.</param>
-        /// <param name="xOrder">Order of the x values.</param>
-        /// <param name="strictOnY">Boolean indicating if x values are strictly increasing/decreasing. True means x values cannot be equal.</param>
-        /// <param name="yOrder">Order of the y values.</param>
-        public OrderedPairedData(bool strictOnX, SortOrder xOrder, bool strictOnY, SortOrder yOrder)
-        {
-            _ordinates = new List<Ordinate>();
-            StrictX = strictOnX;
-            StrictY = strictOnY;
-            OrderX = xOrder;
-            OrderY = yOrder;
-        }
-
-        /// <summary>
-        /// Create empty instance of the ordered paired data class with a preset capacity.
-        /// </summary>
-        /// <param name="capacity">capacity of the collection.</param>
-        /// <param name="strictOnX">Boolean indicating if x values are strictly increasing/decreasing. True means x values cannot be equal.</param>
-        /// <param name="xOrder">Order of the x values.</param>
-        /// <param name="strictOnY">Boolean indicating if x values are strictly increasing/decreasing. True means x values cannot be equal.</param>
-        /// <param name="yOrder">Order of the y values.</param>
-        public OrderedPairedData(int capacity, bool strictOnX, SortOrder xOrder, bool strictOnY, SortOrder yOrder)
-        {
-            _ordinates = new List<Ordinate>(capacity);
-            StrictX = strictOnX;
-            StrictY = strictOnY;
-            OrderX = xOrder;
-            OrderY = yOrder;
-        }*/
-
         /// <summary>
         /// Create empty instance of the ordered paired data class.
         /// </summary>
@@ -237,10 +204,14 @@ namespace Numerics.Data
         public OrderedPairedData(bool strictOnX, SortOrder xOrder, bool strictOnY, SortOrder yOrder, int capacity = 0)
         {
             if (capacity > 0)
+            {
                 _ordinates = new List<Ordinate>(capacity);
+            }
             else
+            {
                 _ordinates = new List<Ordinate>();
-
+            }
+            //
             StrictX = strictOnX;
             StrictY = strictOnY;
             OrderX = xOrder;
@@ -263,8 +234,7 @@ namespace Numerics.Data
             OrderX = xOrder;
             OrderY = yOrder;
             _ordinates = new List<Ordinate>(xData.Count);
-            for (int i = 0; i < xData.Count; i++)
-                _ordinates.Add(new Ordinate(xData[i], yData[i]));
+            for (int i = 0; i < xData.Count; i++) { _ordinates.Add(new Ordinate(xData[i], yData[i])); }
             Validate();
         }
 
@@ -283,8 +253,7 @@ namespace Numerics.Data
             OrderX = xOrder;
             OrderY = yOrder;
             _ordinates = new List<Ordinate>(data.Count);
-            for (int i = 0; i < data.Count; i++)
-                _ordinates.Add(new Ordinate(data[i].X, data[i].Y));
+            for (int i = 0; i < data.Count; i++) { _ordinates.Add(new Ordinate(data[i].X, data[i].Y)); }
             Validate();
         }
 
@@ -329,6 +298,7 @@ namespace Numerics.Data
         #endregion
 
         #region Methods
+
         /// <summary>
         /// Get or set the ordinate at a specified index.
         /// </summary>
@@ -339,12 +309,9 @@ namespace Numerics.Data
             get { return _ordinates[index]; }
             set
             {
-                //_ordinates[index] = value;
-                //Validate();
-
                 if (_ordinates[index] != value)
                 {
-                    var oldvalue = _ordinates[index];
+                    var oldValue = _ordinates[index];
                     _ordinates[index] = value;
                     if (IsValid == true)
                     {
@@ -354,10 +321,11 @@ namespace Numerics.Data
                     {
                         if (OrdinateValid(index) == true) { Validate(); }
                     }
-                    ////
+                    //
+                    //We might need to add this check if performance suffers
                     //if (SupressCollectionChanged == false)
                     //{
-                    CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, value, oldvalue));
+                    CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, value, oldValue));
                     //}
                 }
 
@@ -688,7 +656,7 @@ namespace Numerics.Data
         }
 
         /// <summary>
-        /// Converts the ordered paired data set to an XElement for saving to xml.
+        /// Converts the ordered paired data set to an XElement for saving to XML.
         /// </summary>
         /// <returns>An XElement representation of the data.</returns>
         public XElement SaveToXElement()
@@ -717,30 +685,30 @@ namespace Numerics.Data
         /// Given a value (x or y) returns the interpolated value (y or x).
         /// </summary>
         /// <param name="value"> The value to be interpolated. </param>
-        /// <param name="start">The zero-based index to start the search from.</param>
+        /// <param name="index">The zero-based index of the lower bound of the interpolation interval.</param>
         /// <param name="givenX"> Optional boolean if the given value is an x value. Default is set to true.</param>
-        /// <param name="xTransform"> Transform for the x values. Default is set to none.</param>
-        /// <param name="yTransform"> Transform for the y values. Default is set to none. </param>
+        /// <param name="xTransform">Optional. Transform for the x values. Default = None.</param>
+        /// <param name="yTransform">Optional. Transform for the y values. Default = None.</param>
         /// <returns> The interpolated value.</returns>
-        private double RawInterpolate(double value, int start, bool givenX = true, Transform xTransform = Data.Transform.None, Transform yTransform = Data.Transform.None)
+        private double BaseInterpolate(double value, int index, bool givenX = true, Transform xTransform = Transform.None, Transform yTransform = Transform.None)
         {
 
             double x = givenX ? value : 0, y = givenX ? 0 : value, x1 = 0, x2 = 0, y1 = 0, y2 = 0;
-            int lo = start, hi = start + 1;
+            int lo = index, hi = index + 1;
 
             // Get X transform
-            if (xTransform == Data.Transform.None)
+            if (xTransform == Transform.None)
             {
                 x1 = _ordinates[lo].X;
                 x2 = _ordinates[hi].X;
             }
-            else if (xTransform == Data.Transform.Logarithmic)
+            else if (xTransform == Transform.Logarithmic)
             {
                 x = Tools.Log10(x);
                 x1 = Tools.Log10(_ordinates[lo].X);
                 x2 = Tools.Log10(_ordinates[hi].X);
             }
-            else if (xTransform == Data.Transform.NormalZ)
+            else if (xTransform == Transform.NormalZ)
             {
                 x = Normal.StandardZ(x);
                 x1 = Normal.StandardZ(_ordinates[lo].X);
@@ -748,18 +716,18 @@ namespace Numerics.Data
             }
 
             // Get Y transform
-            if (yTransform == Data.Transform.None)
+            if (yTransform == Transform.None)
             {
                 y1 = _ordinates[lo].Y;
                 y2 = _ordinates[hi].Y;
             }
-            else if (yTransform == Data.Transform.Logarithmic)
+            else if (yTransform == Transform.Logarithmic)
             {
                 y = Tools.Log10(y);
                 y1 = Tools.Log10(_ordinates[lo].Y);
                 y2 = Tools.Log10(_ordinates[hi].Y);
             }
-            else if (yTransform == Data.Transform.NormalZ)
+            else if (yTransform == Transform.NormalZ)
             {
                 y = Normal.StandardZ(y);
                 y1 = Normal.StandardZ(_ordinates[lo].Y);
@@ -779,15 +747,15 @@ namespace Numerics.Data
                     y = y1 + (x - x1) / (x2 - x1) * (y2 - y1);
                 }
                 //
-                if (yTransform == Data.Transform.None)
+                if (yTransform == Transform.None)
                 {
                     return y;
                 }
-                else if (yTransform == Data.Transform.Logarithmic)
+                else if (yTransform == Transform.Logarithmic)
                 {
                     return Math.Pow(10d, y);
                 }
-                else if (yTransform == Data.Transform.NormalZ)
+                else if (yTransform == Transform.NormalZ)
                 {
                     return Normal.StandardCDF(y);
                 }
@@ -804,15 +772,15 @@ namespace Numerics.Data
                     x = x1 + (y - y1) / (y2 - y1) * (x2 - x1);
                 }
                 //
-                if (xTransform == Data.Transform.None)
+                if (xTransform == Transform.None)
                 {
                     return x;
                 }
-                else if (xTransform == Data.Transform.Logarithmic)
+                else if (xTransform == Transform.Logarithmic)
                 {
                     return Math.Pow(10d, x);
                 }
-                else if (xTransform == Data.Transform.NormalZ)
+                else if (xTransform == Transform.NormalZ)
                 {
                     return Normal.StandardCDF(x);
                 }
@@ -824,551 +792,76 @@ namespace Numerics.Data
         }
 
         /// <summary>
-        /// Given a value (x or y) returns the interpolated value (y or x).
+        /// Interpolate y from x.
         /// </summary>
-        /// <param name="value"> The value to be interpolated. </param>
-        /// <param name="givenX"> Optional boolean if the given value is an x value. Default is set to true.</param>
-        /// <param name="xTransform"> Transform for the x values. Default is set to none.</param>
-        /// <param name="yTransform"> Transform for the y values. Default is set to none. </param>
+        /// <param name="x">The x value. </param>
+        /// <param name="xTransform">Optional. Transform for the x values. Default = None.</param>
+        /// <param name="yTransform">Optional. Transform for the y values. Default = None.</param>
         /// <returns> The interpolated value.</returns>
-        public double Interpolate(double value, bool givenX = true, Transform xTransform = Data.Transform.None, Transform yTransform = Data.Transform.None)
+        public double GetYFromX(double x, Transform xTransform = Transform.None, Transform yTransform = Transform.None)
         {
             if (Count == 0) return double.NaN;
+            if (OrderX == SortOrder.None)
+                throw new Exception("Interpolation requires the x-values to be ascending or descending.");
 
             // First see if value is out of range
-            if (givenX)
-            {
-                if (OrderX == SortOrder.None)
-                    throw new Exception("Interpolation requires the x-values to be ascending or descending.");
-
-                if (Count == 1) return _ordinates[0].Y;
-                if ((OrderX == SortOrder.Ascending && value <= _ordinates[0].X) || (OrderX == SortOrder.Descending && value >= _ordinates[0].X)) return _ordinates[0].Y;
-                if ((OrderX == SortOrder.Ascending && value >= _ordinates[Count - 1].X) || (OrderX == SortOrder.Descending && value <= _ordinates[Count - 1].X)) return _ordinates[Count - 1].Y;
-            }
-            else
-            {
-                if (OrderY == SortOrder.None)
-                    throw new Exception("Interpolation requires the y-values to be ascending or descending.");
-
-                if (Count == 1) return _ordinates[0].X;
-                if ((OrderY == SortOrder.Ascending && value <= _ordinates[0].Y) || (OrderY == SortOrder.Descending && value >= _ordinates[0].Y)) return _ordinates[0].X;
-                if ((OrderY == SortOrder.Ascending && value >= _ordinates[Count - 1].Y) || (OrderY == SortOrder.Descending && value <= _ordinates[Count - 1].Y)) return _ordinates[Count - 1].X;
-            }
+            if (Count == 1) return _ordinates[0].Y;
+            if ((OrderX == SortOrder.Ascending && x <= _ordinates[0].X) || (OrderX == SortOrder.Descending && x >= _ordinates[0].X)) return _ordinates[0].Y;
+            if ((OrderX == SortOrder.Ascending && x >= _ordinates[Count - 1].X) || (OrderX == SortOrder.Descending && x <= _ordinates[Count - 1].X)) return _ordinates[Count - 1].Y;
+            
             // Interpolate
-            int start = givenX ? SearchX(value) : SearchY(value);
-            return RawInterpolate(value, start, givenX, xTransform, yTransform);
+            return BaseInterpolate(x, SearchX(x), true, xTransform, yTransform);
         }
 
         /// <summary>
-        /// Given a list of values (x or y) returns the interpolated values (y or x).
+        /// Interpolate x from y.
         /// </summary>
-        /// <param name="values">The list of values to be interpolated.</param>
-        /// <param name="givenX"> Optional boolean if the given value is an x value. Default is set to true.</param>
-        /// <param name="xTransform"> Transform for the x values. Default is set to none.</param>
-        /// <param name="yTransform"> Transform for the y values. Default is set to none. </param>
+        /// <param name="y">The y value. </param>
+        /// <param name="xTransform">Optional. Transform for the x values. Default = None.</param>
+        /// <param name="yTransform">Optional. Transform for the y values. Default = None.</param>
+        /// <returns> The interpolated value.</returns>
+        public double GetXFromY(double y, Transform xTransform = Transform.None, Transform yTransform = Transform.None)
+        {
+            if (Count == 0) return double.NaN;
+            if (OrderY == SortOrder.None)
+                throw new Exception("Interpolation requires the y-values to be ascending or descending.");
+
+            // First see if value is out of range
+            if (Count == 1) return _ordinates[0].X;
+            if ((OrderY == SortOrder.Ascending && y <= _ordinates[0].Y) || (OrderY == SortOrder.Descending && y >= _ordinates[0].Y)) return _ordinates[0].X;
+            if ((OrderY == SortOrder.Ascending && y >= _ordinates[Count - 1].Y) || (OrderY == SortOrder.Descending && y <= _ordinates[Count - 1].Y)) return _ordinates[Count - 1].X;
+            // Interpolate
+            return BaseInterpolate(y, SearchY(y), false, xTransform, yTransform);
+        }
+
+        /// <summary>
+        /// Interpolate y-values from a list of x-values.
+        /// </summary>
+        /// <param name="xValues">The list of x-values.</param>
+        /// <param name="xTransform">Optional. Transform for the x values. Default = None.</param>
+        /// <param name="yTransform">Optional. Transform for the y values. Default = None.</param>
         /// <returns>An array of interpolated values.</returns>
-        public double[] Interpolate(IList<double> values, bool givenX = true, Transform xTransform = Data.Transform.None, Transform yTransform = Data.Transform.None)
+        public double[] GetYFromX(IList<double> xValues, Transform xTransform = Transform.None, Transform yTransform = Transform.None)
         {
-            var result = new double[values.Count];
-            for (int i = 0; i < values.Count; i++)
-                result[i] = Interpolate(values[i], givenX, xTransform, yTransform);
+            var result = new double[xValues.Count];
+            for (int i = 0; i < xValues.Count; i++)
+                result[i] = GetYFromX(xValues[i], xTransform, yTransform);
             return result;
         }
 
         /// <summary>
-        /// Interpolate Y values for a collection of x values.
+        /// Interpolate x-values from a list of y-values.
         /// </summary>
-        /// <param name="xValues">IList of x values to interpolate y values from.</param>
-        /// <param name="valuesOrdered">Boolean indicating if the sample x values are in the same order as the ordinate x values.</param>
-        /// <param name="xTransform">Interpolation transform for x values.</param>
-        /// <param name="yTransform">Interpolation transform for y values.</param>
-        /// <returns> An array of interpolated y values.</returns>
-        public double[] GetYValues(IList<double> xValues, bool valuesOrdered, Transform xTransform = Data.Transform.None, Transform yTransform = Data.Transform.None)
+        /// <param name="yValues">The list of y-values.</param>
+        /// <param name="xTransform">Optional. Transform for the x values. Default = None.</param>
+        /// <param name="yTransform">Optional. Transform for the y values. Default = None.</param>
+        /// <returns>An array of interpolated values.</returns>
+        public double[] GetXFromY(IList<double> yValues, Transform xTransform = Transform.None, Transform yTransform = Transform.None)
         {
-            if (xValues == null || xValues.Count == 0) return new double[0];
-            double[] result = new double[xValues.Count];
-
-            if (valuesOrdered == false)
-            {
-                //Sort values and keep track of original indexes
-                var sorted = xValues.Select((x, i) => new KeyValuePair<double, int>(x, i)).OrderBy(x => x.Key).ToList();
-                if (OrderX == SortOrder.Descending) sorted.Reverse();
-                //Get sorted values and original index locations
-                double[] B = sorted.Select(x => x.Key).ToArray();
-                int[] idx = sorted.Select(x => x.Value).ToArray();
-                //Sample y values with sorted x and return in the original order.
-                double[] sortedResults = GetYValues(B, true, xTransform, yTransform);
-                for (int i = 0; i < sortedResults.Length; i++)
-                    result[idx[i]] = sortedResults[i];
-                return result;
-            }
-
-            // Get initial search index from first value
-            int searchIndex = BinarySearchX(xValues[0]);
-            if (searchIndex <= -1) searchIndex = -1 * searchIndex - 1;
-            result[0] = (searchIndex == 0) ? _ordinates[0].Y : InterpolateYFromX(xValues[0], _ordinates[searchIndex - 1], _ordinates[searchIndex], xTransform, yTransform);
-            //
-            double xValue;
-            if (OrderX == SortOrder.Ascending)
-            {
-                for (int i = 1; i < xValues.Count; i++)
-                {
-                    xValue = xValues[i];
-                    for (int j = searchIndex; j < _ordinates.Count; j++)
-                    {
-                        if (_ordinates[j].X >= xValue) { searchIndex = j; break; }
-                    }
-                    result[i] = (searchIndex == 0) ? _ordinates[0].Y : InterpolateYFromX(xValue, _ordinates[searchIndex - 1], _ordinates[searchIndex], xTransform, yTransform);
-                }
-            }
-            else
-            {
-                for (int i = 1; i < xValues.Count; i++)
-                {
-                    xValue = xValues[i];
-                    for (int j = searchIndex; j < _ordinates.Count; j++)
-                    {
-                        if (_ordinates[j].X <= xValue) { searchIndex = j; break; }
-                    }
-                    result[i] = (searchIndex == 0) ? _ordinates[0].Y : InterpolateYFromX(xValue, _ordinates[searchIndex - 1], _ordinates[searchIndex], xTransform, yTransform);
-                }
-            }
-
+            var result = new double[yValues.Count];
+            for (int i = 0; i < yValues.Count; i++)
+                result[i] = GetXFromY(yValues[i], xTransform, yTransform);
             return result;
-        }
-
-        /// <summary>
-        /// Samples a Y value for a given X from the X coordinates of the curve, solves the function F(X) = Y
-        /// </summary>
-        /// <param name="xValue">A value that represents the X, if the value is below the lowest x value, it returns the first y value, if the value is above the highest x value it returns the last y value</param>
-        /// <param name="xTransform">Interpolation transform for x values. Default is none. </param>
-        /// <param name="yTransform">Interpolation transform for y values. Default is none. </param>
-        /// <returns>An interpolated y value for a given x</returns>
-        public double GetYfromX(double xValue, Transform xTransform = Data.Transform.None, Transform yTransform = Data.Transform.None)
-        {
-            int index = BinarySearchX(xValue);
-            if (index < -1)
-            {
-                index = -1 * index - 1;
-                if (index == _ordinates.Count)
-                {
-                    return _ordinates.Last().Y;
-                }
-                else
-                {
-                    return InterpolateYFromX(xValue, _ordinates[index - 1], _ordinates[index], xTransform, yTransform);
-                }
-            }
-            else if (index == -1)
-            {
-                return _ordinates[0].Y;
-            }
-            else
-            {
-                return _ordinates[index].Y;
-            }
-        }
-
-        /// <summary>
-        /// Samples a X value based on a given Y from the Y coordinates of the curve, solves the inverse function of F(X)=Y
-        /// </summary>
-        /// <param name="yValue">A value that represents the Y, if the value is below the lowest y value, it returns the lowest x value, if the value is above the highest y value it returns the highest x value</param>
-        /// <param name="xTransform">Interpolation transform for x values. Default is none. </param>
-        /// <param name="yTransform">Interpolation transform for y values. Default is none. </param>
-        /// <returns>an x value for a given y</returns>
-        /// <remarks></remarks>
-        public double GetXfromY(double yValue, Transform xTransform = Data.Transform.None, Transform yTransform = Data.Transform.None)
-        {
-            int index = BinarySearchY(yValue);
-            if (index < -1)
-            {
-                index = -1 * index - 1;
-                if (index == _ordinates.Count)
-                {
-                    return _ordinates.Last().X;
-                }
-                else
-                {
-                    return InterpolateXFromY(yValue, _ordinates[index - 1], _ordinates[index], xTransform, yTransform);
-                }
-            }
-            else if (index == -1)
-            {
-                return _ordinates[0].X;
-            }
-            else
-            {
-                return _ordinates[index].X;
-            }
-        }
-
-        /// <summary>
-        /// Calculates the interpolated Y value for a given X between two ordinates.
-        /// </summary>
-        /// <param name="x">Given X value to interpolate between two ordinates.</param>
-        /// <param name="p1">First ordinate point.</param>
-        /// <param name="p2">Second ordinate point.</param>
-        /// <param name="xTransform">Interpolation transform for x values.</param>
-        /// <param name="yTransform">Interpolation transform for y values.</param>
-        /// <returns>Y value for the given X between two points.</returns>
-        public static double InterpolateYFromX(double x, Ordinate p1, Ordinate p2, Transform xTransform, Transform yTransform)
-        {
-            double xValue = default, x1 = default, x2 = default;
-            double y1, y2;
-            // 
-            switch (xTransform)
-            {
-                case Data.Transform.None:
-                    {
-                        xValue = x;
-                        x1 = p1.X;
-                        x2 = p2.X;
-                        break;
-                    }
-
-                case Data.Transform.Logarithmic:
-                    {
-                        xValue = Tools.Log10(x);
-                        x1 = Tools.Log10(p1.X);
-                        x2 = Tools.Log10(p2.X);
-                        break;
-                    }
-
-                case Data.Transform.NormalZ:
-                    {
-                        xValue = Normal.StandardZ(x);
-                        x1 = Normal.StandardZ(p1.X);
-                        x2 = Normal.StandardZ(p2.X);
-                        break;
-                    }
-            }
-            // 
-            switch (yTransform)
-            {
-                case Data.Transform.None:
-                    {
-                        y1 = p1.Y;
-                        y2 = p2.Y;
-                        return y1 + (xValue - x1) / (x2 - x1) * (y2 - y1);
-                    }
-
-                case Data.Transform.Logarithmic:
-                    {
-                        y1 = Tools.Log10(p1.Y);
-                        y2 = Tools.Log10(p2.Y);
-                        return Math.Pow(10d, y1 + (xValue - x1) / (x2 - x1) * (y2 - y1));
-                    }
-
-                case Data.Transform.NormalZ:
-                    {
-                        y1 = Normal.StandardZ(p1.Y);
-                        y2 = Normal.StandardZ(p2.Y);
-                        return Normal.StandardCDF(y1 + (xValue - x1) / (x2 - x1) * (y2 - y1));
-                    }
-            }
-
-            return default;
-        }
-
-        /// <summary>
-        /// Calculates the interpolated X value for a given Y between two ordinates.
-        /// </summary>
-        /// <param name="y">Given Y value to interpolate between two ordinates.</param>
-        /// <param name="p1">First ordinate point.</param>
-        /// <param name="p2">Second ordinate point.</param>
-        /// <param name="xTransform">Interpolation transform for x values.</param>
-        /// <param name="yTransform">Interpolation transform for y values.</param>
-        /// <returns>X value for the given Y between two points.</returns>
-        public static double InterpolateXFromY(double y, Ordinate p1, Ordinate p2, Transform xTransform, Transform yTransform)
-        {
-            double x1 = default, x2 = default;
-            double yValue, y1, y2;
-            // 
-            switch (xTransform)
-            {
-                case Data.Transform.None:
-                    {
-                        x1 = p1.X;
-                        x2 = p2.X;
-                        break;
-                    }
-
-                case Data.Transform.Logarithmic:
-                    {
-                        x1 = Tools.Log10(p1.X);
-                        x2 = Tools.Log10(p2.X);
-                        break;
-                    }
-
-                case Data.Transform.NormalZ:
-                    {
-                        x1 = Normal.StandardZ(p1.X);
-                        x2 = Normal.StandardZ(p2.X);
-                        break;
-                    }
-            }
-            // 
-            switch (yTransform)
-            {
-                case Data.Transform.None:
-                    {
-                        yValue = y;
-                        y1 = p1.Y;
-                        y2 = p2.Y;
-                        return x1 + (yValue - y1) / (y2 - y1) * (x2 - x1);
-                    }
-
-                case Data.Transform.Logarithmic:
-                    {
-                        yValue = Tools.Log10(y);
-                        y1 = Tools.Log10(p1.Y);
-                        y2 = Tools.Log10(p2.Y);
-                        return Math.Pow(10d, x1 + (yValue - y1) / (y2 - y1) * (x2 - x1));
-                    }
-
-                case Data.Transform.NormalZ:
-                    {
-                        yValue = Normal.StandardZ(y);
-                        y1 = Normal.StandardZ(p1.Y);
-                        y2 = Normal.StandardZ(p2.Y);
-                        return Normal.StandardCDF(x1 + (yValue - y1) / (y2 - y1) * (x2 - x1));
-                    }
-            }
-
-            return default;
-        }
-
-        /// <summary> 
-        /// Transforms target with another OrderedPairedData collection into a new OrderedPairedData collection.
-        /// </summary>
-        /// <param name="transformFunction">The OrderedPairedData collection to be used for composition with target.</param>
-        /// <param name="sourceCommonVariableX">Defines which ordinate value (x or y) the target function shares with the transform.</param>
-        /// <param name="transformCommonVariableX">Defines which ordinate value (x or y) the transform function shares with the target.</param>
-        /// <param name="xTransform">Interpolation transform for x values.</param>
-        /// <param name="yTransform">Interpolation transform for y values.</param>
-        public OrderedPairedData Transform(OrderedPairedData transformFunction, bool sourceCommonVariableX = true, bool transformCommonVariableX = true, Transform xTransform = Data.Transform.None, Transform yTransform = Data.Transform.None)
-        {
-            // Determine the starting index and the step direction which changes depending on ascending or descending order.
-            int sourceStep = 1;
-            int sourceIndex = 0;
-            if (sourceCommonVariableX == true & OrderX == SortOrder.None)
-                throw new ConstraintException("x values of source must be in a sorted order to transform.");
-            if (transformCommonVariableX == true & transformFunction.OrderX == SortOrder.None)
-                throw new ConstraintException("x values of transform must be in a sorted order to transform.");
-            if (sourceCommonVariableX == false & OrderY == SortOrder.None)
-                throw new ConstraintException("y values of source must be in a sorted order to transform.");
-            if (transformCommonVariableX == false & transformFunction.OrderY == SortOrder.None)
-                throw new ConstraintException("y values of transform must be in a sorted order to transform.");
-            if (sourceCommonVariableX == true & OrderX == SortOrder.Descending)
-            {
-                sourceStep = -1;
-                sourceIndex = _ordinates.Count - 1;
-            }
-
-            if (sourceCommonVariableX == false & OrderY == SortOrder.Descending)
-            {
-                sourceStep = -1;
-                sourceIndex = _ordinates.Count - 1;
-            }
-            // 
-            var tOrdinates = transformFunction._ordinates;
-            int transformStep = 1;
-            int transformIndex = 0;
-            if (transformCommonVariableX == true & transformFunction.OrderX == SortOrder.Descending)
-            {
-                transformStep = -1;
-                transformIndex = tOrdinates.Count - 1;
-            }
-
-            if (transformCommonVariableX == false & transformFunction.OrderY == SortOrder.Descending)
-            {
-                transformStep = -1;
-                transformIndex = tOrdinates.Count - 1;
-            }
-            // 
-            // Find the first index to start at, need to ignore non-overlapping sections.
-
-            if (sourceCommonVariableX & transformCommonVariableX)
-            {
-                if (_ordinates[sourceIndex].X > tOrdinates[transformIndex].X)
-                {
-                    transformIndex += transformStep;
-                    while (_ordinates[sourceIndex].X >= tOrdinates[transformIndex].X)
-                        transformIndex += transformStep;
-                }
-                else
-                {
-                    sourceIndex += sourceStep;
-                    while (_ordinates[sourceIndex].X <= tOrdinates[transformIndex].X)
-                        sourceIndex += sourceStep;
-                }
-            }
-            else if (sourceCommonVariableX & transformCommonVariableX == false)
-            {
-                if (_ordinates[sourceIndex].X > tOrdinates[transformIndex].Y)
-                {
-                    transformIndex += transformStep;
-                    while (_ordinates[sourceIndex].X >= tOrdinates[transformIndex].Y)
-                        transformIndex += transformStep;
-                }
-                else
-                {
-                    sourceIndex += sourceStep;
-                    while (_ordinates[sourceIndex].X <= tOrdinates[transformIndex].Y)
-                        sourceIndex += sourceStep;
-                }
-            }
-            else if (sourceCommonVariableX == false & transformCommonVariableX)
-            {
-                if (_ordinates[sourceIndex].Y > tOrdinates[transformIndex].X)
-                {
-                    transformIndex += transformStep;
-                    while (_ordinates[sourceIndex].Y >= tOrdinates[transformIndex].X)
-                        transformIndex += transformStep;
-                }
-                else
-                {
-                    sourceIndex += sourceStep;
-                    while (_ordinates[sourceIndex].Y <= tOrdinates[transformIndex].X)
-                        sourceIndex += sourceStep;
-                }
-            }
-            else if (sourceCommonVariableX == false & transformCommonVariableX == false)
-            {
-                if (_ordinates[sourceIndex].Y > tOrdinates[transformIndex].Y)
-                {
-                    transformIndex += transformStep;
-                    while (_ordinates[sourceIndex].Y >= tOrdinates[transformIndex].Y)
-                        transformIndex += transformStep;
-                }
-                else
-                {
-                    sourceIndex += sourceStep;
-                    while (_ordinates[sourceIndex].Y <= tOrdinates[transformIndex].Y)
-                        sourceIndex += sourceStep;
-                }
-            }
-            // compose the two curves up to the overlapping areas.
-            var xValues = new List<double>(); // always from source
-            var yValues = new List<double>(); // always from target
-            if (sourceCommonVariableX & transformCommonVariableX)
-            {
-                while (!(sourceIndex < 0 | sourceIndex == _ordinates.Count | transformIndex < 0 | transformIndex == tOrdinates.Count))
-                {
-                    if (_ordinates[sourceIndex].X == tOrdinates[transformIndex].X)
-                    {
-                        xValues.Add(_ordinates[sourceIndex].Y);
-                        yValues.Add(tOrdinates[transformIndex].Y);
-                        transformIndex += transformStep;
-                        sourceIndex += sourceStep;
-                    }
-                    else if (_ordinates[sourceIndex].X > tOrdinates[transformIndex].X)
-                    {
-                        xValues.Add(InterpolateYFromX(tOrdinates[transformIndex].X, _ordinates[sourceIndex - 1], _ordinates[sourceIndex], xTransform, yTransform)); // GetYfromX(tOrdinates(transformIndex).X))
-                        yValues.Add(tOrdinates[transformIndex].Y);
-                        transformIndex += transformStep;
-                    }
-                    else
-                    {
-                        xValues.Add(_ordinates[sourceIndex].Y);
-                        yValues.Add(InterpolateYFromX(_ordinates[sourceIndex].X, tOrdinates[transformIndex - 1], tOrdinates[transformIndex], xTransform, yTransform)); // transform.GetYfromX(_ordinates(sourceIndex).X))
-                        sourceIndex += sourceStep;
-                    }
-                }
-            }
-            else if (sourceCommonVariableX & transformCommonVariableX == false)
-            {
-                while (!(sourceIndex < 0 | sourceIndex == _ordinates.Count | transformIndex < 0 | transformIndex == tOrdinates.Count))
-                {
-                    if (_ordinates[sourceIndex].X == tOrdinates[transformIndex].Y)
-                    {
-                        xValues.Add(_ordinates[sourceIndex].Y);
-                        yValues.Add(tOrdinates[transformIndex].X);
-                        transformIndex += transformStep;
-                        sourceIndex += sourceStep;
-                    }
-                    else if (_ordinates[sourceIndex].X > tOrdinates[transformIndex].Y)
-                    {
-                        xValues.Add(InterpolateYFromX(tOrdinates[transformIndex].Y, _ordinates[sourceIndex - 1], _ordinates[sourceIndex], xTransform, yTransform)); // GetYfromX(tOrdinates(transformIndex).Y))
-                        yValues.Add(tOrdinates[transformIndex].X);
-                        transformIndex += transformStep;
-                    }
-                    else
-                    {
-                        xValues.Add(_ordinates[sourceIndex].Y);
-                        yValues.Add(InterpolateXFromY(_ordinates[sourceIndex].X, tOrdinates[transformIndex - 1], tOrdinates[transformIndex], xTransform, yTransform)); // transform.GetXfromY(_ordinates(sourceIndex).X))
-                        sourceIndex += sourceStep;
-                    }
-                }
-            }
-            else if (sourceCommonVariableX == false & transformCommonVariableX)
-            {
-                while (!(sourceIndex < 0 | sourceIndex == _ordinates.Count | transformIndex < 0 | transformIndex == tOrdinates.Count))
-                {
-                    if (_ordinates[sourceIndex].Y == tOrdinates[transformIndex].X)
-                    {
-                        xValues.Add(_ordinates[sourceIndex].X);
-                        yValues.Add(tOrdinates[transformIndex].Y);
-                        transformIndex += transformStep;
-                        sourceIndex += sourceStep;
-                    }
-                    else if (_ordinates[sourceIndex].Y > tOrdinates[transformIndex].X)
-                    {
-                        xValues.Add(InterpolateXFromY(tOrdinates[transformIndex].X, _ordinates[sourceIndex - 1], _ordinates[sourceIndex], xTransform, yTransform)); // GetXfromY(tOrdinates(transformIndex).X))
-                        yValues.Add(tOrdinates[transformIndex].Y);
-                        transformIndex += transformStep;
-                    }
-                    else
-                    {
-                        xValues.Add(_ordinates[sourceIndex].X);
-                        yValues.Add(InterpolateYFromX(_ordinates[sourceIndex].Y, tOrdinates[transformIndex - 1], tOrdinates[transformIndex], xTransform, yTransform)); // .GetYfromX(_ordinates(sourceIndex).Y))
-                        sourceIndex += sourceStep;
-                    }
-                }
-            }
-            else if (sourceCommonVariableX == false & transformCommonVariableX == false)
-            {
-                while (!(sourceIndex < 0 | sourceIndex == _ordinates.Count | transformIndex < 0 | transformIndex == tOrdinates.Count))
-                {
-                    if (_ordinates[sourceIndex].Y == tOrdinates[transformIndex].Y)
-                    {
-                        xValues.Add(_ordinates[sourceIndex].X);
-                        yValues.Add(tOrdinates[transformIndex].X);
-                        transformIndex += transformStep;
-                        sourceIndex += sourceStep;
-                    }
-                    else if (_ordinates[sourceIndex].Y > tOrdinates[transformIndex].Y)
-                    {
-                        xValues.Add(InterpolateXFromY(tOrdinates[transformIndex].Y, _ordinates[sourceIndex - sourceStep], _ordinates[sourceIndex], xTransform, yTransform)); // GetXfromY(tOrdinates(transformIndex).Y))
-                        yValues.Add(tOrdinates[transformIndex].X);
-                        transformIndex += transformStep;
-                    }
-                    else
-                    {
-                        xValues.Add(_ordinates[sourceIndex].X);
-                        yValues.Add(InterpolateXFromY(_ordinates[sourceIndex].Y, tOrdinates[transformIndex - transformStep], tOrdinates[transformIndex], xTransform, yTransform)); // transform.GetXfromY(_ordinates(sourceIndex).Y))
-                        sourceIndex += sourceStep;
-                    }
-                }
-            }
-            // 
-            bool strictOnX = StrictX;
-            var orderOnX = OrderX;
-            if (sourceCommonVariableX == true)
-            {
-                strictOnX = StrictY;
-                orderOnX = OrderY;
-            }
-
-            bool strictOnY = transformFunction.StrictX;
-            var orderOnY = transformFunction.OrderX;
-            if (transformCommonVariableX == true)
-            {
-                strictOnY = transformFunction.StrictY;
-                orderOnY = transformFunction.OrderY;
-            }
-
-            return new OrderedPairedData(xValues, yValues, strictOnX, orderOnX, strictOnY, orderOnY);
         }
 
         #endregion

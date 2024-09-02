@@ -152,12 +152,30 @@ namespace Distributions.Univariate
         public void Test_2D_Mixture_MLE()
         {
             var mix = new Mixture(new[] { 0.7, 0.3 }, new[] { new Normal(0, 1), new Normal(3, 0.1) });
-            var sample = mix.GenerateRandomValues(100, 12345);
+            var sample = mix.GenerateRandomValues(1000, 12345);
             mix.Estimate(sample, ParameterEstimationMethod.MaximumLikelihood);
 
         }
 
+        [TestMethod]
+        public void Test_2D_Mixture_MLE_Zero()
+        {
+            var mix = new Mixture(new[] { 0.6, 0.3 }, new[] { new Normal(3, 0.1), new Normal(5, 2) });
+            mix.IsZeroInflated = true;
+            mix.ZeroWeight = 0.1;
+            var sample = mix.GenerateRandomValues(1000, 12345);
+            mix.Estimate(sample, ParameterEstimationMethod.MaximumLikelihood);
 
+        }
+
+        [TestMethod]
+        public void Test_3D_Mixture_MLE()
+        {
+            var mix = new Mixture(new[] { 0.5, 0.3, 0.2 }, new[] { new Normal(0, 1), new Normal(3, 0.1), new Normal(5, 2) });
+            var sample = mix.GenerateRandomValues(1000, 12345);
+            mix.Estimate(sample, ParameterEstimationMethod.MaximumLikelihood);
+
+        }
 
     }
 }

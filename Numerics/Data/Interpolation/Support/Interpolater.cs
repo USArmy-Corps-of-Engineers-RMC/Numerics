@@ -121,8 +121,8 @@ namespace Numerics.Data
         /// Given a value x, returns an interpolated value.
         /// </summary>
         /// <param name="x">The value to interpolate.</param>
-        /// <param name="start">The zero-based index to start the search from.</param>
-        public abstract double RawInterpolate(double x, int start);
+        /// <param name="index">The zero-based index of the lower bound of the interpolation interval.</param>
+        public abstract double BaseInterpolate(double x, int index);
 
         /// <summary>
         /// Given a list of x-values, returns an array of interpolated values.
@@ -142,7 +142,7 @@ namespace Numerics.Data
         /// <param name="x">The value to interpolate.</param>
         public double Interpolate(double x)
         {        
-            return RawInterpolate(x, Search(x));
+            return BaseInterpolate(x, Search(x));
         }
 
         /// <summary>

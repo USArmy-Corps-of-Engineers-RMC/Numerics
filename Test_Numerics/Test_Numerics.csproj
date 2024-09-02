@@ -69,7 +69,6 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Data\Classification\Test_Classification.cs" />
     <Compile Include="Data\Interpolation\Test_Linear.cs" />
     <Compile Include="Data\Interpolation\Test_CubicSpline.cs" />
     <Compile Include="Data\Interpolation\Test_Polynomial.cs" />

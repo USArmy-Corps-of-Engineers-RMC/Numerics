@@ -130,7 +130,7 @@ namespace Numerics.Sampling.MCMC
                 mvn[i] = new MultivariateNormal(NumberOfParameters);
                 sigma[i] = new RunningCovarianceMatrix(NumberOfParameters);
 
-                if (InitializeWithMAP && _mapSuccessful)
+                if (Initialize == InitializationType.MAP && _mapSuccessful)
                 {
                     // Hot start the covariance matrix
                     for (int j = 0; j < NumberOfParameters; j++)

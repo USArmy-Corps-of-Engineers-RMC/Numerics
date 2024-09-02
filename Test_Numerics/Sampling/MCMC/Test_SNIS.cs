@@ -76,7 +76,7 @@ namespace Sampling.MCMC
 
             // Create and run sampler
             var sampler = new SNIS(priors, logLH);
-            sampler.InitializeWithMAP = true;
+            sampler.Initialize = MCMCSampler.InitializationType.MAP;
             sampler.Sample();
             var results = new MCMCResults(sampler);
 

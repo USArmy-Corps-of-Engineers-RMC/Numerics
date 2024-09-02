@@ -165,7 +165,6 @@ namespace Numerics.MachineLearning
             Means = Initialize(X, K, seed, kMeansPlusPlus);
 
             // 2. Optimize clusters
-            Iterations = 0;
             for (Iterations = 1; Iterations <= MaxIterations; Iterations++)
             {
                 // Perform E-step
@@ -252,7 +251,7 @@ namespace Numerics.MachineLearning
                         sum += min;
                     }
 
-                    // Following Acord.Net checks:
+                    // Following Accord.Net checks:
                     // https://github.com/accord-net/framework/blob/development/Sources/Accord.MachineLearning/Clustering/KMeans/KMeans.cs
                     
                     // Note: the following checks could have been avoided if we added
@@ -283,7 +282,7 @@ namespace Numerics.MachineLearning
                         }
                             
                     }
-                    for (int j = 0; j < X.NumberOfColumns; j++)
+                    for (int j = 0; j < X.NumberOfColumns; j++) 
                         centroids[c, j] = X[idx, j];
                 }
             }
@@ -316,13 +315,13 @@ namespace Numerics.MachineLearning
             for (int i = 0; i < X.NumberOfRows; i++)
             {
                 count[labels[i]]++;
-                for (int j = 0; j < Dimension; ++j)
+                for (int j = 0; j < Dimension; j++)
                     centroids[labels[i], j] += X[i, j];
             };
 
             // Get mean of clusters
-            for (int k = 0; k < K; ++k)
-                for (int j = 0; j < Dimension; ++j)
+            for (int k = 0; k < K; k++)
+                for (int j = 0; j < Dimension; j++)
                     centroids[k, j] /= count[k] > 0 ? count[k] : 1;
             
             return centroids;

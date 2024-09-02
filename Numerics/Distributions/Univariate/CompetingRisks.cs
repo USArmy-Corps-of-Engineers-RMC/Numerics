@@ -28,7 +28,6 @@
 * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-using Microsoft.VisualBasic.ApplicationServices;
 using Numerics.Data;
 using Numerics.Data.Statistics;
 using Numerics.Mathematics;
@@ -83,6 +82,9 @@ namespace Numerics.Distributions
         private bool _momentsComputed = false;
         private double u1, u2, u3, u4;
         private bool _inverseCDFCreated = false;
+        private double[,] _correlationMatrix;
+        private bool _mvnCreated = false;
+        private MultivariateNormal _mvn;
 
         /// <summary>
         /// Returns the array of univariate probability distributions.
@@ -108,6 +110,20 @@ namespace Numerics.Distributions
         /// The dependency between random variables. 
         /// </summary>
         public Probability.DependencyType Dependency { get; set; } = Probability.DependencyType.Independent;
+
+        /// <summary>
+        /// The correlation matrix used for modeling dependency between the marginal distributions.
+        /// This is only used when the Dependency Type = CorrelationMatrix.
+        /// </summary>
+        public double[,] CorrelationMatrix 
+        { 
+            get {  return _correlationMatrix; } 
+            set
+            {
+                _correlationMatrix = value;
+                _mvnCreated = false;
+            }
+        }
 
         /// <inheritdoc/>
         public override int NumberOfParameters
@@ -323,6 +339,7 @@ namespace Numerics.Distributions
             _distributions = distributions;
             _momentsComputed = false;
             _inverseCDFCreated = false;
+            _mvnCreated = false;
         }
 
         /// <summary>
@@ -339,6 +356,7 @@ namespace Numerics.Distributions
             }
             _momentsComputed = false;
             _inverseCDFCreated = false;
+            _mvnCreated = false;
         }
 
         /// <inheritdoc/>
@@ -357,6 +375,10 @@ namespace Numerics.Distributions
                 Distributions[i].SetParameters(parms);
                 t += Distributions[i].NumberOfParameters;
             }
+
+            _momentsComputed = false;
+            _inverseCDFCreated = false;
+            _mvnCreated = false;
         }
 
         /// <inheritdoc/>
@@ -422,7 +444,6 @@ namespace Numerics.Distributions
             return solver.BestParameterSet.Values;
         }
 
-
         /// <inheritdoc/>
         public override double PDF(double x)
         {     
@@ -462,17 +483,41 @@ namespace Numerics.Distributions
         public override double CDF(double x)
         {
             double p = double.NaN;
-            var cdf = new List<double>();
+            var ind = new int[Distributions.Count];
+            var cdf = new double[Distributions.Count];
             for (int i = 0; i < Distributions.Count; i++)
-                cdf.Add(Distributions[i].CDF(x));
-            
+            {
+                ind[i] = 1;
+                cdf[i] = Distributions[i].CDF(x);
+            }
+
             if (MinimumOfRandomVariables == true)
             {
-                p = Probability.Union(cdf, Dependency);
+                
+                if (Dependency == Probability.DependencyType.PerfectlyNegative || Dependency == Probability.DependencyType.CorrelationMatrix)
+                {
+                    if (_mvnCreated == false)
+                        CreateMultivariateNormal();
+                    p = Probability.Union(cdf, _mvn);
+                }
+                else
+                {
+                    p = Probability.Union(cdf, Dependency);
+                }
             }
             else
             {
-                p = Probability.JointProbability(cdf, Dependency);
+                if (Dependency == Probability.DependencyType.CorrelationMatrix)
+                {
+                    if (_mvnCreated == false)
+                        CreateMultivariateNormal();
+                    p = Probability.JointProbability(cdf, ind, _mvn);
+                }
+                else
+                {
+                    p = Probability.JointProbability(cdf, Dependency);
+                }
+                
             }
             return p < 0d ? 0d : p > 1d ? 1d : p;
         }
@@ -521,8 +566,7 @@ namespace Numerics.Distributions
         /// Returns a list of cumulative incidence functions. 
         /// </summary>
         /// <param name="bins">Optional. The stratification bins to integrate over. Default is 200 bins.</param>
-        /// <param name="correlationMatrix"></param>
-        public List<EmpiricalDistribution> CumulativeIncidenceFunctions(List<StratificationBin> bins = null, double[,] correlationMatrix = null)
+        public List<EmpiricalDistribution> CumulativeIncidenceFunctions(List<StratificationBin> bins = null)
         {
             // Get stratification bins
             if (bins == null)
@@ -535,100 +579,140 @@ namespace Numerics.Distributions
             }
 
             var D = Distributions.Count();
-            var mu = new double[D];
-            var sigma = new double[D, D];
-            MultivariateNormal multivariateNormal = null;
-            if (Dependency == Probability.DependencyType.PerfectlyNegative)
-            {
-                double rho = -1d / (D - 1d) + Math.Sqrt(Tools.DoubleMachineEpsilon);
-                for (int i = 0; i < D; i++)
-                {
-                    mu[i] = 0d;
-                    for (int j = 0; j < D; j++)
-                        sigma[i, j] = i == j ? 1d : rho;
-                }
-                multivariateNormal = new MultivariateNormal(mu, sigma);
-            }
-            else if (correlationMatrix != null)
-            {
-                for (int i = 0; i < D; i++)
-                {
-                    mu[i] = 0d;
-                    for (int j = 0; j < D; j++)
-                        sigma[i, j] = correlationMatrix[i, j];
-                }
-                multivariateNormal = new MultivariateNormal(mu, sigma);
-            }
-
-
-            // *** Haden PCM Method ( 2-16-2024) *** //
-            double SF1 = 0, SF2 = 0;
-            var lower = new double[D];
-            var upper = new double[D];
-            var pm = new double[D];
-            var pl = new double[D];
-            var pu = new double[D];
-            var ind = new int[D];
-            ind.Fill(1);
             var x = new List<double[]>();
             var p = new List<double[]>();
             var dF = new List<double[]>();
 
-            for (int i = 0; i < D; i++)
+            if (Dependency == Probability.DependencyType.PerfectlyNegative || Dependency == Probability.DependencyType.CorrelationMatrix)
             {
-                x.Add(new double[bins.Count + 1]);
-                p.Add(new double[bins.Count + 1]);
-                dF.Add(new double[bins.Count + 1]);
+                /* 
+                * For perfect negative dependency or a custom correlation matrix,
+                * use the Genz Method. This method is slow but accurate.
+                */
 
-                // Record first bin
-                x[i][0] = bins[0].LowerBound;
-                for (int k = 0; k < D; k++)
-                {
-                    pm[k] = Distributions[k].CCDF(bins[0].Midpoint);
-                    pu[k] = k == i ? Distributions[k].CDF(bins[0].LowerBound) : pm[k];
-                }
-                if (Dependency == Probability.DependencyType.Independent || Dependency == Probability.DependencyType.PerfectlyPositive)
-                {
-                    dF[i][0] = Probability.JointProbability(pu, Dependency);
-                }
-                else if (Dependency == Probability.DependencyType.PerfectlyNegative || correlationMatrix != null)
-                {
-                    dF[i][0] = Probability.JointProbability(pu, ind, sigma, Probability.DependencyType.CorrelationMatrix);
-                }
-                if (double.IsNaN(dF[i][0])) dF[i][0] = 0;
-                dF[i][0] = Math.Max(0, Math.Min(1, dF[i][0]));
-                p[i][0] = dF[i][0];
+                if (_mvnCreated == false)
+                    CreateMultivariateNormal();
 
-                // Record remaining bins
-                for (int j = 0; j < bins.Count; j++)
+                var lower = new double[D];
+                var upper = new double[D];
+                for (int i = 0; i < D; i++)
                 {
-                    x[i][j + 1] = bins[j].UpperBound;
+                    x.Add(new double[bins.Count + 1]);
+                    p.Add(new double[bins.Count + 1]);
+                    dF.Add(new double[bins.Count + 1]);
+
+                    // Record the first bin
+                    x[i][0] = bins[0].LowerBound;
                     for (int k = 0; k < D; k++)
                     {
-                        //pm[k] = Distributions[k].CCDF(bins[j].Midpoint);
-                        //pl[k] = k == i ? Distributions[k].CCDF(bins[j].UpperBound) : pm[k];
-                        //pu[k] = k == i ? Distributions[k].CCDF(bins[j].LowerBound) : pm[k];
+                        if (MinimumOfRandomVariables == true)
+                        {
+                            lower[k] = k == i ? Normal.StandardZ(1E-16) : Normal.StandardZ(Distributions[k].CDF(bins[0].LowerBound));
+                            upper[k] = k == i ? Normal.StandardZ(Distributions[i].CDF(bins[0].LowerBound)) : Normal.StandardZ(1 - 1E-16);
+                        }
+                        else
+                        {
+                            lower[k] = Normal.StandardZ(1E-16);
+                            upper[k] = Normal.StandardZ(Distributions[i].CDF(bins[0].LowerBound));
+                        }
+                    }
+                    dF[i][0] = _mvn.Interval(lower, upper);
+                    if (double.IsNaN(dF[i][0])) dF[i][0] = 0;
+                    dF[i][0] = Math.Max(0, Math.Min(1, dF[i][0]));
+                    p[i][0] = dF[i][0];
 
-                        pm[k] = Distributions[k].CCDF(bins[j].Midpoint);
-                        pl[k] = k == i ? pm[k] : Distributions[k].CCDF(bins[j].UpperBound);
-                        pu[k] = k == i ? pm[k] : Distributions[k].CCDF(bins[j].LowerBound);
-                    }
-                    if (correlationMatrix == null && (Dependency == Probability.DependencyType.Independent || Dependency == Probability.DependencyType.PerfectlyPositive))
+                    // Record the remaining bins
+                    for (int j = 0; j < bins.Count; j++)
                     {
-                        SF1 = Probability.JointProbability(pl, Dependency);
-                        SF2 = Probability.JointProbability(pu, Dependency);
+                        x[i][j + 1] = bins[j].UpperBound;
+                        for (int k = 0; k < D; k++)
+                        {
+                            if (MinimumOfRandomVariables == true)
+                            {
+                                lower[k] = k == i ? Normal.StandardZ(Distributions[i].CDF(bins[j].LowerBound)) : Normal.StandardZ(Distributions[k].CDF(bins[j].Midpoint));
+                                upper[k] = k == i ? Normal.StandardZ(Distributions[i].CDF(bins[j].UpperBound)) : Normal.StandardZ(1 - 1E-16);
+                            }
+                            else
+                            {
+                                lower[k] = k == i ? Normal.StandardZ(Distributions[i].CDF(bins[j].LowerBound)) : Normal.StandardZ(1E-16);
+                                upper[k] = k == i ? Normal.StandardZ(Distributions[i].CDF(bins[j].UpperBound)) : Normal.StandardZ(Distributions[k].CDF(bins[j].Midpoint));
+                            }
+                        }
+                        dF[i][j + 1] = _mvn.Interval(lower, upper);
+                        if (double.IsNaN(dF[i][j + 1])) dF[i][j + 1] = 0;
+                        dF[i][j + 1] = Math.Max(0, Math.Min(1, dF[i][j + 1]));
                     }
-                    else if (correlationMatrix != null || Dependency == Probability.DependencyType.PerfectlyNegative)
-                    {
-                        SF1 = Probability.JointProbability(pl, ind, sigma, Probability.DependencyType.CorrelationMatrix);
-                        SF2 = Probability.JointProbability(pu, ind, sigma, Probability.DependencyType.CorrelationMatrix);
-                    }
-
-                    dF[i][j + 1] = SF2 - SF1;
-                    if (double.IsNaN(dF[i][j + 1])) dF[i][j + 1] = 0;
-                    dF[i][j + 1] = Math.Max(0, Math.Min(1, dF[i][j + 1]));
                 }
+            }
+            else if (Dependency == Probability.DependencyType.Independent || Dependency == Probability.DependencyType.PerfectlyPositive)
+            {
+                /* 
+                * For perfect independent or perfectly positive,
+                * use the "Delta Method" developed by Haden Smith and Dave Margo.
+                * It is fast and accurate.
+                */
 
+                double F1 = 0, F2 = 0;
+                var pm = new double[D];
+                var pl = new double[D];
+                var pu = new double[D];
+                var ind = new int[D];
+                ind.Fill(1);
+
+                for (int i = 0; i < D; i++)
+                {
+                    x.Add(new double[bins.Count + 1]);
+                    p.Add(new double[bins.Count + 1]);
+                    dF.Add(new double[bins.Count + 1]);
+
+                    // Record first bin
+                    x[i][0] = bins[0].LowerBound;
+                    for (int k = 0; k < D; k++)
+                    {
+                        if (MinimumOfRandomVariables == true)
+                        {
+                            pl[k] = k == i ? Distributions[k].CCDF(bins[0].LowerBound) : Distributions[k].CCDF(bins[0].LowerBound);
+                            pu[k] = k == i ? 1.0 : Distributions[k].CCDF(bins[0].LowerBound);
+                        }
+                        else
+                        {
+                            pu[k] = Distributions[k].CDF(bins[0].LowerBound);
+                        }
+                    }
+                    F1 = Probability.JointProbability(pl, Dependency);
+                    F2 = Probability.JointProbability(pu, Dependency);
+                    dF[i][0] = F2 - F1;
+                    if (double.IsNaN(dF[i][0])) 
+                        dF[i][0] = 0;
+                    dF[i][0] = Math.Max(0, Math.Min(1, dF[i][0]));
+                    p[i][0] = dF[i][0];
+
+                    // Record remaining bins
+                    for (int j = 0; j < bins.Count; j++)
+                    {
+                        x[i][j + 1] = bins[j].UpperBound;
+                        for (int k = 0; k < D; k++)
+                        {
+                            if (MinimumOfRandomVariables == true)
+                            {
+                                pl[k] = k == i ? Distributions[k].CCDF(bins[j].UpperBound) : Distributions[k].CCDF(bins[j].Midpoint);
+                                pu[k] = k == i ? Distributions[k].CCDF(bins[j].LowerBound) : Distributions[k].CCDF(bins[j].Midpoint);
+                            }
+                            else
+                            {
+                                pl[k] = k == i ? Distributions[k].CDF(bins[j].LowerBound) : Distributions[k].CDF(bins[j].Midpoint);
+                                pu[k] = k == i ? Distributions[k].CDF(bins[j].UpperBound) : Distributions[k].CDF(bins[j].Midpoint);
+                            }
+
+                        }
+                        F1 = Probability.JointProbability(pl, Dependency);
+                        F2 = Probability.JointProbability(pu, Dependency);
+                        dF[i][j + 1] = F2 - F1;
+                        if (double.IsNaN(dF[i][j + 1])) 
+                            dF[i][j + 1] = 0;
+                        dF[i][j + 1] = Math.Max(0, Math.Min(1, dF[i][j + 1]));
+                    }
+                }
             }
 
             // Get cumulative probabilities and make sure they sum <= 1 across D
@@ -674,60 +758,38 @@ namespace Numerics.Distributions
         }
 
         /// <summary>
-        /// Returns a list of cumulative incidence functions. 
+        /// Create a Multivariate Normal distribution used for modeling dependency between the marginal distributions.
         /// </summary>
-        /// <param name="multivariateNormal">The multivariate normal distribution used for dependency.</param>
-        /// <param name="bins">Optional. The stratification bins to integrate over. Default is 200 bins.</param>
-        public List<EmpiricalDistribution> CumulativeIncidenceFunctions(MultivariateNormal multivariateNormal, List<StratificationBin> bins = null)
+        private void CreateMultivariateNormal()
         {
             var D = Distributions.Count();
-            if (multivariateNormal.Dimension != D)
-                throw new ArgumentException("The number of dimensions in the Multivariate Normal is not the same as the number of distributions.", nameof(multivariateNormal));
-
-            // Get stratification bins
-            if (bins == null)
+            var mu = new double[D];
+            var sigma = new double[D, D];
+            if (Dependency == Probability.DependencyType.PerfectlyNegative)
             {
-                double minP = 1E-16;
-                double maxP = 1 - 1E-16;
-                double minX = Distributions.Min(d => d.InverseCDF(minP));
-                double maxX = Distributions.Max(d => d.InverseCDF(maxP));
-                bins = Stratify.XValues(new StratificationOptions(minX, maxX, 200, false), XTransform == Transform.Logarithmic ? true : false);
+                CorrelationMatrix = new double[D, D];
+                double rho = -1d / (D - 1d) + Math.Sqrt(Tools.DoubleMachineEpsilon);
+                for (int i = 0; i < D; i++)
+                {
+                    mu[i] = 0d;
+                    for (int j = 0; j < D; j++)
+                        sigma[i, j] = i == j ? 1d : rho;
+                }
             }
-
-            // *** Genz Method that works as well. Do not delete *** //
-            var dF = new List<double[]>();
-            var CIFs = new List<EmpiricalDistribution>();
-            var lower = new double[D];
-            var upper = new double[D];
-            for (int i = 0; i < D; i++)
+            else
             {
-                var x = new List<double>();
-                var p = new List<double>();
-                x.Add(bins[0].LowerBound);
-                for (int k = 0; k < D; k++)
+                for (int i = 0; i < D; i++)
                 {
-                    lower[k] = k == i ? Normal.StandardZ(1E-16) : Normal.StandardZ(Distributions[k].CDF(bins[0].LowerBound));
-                    upper[k] = k == i ? Normal.StandardZ(Distributions[i].CDF(bins[0].LowerBound)) : Normal.StandardZ(1 - 1E-16);
+                    mu[i] = 0d;
+                    for (int j = 0; j < D; j++)
+                        sigma[i, j] = CorrelationMatrix[i, j];
                 }
-                p.Add(multivariateNormal.Interval(lower, upper));
-
-                for (int j = 0; j < bins.Count; j++)
-                {
-                    x.Add(bins[j].UpperBound);
-                    for (int k = 0; k < D; k++)
-                    {
-                        lower[k] = k == i ? Normal.StandardZ(Distributions[i].CDF(bins[j].LowerBound)) : Normal.StandardZ(Distributions[k].CDF(bins[j].Midpoint));
-                        upper[k] = k == i ? Normal.StandardZ(Distributions[i].CDF(bins[j].UpperBound)) : Normal.StandardZ(1 - 1E-16);
-                    }
-                    p.Add(p.Last() + multivariateNormal.Interval(lower, upper));
-                }
-                CIFs.Add(new EmpiricalDistribution(x, p));
             }
-
-            return CIFs;
+            _mvn = new MultivariateNormal(mu, sigma);
+            _mvnCreated = true;
         }
 
-        
+
         /// <summary>
         /// Create empirical distribution for the inverse CDF.
         /// </summary>
@@ -804,13 +866,17 @@ namespace Numerics.Distributions
             for (int i = 0; i < Distributions.Count; i++)
                 dists[i] = Distributions[i].Clone();
 
-            return new CompetingRisks(dists)
+            var cr = new CompetingRisks(dists)
             {
                 MinimumOfRandomVariables = MinimumOfRandomVariables,
                 Dependency = Dependency,
                 XTransform = XTransform,
                 ProbabilityTransform = ProbabilityTransform
             };
+            if (CorrelationMatrix != null)
+                cr.CorrelationMatrix = CorrelationMatrix.Clone() as double[,];
+
+            return cr;
         }
 
     }

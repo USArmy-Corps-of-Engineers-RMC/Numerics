@@ -74,7 +74,7 @@ namespace Numerics.Data
         public Transform YTransform { get; set; } = Transform.None;
 
         /// <inheritdoc/>
-        public override double RawInterpolate(double x, int start)
+        public override double BaseInterpolate(double x, int index)
         {
             // See if x is out of range
             if ((SortOrder == SortOrder.Ascending && x <= XValues[0]) || 
@@ -83,7 +83,7 @@ namespace Numerics.Data
                 (SortOrder == SortOrder.Descending && x <= XValues[Count - 1])) return YValues[Count - 1];
 
             double y, x1 = 0, x2 = 0, y1 = 0, y2 = 0;
-            int xlo = start, xhi = start + 1;
+            int xlo = index, xhi = index + 1;
 
             // Get X transform
             if (XTransform == Transform.None)
@@ -155,7 +155,7 @@ namespace Numerics.Data
         /// <param name="x">The value to extrapolate.</param>
         public double Extrapolate(double x)
         {
-            double y, x1 = 0, x2 = 0, y1 = 0, y2 = 0;
+            double y, x1, x2, y1, y2;
 
             // See if x is out of range
             if ((SortOrder == SortOrder.Ascending && x < XValues[0]) || (SortOrder == SortOrder.Descending && x > XValues[0]))

@@ -790,7 +790,7 @@ namespace Data.TimeSeriesAnalysis
             var values = new double[] { 122d, 244d, 214d, 173d, 229d, 156d, 212d, 263d, 146d, 183d, 161d, 205d, 135d, 331d, 225d, 174d, 98.8d, 149d, 238d, 262d, 132d, 235d, 216d, 240d, 230d, 192d, 195d, 172d, 173d, 172d, 153d, 142d, 317d, 161d, 201d, 204d, 194d, 164d, 183d, 161d, 167d, 179d, 185d, 117d, 192d, 337d, 125d, 166d, 99.1d, 202d, 230d, 158d, 262d, 154d, 164d, 182d, 164d, 183d, 171d, 250d, 184d, 205d, 237d, 177d, 239d, 187d, 180d, 173d, 174d };
             var ts = new TimeSeries(TimeInterval.OneMonth, new DateTime(2023, 01, 01), values);
 
-            var annualTS = ts.WaterYearSeries();
+            var annualTS = ts.CustomYearSeries();
 
             // why not the same as annual max series?
             var maxVals = new double[] { 263, 331, 317, 204, 337, 250 };
@@ -810,7 +810,7 @@ namespace Data.TimeSeriesAnalysis
             var values = new double[] { 122d, 244d, 214d, 173d, 229d, 156d, 212d, 263d, 146d, 183d, 161d, 205d, 135d, 331d, 225d, 174d, 98.8d, 149d, 238d, 262d, 132d, 235d, 216d, 240d, 230d, 192d, 195d, 172d, 173d, 172d, 153d, 142d, 317d, 161d, 201d, 204d, 194d, 164d, 183d, 161d, 167d, 179d, 185d, 117d, 192d, 337d, 125d, 166d, 99.1d, 202d, 230d, 158d, 262d, 154d, 164d, 182d, 164d, 183d, 171d, 250d, 184d, 205d, 237d, 177d, 239d, 187d, 180d, 173d, 174d };
             var ts = new TimeSeries(TimeInterval.OneMonth, new DateTime(2023, 01, 01), values);
 
-            var annualTS = ts.CustomYearSeries();
+            var annualTS = ts.CustomYearSeries(1, 12);
 
             // same values as annual max series test
             var maxVals = new double[] { 263, 331, 317, 337, 262, 239 };

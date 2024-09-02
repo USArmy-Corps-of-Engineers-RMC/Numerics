@@ -78,7 +78,7 @@ namespace Sampling.MCMC
 
             // Create and run sampler
             var sampler = new RWMH(priors, logLH, new Matrix(2));
-            sampler.InitializeWithMAP = true;
+            sampler.Initialize = MCMCSampler.InitializationType.MAP;
             sampler.Sample();
             var results = new MCMCResults(sampler);
 

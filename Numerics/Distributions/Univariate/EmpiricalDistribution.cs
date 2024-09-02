@@ -436,12 +436,12 @@ namespace Numerics.Distributions
             double p = 0;
             if (opd.OrderY == SortOrder.Ascending || opd.OrderY == SortOrder.None)
             {
-                p = opd.Interpolate(X, true, XTransform, ProbabilityTransform);
+                p = opd.GetYFromX(X, XTransform, ProbabilityTransform);
             }
             else
             {
                 // If descending then it is a survival function
-                p = 1d - opd.Interpolate(X, true, XTransform, ProbabilityTransform);
+                p = 1d - opd.GetYFromX(X, XTransform, ProbabilityTransform);
             }
             return p < 0d ? 0d : p > 1d ? 1d : p;
         }
@@ -460,12 +460,12 @@ namespace Numerics.Distributions
             double x = 0;
             if (opd.OrderY == SortOrder.Ascending || opd.OrderY == SortOrder.None)
             {
-                x = opd.Interpolate(probability, false, XTransform, ProbabilityTransform);
+                x = opd.GetXFromY(probability, XTransform, ProbabilityTransform);
             }
             else
             {
                 // If descending then it is a survival function
-                x = opd.Interpolate(1d - probability, false, XTransform, ProbabilityTransform);
+                x = opd.GetXFromY(1d - probability, XTransform, ProbabilityTransform);
             }
             return x < min ? min : x > max ? max : x;
         }

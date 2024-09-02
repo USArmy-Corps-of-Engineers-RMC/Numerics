@@ -1417,9 +1417,9 @@ namespace Numerics.Data
         /// <summary>
         /// Returns an annual (irregular) block series.  
         /// </summary>
-        /// <param name="blockFunction">The block function type; e.g. min, max, sum, or average.</param>
-        /// <param name="smoothingFunction">The smoothing function type.</param>
-        /// <param name="period">The time period to perform smoothing over. If time interval is 1-hour, and period is 12, the smoothing will be computed over a moving 12 hour block.</param>
+        /// <param name="blockFunction">Optional. The block function type; e.g. min, max, sum, or average. Default = Maximum.</param>
+        /// <param name="smoothingFunction">Optional. The smoothing function type. Default = None.</param>
+        /// <param name="period">Optional. The time period to perform smoothing over. If time interval is 1-hour, and period = 12, the smoothing will be computed over a moving 12 hour block. Default = 1.</param>
         public TimeSeries CalendarYearSeries(BlockFunctionType blockFunction = BlockFunctionType.Maximum, SmoothingFunctionType smoothingFunction = SmoothingFunctionType.None, int period = 1)
         {
             var result = new TimeSeries(TimeInterval.Irregular);
@@ -1502,13 +1502,13 @@ namespace Numerics.Data
         }
 
         /// <summary>
-        /// Returns an annual (irregular) block series based on the water year. 
+        /// Returns an annual (irregular) block series based on a 12-month year with a customized starting month. 
         /// </summary>
-        /// <param name="startMonth">The month when the water year begins. If not 10, dates are shifted.</param>
-        /// <param name="blockFunction">The block function type; e.g. min, max, sum, or average.</param>
-        /// <param name="smoothingFunction">The smoothing function type.</param>
-        /// <param name="period">The time period to perform smoothing over. If time interval is 1-hour, and period is 12. The smoothing will be computed over a moving 12 hour block.</param>
-        public TimeSeries WaterYearSeries(int startMonth = 10, BlockFunctionType blockFunction = BlockFunctionType.Maximum, SmoothingFunctionType smoothingFunction = SmoothingFunctionType.None, int period = 1)
+        /// <param name="startMonth">Optional. The month when the custom year begins. Default = 10 (or October).</param>
+        /// <param name="blockFunction">Optional. The block function type; e.g. min, max, sum, or average. Default = Maximum.</param>
+        /// <param name="smoothingFunction">Optional. The smoothing function type. Default = None.</param>
+        /// <param name="period">Optional. The time period to perform smoothing over. If time interval is 1-hour, and period = 12, the smoothing will be computed over a moving 12 hour block. Default = 1.</param>
+        public TimeSeries CustomYearSeries(int startMonth = 10, BlockFunctionType blockFunction = BlockFunctionType.Maximum, SmoothingFunctionType smoothingFunction = SmoothingFunctionType.None, int period = 1)
         {
             // Shift series
             int shift = startMonth != 1 ? 12 - startMonth + 1 : startMonth;
@@ -1519,14 +1519,14 @@ namespace Numerics.Data
         }
 
         /// <summary>
-        /// Returns a custom annual (irregular) block series. 
+        /// Returns a custom annual (irregular) block series based on a customized window. 
         /// </summary>
-        /// <param name="startMonth">The month when the season begins.</param>
-        /// <param name="endMonth">The month when the season ends.</param>
-        /// <param name="blockFunction">The block function type; e.g. min, max, sum, or average.</param>
-        /// <param name="smoothingFunction">The smoothing function type.</param>
-        /// <param name="period">The time period to perform smoothing over. If time interval is 1-hour, and period is 12. The smoothing will be computed over a moving 12 hour block.</param>
-        public TimeSeries CustomYearSeries(int startMonth = 1, int endMonth = 12, BlockFunctionType blockFunction = BlockFunctionType.Maximum, SmoothingFunctionType smoothingFunction = SmoothingFunctionType.None, int period = 1)
+        /// <param name="startMonth">The month when the custom year begins.</param>
+        /// <param name="endMonth">The month when the custom year ends.</param>
+        /// <param name="blockFunction">Optional. The block function type; e.g. min, max, sum, or average. Default = Maximum.</param>
+        /// <param name="smoothingFunction">Optional. The smoothing function type. Default = None.</param>
+        /// <param name="period">Optional. The time period to perform smoothing over. If time interval is 1-hour, and period = 12, the smoothing will be computed over a moving 12 hour block. Default = 1.</param>
+        public TimeSeries CustomYearSeries(int startMonth, int endMonth, BlockFunctionType blockFunction = BlockFunctionType.Maximum, SmoothingFunctionType smoothingFunction = SmoothingFunctionType.None, int period = 1)
         {
             var months = new List<int>();
             if (startMonth <= endMonth)
@@ -1630,9 +1630,9 @@ namespace Numerics.Data
         /// <summary>
         /// Returns an monthly (irregular) block series.  
         /// </summary>
-        /// <param name="blockFunction">The block function type; e.g. min, max, sum, or average.</param>
-        /// <param name="smoothingFunction">The smoothing function type.</param>
-        /// <param name="period">The time period to perform smoothing over. If time interval is 1-hour, and period is 12. The smoothing will be computed over a moving 12 hour block.</param>
+        /// <param name="blockFunction">Optional. The block function type; e.g. min, max, sum, or average. Default = Maximum.</param>
+        /// <param name="smoothingFunction">Optional. The smoothing function type. Default = None.</param>
+        /// <param name="period">Optional. The time period to perform smoothing over. If time interval is 1-hour, and period = 12, the smoothing will be computed over a moving 12 hour block. Default = 1.</param>
         public TimeSeries MonthlySeries(BlockFunctionType blockFunction = BlockFunctionType.Maximum, SmoothingFunctionType smoothingFunction = SmoothingFunctionType.None, int period = 1)
         {
             var result = new TimeSeries(TimeInterval.Irregular);
@@ -1723,9 +1723,9 @@ namespace Numerics.Data
         /// <summary>
         /// Returns an quarterly (irregular) block series.  
         /// </summary>
-        /// <param name="blockFunction">The block function type; e.g. min, max, sum, or average.</param>
-        /// <param name="smoothingFunction">The smoothing function type.</param>
-        /// <param name="period">The time period to perform smoothing over. If time interval is 1-hour, and period is 12. The smoothing will be computed over a moving 12 hour block.</param>
+        /// <param name="blockFunction">Optional. The block function type; e.g. min, max, sum, or average. Default = Maximum.</param>
+        /// <param name="smoothingFunction">Optional. The smoothing function type. Default = None.</param>
+        /// <param name="period">Optional. The time period to perform smoothing over. If time interval is 1-hour, and period = 12, the smoothing will be computed over a moving 12 hour block. Default = 1.</param>
         public TimeSeries QuarterlySeries(BlockFunctionType blockFunction = BlockFunctionType.Maximum, SmoothingFunctionType smoothingFunction = SmoothingFunctionType.None, int period = 1)
         {
             var qStart = new int[] { 1, 4, 7, 10 };
@@ -1829,8 +1829,8 @@ namespace Numerics.Data
         /// <param name="smoothingFunction">The smoothing function type. Smoothing is performed before the peaks-over-threshold analysis.</param>
         /// <param name="period">The time period to perform smoothing over. If time interval is 1-hour, and period is 12. The smoothing will be computed over a moving 12 hour block.</param>
         /// <remarks>
-        /// This routine is based on the "clust" method included in the POT R package (https://cran.r-project.org/web/packages/POT/index.html).
-        /// The clusters of exceedances are defines as follows:
+        /// This routine is based on the 'clust' method included in the POT R package (https://cran.r-project.org/web/packages/POT/index.html).
+        /// The clusters of exceedances are defined as follows:
         /// <list type="bullet">
         /// <item>
         /// The first exceedance initiates the first cluster;

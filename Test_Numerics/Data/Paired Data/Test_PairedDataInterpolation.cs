@@ -146,14 +146,12 @@ namespace Data.PairedData
             // Given X
             var opd = new OrderedPairedData(XArray, YArray, true, SortOrder.Ascending, true, SortOrder.Ascending);
             double X = 75d;
-            double Y = opd.Interpolate(X);
+            double Y = opd.GetYFromX(X);
             Assert.AreEqual(Y, 150.0d, 1E-6);
 
             // Given Y
-            opd = new OrderedPairedData(YArray, XArray, true, SortOrder.Ascending, true, SortOrder.Ascending);
-            Y = 75d;
-            X = opd.Interpolate(X, false);
-            Assert.AreEqual(X, 150.0d, 1E-6);
+            var xFromY = opd.GetXFromY(Y);
+            Assert.AreEqual(X, xFromY, 1E-6);
 
         }
 
@@ -169,14 +167,12 @@ namespace Data.PairedData
             // Given X
             var opd = new OrderedPairedData(XArray, YArray, true, SortOrder.Ascending, true, SortOrder.Ascending);
             double X = 75d;
-            double Y = opd.Interpolate(X, yTransform: Transform.Logarithmic);
+            double Y = opd.GetYFromX(X, Transform.None, Transform.Logarithmic);
             Assert.AreEqual(Y, 141.42135623731d, 1E-6);
 
             // Given Y
-            opd = new OrderedPairedData(YArray, XArray, true, SortOrder.Ascending, true, SortOrder.Ascending);
-            Y = 75d;
-            X = opd.Interpolate(X, false, xTransform: Transform.Logarithmic);
-            Assert.AreEqual(X, 141.42135623731d, 1E-6);
+            var xFromY = opd.GetXFromY(Y, Transform.None, Transform.Logarithmic);
+            Assert.AreEqual(X, xFromY, 1E-6);
         }
 
         /// <summary>
@@ -191,14 +187,12 @@ namespace Data.PairedData
             // Given X
             var opd = new OrderedPairedData(XArray, YArray, true, SortOrder.Ascending, true, SortOrder.Ascending);
             double X = 75d;
-            double Y = opd.Interpolate(X, xTransform: Transform.Logarithmic);
+            double Y = opd.GetYFromX(X, Transform.Logarithmic, Transform.None);
             Assert.AreEqual(Y, 158.496250072116d, 1E-6);
 
             // Given Y
-            opd = new OrderedPairedData(YArray, XArray, true, SortOrder.Ascending, true, SortOrder.Ascending);
-            Y = 75d;
-            X = opd.Interpolate(X, false, yTransform: Transform.Logarithmic);
-            Assert.AreEqual(X, 158.496250072116d, 1E-6);
+            var xFromY = opd.GetXFromY(Y, Transform.Logarithmic, Transform.None);
+            Assert.AreEqual(X, xFromY, 1E-6);
         }
 
         /// <summary>
@@ -213,14 +207,12 @@ namespace Data.PairedData
             // Given X
             var opd = new OrderedPairedData(XArray, YArray, true, SortOrder.Ascending, true, SortOrder.Ascending);
             double X = 75d;
-            double Y = opd.Interpolate(X, xTransform: Transform.Logarithmic, yTransform: Transform.Logarithmic);
+            double Y = opd.GetYFromX(X, Transform.Logarithmic, Transform.Logarithmic);
             Assert.AreEqual(Y, 150.0d, 1E-6);
 
             // Given Y
-            opd = new OrderedPairedData(YArray, XArray, true, SortOrder.Ascending, true, SortOrder.Ascending);
-            Y = 75d;
-            X = opd.Interpolate(X, false, xTransform: Transform.Logarithmic, yTransform: Transform.Logarithmic);
-            Assert.AreEqual(X, 150.0d, 1E-6);
+            var xFromY = opd.GetXFromY(Y, Transform.Logarithmic, Transform.Logarithmic);
+            Assert.AreEqual(X, xFromY, 1E-6);
         }
 
         /// <summary>
@@ -235,14 +227,12 @@ namespace Data.PairedData
             // Given X
             var opd = new OrderedPairedData(XArray, YArray, true, SortOrder.Ascending, true, SortOrder.Ascending);
             double X = 0.18d;
-            double Y = opd.Interpolate(X, yTransform: Transform.NormalZ);
+            double Y = opd.GetYFromX(X, Transform.None, Transform.NormalZ);
             Assert.AreEqual(Y, 0.358762529d, 1E-6);
 
             // Given Y
-            opd = new OrderedPairedData(YArray, XArray, true, SortOrder.Ascending, true, SortOrder.Ascending);
-            Y = 0.18d;
-            X = opd.Interpolate(X, false, xTransform: Transform.NormalZ);
-            Assert.AreEqual(X, 0.358762529d, 1E-6);
+            var xFromY = opd.GetXFromY(Y, Transform.None, Transform.NormalZ);
+            Assert.AreEqual(X, xFromY, 1E-6);
         }
 
         /// <summary>
@@ -257,14 +247,12 @@ namespace Data.PairedData
             // Given X
             var opd = new OrderedPairedData(XArray, YArray, true, SortOrder.Ascending, true, SortOrder.Ascending);
             double X = 0.18d;
-            double Y = opd.Interpolate(X, xTransform: Transform.NormalZ);
+            double Y = opd.GetYFromX(X, Transform.NormalZ, Transform.None);
             Assert.AreEqual(Y, 0.362146174d, 1E-6);
 
             // Given Y
-            opd = new OrderedPairedData(YArray, XArray, true, SortOrder.Ascending, true, SortOrder.Ascending);
-            Y = 0.18d;
-            X = opd.Interpolate(X, false, yTransform: Transform.NormalZ);
-            Assert.AreEqual(X, 0.362146174d, 1E-6);
+            var xFromY = opd.GetXFromY(Y, Transform.NormalZ, Transform.None);
+            Assert.AreEqual(X, xFromY, 1E-6);
         }
 
         /// <summary>
@@ -279,14 +267,12 @@ namespace Data.PairedData
             // Given X
             var opd = new OrderedPairedData(XArray, YArray, true, SortOrder.Ascending, true, SortOrder.Ascending);
             double X = 0.18d;
-            double Y = opd.Interpolate(X, xTransform: Transform.NormalZ, yTransform: Transform.NormalZ);
+            double Y = opd.GetYFromX(X, Transform.NormalZ, Transform.NormalZ);
             Assert.AreEqual(Y, 0.36093855992815d, 1E-6);
 
             // Given Y
-            opd = new OrderedPairedData(YArray, XArray, true, SortOrder.Ascending, true, SortOrder.Ascending);
-            Y = 0.18d;
-            X = opd.Interpolate(X, false, xTransform: Transform.NormalZ, yTransform: Transform.NormalZ);
-            Assert.AreEqual(X, 0.36093855992815d, 1E-6);
+            var xFromY = opd.GetXFromY(Y, Transform.NormalZ, Transform.NormalZ);
+            Assert.AreEqual(X, xFromY, 1E-6);
         }
 
         /// <summary>
@@ -303,14 +289,12 @@ namespace Data.PairedData
             // Given X
             var opd = new OrderedPairedData(XArray, YArray, true, SortOrder.Descending, true, SortOrder.Descending);
             double X = 75d;
-            double Y = opd.Interpolate(X);
+            double Y = opd.GetYFromX(X);
             Assert.AreEqual(Y, 150.0d, 1E-6);
 
             // Given Y
-            opd = new OrderedPairedData(YArray, XArray, true, SortOrder.Descending, true, SortOrder.Descending);
-            Y = 75d;
-            X = opd.Interpolate(X, false);
-            Assert.AreEqual(X, 150.0d, 1E-6);
+            var xFromY = opd.GetXFromY(Y);
+            Assert.AreEqual(X, xFromY, 1E-6);
         }
 
         /// <summary>
@@ -327,14 +311,12 @@ namespace Data.PairedData
             // Given X
             var opd = new OrderedPairedData(XArray, YArray, true, SortOrder.Descending, true, SortOrder.Descending);
             double X = 75d;
-            double Y = opd.Interpolate(X, yTransform: Transform.Logarithmic);
+            double Y = opd.GetYFromX(X, Transform.None, Transform.Logarithmic);
             Assert.AreEqual(Y, 141.42135623731d, 1E-6);
 
             // Given Y
-            opd = new OrderedPairedData(YArray, XArray, true, SortOrder.Descending, true, SortOrder.Descending);
-            Y = 75d;
-            X = opd.Interpolate(X, false, xTransform: Transform.Logarithmic);
-            Assert.AreEqual(X, 141.42135623731d, 1E-6);
+            var xFromY = opd.GetXFromY(Y, Transform.None, Transform.Logarithmic);
+            Assert.AreEqual(X, xFromY, 1E-6);
         }
 
         /// <summary>
@@ -351,14 +333,12 @@ namespace Data.PairedData
             // Given X
             var opd = new OrderedPairedData(XArray, YArray, true, SortOrder.Descending, true, SortOrder.Descending);
             double X = 75d;
-            double Y = opd.Interpolate(X, xTransform: Transform.Logarithmic);
+            double Y = opd.GetYFromX(X, Transform.Logarithmic, Transform.None);
             Assert.AreEqual(Y, 158.496250072116d, 1E-6);
 
             // Given Y
-            opd = new OrderedPairedData(YArray, XArray, true, SortOrder.Descending, true, SortOrder.Descending);
-            Y = 75d;
-            X = opd.Interpolate(X, false, yTransform: Transform.Logarithmic);
-            Assert.AreEqual(X, 158.496250072116d, 1E-6);
+            var xFromY = opd.GetXFromY(Y, Transform.Logarithmic, Transform.None);
+            Assert.AreEqual(X, xFromY, 1E-6);
         }
 
         /// <summary>
@@ -375,14 +355,12 @@ namespace Data.PairedData
             // Given X
             var opd = new OrderedPairedData(XArray, YArray, true, SortOrder.Descending, true, SortOrder.Descending);
             double X = 75d;
-            double Y = opd.Interpolate(X, xTransform: Transform.Logarithmic, yTransform: Transform.Logarithmic);
+            double Y = opd.GetYFromX(X, Transform.Logarithmic, Transform.Logarithmic);
             Assert.AreEqual(Y, 150.0d, 1E-6);
 
             // Given Y
-            opd = new OrderedPairedData(YArray, XArray, true, SortOrder.Descending, true, SortOrder.Descending);
-            Y = 75d;
-            X = opd.Interpolate(X, false, xTransform: Transform.Logarithmic, yTransform: Transform.Logarithmic);
-            Assert.AreEqual(X, 150.0d, 1E-6);
+            var xFromY = opd.GetXFromY(Y, Transform.Logarithmic, Transform.Logarithmic);
+            Assert.AreEqual(X, xFromY, 1E-6);
         }
 
         /// <summary>
@@ -399,14 +377,12 @@ namespace Data.PairedData
             // Given X
             var opd = new OrderedPairedData(XArray, YArray, true, SortOrder.Descending, true, SortOrder.Descending);
             double X = 0.18d;
-            double Y = opd.Interpolate(X, yTransform: Transform.NormalZ);
+            double Y = opd.GetYFromX(X, Transform.None, Transform.NormalZ);
             Assert.AreEqual(Y, 0.358762529d, 1E-6);
 
             // Given Y
-            opd = new OrderedPairedData(YArray, XArray, true, SortOrder.Descending, true, SortOrder.Descending);
-            Y = 0.18d;
-            X = opd.Interpolate(X, false, xTransform: Transform.NormalZ);
-            Assert.AreEqual(X, 0.358762529d, 1E-6);
+            var xFromY = opd.GetXFromY(Y, Transform.None, Transform.NormalZ);
+            Assert.AreEqual(X, xFromY, 1E-6);
         }
 
         /// <summary>
@@ -423,14 +399,12 @@ namespace Data.PairedData
             // Given X
             var opd = new OrderedPairedData(XArray, YArray, true, SortOrder.Descending, true, SortOrder.Descending);
             double X = 0.18d;
-            double Y = opd.Interpolate(X, xTransform: Transform.NormalZ);
+            double Y = opd.GetYFromX(X, Transform.NormalZ, Transform.None);
             Assert.AreEqual(Y, 0.362146174d, 1E-6);
 
             // Given Y
-            opd = new OrderedPairedData(YArray, XArray, true, SortOrder.Descending, true, SortOrder.Descending);
-            Y = 0.18d;
-            X = opd.Interpolate(X, false, yTransform: Transform.NormalZ);
-            Assert.AreEqual(X, 0.362146174d, 1E-6);
+            var xFromY = opd.GetXFromY(Y, Transform.NormalZ, Transform.None);
+            Assert.AreEqual(X, xFromY, 1E-6);
         }
 
         /// <summary>
@@ -447,14 +421,12 @@ namespace Data.PairedData
             // Given X
             var opd = new OrderedPairedData(XArray, YArray, true, SortOrder.Descending, true, SortOrder.Descending);
             double X = 0.18d;
-            double Y = opd.Interpolate(X, xTransform: Transform.NormalZ, yTransform: Transform.NormalZ);
+            double Y = opd.GetYFromX(X, Transform.NormalZ, Transform.NormalZ);
             Assert.AreEqual(Y, 0.36093855992815d, 1E-6);
 
             // Given Y
-            opd = new OrderedPairedData(YArray, XArray, true, SortOrder.Descending, true, SortOrder.Descending);
-            Y = 0.18d;
-            X = opd.Interpolate(X, false, xTransform: Transform.NormalZ, yTransform: Transform.NormalZ);
-            Assert.AreEqual(X, 0.36093855992815d, 1E-6);
+            var xFromY = opd.GetXFromY(Y, Transform.NormalZ, Transform.NormalZ);
+            Assert.AreEqual(X, xFromY, 1E-6);
         }
 
         /// <summary>
@@ -469,26 +441,17 @@ namespace Data.PairedData
             // Given X
             var opd = new OrderedPairedData(XArray, YArray, true, SortOrder.Ascending, true, SortOrder.Ascending);
             double X = 75d;
-            double Y = opd.Interpolate(X);
+            double Y = opd.GetYFromX(X);
             Assert.AreEqual(Y, 150.0d, 1E-6);
 
-            int N = 10;
-            double delta = (260 - 40) / ((double)N - 1);
-            var xVals = new double[N];
-            xVals[0] = 40;
-            for (int i = 1; i < N; i++)
-                xVals[i] = xVals[i - 1] + delta;
-
-            var yVals = opd.Interpolate(xVals);
-            var trueVals = new double[] { 100, 128.888888888889, 177.777777777778, 226.666666666667, 275.555555555556, 324.444444444444, 373.333333333333, 422.222222222222, 471.111111111111, 500 };
-            for (int i = 1; i < N; i++)
-                Assert.AreEqual(yVals[i], trueVals[i], 1E-6);
+            var yVals = opd.GetYFromX(XArray);
+            for (int i = 1; i < YArray.Length; i++)
+                Assert.AreEqual(YArray[i], yVals[i], 1E-6);
 
             // Given Y
-            opd = new OrderedPairedData(YArray, XArray, true, SortOrder.Ascending, true, SortOrder.Ascending);
-            yVals = opd.Interpolate(xVals, false);
-            for (int i = 1; i < N; i++)
-                Assert.AreEqual(yVals[i], trueVals[i], 1E-6);
+            var xFromY = opd.GetXFromY(yVals);
+            for (int i = 1; i < YArray.Length; i++)
+                Assert.AreEqual(XArray[i], xFromY[i], 1E-6);
         }
 
     }

@@ -145,9 +145,29 @@ namespace Numerics.Sampling.MCMC
         public bool ResumeSimulation { get; set; } = true;
 
         /// <summary>
+        /// Enumerates the initialization types.
+        /// </summary>
+        public enum InitializationType
+        {
+            /// <summary>
+            /// Initialize the chains using the Maximum a Posteriori (MAP) estimate and covariance matrix.
+            /// If the MAP optimization fails, chains will be automatically initialization with random samples from the priors.
+            /// </summary>
+            MAP,
+            /// <summary>
+            /// Automatically initialize the chains with random samples from the priors. This is the default.
+            /// </summary>
+            Randomize,
+            /// <summary>
+            /// Initialize the chains from user-defined points. 
+            /// </summary>
+            UserDefined,
+        }
+
+        /// <summary>
         /// Determines whether to initialize the chains using the Maximum a Posteriori (MAP) estimate and covariance matrix.
         /// </summary>
-        public bool InitializeWithMAP { get; set; } = false;
+        public InitializationType Initialize { get; set; } = InitializationType.Randomize;
 
         /// <summary>
         /// Determines if the Maximum a Posteriori (MAP) estimate was successful.
@@ -279,6 +299,17 @@ namespace Numerics.Sampling.MCMC
         /// </summary>
         protected virtual ParameterSet[] InitializeChains()
         {
+            // Just return the user-defined last states of the chains
+            if (Initialize == InitializationType.UserDefined)
+            {
+                var chainStates = new ParameterSet[NumberOfChains];
+                for (int i = 0; i < NumberOfChains; i++)
+                {
+                    chainStates[i] = MarkovChains[i].Last();
+                }
+                return chainStates;
+            }
+
             var prng = new Random(PRNGSeed);
             var rnds = LatinHypercube.Random(InitialPopulationLength, NumberOfParameters, prng.Next());
             var parameters = new double[NumberOfParameters];
@@ -286,14 +317,13 @@ namespace Numerics.Sampling.MCMC
             var initials = new ParameterSet[NumberOfChains];
             double logLH = 0;
 
-            if (InitializeWithMAP == true)
+            if (Initialize == InitializationType.MAP)
             {
-
                 // Use differential evolution to find a global optimum
                 var lowerBounds = PriorDistributions.Select(x => x.Minimum).ToArray();
                 var upperBounds = PriorDistributions.Select(x => x.Maximum).ToArray();
                 var inititals = lowerBounds.Add(upperBounds).Divide(2d);
-                var DE = new MLSL((x) => { return LogLikelihoodFunction(x); }, NumberOfParameters, inititals, lowerBounds, upperBounds);
+                var DE = new DifferentialEvolution((x) => { return LogLikelihoodFunction(x); }, NumberOfParameters, lowerBounds, upperBounds);
                 DE.ReportFailure = false;
                 DE.Maximize();
                 if (DE.Status == OptimizationStatus.Success)
@@ -301,14 +331,13 @@ namespace Numerics.Sampling.MCMC
                     try
                     {
                         _mapSuccessful = true;
+                        // Get MAP
                         MAP = DE.BestParameterSet.Clone();
-
                         // Get Fisher Information Matrix (or Hessian)
-                        Matrix hessian = new Matrix(NumericalDerivative.Hessian((x) => { return LogLikelihoodFunction(x); }, MAP.Values));
+                        var hessian = DE.Hessian.Clone();
                         Matrix fisher = hessian * -1d;
                         // Invert it to get the covariance matrix
-                        var B = new Matrix(fisher.NumberOfRows, 0);
-                        GaussJordanElimination.Solve(ref fisher, ref B);
+                        fisher = fisher.Inverse();
                         // Scale it to give wider coverage
                         fisher = fisher * 3;
 
@@ -333,13 +362,13 @@ namespace Numerics.Sampling.MCMC
                     catch (Exception) 
                     {
                         // if this fails go to naive initialization below
-                        InitializeWithMAP = false;
+                        Initialize = InitializationType.Randomize;
                     }
                 }
             }
 
 
-            // *** If not using MAP or if MAP fails, then use naive initialization *** //
+            // *** If not using MAP or if MAP fails, then use random initialization *** //
 
             // First add the mean of the priors
             for (int j = 0; j < NumberOfParameters; j++)
@@ -493,7 +522,7 @@ namespace Numerics.Sampling.MCMC
                     else if (i > Iterations && Output.Count < OutputLength)
                     {
                         Output.Add(_chainStates[j].Clone());
-                        if ((InitializeWithMAP == false || _mapSuccessful == false) && _chainStates[j].Fitness > MAP.Fitness)
+                        if (_chainStates[j].Fitness > MAP.Fitness)
                             MAP = _chainStates[j].Clone();
                     }
                 }

@@ -87,14 +87,14 @@ namespace Numerics.Data
         public int Order { get; set; }
 
         /// <inheritdoc/>
-        public override double RawInterpolate(double x, int start)
+        public override double BaseInterpolate(double x, int index)
         {
             // Given a value x, this routine returns an interpolate value y, and stores an error estimate. 
             // The return value is obtained by Degree-point polynomial interpolation on the subrange x[start..start + Order]
-            if (start < 0 || start >= Count) start = 0;
+            if (index < 0 || index >= Count) index = 0;
             int mm = Order + 1, ns = 0;
             double y, den, dif, dift, ho, hp, w;
-            int jl = start + mm > Count ? 0 : start;
+            int jl = index + mm > Count ? 0 : index;
             var xa = XValues.ToArray().Subset(jl);
             var ya = YValues.ToArray().Subset(jl);
             var c = new double[mm];

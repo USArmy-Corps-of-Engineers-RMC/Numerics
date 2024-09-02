@@ -201,7 +201,6 @@ namespace Numerics.MachineLearning
 
             // 2. Optimize clusters
             double oldLogLH = double.MinValue, newLogLH = double.MinValue;
-            Iterations = 0;
             for (Iterations = 1; Iterations <= MaxIterations; Iterations++)
             {
                 // Perform the expectation step
@@ -282,7 +281,7 @@ namespace Numerics.MachineLearning
         }
     
         /// <summary>
-        /// The maximization step.
+        /// c
         /// </summary>
         private void MStep()
         {

@@ -96,7 +96,7 @@ namespace Numerics.Sampling.MCMC
                 _MVN[i] = new MultivariateNormal(NumberOfParameters);
             }
             // Set up proposal matrix
-            if (InitializeWithMAP && _mapSuccessful)
+            if (Initialize == InitializationType.MAP && _mapSuccessful)
             {
                 ProposalSigma = new Matrix(_mvn.Covariance);
             }

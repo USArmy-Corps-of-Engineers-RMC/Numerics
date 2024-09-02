@@ -175,7 +175,6 @@
     <Compile Include="Functions\PowerFunction.cs" />
     <Compile Include="Data\Statistics\Probability.cs" />
     <Compile Include="Sampling\LatinHypercube.cs" />
-    <Compile Include="Data\Classification\Classification.cs" />
     <Compile Include="Data\Statistics\GoodnessOfFit.cs" />
     <Compile Include="Data\Statistics\Histogram.cs" />
     <Compile Include="Data\Paired Data\OrderedPairedData.cs" />

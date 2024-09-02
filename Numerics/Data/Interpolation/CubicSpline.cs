@@ -119,10 +119,10 @@ namespace Numerics.Data
         }
 
         /// <inheritdoc/>
-        public override double RawInterpolate(double x, int start)
+        public override double BaseInterpolate(double x, int index)
         {
-            if (start < 0 || start >= Count) start = 0;
-            int klo = start, khi = start + 1;
+            if (index < 0 || index >= Count) index = 0;
+            int klo = index, khi = index + 1;
             double y, h, b, a;
             h = XValues[khi] - XValues[klo];
             a = (XValues[khi] - x) / h;

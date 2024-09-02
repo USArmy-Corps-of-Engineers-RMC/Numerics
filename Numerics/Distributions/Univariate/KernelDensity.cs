@@ -512,7 +512,7 @@ namespace Numerics.Distributions
             if (x < Minimum) return 0.0;
             if (x > Maximum) return 1.0;
             if (!_cdfCreated) CreateCDF();
-            return opd.Interpolate(x, true, XTransform, ProbabilityTransform);
+            return opd.GetYFromX(x, XTransform, ProbabilityTransform);
         }
 
         /// <inheritdoc/>
@@ -524,7 +524,7 @@ namespace Numerics.Distributions
             if (probability == 0.0) return Minimum;
             if (probability == 1.0) return Maximum;
             if (!_cdfCreated) CreateCDF();
-            return opd.Interpolate(probability, false, XTransform, ProbabilityTransform);
+            return opd.GetXFromY(probability, XTransform, ProbabilityTransform);
         }
 
         /// <inheritdoc/>

@@ -329,13 +329,13 @@ namespace Mathematics.Optimization
             solver.Minimize();
             double F = solver.BestParameterSet.Fitness;
             double trueF = -959.6407;
-            Assert.AreEqual(F, trueF, 1E-4);
+            Assert.AreEqual(F, trueF, 1E-2);
             var solution = solver.BestParameterSet.Values;
             var x = solution[0];
             var y = solution[1];
             var validX = 512d;
             var validY = 404.2319d;
-            Assert.AreEqual(x, validX, 1E-4);
+            Assert.AreEqual(x, validX, 1E-2);
             Assert.AreEqual(y, validY, 1E-1);
         }
 

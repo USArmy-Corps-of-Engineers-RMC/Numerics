@@ -80,7 +80,7 @@ namespace Numerics.Sampling.MCMC
         /// <inheritdoc/>
         protected override void InitializeCustomSettings()
         {
-            if (mvn == null && useImportanceSampling == false && InitializeWithMAP && _mapSuccessful)
+            if (mvn == null && useImportanceSampling == false && Initialize == InitializationType.MAP && _mapSuccessful)
             {
                 mvn = (MultivariateNormal)_mvn.Clone();
                 useImportanceSampling = true;

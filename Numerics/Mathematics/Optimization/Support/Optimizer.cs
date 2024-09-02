@@ -30,6 +30,7 @@
 
 using System;
 using System.Collections.Generic;
+using Numerics.Mathematics.LinearAlgebra;
 
 namespace Numerics.Mathematics.Optimization
 {
@@ -92,6 +93,11 @@ namespace Numerics.Mathematics.Optimization
         public bool RecordTraces { get; set; } = true;
 
         /// <summary>
+        /// Determines whether to compute a numerically differentiated Hessian matrix when the optimization was successful. 
+        /// </summary>
+        public bool ComputeHessian { get; set; } = true;
+
+        /// <summary>
         /// The objective function to evaluate. 
         /// </summary>
         public Func<double[], double> ObjectiveFunction 
@@ -112,6 +118,7 @@ namespace Numerics.Mathematics.Optimization
         /// Objective function scaling factor (set to -1 for a maximization problem). By default it is a minimization problem.
         /// </summary>
         protected int functionScale = 1;
+
 
         #endregion
 
@@ -142,6 +149,11 @@ namespace Numerics.Mathematics.Optimization
         /// </summary>
         public OptimizationStatus Status { get; protected set; } = OptimizationStatus.None;
 
+        /// <summary>
+        /// The numerically differentiated Hessian matrix. This is only computed when the optimization is successful.
+        /// </summary>
+        public Matrix Hessian { get; protected set; }
+
         #endregion
 
         /// <summary>
@@ -154,6 +166,7 @@ namespace Numerics.Mathematics.Optimization
             BestParameterSet = new ParameterSet();
             ParameterSetTrace = new List<ParameterSet>();
             Status = OptimizationStatus.None;
+            Hessian = null;
         }
 
         /// <summary>
@@ -181,8 +194,12 @@ namespace Numerics.Mathematics.Optimization
             ClearResults();
             functionScale = 1;
             try
-            {
+            {               
                 Optimize();
+                if (Status == OptimizationStatus.Success && ComputeHessian)
+                {
+                    Hessian = new Matrix(NumericalDerivative.Hessian((x) => { return ObjectiveFunction(x); }, BestParameterSet.Values));
+                }
             }
             catch (ArgumentException ex)
             {
@@ -207,6 +224,10 @@ namespace Numerics.Mathematics.Optimization
             try
             {
                 Optimize();
+                if (Status == OptimizationStatus.Success && ComputeHessian)
+                {
+                    Hessian = new Matrix(NumericalDerivative.Hessian((x) => { return ObjectiveFunction(x); }, BestParameterSet.Values));
+                }
             }
             catch (ArgumentException ex)
             {
@@ -294,6 +315,8 @@ namespace Numerics.Mathematics.Optimization
             if (double.IsNaN(oldValue) || double.IsNaN(newValue) || double.IsInfinity(oldValue) || double.IsInfinity(newValue)) return false;
             return 2.0d * Math.Abs(newValue - oldValue) / (Math.Abs(newValue) + Math.Abs(oldValue) + AbsoluteTolerance) < RelativeTolerance;
         }
+
+
 
     }
 }
