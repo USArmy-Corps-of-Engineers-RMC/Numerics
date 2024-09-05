@@ -30,11 +30,30 @@
 
 using System;
 using System.Diagnostics;
+using System.Security.Policy;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Numerics.Distributions;
 
 namespace Distributions.Univariate
 {
+    /// <summary>
+    /// Testing the Truncated Normal distribution algorithm.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    ///     <b> Authors: </b>
+    ///     <list type="bullet">
+    ///     <item> Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil </item>
+    ///     <item> Tiki Gonzalez, USACE Risk Management Center, julian.t.gonzalez@usace.army.mil</item>
+    ///     </list> 
+    /// </para>
+    /// <para>
+    /// <b> References: </b>
+    /// </para>
+    /// <para>
+    /// <see href = "https://github.com/mathnet/mathnet-numerics/blob/master/src/Numerics.Tests/DistributionTests" />
+    /// </para>
+    /// </remarks>
     [TestClass]
     public class Test_TruncatedNormal
     {
@@ -78,11 +97,137 @@ namespace Distributions.Univariate
             var graph = KDE.CreatePDFGraph();
             for (int i = 0; i < graph.GetLength(0); i++)
             {
-                Debug.Print(graph[ i, 0] + ", " + graph[i, 1]);
+                Debug.Print(graph[i, 0] + ", " + graph[i, 1]);
             }
 
 
             var cdf = KDE.CDF(-2);
+        }
+
+        /// <summary>
+        /// Verifying input parameters can create distribution.
+        /// </summary>
+        [TestMethod()]
+        public void CanCreateTruncatedNormal()
+        {
+            var tn = new TruncatedNormal();
+            Assert.AreEqual(tn.Mu, 0.5);
+            Assert.AreEqual(tn.Sigma, 0.2);
+            Assert.AreEqual(tn.Min, 0);
+            Assert.AreEqual(tn.Max, 1);
+
+            var tn2 = new TruncatedNormal(1, 1, 1, 2);
+            Assert.AreEqual(tn2.Mu, 1);
+            Assert.AreEqual(tn2.Sigma, 1);
+            Assert.AreEqual(tn2.Min, 1);
+            Assert.AreEqual(tn2.Max, 2);
+        }
+
+        /// <summary>
+        /// Testing distribution with bad parameters.
+        /// </summary>
+        [TestMethod()]
+        public void TruncatedNormalFails()
+        {
+            var tn = new TruncatedNormal(double.NaN, double.NaN, double.NaN, double.NaN);
+            Assert.IsFalse(tn.ParametersValid);
+
+            var tn2 = new TruncatedNormal(double.PositiveInfinity, double.PositiveInfinity, double.PositiveInfinity, double.PositiveInfinity);
+            Assert.IsFalse(tn2.ParametersValid);
+
+            var tn3 = new TruncatedNormal(0, -1, -1, 0);
+            Assert.IsFalse(tn3.ParametersValid);
+
+            var tn4 = new TruncatedNormal(1, 1, 1, 0);
+            Assert.IsFalse(tn4.ParametersValid);
+        }
+
+        /// <summary>
+        /// Testing parameters to string.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateParametersToString()
+        {
+            var tn = new TruncatedNormal();
+            Assert.AreEqual(tn.ParametersToString[0, 0], "Mean (µ)");
+            Assert.AreEqual(tn.ParametersToString[1, 0], "Std Dev (σ)");
+            Assert.AreEqual(tn.ParametersToString[2, 0], "Min");
+            Assert.AreEqual(tn.ParametersToString[3, 0], "Max");
+            Assert.AreEqual(tn.ParametersToString[0, 1], "0.5");
+            Assert.AreEqual(tn.ParametersToString[1, 1], "0.2");
+            Assert.AreEqual(tn.ParametersToString[2, 1], "0");
+            Assert.AreEqual(tn.ParametersToString[3, 1], "1");
+        }
+
+        /// <summary>
+        /// Testing mean.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateMean()
+        {
+            var tn = new TruncatedNormal();
+            Assert.AreEqual(tn.Mean, 0.5);
+        }
+
+        /// <summary>
+        /// Testing median.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateMedian()
+        {
+            var tn = new TruncatedNormal();
+            Assert.AreEqual(tn.Median, 0.5);
+        }
+
+        /// <summary>
+        /// Testing mode
+        /// </summary>
+        [TestMethod()]
+        public void ValidateMode()
+        {
+            var tn = new TruncatedNormal();
+            Assert.AreEqual(tn.Mode, 0.5);
+        }
+
+        /// <summary>
+        /// Testing standard deviation.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateStandardDeviation()
+        {
+            var tn = new TruncatedNormal();
+            Assert.AreEqual(tn.StandardDeviation, 0.19091,1e-05);
+        }
+
+        /// <summary>
+        /// Testing skew.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateSkew()
+        {
+            var tn = new TruncatedNormal();
+            Assert.AreEqual(tn.Skew, 0);
+        }
+
+        /// <summary>
+        /// Testing Kurtosis.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateKurtosis()
+        {
+            var tn = new TruncatedNormal();
+            Assert.AreEqual(tn.Kurtosis, -2.62422,1e-04);
+        }
+
+        /// <summary>
+        /// Testing minimum and maximum functions.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateMinMax()
+        {
+            var tn = new TruncatedNormal();
+            Assert.AreEqual(tn.Minimum, 0);
+            Assert.AreEqual(tn.Maximum, 1);
         }
     }
 }

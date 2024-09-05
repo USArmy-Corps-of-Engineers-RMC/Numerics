@@ -433,7 +433,7 @@ namespace Numerics.Distributions
                 ValidateParameters(new[] { Xi, Alpha }, true);
             return 1d / Alpha * Math.Exp(-(x - Xi) / Alpha) * Math.Pow(1d + Math.Exp(-(x - Xi) / Alpha), -2);
         }
-
+        
         /// <summary>
         /// The Cumulative Distribution Function (CDF) for the distribution evaluated at a point X.
         /// </summary>

@@ -51,7 +51,7 @@ namespace Distributions.Univariate
     /// <b> References: </b>
     /// </para>
     /// <para>
-    /// <see href = "https://github.com/mathnet/mathnet-numerics/blob/master/src/Numerics.Tests/DistributionTests/Discrete/BinomialTests.cs" />
+    /// <see href = "https://github.com/mathnet/mathnet-numerics/blob/master/src/Numerics.Tests/DistributionTests" />
     /// </para>
     /// </remarks>
 

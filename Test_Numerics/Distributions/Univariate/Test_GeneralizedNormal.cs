@@ -35,6 +35,24 @@ using System.Diagnostics;
 
 namespace Distributions.Univariate
 {
+    /// <summary>
+    /// Testing the Generalized Normal distribution algorithm.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    ///     <b> Authors: </b>
+    ///     <list type="bullet">
+    ///     <item> Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil </item>
+    ///     <item> Tiki Gonzalez, USACE Risk Management Center, julian.t.gonzalez@usace.army.mil</item>
+    ///     </list> 
+    /// </para>
+    /// <para>
+    /// <b> References: </b>
+    /// </para>
+    /// <para>
+    /// <see href = "https://github.com/mathnet/mathnet-numerics/blob/master/src/Numerics.Tests/DistributionTests" />
+    /// </para>
+    /// </remarks>
     [TestClass]
     public class Test_GeneralizedNormal
     {
@@ -148,7 +166,7 @@ namespace Distributions.Univariate
             var stopWatch = new Stopwatch();
             stopWatch.Start();
 
-            var ps = new double[] { 0.1, 0.01, 0.001};
+            var ps = new double[] { 0.1, 0.01, 0.001 };
             var J = gno.Jacobian(ps);
 
 
@@ -161,5 +179,104 @@ namespace Distributions.Univariate
 
 
         }
+
+        /// <summary>
+        /// Testing that parameters can create generalized normal distribution.
+        /// </summary>
+        [TestMethod()]
+        public void CanCreateGeneralizedNormal()
+        {
+            var n = new GeneralizedNormal();
+            Assert.AreEqual(n.Xi, 100);
+            Assert.AreEqual(n.Alpha, 10);
+            Assert.AreEqual(n.Kappa, 0);
+
+            var n2 = new GeneralizedNormal(-100, 1, 1);
+            Assert.AreEqual(n2.Xi, -100);
+            Assert.AreEqual(n2.Alpha, 1);
+            Assert.AreEqual(n2.Kappa, 1);
+        }
+
+        /// <summary>
+        /// Testing Generalized normal distribution with bad parameters.
+        /// </summary>
+        [TestMethod()]
+        public void GeneralizedNormalFails()
+        {
+            var n = new GeneralizedNormal(double.PositiveInfinity, double.PositiveInfinity, double.PositiveInfinity);
+            Assert.IsFalse(n.ParametersValid);
+
+            var n2 = new GeneralizedNormal(double.NaN, double.NaN, double.NaN);
+            Assert.IsFalse(n2.ParametersValid);
+
+            var n3 = new GeneralizedNormal(100, 0, 1);
+            Assert.IsFalse(n3.ParametersValid);
+        }
+
+        /// <summary>
+        /// Testing ParametersToString() function.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateParametersToString()
+        {
+            var n = new GeneralizedNormal();
+            Assert.AreEqual(n.ParametersToString[0, 0], "Location (ξ)");
+            Assert.AreEqual(n.ParametersToString[1, 0], "Scale (α)");
+            Assert.AreEqual(n.ParametersToString[2, 0], "Shape (κ)");
+            Assert.AreEqual(n.ParametersToString[0, 1], "100");
+            Assert.AreEqual(n.ParametersToString[1, 1], "10");
+            Assert.AreEqual(n.ParametersToString[2, 1], "0");
+        }
+
+        /// <summary>
+        /// Testing mean function. 
+        /// </summary>
+        [TestMethod()]
+        public void ValidateMean()
+        {
+            var n = new GeneralizedNormal();
+            Assert.AreEqual(n.Mean, 100,1e-04);
+
+            var n2 = new GeneralizedNormal(1, 5,0.42);
+            var mean = n2.Mean;
+            Assert.AreEqual(n2.Mean, 1, 1e-04);
+        }
+
+        /// <summary>
+        /// Testing median function.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateMedian()
+        {
+            var n = new GeneralizedNormal();
+            Assert.AreEqual(n.Median, 100);
+
+            var n2 = new GeneralizedNormal(1, 5, 0.42);
+            Assert.AreEqual(n2.Median, 1);
+        }
+
+        /// <summary>
+        /// Testing mode is NaN.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateMode()
+        {
+            var n = new GeneralizedNormal();
+            Assert.AreEqual(n.Mode, double.NaN);
+        }
+
+        ///// <summary>
+        ///// 
+        ///// </summary>
+        //[TestMethod()]
+        //public void ValidateStandardDeviation()
+        //{
+        //    var n = new GeneralizedNormal();
+        //    //Assert.AreEqual(n.StandardDeviation, );
+
+        //    var n2 = new GeneralizedNormal(1, 5, 0.42);
+        //    Assert.AreEqual(n2.StandardDeviation, 138.566885, 1e-04);
+        //}
+
     }
 }

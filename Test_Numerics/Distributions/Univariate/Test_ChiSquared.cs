@@ -49,7 +49,7 @@ namespace Distributions.Univariate
     /// <b> References: </b>
     /// </para>
     /// <para>
-    /// <see href = "https://github.com/mathnet/mathnet-numerics/blob/master/src/Numerics.Tests/DistributionTests/Discrete/BinomialTests.cs" />
+    /// <see href = "https://github.com/mathnet/mathnet-numerics/blob/master/src/Numerics.Tests/DistributionTests" />
     /// </para>
     /// </remarks>
     /// 
@@ -137,8 +137,7 @@ namespace Distributions.Univariate
         public void ValidateMedian()
         {
             var x = new ChiSquared(1);
-            var true_median = x.DegreesOfFreedom * (1 - (2 / (9 * x.DegreesOfFreedom))) ^ 3;
-            Assert.AreEqual(x.Median, true_median);
+            Assert.AreEqual(x.Median, 0.4549364,1e-04);
         }
 
         /// <summary>

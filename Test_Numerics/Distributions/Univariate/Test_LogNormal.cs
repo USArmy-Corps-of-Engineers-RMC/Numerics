@@ -34,6 +34,24 @@ using Numerics.Distributions;
 
 namespace Distributions.Univariate
 {
+    /// <summary>
+    /// Testing the Log-Normal distribution algorithm.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    ///     <b> Authors: </b>
+    ///     <list type="bullet">
+    ///     <item> Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil </item>
+    ///     <item> Tiki Gonzalez, USACE Risk Management Center, julian.t.gonzalez@usace.army.mil</item>
+    ///     </list> 
+    /// </para>
+    /// <para>
+    /// <b> References: </b>
+    /// </para>
+    /// <para>
+    /// <see href = "https://github.com/mathnet/mathnet-numerics/blob/master/src/Numerics.Tests/DistributionTests" />
+    /// </para>
+    /// </remarks>
     [TestClass]
     public class Test_LogNormal
     {
@@ -156,6 +174,176 @@ namespace Distributions.Univariate
             double qVar99 = Math.Sqrt(LogN.QuantileVariance(0.99d, 85, ParameterEstimationMethod.MaximumLikelihood));
             double true_qVar99 = 13113d;
             Assert.AreEqual((qVar99 - true_qVar99) / true_qVar99 < 0.01d, true);
+        }
+
+        /// <summary>
+        /// Verifying Log-Normal distribution is being created with input parameters.
+        /// </summary>
+        [TestMethod()]
+        public void CanCreateLogNormal()
+        {
+            var LogN = new LogNormal();
+            Assert.AreEqual(LogN.Mu, 3);
+            Assert.AreEqual(LogN.Sigma, 0.5);
+
+            var LogN2 = new LogNormal(1, 1);
+            Assert.AreEqual(LogN2.Mu, 1);
+            Assert.AreEqual(LogN2.Sigma, 1);
+        }
+
+        /// <summary>
+        /// Testing Log-Normal with bad parameters.
+        /// </summary>
+        [TestMethod()]
+        public void LogNormalFails()
+        {
+            var LogN = new LogNormal(double.NaN,double.NaN);
+            Assert.IsFalse(LogN.ParametersValid);
+            
+            var LogN2 = new LogNormal(double.PositiveInfinity,double.PositiveInfinity);
+            Assert.IsFalse(LogN2.ParametersValid);
+
+            var LogN3 = new LogNormal(1, -1);
+            Assert.IsFalse(LogN3.ParametersValid);
+        }
+
+        /// <summary>
+        /// Testing ParametersToString()
+        /// </summary>
+        [TestMethod()]
+        public void ValidateParametersToString()
+        {
+            var LogN = new LogNormal();
+            Assert.AreEqual(LogN.ParametersToString[0, 0], "Mean (of log) (µ)");
+            Assert.AreEqual(LogN.ParametersToString[1, 0], "Std Dev (of log) (σ)");
+            Assert.AreEqual(LogN.ParametersToString[0, 1], "3");
+            Assert.AreEqual(LogN.ParametersToString[1, 1], "0.5");
+        }
+
+        /// <summary>
+        /// Testing mean function.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateMean()
+        {
+            var LogN = new LogNormal();
+            Assert.AreEqual(LogN.Mean, 1333.5214, 1e-04);
+
+            var LogN2 = new LogNormal(1, 1);
+            Assert.AreEqual(LogN2.Mean, 31.62277, 1e-04);
+        }
+
+        /// <summary>
+        /// Testing median function.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateMedian()
+        {
+            var LogN = new LogNormal();
+            Assert.AreEqual(LogN.Median, 1000,1e-04);
+
+            var LogN2 = new LogNormal(1, 1);
+            Assert.AreEqual(LogN2.Median,10,1e-04);
+        }
+
+        /// <summary>
+        /// Testing mode function.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateMode()
+        {
+            var LogN = new LogNormal();
+            Assert.AreEqual(LogN.Mode, 562.34132, 1e-04);
+
+            var LogN2 = new LogNormal(1, 1);
+            Assert.AreEqual(LogN2.Mode, 1);          
+        }
+
+        /// <summary>
+        /// Testing standard deviation.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateStandardDeviation()
+        {
+            var LogN = new LogNormal();
+            Assert.AreEqual(LogN.StandardDeviation, 1176.4345,1e-04);
+        }
+
+        /// <summary>
+        /// Testing skew.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateSkew()
+        {
+            var LogN = new LogNormal(-1,0.1);
+            Assert.AreEqual(LogN.Skew, 0.46141, 1e-05);
+
+            var LogN2 = new LogNormal(2.5, 1.5);
+            Assert.AreEqual(LogN2.Skew, 2391.29203, 1e-04);
+        }
+
+        /// <summary>
+        /// Testing kurtosis.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateKurtosis()
+        {
+            var LogN = new LogNormal();
+            Assert.AreEqual(LogN.Kurtosis, 27.73365,1e-04);
+        }
+
+        /// <summary>
+        /// Testing minimum and maximum functions respectively.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateMinMax()
+        {
+            var LogN = new LogNormal();
+            Assert.AreEqual(LogN.Minimum, 0);
+            Assert.AreEqual(LogN.Maximum, double.PositiveInfinity);
+
+            var LogN2 = new LogNormal(1, 1);
+            Assert.AreEqual(LogN2.Minimum, 0);
+            Assert.AreEqual(LogN2.Maximum, double.PositiveInfinity);
+        }
+
+        /// <summary>
+        /// Testing PDF method.
+        /// </summary>
+        [TestMethod()]
+        public void ValidatePDF()
+        {
+            var LogN = new LogNormal(1.5,0.1);
+            Assert.AreEqual(LogN.PDF(0.1), 3.32e-135,1e-04);
+
+            var LogN2 = new LogNormal(-0.1, 0.1);
+            Assert.AreEqual(LogN.PDF(0.8), 9.12888e-56, 1e-04);
+        }
+
+        /// <summary>
+        /// Testing CDF method.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateCDF()
+        {
+            var LogN = new LogNormal(1.5, 0.1);
+            Assert.AreEqual(LogN.CDF(0.1), 0);
+
+            var LogN2 = new LogNormal(1.5, 1.5);
+            Assert.AreEqual(LogN2.CDF(0.5), 0.11493, 1e-05);
+        }
+
+        /// <summary>
+        /// Testing inverse CDF method.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateInverseCDF()
+        {
+            var LogN = new LogNormal(2.5, 2.5);
+            Assert.AreEqual(LogN.InverseCDF(0.8), 40183.99248, 1e-04);
+
+            var LogN2 = new LogNormal(1.5, 2.5);
+            Assert.AreEqual(LogN.InverseCDF(0.8), 40183.99248, 1e-05);
         }
     }
 }

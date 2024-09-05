@@ -29,6 +29,7 @@
 * **/
 
 using System;
+using System.CodeDom;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Numerics.Distributions;
@@ -37,6 +38,24 @@ using Numerics.Mathematics.RootFinding;
 
 namespace Distributions.Univariate
 {
+    /// <summary>
+    /// Testing the Log-Pearson Type III distribution algorithm.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    ///     <b> Authors: </b>
+    ///     <list type="bullet">
+    ///     <item> Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil </item>
+    ///     <item> Tiki Gonzalez, USACE Risk Management Center, julian.t.gonzalez@usace.army.mil</item>
+    ///     </list> 
+    /// </para>
+    /// <para>
+    /// <b> References: </b>
+    /// </para>
+    /// <para>
+    /// <see href = "https://github.com/mathnet/mathnet-numerics/blob/master/src/Numerics.Tests/DistributionTests" />
+    /// </para>
+    /// </remarks>
     [TestClass]
     public class Test_LogPearsonTypeIII
     {
@@ -226,6 +245,197 @@ namespace Distributions.Univariate
             return Math.Pow(x, 3d) + Math.Pow(y, 4d) + Math.Pow(z, 5d);
         }
 
+        /// <summary>
+        /// Verifying that input parameters can create distribution.
+        /// </summary>
+        [TestMethod()]
+        public void CanCreateLP3()
+        {
+            var LP3 = new LogPearsonTypeIII();
+            Assert.AreEqual(LP3.Mu, 3);
+            Assert.AreEqual(LP3.Sigma, 0.5);
+            Assert.AreEqual(LP3.Gamma, 0);
+        }
 
+        /// <summary>
+        /// Testing distribution with bad parameters.
+        /// </summary>
+        [TestMethod()]
+        public void LP3Fails()
+        {
+            var LP3 = new LogPearsonTypeIII(double.NaN, double.NaN, double.NaN);
+            Assert.IsFalse(LP3.ParametersValid);
+
+            var LP3ii = new LogPearsonTypeIII(double.PositiveInfinity, double.NegativeInfinity, double.PositiveInfinity);
+            Assert.IsFalse(LP3ii.ParametersValid);
+        }
+
+        /// <summary>
+        /// Testing parameter to string.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateParameterToString()
+        {
+            var LP3 = new LogPearsonTypeIII();
+            Assert.AreEqual(LP3.ParametersToString[0, 0], "Mean (of log) (µ)");
+            Assert.AreEqual(LP3.ParametersToString[1, 0], "Std Dev (of log) (σ)");
+            Assert.AreEqual(LP3.ParametersToString[2, 0], "Skew (of log) (γ)");
+            Assert.AreEqual(LP3.ParametersToString[0, 1], "3");
+            Assert.AreEqual(LP3.ParametersToString[1, 1], "0.5");
+            Assert.AreEqual(LP3.ParametersToString[2, 1], "0");
+        }
+
+        /// <summary>
+        /// Testing the mean function.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateMean()
+        {
+            var LP3 = new LogPearsonTypeIII();
+            Assert.AreEqual(LP3.Mean, 1333.5214, 1e-04);
+
+            var LP3ii = new LogPearsonTypeIII(1,1,1);
+            Assert.AreEqual(LP3ii.Mean, 190.8665, 1e-04);
+        }
+
+        /// <summary>
+        /// Testing median.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateMedian()
+        {
+            var LP3 = new LogPearsonTypeIII();
+            Assert.AreEqual(LP3.Median, 1000,1e-04);
+        }
+
+        /// <summary>
+        /// Testing mode function.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateMode()
+        {
+            var LP3 = new LogPearsonTypeIII();
+            Assert.AreEqual(LP3.Mode, 562.3413, 1e-04);
+
+            var LP3ii = new LogPearsonTypeIII(1, 1, 1);
+            Assert.AreEqual(LP3ii.Mode, 3.16227,1e-04);
+        }
+
+        /// <summary>
+        /// Testing standard deviation.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateStandardDeviation()
+        {
+            var LP3 = new LogPearsonTypeIII();
+            Assert.AreEqual(LP3.StandardDeviation, 1176.4345,1e-04);
+
+            var LP3ii = new LogPearsonTypeIII(1,1,1);
+            Assert.AreEqual(LP3ii.StandardDeviation, double.NaN);
+        }
+        
+        /// <summary>
+        /// Testing skew.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateSkew()
+        {
+            var LP3 = new LogPearsonTypeIII();
+            Assert.AreEqual(LP3.Skew, 3.3332,1e-04);
+
+            var LP3ii = new LogPearsonTypeIII(1, 1, 1);
+            Assert.AreEqual(LP3ii.Skew, double.NaN);
+        }
+
+        /// <summary>
+        /// Testing kurtosis.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateKurtosis()
+        {
+            var LP3 = new LogPearsonTypeIII();
+            Assert.AreEqual(LP3.Kurtosis, 27.73365,1e-04);
+
+            var LP3ii = new LogPearsonTypeIII(1, 1, 1);
+            Assert.AreEqual(LP3ii.Kurtosis, -3,1e-04);
+        }
+
+        /// <summary>
+        /// Testing minimum.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateMinimum()
+        {
+            var LP3 = new LogPearsonTypeIII();
+            Assert.AreEqual(LP3.Minimum, 0);
+
+            var LP3ii = new LogPearsonTypeIII(1,1,1);
+            Assert.AreEqual(LP3ii.Minimum, 0.1, 1e-05);
+
+            var LP3iii = new LogPearsonTypeIII(1, -1, 1);
+            Assert.AreEqual(LP3iii.Minimum, 0);
+        }
+
+        /// <summary>
+        /// Testing maximum.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateMaximum() 
+        {
+            var LP3 = new LogPearsonTypeIII();
+            Assert.AreEqual(LP3.Maximum, double.PositiveInfinity);
+
+            var LP3ii = new LogPearsonTypeIII(1,1,1);
+            Assert.AreEqual(LP3ii.Maximum, double.PositiveInfinity);
+
+            var LP3iii = new LogPearsonTypeIII(1, -1, 1);
+            Assert.AreEqual(LP3iii.Maximum, 1000,1e-04);
+        }
+
+        /// <summary>
+        /// Testing PDF method.
+        /// </summary>
+        [TestMethod()]  
+        public void ValidatePDF()
+        {
+            var LP3 = new LogPearsonTypeIII();
+            Assert.AreEqual(LP3.PDF(-1), 0);
+            Assert.AreEqual(LP3.PDF(1),5.2774e-09,1e-13);
+        }
+
+        /// <summary>
+        /// Testing CDF method.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateCDF()
+        {
+            var LP3 = new LogPearsonTypeIII();
+            Assert.AreEqual(LP3.CDF(-1), 0);
+            Assert.AreEqual(LP3.CDF(1), 9.8658e-10,1e-13);
+        }
+
+        /// <summary>
+        /// Testing inverse CDF.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateInverseCDF()
+        {
+            var LP3 = new LogPearsonTypeIII();
+            Assert.AreEqual(LP3.InverseCDF(0), 0);
+            Assert.AreEqual(LP3.InverseCDF(1), double.PositiveInfinity);
+            Assert.AreEqual(LP3.InverseCDF(0.3), 546.7637,1e-04);
+        }
+
+        /// <summary>
+        /// Testing Wilson-Hilferty Inverse CDF.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateWilsonHilfertyInverseCDF()
+        {
+            var LP3 = new LogPearsonTypeIII();
+            Assert.AreEqual(LP3.WilsonHilfertyInverseCDF(0), 0);
+            Assert.AreEqual(LP3.WilsonHilfertyInverseCDF(1),double.PositiveInfinity);
+            Assert.AreEqual(LP3.WilsonHilfertyInverseCDF(0.4), 747.01005,1e-05);
+        }
     }
 }

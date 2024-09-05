@@ -34,10 +34,30 @@ using Numerics.Distributions;
 
 namespace Distributions.Univariate
 {
+    /// <summary>
+    /// Testing the Noncentral T distribution algorithm.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    ///     <b> Authors: </b>
+    ///     <list type="bullet">
+    ///     <item> Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil </item>
+    ///     <item> Tiki Gonzalez, USACE Risk Management Center, julian.t.gonzalez@usace.army.mil</item>
+    ///     </list> 
+    /// </para>
+    /// <para>
+    /// <b> References: </b>
+    /// </para>
+    /// <para>
+    /// <see href = "https://github.com/mathnet/mathnet-numerics/blob/master/src/Numerics.Tests/DistributionTests" />
+    /// </para>
+    /// </remarks>
     [TestClass]
     public class Test_NoncentralT
     {
-
+        /// <summary>
+        /// Testing PDF method.
+        /// </summary>
         [TestMethod()]
         public void Test_NoncentralT_PDF()
         {
@@ -47,6 +67,9 @@ namespace Distributions.Univariate
             Assert.AreEqual(pdf, result, 1E-6);
         }
 
+        /// <summary>
+        /// Testing CDF method.
+        /// </summary>
         [TestMethod()]
         public void Test_NoncentralT_CDF()
         {
@@ -56,6 +79,9 @@ namespace Distributions.Univariate
             Assert.AreEqual(cdf, result, 1E-6);
         }
 
+        /// <summary>
+        /// Testing inverse CDF method.
+        /// </summary>
         [TestMethod()]
         public void Test_NoncentralT_InverseCDF()
         {
@@ -98,6 +124,173 @@ namespace Distributions.Univariate
             //    Output[i] = NCT.InverseCDF(0.95d);
             //    // Trace.WriteLine(Output(i) & "," & NCT.CDF(Output(i)))
             //}
+        }
+
+        /// <summary>
+        /// Verifying input parameters can create Noncentral T distribution.
+        /// </summary>
+        [TestMethod()]
+        public void CanCreateNoncentralT()
+        {
+            var t = new NoncentralT();
+            Assert.AreEqual(t.DegreesOfFreedom, 10);
+            Assert.AreEqual(t.Noncentrality, 0);
+
+            var t2 = new NoncentralT(1, 1);
+            Assert.AreEqual(t2.DegreesOfFreedom, 1);
+            Assert.AreEqual(t2.Noncentrality, 1);
+        }
+
+        /// <summary>
+        /// Testing distribution with bad parameters.
+        /// </summary>
+        [TestMethod()]
+        public void NoncentralTFails()
+        {
+            var t = new NoncentralT(0, 1);
+            Assert.IsFalse(t.ParametersValid);
+
+            var t2 = new NoncentralT(1,double.PositiveInfinity);
+            Assert.IsFalse(t2.ParametersValid);
+
+            var t3 = new NoncentralT(1,double.NaN);
+            Assert.IsFalse(t3.ParametersValid);
+        }
+
+        /// <summary>
+        /// Testing ParametersToString
+        /// </summary>
+        [TestMethod()]
+        public void ValidateParametersToString()
+        {
+            var t = new NoncentralT();
+            Assert.AreEqual(t.ParametersToString[0, 0], "Degrees of Freedom (ν)");
+            Assert.AreEqual(t.ParametersToString[1, 0], "Noncentrality (μ)");
+            Assert.AreEqual(t.ParametersToString[0, 1], "10");
+            Assert.AreEqual(t.ParametersToString[1, 1], "0");
+        }
+
+        /// <summary>
+        /// Testing mean.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateMean()
+        {
+            var t = new NoncentralT();
+            Assert.AreEqual(t.Mean, 0);
+
+            var t2 = new NoncentralT(0, 1);
+            Assert.AreEqual(t2.Mean, double.NaN);
+        }
+
+        /// <summary>
+        /// Testing median.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateMedian()
+        {
+            var t = new NoncentralT();
+            Assert.AreEqual(t.Median, 0,1e-04);
+
+            var t2 = new NoncentralT(1, 1);
+            Assert.AreEqual(t2.Median, 1.3202,1e-04);
+        }
+
+        /// <summary>
+        /// Testing mode.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateMode()
+        {
+            var t = new NoncentralT();
+            Assert.AreEqual(t.Mode, 0);
+
+            var t2 = new NoncentralT(10, double.PositiveInfinity);
+            Assert.AreEqual(t2.Mode, double.PositiveInfinity);
+
+            var t3 = new NoncentralT(10, 1);
+            Assert.AreEqual(t3.Mode, 0.9329,1e-04);
+        }
+
+        /// <summary>
+        /// Testing standard deviation.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateStandardDeviation()
+        {
+            var t = new NoncentralT();
+            Assert.AreEqual(t.StandardDeviation,1.1180,1e-04);
+
+            var t2 = new NoncentralT(1, 0);
+            Assert.AreEqual(t2.StandardDeviation,double.NaN);
+        }
+
+        /// <summary>
+        /// Testing skew.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateSkew()
+        {
+            var t = new NoncentralT();
+            Assert.AreEqual(t.Skew, double.NaN);
+        }
+
+        /// <summary>
+        /// Testing Kurtosis
+        /// </summary>
+        [TestMethod()]
+        public void ValidateKurtosis()
+        {
+            var t = new NoncentralT();
+            Assert.AreEqual(t.Kurtosis, double.NaN);
+        }
+
+        /// <summary>
+        /// Testing min and max functions.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateMinMax()
+        {
+            var t = new NoncentralT();
+            Assert.AreEqual(t.Minimum,double.NegativeInfinity);
+            Assert.AreEqual(t.Maximum,double.PositiveInfinity);
+
+            var t2 = new NoncentralT(1, 1);
+            Assert.AreEqual(t2.Minimum, double.NegativeInfinity);
+            Assert.AreEqual(t2.Maximum, double.PositiveInfinity);
+        }
+
+        /// <summary>
+        /// Testing PDF method.
+        /// </summary>
+        [TestMethod()]
+        public void ValidatePDF()
+        {
+            var t = new NoncentralT();
+            Assert.AreEqual(t.PDF(0), 0.38910,1e-04);
+            Assert.AreEqual(t.PDF(1),0.23036,1e-04);
+        }
+
+        /// <summary>
+        /// Testing CDF method.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateCDF()
+        {
+            var t = new NoncentralT();
+            Assert.AreEqual(t.CDF(1), 0.82955,1e-04);
+        }
+
+        /// <summary>
+        /// Testing inverse CDF method.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateInverseCDF()
+        {
+            var t = new NoncentralT();
+            Assert.AreEqual(t.InverseCDF(0), double.NegativeInfinity);
+            Assert.AreEqual(t.InverseCDF(1),double.PositiveInfinity);
+            Assert.AreEqual(t.InverseCDF(0.4), -0.26018,1e-04);
         }
     }
 }

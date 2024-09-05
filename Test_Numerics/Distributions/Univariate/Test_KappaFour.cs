@@ -36,6 +36,24 @@ using Numerics.Mathematics;
 
 namespace Distributions.Univariate
 {
+    /// <summary>
+    /// Testing the Kappa-4 distribution algorithm.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    ///     <b> Authors: </b>
+    ///     <list type="bullet">
+    ///     <item> Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil </item>
+    ///     <item> Tiki Gonzalez, USACE Risk Management Center, julian.t.gonzalez@usace.army.mil</item>
+    ///     </list> 
+    /// </para>
+    /// <para>
+    /// <b> References: </b>
+    /// </para>
+    /// <para>
+    /// <see href = "https://github.com/mathnet/mathnet-numerics/blob/master/src/Numerics.Tests/DistributionTests" />
+    /// </para>
+    /// </remarks>
     [TestClass]
     public class Test_KappaFour
     {
@@ -166,8 +184,142 @@ namespace Distributions.Univariate
 
         }
 
+        /// <summary>
+        /// Checking that Kappa-4 is being created with inputs.
+        /// </summary>
+        [TestMethod()]
+        public void CanCreateKappa4()
+        {
+            var k4 = new KappaFour();
+            Assert.AreEqual(k4.Xi, 100);
+            Assert.AreEqual(k4.Alpha, 10);
+            Assert.AreEqual(k4.Kappa, 0);
+            Assert.AreEqual(k4.Hondo, 0);
+
+            var k4ii = new KappaFour(100, 10, 1, 1);
+            Assert.AreEqual(k4ii.Xi, 100);
+            Assert.AreEqual(k4ii.Alpha, 10);
+            Assert.AreEqual(k4ii.Kappa, 1);
+            Assert.AreEqual(k4ii.Hondo, 1);
+        }
+
+        /// <summary>
+        /// Testting Kappa-4 with bad parameters.
+        /// </summary>
+        [TestMethod()]
+        public void Kappa4Fails()
+        {
+            var k4 = new KappaFour(double.NaN,double.NaN,double.NaN, double.NaN);
+            Assert.IsFalse(k4.ParametersValid);
+
+            var k4ii = new KappaFour(double.PositiveInfinity,double.PositiveInfinity,double.PositiveInfinity,double.PositiveInfinity);
+            Assert.IsFalse(k4ii.ParametersValid);
+
+            var k4iii = new KappaFour(100, 0, 1, 1);
+            Assert.IsFalse(k4iii.ParametersValid);
+        }
+
+        /// <summary>
+        /// Testing ParametersToString
+        /// </summary>
+        [TestMethod()]
+        public void ValidateParametersToString()
+        {
+            var k4 = new KappaFour();
+            Assert.AreEqual(k4.ParametersToString[0, 0], "Location (ξ)");
+            Assert.AreEqual(k4.ParametersToString[1, 0], "Scale (α)");
+            Assert.AreEqual(k4.ParametersToString[2, 0], "Shape (κ)");
+            Assert.AreEqual(k4.ParametersToString[3, 0], "Shape (h)");
+            Assert.AreEqual(k4.ParametersToString[0, 1], "100");
+            Assert.AreEqual(k4.ParametersToString[1, 1], "10");
+            Assert.AreEqual(k4.ParametersToString[2, 1], "0");
+            Assert.AreEqual(k4.ParametersToString[3, 1], "0");
+        }
+
+        /// <summary>
+        /// Testing mean function.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateMean()
+        {
+
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        [TestMethod()]
+        public void ValidateMedian()
+        {
+
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        [TestMethod()]
+        public void ValidateMode()
+        {
+            var k4 = new KappaFour();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        [TestMethod()]
+        public void ValidateStandardDeviation()
+        {
+
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        [TestMethod()]
+        public void ValidateSkew()
+        {
+
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        [TestMethod()]
+        public void ValidateKurtosis()
+        {
+
+        }
+
+        /// <summary>
+        /// Testing minimum function with varying inputs
+        /// </summary>
+        [TestMethod()]
+        public void ValidateMinimum()
+        {
+            var k4 = new KappaFour(100, 10, -1, 0);
+            Assert.AreEqual(k4.Minimum, 90);
+
+            var k4ii = new KappaFour(100, 10, 1, 1);
+            Assert.AreEqual(k4ii.Minimum, 100);
+
+            var k4iii = new KappaFour(100, 10, 0, 1);
+            Assert.AreEqual(k4iii.Minimum, 100);
+
+            var k4iv = new KappaFour();
+            Assert.AreEqual(k4iv.Minimum, double.NegativeInfinity);
+        }
+
+        /// <summary>
+        /// Testing maximum function with varying inputs.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateMaximum()
+        {
+            var k4 = new KappaFour();
+            Assert.AreEqual(k4.Maximum,double.PositiveInfinity);
+
+            var k4ii = new KappaFour(100, 10, 1, 1);
+            Assert.AreEqual(k4ii.Maximum, 110);
+        }
      }
-
-
-
 }

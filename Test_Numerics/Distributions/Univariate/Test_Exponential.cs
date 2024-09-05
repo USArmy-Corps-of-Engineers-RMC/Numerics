@@ -29,6 +29,7 @@
 * **/
 
 using System;
+using System.Runtime.Remoting.Messaging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Numerics.Distributions;
 
@@ -49,7 +50,7 @@ namespace Distributions.Univariate
     /// <b> References: </b>
     /// </para>
     /// <para>
-    /// <see href = "https://github.com/mathnet/mathnet-numerics/blob/master/src/Numerics.Tests/DistributionTests/Discrete/BinomialTests.cs" />
+    /// <see href = "https://github.com/mathnet/mathnet-numerics/blob/master/src/Numerics.Tests/DistributionTests" />
     /// </para>
     /// </remarks>
     
@@ -336,26 +337,29 @@ namespace Distributions.Univariate
         }
 
         /// <summary>
-        /// 
+        /// Checking PDF function with different points in the distribution range.
         /// </summary>
         [TestMethod()]
         public void ValidatePDF()
         {
-            //var EXP = new Exponential(0, 3);
-            //Assert.AreEqual(3, EXP.PDF(0));
-            //Assert.AreEqual(0.149361, EXP.PDF(1));
-            //Assert.AreEqual(0.00743626, EXP.PDF(2));
-            //Assert.AreEqual(0.000370229, EXP.PDF(3));
-            //Assert.AreEqual(0.0000184326, EXP.PDF(4));
+            var EXP = new Exponential(0, 3);
+            Assert.AreEqual(0.33333, EXP.PDF(0),1e-04);
+            Assert.AreEqual(0.23884377, EXP.PDF(1),1e-04);
+            Assert.AreEqual(0.171139, EXP.PDF(2),1e-04);
+            Assert.AreEqual(0.122626, EXP.PDF(3),1e-04);
         }
 
         /// <summary>
-        /// 
+        /// Checking CDF function with different points in the distribution range.
         /// </summary>
         [TestMethod()]
         public void ValidateCDF()
         {
-
+            var EXP = new Exponential(0, 3);
+            Assert.AreEqual(0, EXP.CDF(0));
+            Assert.AreEqual(0.2834686, EXP.CDF(1), 1e-04);
+            Assert.AreEqual(0.4865828, EXP.CDF(2), 1e-04);
+            Assert.AreEqual(0.632120, EXP.CDF(3), 1e-04);
         }
 
         /// <summary>
@@ -364,31 +368,15 @@ namespace Distributions.Univariate
         [TestMethod()]
         public void ValidateInverseCDF()
         {
+            var EXP = new Exponential(0, 1);
+            Assert.AreEqual(0,EXP.InverseCDF(0));
+            Assert.AreEqual(double.PositiveInfinity, EXP.InverseCDF(1));
+            Assert.AreEqual(0.693147, EXP.InverseCDF(0.5), 1e-04);
 
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        [TestMethod()]
-        public void ValidateParameterVariance()
-        {
-
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        [TestMethod()]
-        public void ValidateParameterCovariance()
-        {
-
-        }
-
-        [TestMethod()]
-        public void ValidateJacobian()
-        {
-
+            var EXP2 = new Exponential();
+            Assert.AreEqual(103.5667494, EXP2.InverseCDF(0.3), 1e-04);
+            Assert.AreEqual(106.93147, EXP2.InverseCDF(0.5), 1e-04);
+            Assert.AreEqual(112.039728, EXP2.InverseCDF(0.7), 1e-04);
         }
     }
 }

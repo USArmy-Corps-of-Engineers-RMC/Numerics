@@ -36,6 +36,24 @@ using Numerics.Distributions;
 
 namespace Distributions.Univariate
 {
+    /// <summary>
+    /// Testing the Normal distribution algorithm.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    ///     <b> Authors: </b>
+    ///     <list type="bullet">
+    ///     <item> Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil </item>
+    ///     <item> Tiki Gonzalez, USACE Risk Management Center, julian.t.gonzalez@usace.army.mil</item>
+    ///     </list> 
+    /// </para>
+    /// <para>
+    /// <b> References: </b>
+    /// </para>
+    /// <para>
+    /// <see href = "https://github.com/mathnet/mathnet-numerics/blob/master/src/Numerics.Tests/DistributionTests" />
+    /// </para>
+    /// </remarks>
     [TestClass]
     public class Test_Normal
     {
@@ -58,7 +76,7 @@ namespace Distributions.Univariate
         [TestMethod()]
         public void Test_Normal_MOM_Fit()
         {
-            var z = Normal.StandardZ(1-1E-16);
+            var z = Normal.StandardZ(1 - 1E-16);
 
             var norm = new Normal();
             norm.Estimate(sample, ParameterEstimationMethod.MethodOfMoments);
@@ -158,7 +176,170 @@ namespace Distributions.Univariate
             Assert.AreEqual((qVar99 - true_qVar99) / true_qVar99 < 0.01d, true);
         }
 
+        /// <summary>
+        /// Verifying that input parameters can create distribution.
+        /// </summary>
+        [TestMethod()]
+        public void CanCreateNormal()
+        {
+            var N = new Normal();
+            Assert.AreEqual(N.Mu, 0);
+            Assert.AreEqual(N.Sigma, 1);
 
+            var N2 = new Normal(1, 1);
+            Assert.AreEqual(N2.Mu, 1);
+            Assert.AreEqual(N2.Sigma,1);
+        }
 
+        /// <summary>
+        /// Testing distribution with bad parameters.
+        /// </summary>
+        [TestMethod()]
+        public void NormalFails()
+        {
+            var N = new Normal(double.NaN, 1);
+            Assert.IsFalse(N.ParametersValid);
+
+            var N2 = new Normal(1,double.NaN);
+            Assert.IsFalse(N2.ParametersValid);
+
+            var N3 = new Normal(double.PositiveInfinity, 1);
+            Assert.IsFalse(N3.ParametersValid);
+
+            var N4 = new Normal(1,double.PositiveInfinity);
+            Assert.IsFalse(N4.ParametersValid);
+        }
+
+        /// <summary>
+        /// Testing parameters to string.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateParametersToString()
+        {
+            var N = new Normal();
+            Assert.AreEqual(N.ParametersToString[0, 0], "Mean (µ)");
+            Assert.AreEqual(N.ParametersToString[1, 0], "Std Dev (σ)");
+            Assert.AreEqual(N.ParametersToString[0, 1], "0");
+            Assert.AreEqual(N.ParametersToString[1,1], "1");
+        }
+
+        /// <summary>
+        /// Testing mean.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateMean()
+        {
+            var N = new Normal();
+            Assert.AreEqual(N.Mean, 0);
+
+            var N2 = new Normal(5, 9);
+            Assert.AreEqual(N2.Mean, 5);
+        }
+
+        /// <summary>
+        /// Testing median.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateMedian()
+        {
+            var N = new Normal();
+            Assert.AreEqual(N.Median, 0);
+
+            var N2 = new Normal(5, 9);
+            Assert.AreEqual(N2.Median, 5);
+        }
+
+        /// <summary>
+        /// Testing mode.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateMode()
+        {
+            var N = new Normal();
+            Assert.AreEqual(N.Mode, 0);
+
+            var N2 = new Normal(5, 9);
+            Assert.AreEqual(N2.Mode, 5);
+        }
+
+        /// <summary>
+        /// Testing standard deviation.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateStandardDeviation()
+        {
+            var N = new Normal();
+            Assert.AreEqual(N.StandardDeviation, 1);
+
+            var N2 = new Normal(5, 9);
+            Assert.AreEqual(N2.StandardDeviation, 9);
+        }
+
+        /// <summary>
+        /// Testing skew.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateSkew()
+        {
+            var N = new Normal();
+            Assert.AreEqual(N.Skew,0);
+
+            var N2 = new Normal(5, 9);
+            Assert.AreEqual(N2.Skew,0);
+        }
+
+        /// <summary>
+        /// Testing Kurtosis.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateKurtosis()
+        {
+            var N = new Normal();
+            Assert.AreEqual(N.Kurtosis, 3);
+
+            var N2 = new Normal(5, 9);
+            Assert.AreEqual(N2.Kurtosis, 3);
+        }
+
+        /// <summary>
+        /// Testing minimum and maximum functions.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateMinMax()
+        {
+            var N = new Normal();
+            Assert.AreEqual(N.Minimum, double.NegativeInfinity);
+            Assert.AreEqual(N.Maximum, double.PositiveInfinity);
+
+            var N2 = new Normal(5, 9);
+            Assert.AreEqual(N2.Minimum,double.NegativeInfinity);
+            Assert.AreEqual(N2.Maximum,double.PositiveInfinity);
+        }
+
+        /// <summary>
+        /// Testing PDF method.
+        /// </summary>
+        [TestMethod()]
+        public void ValidatePDF()
+        {
+            var N = new Normal();
+            Assert.AreEqual(N.PDF(0), 0.39894, 1e-04);
+            Assert.AreEqual(N.PDF(1), 0.24197, 1e-04);
+
+            var N2 = new Normal(5, 9);
+            Assert.AreEqual(N2.PDF(-1), 0.03549, 1e-04);
+        }
+
+        /// <summary>
+        /// Testing CDF method.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateCDF()
+        {
+            var N = new Normal(5,2);
+            Assert.AreEqual(N.CDF(0), 0.006209, 1e-04);
+            Assert.AreEqual(N.CDF(4), 0.30853, 1e-04);
+            Assert.AreEqual(N.CDF(5), 0.5);
+        }
     }
 }

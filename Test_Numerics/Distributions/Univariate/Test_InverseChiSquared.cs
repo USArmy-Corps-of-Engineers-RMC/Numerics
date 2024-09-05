@@ -29,11 +29,31 @@
 * **/
 
 using System;
+using System.Runtime.Remoting.Messaging;
+using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Numerics.Distributions;
 
 namespace Distributions.Univariate
 {
+    /// <summary>
+    /// Testing the Inverse Chi-Squared probability distribution algorithm.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    ///     <b> Authors: </b>
+    ///     <list type="bullet">
+    ///     <item> Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil </item>
+    ///     <item> Tiki Gonzalez, USACE Risk Management Center, julian.t.gonzalez@usace.army.mil</item>
+    ///     </list> 
+    /// </para>
+    /// <para>
+    /// <b> References: </b>
+    /// </para>
+    /// <para>
+    /// <see href = "https://github.com/mathnet/mathnet-numerics/blob/master/src/Numerics.Tests/DistributionTests" />
+    /// </para>
+    /// </remarks>
     [TestClass]
     public class Test_InverseChiSquared
     {
@@ -48,16 +68,186 @@ namespace Distributions.Univariate
             double true_pdf = 0.0000063457380298844403d;
             double true_cdf = 0.50860033566176044d;
             double true_icdf = 6.27d;
-            var IG = new InverseChiSquared(7, (1d / 7d));
-            double pdf = IG.PDF(6.27d);
-            double cdf = IG.CDF(6.27d);
-            double icdf = IG.InverseCDF(cdf);
-            Assert.AreEqual(IG.Mean, true_mean, 0.0001d);
-            Assert.AreEqual(IG.Median, true_median, 0.0001d);
-            Assert.AreEqual(IG.PDF(6.27d), true_pdf, 0.0001d);
-            Assert.AreEqual(IG.CDF(6.27d), true_cdf, 0.0001d);
-            Assert.AreEqual(IG.InverseCDF(IG.CDF(6.27d)), true_icdf, 0.0001d);
+            var IX = new InverseChiSquared(7, (1d / 7d));
+            double pdf = IX.PDF(6.27d);
+            double cdf = IX.CDF(6.27d);
+            double icdf = IX.InverseCDF(cdf);
+            Assert.AreEqual(IX.Mean, true_mean, 0.0001d);
+            Assert.AreEqual(IX.Median, true_median, 0.0001d);
+            Assert.AreEqual(IX.PDF(6.27d), true_pdf, 0.0001d);
+            Assert.AreEqual(IX.CDF(6.27d), true_cdf, 0.0001d);
+            Assert.AreEqual(IX.InverseCDF(IX.CDF(6.27d)), true_icdf, 0.0001d);
+        }
 
+        /// <summary>
+        /// Checking Inverse Chi-Squared can be created with inputs.
+        /// </summary>
+        [TestMethod()]
+        public void CanCreateInvChiSquared()
+        {
+            var IX = new InverseChiSquared();
+            Assert.AreEqual(IX.DegreesOfFreedom, 10);
+            Assert.AreEqual(IX.Sigma, 1);
+
+            var IX2 = new InverseChiSquared(2, 1);
+            Assert.AreEqual(IX2.DegreesOfFreedom, 2);
+            Assert.AreEqual(IX2.Sigma, 1);
+        }
+
+        /// <summary>
+        /// Testing distribution with bad parameters.
+        /// </summary>
+        [TestMethod()]
+        public void InverseChiSquaredFails()
+        {
+            var IX = new InverseChiSquared(0, 0);
+            Assert.IsFalse(IX.ParametersValid);
+
+            var IX2 = new InverseChiSquared(1, double.NaN);
+            Assert.IsFalse(IX2.ParametersValid);
+
+            var IX3 = new InverseChiSquared(1, double.PositiveInfinity);
+            Assert.IsFalse(IX3.ParametersValid);
+        }
+
+        /// <summary>
+        /// Testing Parameters to string.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateParametersToString()
+        {
+            var IX = new InverseChiSquared();
+            Assert.AreEqual(IX.ParametersToString[0, 0], "Degrees of Freedom (ν)");
+            Assert.AreEqual(IX.ParametersToString[1, 0], "Scale (σ)");
+            Assert.AreEqual(IX.ParametersToString[0, 1], "10");
+            Assert.AreEqual(IX.ParametersToString[1, 1], "1");
+        }
+
+        /// <summary>
+        /// Testing mean function.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateMean()
+        {
+            var IX = new InverseChiSquared();
+            Assert.AreEqual(IX.Mean, 1.25);
+
+            var IX2 = new InverseChiSquared(2, 2);
+            Assert.AreEqual(IX2.Mean, double.NaN);
+        }
+
+        /// <summary>
+        /// Testing median function.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateMedian()
+        {
+            var IX = new InverseChiSquared();
+            Assert.AreEqual(IX.Median, 0.93418,1e-04);
+
+            var IX2 = new InverseChiSquared(7, 1);
+            Assert.AreEqual(IX2.Median, 0.906544, 1e-04);
+        }
+
+        /// <summary>
+        /// Testing mode function.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateMode()
+        {
+            var IX = new InverseChiSquared();
+            Assert.AreEqual(IX.Mode, 0.8333, 1e-04);
+
+            var IX2 = new InverseChiSquared(2, 2);
+            Assert.AreEqual(IX2.Mode, 1);
+        }
+
+        /// <summary>
+        /// Testing standard deviation.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateStandardDeviation()
+        {
+            var IX = new InverseChiSquared();
+            Assert.AreEqual(IX.StandardDeviation, 0.72168, 1e-04);
+
+            var IX2 = new InverseChiSquared(2, 2);
+            Assert.AreEqual(IX2.StandardDeviation, double.NaN);
+        }
+
+        /// <summary>
+        /// Testing skew function.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateSkew()
+        {
+            var IX = new InverseChiSquared();
+            Assert.AreEqual(IX.Skew, 3.46410, 1e-04);
+
+            var IX2 = new InverseChiSquared(2, 2);
+            Assert.AreEqual(IX2.Skew,double.NaN);
+        }
+
+        /// <summary>
+        /// Testing kurtosis function.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateKurtosis()
+        {
+            var IX = new InverseChiSquared();
+            Assert.AreEqual(IX.Kurtosis, 45);
+
+            var IX2 = new InverseChiSquared(2,2);
+            Assert.AreEqual(IX2.Kurtosis, double.NaN);
+        }
+
+        /// <summary>
+        /// Testing Minimum and Maximum functions are 0 and positive infinity respectively.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateMinMax()
+        {
+            var IX = new InverseChiSquared();
+            Assert.AreEqual(IX.Minimum, 0);
+            Assert.AreEqual(IX.Maximum, double.PositiveInfinity);
+        }
+
+        /// <summary>
+        /// Testing PDF method.
+        /// </summary>
+        [TestMethod()]
+        public void ValidatePDF()
+        {
+            var IX = new InverseChiSquared(1, 1);
+            Assert.AreEqual(IX.PDF(1), 0.2419,1e-04);
+
+            var IX2 = new InverseChiSquared(2, 1);
+            Assert.AreEqual(IX2.PDF(2), 0.15163, 1e-04);
+
+            var IX3 = new InverseChiSquared();
+            Assert.AreEqual(IX3.PDF(2), 0.16700, 1e-04);
+        }
+
+        /// <summary>
+        /// Testing CDF method.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateCDF()
+        {
+            var IX = new InverseChiSquared(7,1);
+            Assert.AreEqual(IX.CDF(5), 1.1184e-05, 1e-09);
+        }
+
+        /// <summary>
+        /// Testing the Inverse CDF method.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateInverseCDF()
+        {
+            var IX = new InverseChiSquared();
+            Assert.AreEqual(IX.InverseCDF(0), 0);
+            Assert.AreEqual(IX.InverseCDF(1), double.PositiveInfinity);
+            Assert.AreEqual(IX.InverseCDF(0.3), 1.17807,1e-04);
         }
     }
 }

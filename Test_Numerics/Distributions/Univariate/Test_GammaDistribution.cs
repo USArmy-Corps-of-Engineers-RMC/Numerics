@@ -29,6 +29,7 @@
 * **/
 
 using System;
+using System.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Numerics.Distributions;
 
@@ -49,7 +50,7 @@ namespace Distributions.Univariate
     /// <b> References: </b>
     /// </para>
     /// <para>
-    /// <see href = "https://github.com/mathnet/mathnet-numerics/blob/master/src/Numerics.Tests/DistributionTests/Discrete/BinomialTests.cs" />
+    /// <see href = "https://github.com/mathnet/mathnet-numerics/blob/master/src/Numerics.Tests/DistributionTests" />
     /// </para>
     /// </remarks>
 
@@ -246,69 +247,201 @@ namespace Distributions.Univariate
         }
 
         /// <summary>
-        /// 
+        /// Checking median function output. (There is no closed form solution)
         /// </summary>
         [TestMethod()]
         public void ValidateMedian()
         {
-
+            var G = new GammaDistribution();
+            Assert.AreEqual(G.InverseCDF(0.5),G.Median);
         }
 
         /// <summary>
-        /// 
+        /// Checking Mode function with different scales.
         /// </summary>
         [TestMethod()]
         public void ValidateMode()
         {
+            var G = new GammaDistribution();
+            Assert.AreEqual(10, G.Mode);
 
+            var G2 = new GammaDistribution(10, 1);
+            Assert.AreEqual(double.NaN, G2.Mode);
         }
 
         /// <summary>
-        /// 
+        /// Checking standard deviation.
         /// </summary>
         [TestMethod()]
         public void ValidateStandardDeviation()
         {
+            var G = new GammaDistribution();
+            Assert.AreEqual(14.142135, G.StandardDeviation,1e-04);
 
+            var G2 = new GammaDistribution(1, 2);
+            Assert.AreEqual(G2.StandardDeviation, 1.4142135, 1e-04);
         }
 
         /// <summary>
-        /// 
+        /// Checking skew function with different shapes.
         /// </summary>
         [TestMethod()]
         public void ValidateSkew()
         {
+            var G = new GammaDistribution();
+            Assert.AreEqual(G.Skew, 1.4142135, 1e-04);
 
+            var G2 = new GammaDistribution(10, 100);
+            Assert.AreEqual(G2.Skew, 0.2);
         }
 
         /// <summary>
-        /// 
+        /// Checking Kurtosis function.
         /// </summary>
         [TestMethod()]
         public void ValidateKurtosis()
         {
+            var G = new GammaDistribution();
+            Assert.AreEqual(G.Kurtosis, 6);
 
+            var G2 = new GammaDistribution(10, 6);
+            Assert.AreEqual(G2.Kurtosis, 4);
+
+            var G3 = new GammaDistribution(10, 2.5);
+            Assert.AreEqual(G3.Kurtosis, 5.4);
         }
 
         /// <summary>
-        /// 
+        /// Checking minimum is 0.
         /// </summary>
         [TestMethod()]
         public void ValidateMinimum()
         {
-
+            var G = new GammaDistribution();
+            Assert.AreEqual(G.Minimum, 0);
         }
 
         /// <summary>
-        /// 
+        /// Checking maximum is infinity
         /// </summary>
         [TestMethod()]
         public void ValidateMaximum()
         {
-
+            var G = new GammaDistribution();
+            Assert.AreEqual(G.Maximum, double.PositiveInfinity);
         }
 
+        /// <summary>
+        /// Verification of Gamma fit with maximum likelihood using Newton-Raphson.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// Reference: "The Gamma Family and Derived Distributions Applied in Hydrology", B. Bobee & F. Ashkar, Water Resources Publications, 1991.
+        /// </para>
+        /// <para>
+        /// Example 7.4 page 93.
+        /// </para>
+        /// </remarks>
         [TestMethod()]
-        public void 
+        public void ValidateMLE_NR()
+        {
+            var G = new GammaDistribution();
+            G.MLE_NR(sample);
+            double alpha = 1d / G.Theta;
+            double lambda = G.Kappa;
+            double trueA = 0.08833d;
+            double trueL = 16.89937d;
+            Assert.AreEqual((alpha - trueA) / trueA < 0.2d, true);
+            Assert.AreEqual((lambda - trueL) / trueL < 0.01d, true);
+        }
+
+        /// <summary>
+        /// Verification of Gamma fit with maximum likelihood using Newton-Raphson.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// Reference: "The Gamma Family and Derived Distributions Applied in Hydrology", B. Bobee & F. Ashkar, Water Resources Publications, 1991.
+        /// </para>
+        /// <para>
+        /// Example 7.4 page 93.
+        /// </para>
+        /// </remarks>
+        [TestMethod()]
+        public void ValidateMLE_Bobee()
+        {
+            var G = new GammaDistribution();
+            G.MLE_Bobee(sample);
+            double alpha = 1d / G.Theta;
+            double lambda = G.Kappa;
+            double trueA = 0.08833d;
+            double trueL = 16.89937d;
+            Assert.AreEqual((alpha - trueA) / trueA < 0.2d, true);
+            Assert.AreEqual((lambda - trueL) / trueL < 0.01d, true);
+        }
+
+        /// <summary>
+        /// Checking PDF with different locations and parameters.
+        /// </summary>
+        [TestMethod()]
+        public void ValidatePDF()
+        {
+            var G = new GammaDistribution(10,1);
+            Assert.AreEqual(G.PDF(1), 0.090483, 1e-04);
+            Assert.AreEqual(G.PDF(10), 0.036787, 1e-04);
+
+            var G2 = new GammaDistribution(1,1);
+            Assert.AreEqual(G2.PDF(1), 0.367879, 1e-04);
+            Assert.AreEqual(G2.PDF(10), 0.0000453999, 1e-10);
+        }
+
+        /// <summary>
+        /// Checking CDF function with different parameters at different locations.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateCDF()
+        {
+            var G = new GammaDistribution(10, 1);
+            Assert.AreEqual(G.CDF(1), 0.09516258, 1e-04);
+            Assert.AreEqual(G.CDF(10), 0.63212, 1e-04);
+
+            var G2 = new GammaDistribution(1, 1);
+            Assert.AreEqual(G2.CDF(10), 0.999954, 1e-04);
+
+            var G3 = new GammaDistribution(0.1, 10);
+            Assert.AreEqual(G3.CDF(1), 0.54207028, 1e-04);
+            Assert.AreEqual(G3.CDF(10), 0.999999, 1e-04);
+        }
+
+        /// <summary>
+        /// Checking inverse CDF function with different parameters.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateInverseCDF()
+        {
+            var G = new GammaDistribution(10,1);
+            Assert.AreEqual(G.InverseCDF(0), 0);
+            Assert.AreEqual(G.InverseCDF(1), double.PositiveInfinity);
+
+            var G2 = new GammaDistribution(9.30149316e-07,1082.2442991605726);
+            Assert.AreEqual(G2.InverseCDF(0.99), 1.0792e-03,1e-04);
+            Assert.AreEqual(G2.InverseCDF(0.9919), 1.0817e-03,1e-04);
+            Assert.AreEqual(G2.InverseCDF(0.993), 1.0834e-03,1e-04);
+        }
+
+        /// <summary>
+        /// Validating Wilson Hilferty Inverse CDF function. 
+        /// <see href="extension://efaidnbmnnnibpcajpcglclefindmkaj/https://faculty.washington.edu/smukherj/mypubs/Gamma_normal_methods_2008.pdf"/>
+        /// </summary>
+        [TestMethod()]
+        public void ValidateWilsonHilfertyInverseCDF()
+        {
+            var G = new GammaDistribution(1, 1);
+            Assert.AreEqual(G.WilsonHilfertyInverseCDF(.99), 4.62111,1e-04);
+            Assert.AreEqual(G.WilsonHilfertyInverseCDF(0.999), 6.92202,1e-04);
+
+            var G2 = new GammaDistribution(1, 2);
+            Assert.AreEqual(G2.WilsonHilfertyInverseCDF(0.05), 0.3566877,1e-04);
+            Assert.AreEqual(G2.WilsonHilfertyInverseCDF(0.10), 0.5326, 1e-04);
+        }
     }
 }

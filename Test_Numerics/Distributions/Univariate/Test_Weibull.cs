@@ -35,6 +35,24 @@ using Numerics.Distributions;
 
 namespace Distributions.Univariate
 {
+    /// <summary>
+    /// Testing the Weibull distribution algorithm.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    ///     <b> Authors: </b>
+    ///     <list type="bullet">
+    ///     <item> Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil </item>
+    ///     <item> Tiki Gonzalez, USACE Risk Management Center, julian.t.gonzalez@usace.army.mil</item>
+    ///     </list> 
+    /// </para>
+    /// <para>
+    /// <b> References: </b>
+    /// </para>
+    /// <para>
+    /// <see href = "https://github.com/mathnet/mathnet-numerics/blob/master/src/Numerics.Tests/DistributionTests" />
+    /// </para>
+    /// </remarks>
     [TestClass]
     public class Test_Weibull
     {
@@ -120,6 +138,178 @@ namespace Distributions.Univariate
             double true_RSME = 0.0233d;
             Assert.AreEqual((AIC - true_AIC) / true_AIC < 0.01d, true);
             Assert.AreEqual((BIC - true_BIC) / true_BIC < 0.01d, true);
+        }
+
+        /// <summary>
+        /// Verifying input parameters can create Weibull.
+        /// </summary>
+        [TestMethod()]
+        public void CanCreateWeibull()
+        {
+            var W = new Weibull();
+            Assert.AreEqual(W.Lambda, 10);
+            Assert.AreEqual(W.Kappa, 2);
+
+            var W2 = new Weibull(1, 1);
+            Assert.AreEqual(W2.Lambda, 1);
+            Assert.AreEqual(W2.Kappa, 1);
+        }
+
+        /// <summary>
+        /// Testing distribution with bad parameters.
+        /// </summary>
+        [TestMethod()]
+        public void WeibullFails()
+        {
+            var W = new Weibull(double.NaN, double.NaN);
+            Assert.IsFalse(W.ParametersValid);
+
+            var W2 = new Weibull(double.NegativeInfinity,double.PositiveInfinity);
+            Assert.IsFalse(W2.ParametersValid);
+
+            var W3 = new Weibull(0, 1);
+            Assert.IsFalse(W3.ParametersValid);
+
+            var W4 = new Weibull(1, 0);
+            Assert.IsFalse(W4.ParametersValid);
+        }
+
+        /// <summary>
+        /// Testing parameters to string.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateParametersToString()
+        {
+            var W = new Weibull();
+            Assert.AreEqual(W.ParametersToString[0, 0], "Scale (λ)");
+            Assert.AreEqual(W.ParametersToString[1, 0], "Shape (κ)");
+            Assert.AreEqual(W.ParametersToString[0, 1], "10");
+            Assert.AreEqual(W.ParametersToString[1, 1], "2");
+        }
+
+        /// <summary>
+        /// Testing mean.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateMean()
+        {
+            var W = new Weibull(0.1, 1);
+            Assert.AreEqual(W.Mean, 0.1);
+
+            var W2 = new Weibull(1, 1);
+            Assert.AreEqual(W2.Mean, 1);
+        }
+
+        /// <summary>
+        /// Testing median.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateMedian()
+        {
+            var W = new Weibull(0.1, 1);
+            Assert.AreEqual(W.Median, 0.06931, 1e-04);
+
+            var W2 = new Weibull(1, 1);
+            Assert.AreEqual(W2.Median, 0.69314, 1e-04);
+        }
+
+        /// <summary>
+        /// Testing mode.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateMode()
+        {
+            var W = new Weibull(0.1, 1);
+            Assert.AreEqual(W.Mode, 0);
+
+            var W2 = new Weibull(10, 10);
+            Assert.AreEqual(W2.Mode, 9.89519, 1e-05);
+        }
+
+        /// <summary>
+        /// Testing standard deviation.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateStandardDeviation()
+        {
+            var W = new Weibull(0.1, 1);
+            Assert.AreEqual(W.StandardDeviation, 0.1);
+
+            var W2 = new Weibull(1, 1);
+            Assert.AreEqual(W2.StandardDeviation, 1);
+        }
+
+        /// <summary>
+        /// Testing skew
+        /// </summary>
+        [TestMethod()]
+        public void ValidateSkew()
+        {
+            var W = new Weibull(0.1, 1);
+            Assert.AreEqual(W.Skew, 2,1e-04);
+
+            var W2 = new Weibull(1, 1);
+            Assert.AreEqual(W2.Skew, 2);
+        }
+
+        /// <summary>
+        /// Testing kurtosis.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateKurtosis()
+        {
+            var W = new Weibull();
+            Assert.AreEqual(W.Kurtosis, 3.24508,1e-04);
+
+            var W2 = new Weibull(1, 1);
+            Assert.AreEqual(W2.Kurtosis, 9);
+        }
+
+        /// <summary>
+        /// Testing minimum and maximum functions.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateMinMax()
+        {
+            var W = new Weibull();
+            Assert.AreEqual(W.Minimum, 0);
+            Assert.AreEqual(W.Maximum,double.PositiveInfinity);
+        }
+
+        /// <summary>
+        /// Testing PDF method.
+        /// </summary>
+        [TestMethod()]
+        public void ValidatePDF()
+        {
+            var W = new Weibull(1, 1);
+            Assert.AreEqual(W.PDF(0), 1);
+            Assert.AreEqual(W.PDF(1), 0.36787, 1e-05);
+            Assert.AreEqual(W.PDF(10), 0.00004539, 1e-08);
+        }
+
+        /// <summary>
+        /// Testing CDF method.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateCDF()
+        {
+            var W = new Weibull(1, 1);
+            Assert.AreEqual(W.CDF(0), 0);
+            Assert.AreEqual(W.CDF(1), 0.63212, 1e-05);
+            Assert.AreEqual(W.CDF(10), 0.99995, 1e-05);
+        }
+
+        /// <summary>
+        /// Testing inverse CDF.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateInverseCDF()
+        {
+            var W = new Weibull();
+            Assert.AreEqual(W.InverseCDF(0),0);
+            Assert.AreEqual(W.InverseCDF(1),double.PositiveInfinity);
+            Assert.AreEqual(W.InverseCDF(0.4), 7.1472, 1e-04);
         }
     }
 }

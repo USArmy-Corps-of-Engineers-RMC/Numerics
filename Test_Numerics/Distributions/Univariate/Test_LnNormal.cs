@@ -29,12 +29,31 @@
 * **/
 
 using System;
+using System.CodeDom;
 using System.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Numerics.Distributions;
 
 namespace Distributions.Univariate
 {
+    /// <summary>
+    /// Testing the Ln-Normal (Galton) distribution algorithm.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    ///     <b> Authors: </b>
+    ///     <list type="bullet">
+    ///     <item> Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil </item>
+    ///     <item> Tiki Gonzalez, USACE Risk Management Center, julian.t.gonzalez@usace.army.mil</item>
+    ///     </list> 
+    /// </para>
+    /// <para>
+    /// <b> References: </b>
+    /// </para>
+    /// <para>
+    /// <see href = "https://github.com/mathnet/mathnet-numerics/blob/master/src/Numerics.Tests/DistributionTests" />
+    /// </para>
+    /// </remarks>
     [TestClass]
     public class Test_LnNormal
     {
@@ -191,5 +210,175 @@ namespace Distributions.Univariate
 
         }
 
+        /// <summary>
+        /// Verifying that inputs can create an Ln Normal distribution.
+        /// </summary>
+        [TestMethod()]
+        public void CanCreateLnNormal()
+        {
+            var LN = new LnNormal();
+            Assert.AreEqual(LN.Mu, 10);
+            Assert.AreEqual(LN.Sigma, 10);
+
+            var LN2 = new LnNormal(1,1);
+            Assert.AreEqual(LN2.Mu, 1);
+            Assert.AreEqual(LN2.Sigma, 1);
+        }
+
+        /// <summary>
+        /// Testing distribution with bad parameters.
+        /// </summary>
+        [TestMethod()]
+        public void LnNormalFails()
+        {
+            var LN = new LnNormal(double.NaN, 0);
+            Assert.IsFalse(LN.ParametersValid);
+
+            var LN2 = new LnNormal(double.PositiveInfinity, 1);
+            Assert.IsFalse(LN2.ParametersValid);
+
+            var LN3 = new LnNormal(0,double.PositiveInfinity);
+            Assert.IsFalse(LN3.ParametersValid);
+        }
+
+        /// <summary>
+        /// Testing ParametersToString()
+        /// </summary>
+        [TestMethod()]
+        public void ValidateParametersToString()
+        {
+            var LN = new LnNormal();
+            Assert.AreEqual(LN.ParametersToString[0, 0], "Mean (µ)");
+            Assert.AreEqual(LN.ParametersToString[1, 0], "Std Dev (σ)");
+            Assert.AreEqual(LN.ParametersToString[0, 1], "10");
+            Assert.AreEqual(LN.ParametersToString[1, 1], "10");
+        }
+
+        /// <summary>
+        /// Testing mean function.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateMean()
+        {
+            var LN = new LnNormal();
+            Assert.AreEqual(LN.Mean, 1.142e26, 1e30);
+
+            var LN2 = new LnNormal(1, 1);
+            Assert.AreEqual(LN2.Mean, 1,1e-04);
+        }
+
+        /// <summary>
+        /// Testing median function.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateMedian()
+        {
+            var LN = new LnNormal();
+            Assert.AreEqual(LN.Median, 7.07106,1e-05);
+
+            var LN2 = new LnNormal(1, 1);
+            Assert.AreEqual(LN2.Median, 0.707106, 1e-05);
+        }
+
+        /// <summary>
+        /// Testing mode function.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateMode()
+        {
+            var LN = new LnNormal();
+            Assert.AreEqual(LN.Mode, 3.5355, 1e-04);
+
+            var LN2 = new LnNormal(1, 1);
+            Assert.AreEqual(LN2.Mode, 0.35355,1e-04);
+        }
+
+        /// <summary>
+        /// Testing standard deviation function.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateStandardDeviation()
+        {
+            var LN = new LnNormal();
+            Assert.AreEqual(LN.StandardDeviation, 5.92e47, 1e49);
+
+            var LN2 = new LnNormal(1, 1);
+            Assert.AreEqual(LN2.StandardDeviation, 1,1e-4);
+        }
+
+        /// <summary>
+        /// Testing skew function.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateSkew()
+        {
+            var LN = new LnNormal();
+            Assert.AreEqual(LN.Skew, 1.39e65, 1e67);
+
+            var LN2 = new LnNormal(1, 1);
+            Assert.AreEqual(LN2.Skew, 4, 1e-04);
+        }
+
+        /// <summary>
+        /// Testing Kurtosis
+        /// </summary>
+        [TestMethod()]
+        public void ValidateKurtosis()
+        {
+            var LN = new LnNormal(1,1);
+            Assert.AreEqual(LN.Kurtosis, 41, 1e-04);
+        }
+
+        /// <summary>
+        /// Testing Minimum and Maximum functions are 0 and infinity, respectively.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateMinMax()
+        {
+            var LN = new LnNormal();
+            Assert.AreEqual(LN.Minimum, 0);
+            Assert.AreEqual(LN.Maximum,double.PositiveInfinity);
+
+            var LN2 = new LnNormal(1, 1);
+            Assert.AreEqual(LN2.Minimum, 0);
+            Assert.AreEqual(LN2.Maximum, double.PositiveInfinity);
+        }
+
+        /// <summary>
+        /// Testing PDF method.
+        /// </summary>
+        [TestMethod()]
+        public void ValidatePDF()
+        {
+            var LN = new LnNormal();
+            Assert.AreEqual(LN.PDF(1), 0.03033, 1e-04);
+            Assert.AreEqual(LN.PDF(-1), 0);
+
+            var LN2 = new LnNormal(2.5, 2.5);
+            Assert.AreEqual(LN2.PDF(0.5), 0.303322, 1e-04);
+        }
+
+        /// <summary>
+        /// Testing CDF method.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateCDF()
+        {
+            var LN = new LnNormal(2.5,2.5);
+            Assert.AreEqual(LN.CDF(0.5), 0.06465, 1e-05);
+            Assert.AreEqual(LN.CDF(0.8), 0.17046, 1e-05);
+        }
+
+        /// <summary>
+        /// Testing inverse cdf method.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateInverseCDF()
+        {
+            var LN = new LnNormal();
+            Assert.AreEqual(LN.InverseCDF(0), 0);
+            Assert.AreEqual(LN.InverseCDF(1),double.PositiveInfinity);
+            Assert.AreEqual(LN.InverseCDF(0.5), 7.07106,1e-04);
+        }
     }
 }

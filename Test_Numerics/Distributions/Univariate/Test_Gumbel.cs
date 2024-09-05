@@ -29,12 +29,31 @@
 * **/
 
 using System;
+using System.CodeDom;
 using System.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Numerics.Distributions;
 
 namespace Distributions.Univariate
 {
+    /// <summary>
+    /// Testing the Gumbel distribution algorithm.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    ///     <b> Authors: </b>
+    ///     <list type="bullet">
+    ///     <item> Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil </item>
+    ///     <item> Tiki Gonzalez, USACE Risk Management Center, julian.t.gonzalez@usace.army.mil</item>
+    ///     </list> 
+    /// </para>
+    /// <para>
+    /// <b> References: </b>
+    /// </para>
+    /// <para>
+    /// <see href = "https://github.com/mathnet/mathnet-numerics/blob/master/src/Numerics.Tests/DistributionTests" />
+    /// </para>
+    /// </remarks>
     [TestClass]
     public class Test_Gumbel
     {
@@ -154,6 +173,173 @@ namespace Distributions.Univariate
             double qVar99 = Math.Sqrt(GUM.QuantileVariance(0.99d, 53, ParameterEstimationMethod.MaximumLikelihood));
             double true_qVar99 = 2486.5d;
             Assert.AreEqual((qVar99 - true_qVar99) / true_qVar99 < 0.01d, true);
+        }
+
+        /// <summary>
+        /// Checking Gumbel is created with inputs.
+        /// </summary>
+        [TestMethod()]
+        public void CanCreateGumbel()
+        {
+            var GUM = new Gumbel();
+            Assert.AreEqual(GUM.Xi, 100);
+            Assert.AreEqual(GUM.Alpha, 10);
+
+            var GUM2 = new Gumbel(-100, 1);
+            Assert.AreEqual(GUM2.Xi, -100);
+            Assert.AreEqual(GUM2.Alpha, 1);
+        }
+
+        /// <summary>
+        /// Testing Gumbel with bad parameters.
+        /// </summary>
+        [TestMethod()]
+        public void GumbelFails()
+        {
+            var GUM = new Gumbel(double.NaN,double.NaN);
+            Assert.IsFalse(GUM.ParametersValid);
+
+            var GUM2 = new Gumbel(double.PositiveInfinity,double.PositiveInfinity);
+            Assert.IsFalse(GUM2.ParametersValid);
+
+            var GUM3 = new Gumbel(100, 0);
+            Assert.IsFalse(GUM3.ParametersValid);
+        }
+
+        /// <summary>
+        /// Testing ParametersToString()
+        /// </summary>
+        [TestMethod()]
+        public void ValidateParametersToString()
+        {
+            var GUM = new Gumbel();
+            Assert.AreEqual(GUM.ParametersToString[0, 0], "Location (ξ)");
+            Assert.AreEqual(GUM.ParametersToString[1, 0], "Scale (α)");
+            Assert.AreEqual(GUM.ParametersToString[0, 1], "100");
+            Assert.AreEqual(GUM.ParametersToString[1, 1], "10");
+        }
+
+        /// <summary>
+        /// Testing mean function.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateMean()
+        {
+            var GUM = new Gumbel();
+            Assert.AreEqual(GUM.Mean, 105.77215, 1e-04);
+
+            var GUM2 = new Gumbel(10, 1);
+            Assert.AreEqual(GUM2.Mean, 10.577215, 1e-04);
+        }
+
+        /// <summary>
+        /// Testing median function.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateMedian()
+        {
+            var GUM = new Gumbel();
+            Assert.AreEqual(GUM.Median, 103.66512, 1e-05);
+
+            var GUM2 = new Gumbel(10, 1);
+            Assert.AreEqual(GUM2.Median, 10.366512, 1e-04);
+        }
+
+        /// <summary>
+        /// Testing Standard deviation.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateStandardDeviation()
+        {
+            var GUM = new Gumbel();
+            Assert.AreEqual(GUM.StandardDeviation, 12.82549, 1e-04);
+
+            var GUM2 = new Gumbel(10, 1);
+            Assert.AreEqual(GUM2.StandardDeviation, 1.28254, 1e-04);
+        }
+
+        /// <summary>
+        /// Testing skew is 1.1396.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateSkew()
+        {
+            var GUM = new Gumbel();
+            Assert.AreEqual(GUM.Skew, 1.1396);
+
+            var GUM2 = new Gumbel(10, 1);
+            Assert.AreEqual(GUM2.Skew, 1.1396);
+        }
+
+        /// <summary>
+        /// Testing kurtosisis 5.4.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateKurtosis()
+        {
+            var GUM = new Gumbel();
+            Assert.AreEqual(GUM.Kurtosis, 5.4);
+
+            var GUM2 = new Gumbel(10, 1);
+            Assert.AreEqual(GUM2.Kurtosis, 5.4);
+        }
+
+        /// <summary>
+        /// Testing minimum and maximum of distribution.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateMinMax()
+        {
+            var GUM = new Gumbel();
+            Assert.AreEqual(GUM.Minimum, double.NegativeInfinity);
+            Assert.AreEqual(GUM.Maximum,double.PositiveInfinity);
+
+            var GUM2 = new Gumbel(10, 1);
+            Assert.AreEqual(GUM2.Minimum, double.NegativeInfinity);
+            Assert.AreEqual(GUM2.Maximum, double.PositiveInfinity);
+        }
+
+        /// <summary>
+        /// Testing PDF method at differnt locations and with different parameters.
+        /// </summary>
+        [TestMethod()]
+        public void ValidatePDF()
+        {
+            var GUM = new Gumbel();
+            Assert.AreEqual(GUM.PDF(100), 0.0367879, 1e-04);
+            Assert.AreEqual(GUM.PDF(0), 0);
+            Assert.AreEqual(GUM.PDF(200), 4.5397e-06, 1e-10);
+
+            var GUM2 = new Gumbel(10, 1);
+            Assert.AreEqual(GUM2.PDF(17), 9.1105e-04, 1e-09);
+        }
+
+        /// <summary>
+        /// Testing CDF method at different locations and with different parameters.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateCDF()
+        {
+            var GUM = new Gumbel();
+            Assert.AreEqual(GUM.CDF(100), 0.36787, 1e-04);
+            Assert.AreEqual(GUM.CDF(50), 3.5073e-65, 1e-68);
+            Assert.AreEqual(GUM.CDF(-10), 0);
+
+            var GUM2 = new Gumbel(10, 2);
+            Assert.AreEqual(GUM2.CDF(5), 5.11929e-06, 1e-10);
+        }
+
+        /// <summary>
+        /// Testing InverseCDF with different probabilities.
+        /// </summary>
+        [TestMethod()]
+        public void ValiddateInverseCDF()
+        {
+            var GUM = new Gumbel();
+            Assert.AreEqual(GUM.InverseCDF(0), double.NegativeInfinity);
+            Assert.AreEqual(GUM.InverseCDF(1), double.PositiveInfinity);
+            Assert.AreEqual(GUM.InverseCDF(0.3), 98.14373, 1e-04);
+            Assert.AreEqual(GUM.InverseCDF(0.7), 110.309304, 1e-04);
         }
     }
 }
