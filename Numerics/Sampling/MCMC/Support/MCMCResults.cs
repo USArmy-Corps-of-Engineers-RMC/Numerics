@@ -35,7 +35,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
-using System.Threading.Tasks;
 
 namespace Numerics.Sampling.MCMC
 {
@@ -63,14 +62,16 @@ namespace Numerics.Sampling.MCMC
         /// <param name="alpha">The confidence level; Default = 0.1, which will result in the 90% confidence intervals.</param> 
         public MCMCResults(MCMCSampler sampler, double alpha = 0.1)
         {
-            MarkovChains = new List<ParameterSet>[sampler.NumberOfChains];        
+            // Clone the Markov Chains and Output
+            MarkovChains = new List<ParameterSet>[sampler.NumberOfChains];
+            Output = new List<ParameterSet>();
             for (int i = 0; i < sampler.NumberOfChains; i++)
             {
                 MarkovChains[i] = sampler.MarkovChains[i].ToList();
+                Output.AddRange(sampler.Output[i].ToList());
             }
             AcceptanceRates = sampler.AcceptanceRates.ToArray();
             MeanLogLikelihood = sampler.MeanLogLikelihood.ToList();
-            Output = sampler.Output.ToList();
             MAP = sampler.MAP.Clone();
             ProcessParameterResults(sampler, alpha);
         }
@@ -120,35 +121,42 @@ namespace Numerics.Sampling.MCMC
             ParameterResults = new ParameterResults[sampler.NumberOfParameters];
             for (int i = 0; i < sampler.NumberOfParameters; i++)
             {
-
                 // Compute the Autocorrelation Function (ACF) and Effective Sample Size (ESS)
-                int N = Output.Count;
+                // Average the ACF and sum the ESS
                 var x = new List<double>();
-                for (int j = 0; j < N; j++)
+                var avgACF = new double[51, 2];
+                double ess = 0;
+
+                for (int j = 0; j < sampler.NumberOfChains; j++)
                 {
-                    x.Add(Output[j].Values[i]);
+                    // Get list of parameters
+                    var N = sampler.Output[j].Count;
+                    var y = new List<double>();
+                    for (int k = 0; k < N; k++)
+                        y.Add(sampler.Output[j][k].Values[i]);
+                    x.AddRange(y);
+
+                    // Get ACF
+                    var acf = Fourier.Autocorrelation(y, (int)Math.Ceiling((double)N / 2));
+                    for (int k = 0; k < acf.GetLength(0); k++)
+                    {
+                        if (k > 50) break;
+                        avgACF[k, 1] += acf[k, 1] / sampler.NumberOfChains;
+                    }
+                    // Get ESS
+                    double rho = 0;
+                    for (int k = 1; k < acf.GetLength(0); k++)
+                    {
+                        if (acf[k, 1] < 0.05) break;
+                        rho += acf[k, 1];
+                    }
+                    ess += Math.Min(N / (1d + 2d * rho), N);
                 }
-                // Get ACF
-                var acf = Fourier.Autocorrelation(x, (int)Math.Ceiling((double)N / 2));
-                var clippedACF = new double[51, 2];
-                for (int k = 0; k < acf.GetLength(0); k++)
-                {
-                    if (k > 50) break;
-                    clippedACF[k, 1] = acf[k, 1];
-                }
-                // Get ESS
-                double rho = 0;
-                for (int k = 1; k < acf.GetLength(0); k++)
-                {
-                    if (acf[k, 1] < 0.05) break;
-                    rho += acf[k, 1];
-                }
-                double ess = Math.Min(N / (1d + 2d * rho), N);
 
                 ParameterResults[i] = new ParameterResults(x, alpha);
                 ParameterResults[i].SummaryStatistics.Rhat = GR[i];
                 ParameterResults[i].SummaryStatistics.ESS = ess;
-                ParameterResults[i].Autocorrelation = clippedACF;
+                ParameterResults[i].Autocorrelation = avgACF;
             }
         }
 

@@ -66,11 +66,9 @@ namespace Numerics.Sampling.MCMC
         /// </summary>
         /// <param name="priorDistributions">The list of prior distributions for the model parameters.</param>
         /// <param name="logLikelihoodFunction">The Log-Likelihood function to evaluate.</param>
-        public DEMCz(List<IUnivariateDistribution> priorDistributions, LogLikelihood logLikelihoodFunction)
+        public DEMCz(List<IUnivariateDistribution> priorDistributions, LogLikelihood logLikelihoodFunction) : base(priorDistributions, logLikelihoodFunction)
         {
-            PriorDistributions = priorDistributions;
-            LogLikelihoodFunction = logLikelihoodFunction;
-            InitialPopulationLength = 100 * NumberOfChains;
+            InitialIterations = 100 * NumberOfChains;
             // DE-MCz options
             IsPopulationSampler = true;
             // Jump parameter. Default = 2.38/SQRT(2*D)
@@ -133,8 +131,8 @@ namespace Numerics.Sampling.MCMC
             // Sample uniformly at random without replacement two numbers R1 and R2
             // from the numbers 1, 2, ..., M. 
             int r1, r2, M = PopulationMatrix.Count;
-            do r1 = _chainPRNGs[index].Next(0, M); while (r1 == index);
-            do r2 = _chainPRNGs[index].Next(0, M); while (r2 == r1 || r2 == index);
+            r1 = _chainPRNGs[index].Next(0, M); 
+            do r2 = _chainPRNGs[index].Next(0, M); while (r2 == r1);
 
             // Calculate the proposal vector
             // x* ← xi + γ(zR1 − zR2) + e

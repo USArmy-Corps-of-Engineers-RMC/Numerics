@@ -552,6 +552,7 @@ namespace Numerics.Distributions
                 xValues[i] = bins[i].Midpoint;
                 pValues[i] = pValues[i - 1] + PDF(xValues[i]) * bins[i].Weight;
             }
+
             // Normalize the cdf to sum to 1
             for (int i = 0; i < n; i++)
             {

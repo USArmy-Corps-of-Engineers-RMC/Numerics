@@ -32,6 +32,7 @@ using Numerics.Distributions;
 using Numerics.Mathematics.Optimization;
 using System;
 using System.Collections.Generic;
+using System.Dynamic;
 
 namespace Numerics.Sampling.MCMC
 {
@@ -68,18 +69,18 @@ namespace Numerics.Sampling.MCMC
         /// <param name="priorDistributions">The list of prior distributions for the model parameters.</param>
         /// <param name="logLikelihoodFunction">The Log-Likelihood function to evaluate.</param>
         /// <param name="proposalFunction">The conditional proposal function.</param>
-        public Gibbs(List<IUnivariateDistribution> priorDistributions, LogLikelihood logLikelihoodFunction, Proposal proposalFunction)
+        public Gibbs(List<IUnivariateDistribution> priorDistributions, LogLikelihood logLikelihoodFunction, Proposal proposalFunction) : base(priorDistributions, logLikelihoodFunction)
         {
-            PriorDistributions = priorDistributions;
-            LogLikelihoodFunction = logLikelihoodFunction;
+
             ProposalFunction = proposalFunction;
             // Create default settings
-            NumberOfChains = 1;
-            WarmupIterations = 1;
-            ThinningInterval = 1;
-            InitialPopulationLength = 1;
-            Iterations = 100000;
+            _numberOfChains = 1;
+            _warmupIterations = 1;
+            _thinningInterval = 1;
+            _initialIterations = 1;
+            _iterations = 100000;
             OutputLength = 10000;
+            Reset();
         }
 
         /// <summary>

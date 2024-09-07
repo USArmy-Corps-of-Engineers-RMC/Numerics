@@ -65,11 +65,9 @@ namespace Numerics.Sampling.MCMC
         /// </summary>
         /// <param name="priorDistributions">The list of prior distributions for the model parameters.</param>
         /// <param name="logLikelihoodFunction">The Log-Likelihood function to evaluate.</param>
-        public DEMCzs(List<IUnivariateDistribution> priorDistributions, LogLikelihood logLikelihoodFunction)
+        public DEMCzs(List<IUnivariateDistribution> priorDistributions, LogLikelihood logLikelihoodFunction) : base(priorDistributions, logLikelihoodFunction)
         {
-            PriorDistributions = priorDistributions;
-            LogLikelihoodFunction = logLikelihoodFunction;
-            InitialPopulationLength = 100 * NumberOfParameters;
+            InitialIterations = 100 * NumberOfParameters;
             // DE-MCz options
             IsPopulationSampler = true;
             // Jump parameter. Default = 2.38/SQRT(2*D)
@@ -146,8 +144,8 @@ namespace Numerics.Sampling.MCMC
                 // Sample uniformly at random without replacement two numbers R1 and R2
                 // from the numbers 1, 2, ..., M. 
                 int r1, r2, M = PopulationMatrix.Count;
-                do r1 = _chainPRNGs[index].Next(0, M); while (r1 == index);
-                do r2 = _chainPRNGs[index].Next(0, M); while (r2 == r1 || r2 == index);
+                r1 = _chainPRNGs[index].Next(0, M); 
+                do r2 = _chainPRNGs[index].Next(0, M); while (r2 == r1);
 
                 // Calculate the proposal vector
                 // x* ← xi + γ(zR1 − zR2) + e
@@ -216,13 +214,13 @@ namespace Numerics.Sampling.MCMC
 
             // Define z
             int n = MarkovChains[c].Count();
-            var z = new Vector(MarkovChains[c][n - 1].Values.ToArray());
-            var xi = new Vector(state.Values.ToArray());
+            var z = new Vector(MarkovChains[c][n - 1].Values);
+            var xi = new Vector(state.Values);
             // Define line xi - z
             var line = xi - z;
             // Orthogonally project zR1 and zR2 onto the line xi - z
-            var zr1 = new Vector(MarkovChains[c1][n - 1].Values.ToArray());
-            var zr2 = new Vector(MarkovChains[c2][n - 1].Values.ToArray());
+            var zr1 = new Vector(MarkovChains[c1][n - 1].Values);
+            var zr2 = new Vector(MarkovChains[c2][n - 1].Values);
             var zp1 = Vector.Project(zr1, line);
             var zp2 = Vector.Project(zr2, line);
 
@@ -243,7 +241,7 @@ namespace Numerics.Sampling.MCMC
             }
 
             // Evaluate fitness
-            var logLHp = LogLikelihoodFunction(xp.ToArray());
+            var logLHp = LogLikelihoodFunction(xp.Array);
             var logLHi = state.Fitness;
 
             // Get the Euclidean distance
@@ -259,7 +257,7 @@ namespace Numerics.Sampling.MCMC
             {
                 // The proposal is accepted
                 AcceptCount[index] += 1;
-                return new ParameterSet(xp.ToArray(), logLHp);
+                return new ParameterSet(xp.Array, logLHp);
             }
             else
             {

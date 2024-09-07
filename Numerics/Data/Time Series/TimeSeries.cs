@@ -971,6 +971,25 @@ namespace Numerics.Data
         }
 
         /// <summary>
+        /// Shift the dates by a specified number of days.
+        /// </summary>
+        /// <param name="numberOfDays">The number of days to shift by.</param>
+        /// <returns> A new TimeSeries object with the dates shifted</returns>
+        public TimeSeries ShiftDatesByDay(int numberOfDays)
+        {
+            SortByTime();
+            var timeSeries = new TimeSeries(TimeInterval);
+            for (int i = 0; i < Count; i++)
+            {
+                var ordinate = new SeriesOrdinate<DateTime, double>();
+                ordinate.Index = this[i].Index.AddDays(numberOfDays);
+                ordinate.Value = this[i].Value;
+                timeSeries.Add(ordinate);
+            }
+            return timeSeries;
+        }
+
+        /// <summary>
         /// Shift the dates by a specified number of months.
         /// </summary>
         /// <param name="numberOfMonths">The number of months to shift by.</param>
@@ -982,8 +1001,7 @@ namespace Numerics.Data
             for (int i = 0; i < Count; i++)
             {
                 var ordinate = new SeriesOrdinate<DateTime, double>();
-                //ordinate.Index = this[i].Index.AddMonths(numberOfMonths);
-                ordinate.Index = this[i].Index.AddDays(numberOfMonths * 30);
+                ordinate.Index = this[i].Index.AddMonths(numberOfMonths);
                 ordinate.Value = this[i].Value;
                 timeSeries.Add(ordinate);
             }
@@ -1036,8 +1054,8 @@ namespace Numerics.Data
         /// Convert the current time-series to a new time interval.
         /// </summary>
         /// <param name="timeInterval">The new time interval.</param>
-        /// <param name="average">Determines if values should be average or cumulated for larger time steps.</param>
-        /// <returns> A new TimeSeries object with the new interval</returns>
+        /// <param name="average">Optional. Determines if values should be averaged (true) or cumulated (false) for larger time steps. Default = true.</param>
+        /// <returns>A new TimeSeries object with the new interval.</returns>
         public TimeSeries ConvertTimeInterval(TimeInterval timeInterval, bool average = true)
         {
             var TS = TimeSeries.TimeIntervalInHours(TimeInterval); // The time step in hours
@@ -1062,7 +1080,7 @@ namespace Numerics.Data
                     t += TS;
                 }
                 var linInt = new Linear(x, y);
-                //
+
                 // Now Interpolate values for a smaller time step
                 t = 0;
                 var timeSeries = new TimeSeries(timeInterval);
@@ -1092,13 +1110,47 @@ namespace Numerics.Data
                 }
                 return timeSeries;
             }
-            else if (newTS < TS && average == false)
+            else if (newTS < TS && average == false) 
             {
+                // Create interpolater with existing data set.
+                double t = 0, value = 0, rate = TS / newTS;
+                var x = new double[Count];
+                var y = new double[Count];
+                for (int i = 0; i < Count; i++)
+                {
+                    x[i] = t;
+                    y[i] = this[i].Value;
+                    t += TS;
+                }
+                var linInt = new Linear(x, y);
 
-            }
+                // Now disaggregate values for a smaller time step
+                t = 0;
+                var timeSeries = new TimeSeries(timeInterval);
+                timeSeries.Add(new SeriesOrdinate<DateTime, double>(StartDate, y[0] / rate));
+                for (int i = 1; i < N; i++)
+                {
+                    t += newTS;
+                    int idx = linInt.Search(t);
+                    value = y[idx] / rate;
+                    timeSeries.Add(new SeriesOrdinate<DateTime, double>(AddTimeInterval(timeSeries[i - 1].Index, timeInterval), value));
+                }
+                return timeSeries;
+            }        
             else if (newTS > TS && average == false)
             {
                 // Calculate block sum
+                int t = 0;
+                var timeSeries = new TimeSeries(timeInterval);
+                for (int i = 0; i < N; i++)
+                {
+                    double sum = 0;
+                    for (int j = t; j < Math.Min(t + blockDuration, Count); j++)
+                        sum += this[j].Value;
+                    t += blockDuration;
+                    timeSeries.Add(new SeriesOrdinate<DateTime, double>(i == 0 ? StartDate : AddTimeInterval(timeSeries[i - 1].Index, timeInterval), sum));
+                }
+                return timeSeries;
             }
 
             return null;
@@ -1259,7 +1311,7 @@ namespace Numerics.Data
                 var monthlyData = new List<double>();
                 for (int j = 0; j < Count; j++)
                 {
-                    if (this[j].Index.Month == index) { monthlyData.Add(this[j].Value); }
+                    if (this[j].Index.Month == index && !double.IsNaN(this[j].Value)) { monthlyData.Add(this[j].Value); }
                 }
                 if (monthlyData.Count == 0) { return; }
                 // Compute percentiles
@@ -1342,79 +1394,6 @@ namespace Numerics.Data
         }
 
         /// <summary>
-        /// Creates an annual max series.
-        /// </summary>
-        /// <param name="startMonth">The month when the year begins. If not 1, dates are shifted.</param>
-        /// <param name="period">The time period to average or sum over.</param>
-        /// <param name="isMovingAverage">If true, a moving average is performed, if false, a moving sum is performed.</param>
-        /// <returns> A new TimeSeries of annual maxes</returns>
-        public TimeSeries AnnualMaxSeries(int startMonth = 1, int period = 1, bool isMovingAverage = true)
-        {
-            var result = new TimeSeries(TimeInterval.Irregular);
-            // Shift series
-            int shift = startMonth != 1 ? 12 - startMonth + 1 : startMonth;
-            var shiftedSeries = startMonth != 1 ? ShiftDatesByMonth(shift) : this;
-            // Get moving series
-            var movingSeries = period == 1 ? shiftedSeries : isMovingAverage ? shiftedSeries.MovingAverage(period) : shiftedSeries.MovingSum(period);
-            // Create block max series
-            for (int i = movingSeries.StartDate.Year; i <= movingSeries.EndDate.Year; i++)
-            {
-                int y = i;
-                var blockData = movingSeries.Where(x => x.Index.Year == y).ToList();
-                double max = double.MinValue;
-                var maxOrdinate = new SeriesOrdinate<DateTime, double>();
-                for (int j = 0; j < blockData.Count; j++)
-                {
-                    if (blockData[j].Value > max)
-                    {
-                        max = blockData[j].Value;
-                        maxOrdinate.Index = blockData[j].Index;
-                        maxOrdinate.Value = blockData[j].Value;
-                    }
-                }
-                result.Add(maxOrdinate);
-            }
-            return result;
-        }
-
-        /// <summary>
-        /// Creates a seasonal annual max series. 
-        /// </summary>
-        /// <param name="months">The months that define the season.</param>
-        /// <param name="period">The time period to average or sum over.</param>
-        /// <param name="isMovingAverage">If true, a moving average is performed, if false, a moving sum is performed.</param>
-        /// <returns> A new TimeSeries of annual maxes</returns>
-        public TimeSeries AnnualMaxSeries(int[] months, int period = 1, bool isMovingAverage = true)
-        {
-            var result = new TimeSeries(TimeInterval.Irregular);
-            // Get moving series
-            var movingSeries = isMovingAverage ? MovingAverage(period) : MovingSum(period);
-            // Create block max series
-            for (int i = movingSeries.StartDate.Year; i <= movingSeries.EndDate.Year; i++)
-            {
-                int y = i;
-                var blockData = new List<SeriesOrdinate<DateTime, double>>();
-                for (int j = 0; j < months.Length; j++)
-                {
-                    blockData.AddRange(movingSeries.Where(x => x.Index.Year == y && x.Index.Month == months[j]).ToList());
-                }
-                double max = double.MinValue;
-                var maxOrdinate = new SeriesOrdinate<DateTime, double>();
-                for (int j = 0; j < blockData.Count; j++)
-                {
-                    if (blockData[j].Value > max)
-                    {
-                        max = blockData[j].Value;
-                        maxOrdinate.Index = blockData[j].Index;
-                        maxOrdinate.Value = blockData[j].Value;
-                    }
-                }
-                result.Add(maxOrdinate);
-            }
-            return result;
-        }
-
-        /// <summary>
         /// Returns an annual (irregular) block series.  
         /// </summary>
         /// <param name="blockFunction">Optional. The block function type; e.g. min, max, sum, or average. Default = Maximum.</param>
@@ -1424,25 +1403,26 @@ namespace Numerics.Data
         {
             var result = new TimeSeries(TimeInterval.Irregular);
 
-            // Create smoothed series
+            // First, perform smoothing function
             TimeSeries smoothedSeries = null;
             if (smoothingFunction == SmoothingFunctionType.None)
             {
-                smoothedSeries = this.Clone();
+                smoothedSeries = Clone();
             }
             else if (smoothingFunction == SmoothingFunctionType.MovingAverage)
             {
-                smoothedSeries = period == 1 ? this : MovingAverage(period);
+                smoothedSeries = period == 1 ? Clone() : MovingAverage(period);
             }
             else if (smoothingFunction == SmoothingFunctionType.MovingSum)
             {
-                smoothedSeries = period == 1 ? this : MovingSum(period);
+                smoothedSeries = period == 1 ? Clone() : MovingSum(period);
             }
             else if (smoothingFunction == SmoothingFunctionType.Difference)
             {
                 smoothedSeries = Difference(period);
             }
 
+            // Then, perform block function
             for (int i = smoothedSeries.StartDate.Year; i <= smoothedSeries.EndDate.Year; i++)
             {
                 var blockData = smoothedSeries.Where(x => x.Index.Year == i).ToList();
@@ -1510,12 +1490,96 @@ namespace Numerics.Data
         /// <param name="period">Optional. The time period to perform smoothing over. If time interval is 1-hour, and period = 12, the smoothing will be computed over a moving 12 hour block. Default = 1.</param>
         public TimeSeries CustomYearSeries(int startMonth = 10, BlockFunctionType blockFunction = BlockFunctionType.Maximum, SmoothingFunctionType smoothingFunction = SmoothingFunctionType.None, int period = 1)
         {
-            // Shift series
-            int shift = startMonth != 1 ? 12 - startMonth + 1 : startMonth;
-            var shiftedSeries = startMonth != 1 ? ShiftDatesByMonth(shift) : this;
-            var wySeries = shiftedSeries.CalendarYearSeries(blockFunction, smoothingFunction, period);
-            var shiftedBackSeries = startMonth != 1 ? wySeries.ShiftDatesByMonth(-shift) : wySeries;
-            return shiftedBackSeries;
+            if (startMonth < 1 || startMonth > 12)
+            {
+                throw new ArgumentOutOfRangeException(nameof(startMonth), "The start month be between 1 and 12.");
+            }
+
+            var result = new TimeSeries(TimeInterval.Irregular);
+
+            // First, perform smoothing function
+            TimeSeries smoothedSeries = null;
+            if (smoothingFunction == SmoothingFunctionType.None)
+            {
+                smoothedSeries = Clone();
+            }
+            else if (smoothingFunction == SmoothingFunctionType.MovingAverage)
+            {
+                smoothedSeries = period == 1 ? Clone() : MovingAverage(period);
+            }
+            else if (smoothingFunction == SmoothingFunctionType.MovingSum)
+            {
+                smoothedSeries = period == 1 ? Clone() : MovingSum(period);
+            }
+            else if (smoothingFunction == SmoothingFunctionType.Difference)
+            {
+                smoothedSeries = Difference(period);
+            }
+
+            // Then, shift the dates
+            int shift = startMonth != 1 ? 12 - startMonth + 1 : 0;
+            smoothedSeries = startMonth != 1 ? smoothedSeries.ShiftDatesByMonth(shift) : smoothedSeries;
+
+            // Then, perform block function
+            for (int i = smoothedSeries.StartDate.Year; i <= smoothedSeries.EndDate.Year; i++)
+            {
+                var blockData = smoothedSeries.Where(x => x.Index.Year == i).ToList();
+                var ordinate = new SeriesOrdinate<DateTime, double>() { Value = double.NaN };
+
+                if (blockFunction == BlockFunctionType.Minimum)
+                {
+                    double min = double.MaxValue;
+                    for (int j = 0; j < blockData.Count; j++)
+                    {
+                        if (blockData[j].Value < min)
+                        {
+                            min = blockData[j].Value;
+                            ordinate.Index = blockData[j].Index;
+                            ordinate.Value = blockData[j].Value;
+                        }
+                    }
+                }
+                else if (blockFunction == BlockFunctionType.Maximum)
+                {
+                    double max = double.MinValue;
+                    for (int j = 0; j < blockData.Count; j++)
+                    {
+                        if (blockData[j].Value > max)
+                        {
+                            max = blockData[j].Value;
+                            ordinate.Index = blockData[j].Index;
+                            ordinate.Value = blockData[j].Value;
+                        }
+                    }
+                }
+                else if (blockFunction == BlockFunctionType.Sum)
+                {
+                    double sum = 0;
+                    for (int j = 0; j < blockData.Count; j++)
+                    {
+                        sum += !double.IsNaN(blockData[j].Value) ? blockData[j].Value : 0;
+                    }
+                    ordinate.Index = blockData.Last().Index;
+                    ordinate.Value = sum;
+                }
+                else if (blockFunction == BlockFunctionType.Average)
+                {
+                    double sum = 0;
+                    for (int j = 0; j < blockData.Count; j++)
+                    {
+                        sum += !double.IsNaN(blockData[j].Value) ? blockData[j].Value : 0;
+                    }
+                    ordinate.Index = blockData.Last().Index;
+                    ordinate.Value = sum / blockData.Count;
+                }
+
+                if (!double.IsNaN(ordinate.Value))
+                    result.Add(ordinate);
+            }
+
+            // Finally, shift the dates back
+            result = startMonth != 1 ? result.ShiftDatesByMonth(-shift) : result;
+            return result;
         }
 
         /// <summary>
@@ -1528,51 +1592,65 @@ namespace Numerics.Data
         /// <param name="period">Optional. The time period to perform smoothing over. If time interval is 1-hour, and period = 12, the smoothing will be computed over a moving 12 hour block. Default = 1.</param>
         public TimeSeries CustomYearSeries(int startMonth, int endMonth, BlockFunctionType blockFunction = BlockFunctionType.Maximum, SmoothingFunctionType smoothingFunction = SmoothingFunctionType.None, int period = 1)
         {
-            var months = new List<int>();
-            if (startMonth <= endMonth)
+            if (startMonth < 1 || startMonth > 12)
             {
-                for (int i = startMonth; i <= endMonth; i++)
-                    months.Add(i);
+                throw new ArgumentOutOfRangeException(nameof(startMonth), "The start month be between 1 and 12.");
             }
-            else
+            if (endMonth < 1 || endMonth > 12)
             {
-                for (int i = startMonth; i <= 12; i++)
-                    months.Add(i);
-                for (int i = 1; i <= endMonth; i++)
-                    months.Add(i);
+                throw new ArgumentOutOfRangeException(nameof(endMonth), "The start month be between 1 and 12.");
             }
 
             var result = new TimeSeries(TimeInterval.Irregular);
 
-            // Create smoothed series
+            // First, perform smoothing function
             TimeSeries smoothedSeries = null;
             if (smoothingFunction == SmoothingFunctionType.None)
             {
-                smoothedSeries = this.Clone();
+                smoothedSeries = Clone();
             }
             else if (smoothingFunction == SmoothingFunctionType.MovingAverage)
             {
-                smoothedSeries = period == 1 ? this : MovingAverage(period);
+                smoothedSeries = period == 1 ? Clone() : MovingAverage(period);
             }
             else if (smoothingFunction == SmoothingFunctionType.MovingSum)
             {
-                smoothedSeries = period == 1 ? this : MovingSum(period);
+                smoothedSeries = period == 1 ? Clone() : MovingSum(period);
             }
             else if (smoothingFunction == SmoothingFunctionType.Difference)
             {
                 smoothedSeries = Difference(period);
             }
 
+            // Then, perform block function
             for (int i = smoothedSeries.StartDate.Year; i <= smoothedSeries.EndDate.Year; i++)
             {
 
                 var blockData = new List<SeriesOrdinate<DateTime, double>>();
-                for (int j = 0; j < months.Count; j++)
-                {
-                    blockData.AddRange(smoothedSeries.Where(x => x.Index.Year == i && x.Index.Month == months[j]).ToList());
-                }
-
                 var ordinate = new SeriesOrdinate<DateTime, double>() { Value = double.NaN };
+
+                if (startMonth <= endMonth)
+                {
+                    // Months are within a single calendar year
+                    for (int j = startMonth; j <= endMonth; j++)
+                    {
+                        blockData.AddRange(smoothedSeries.Where(x => x.Index.Year == i && x.Index.Month == j).ToList());
+                    }
+                }
+                else
+                {
+                    // Months overlap two calendar years
+                    // First get the previous year's months
+                    for (int j = startMonth; j <= 12; j++)
+                    {
+                        blockData.AddRange(smoothedSeries.Where(x => x.Index.Year == i - 1 && x.Index.Month == j).ToList());
+                    }
+                    // Then the current year's months
+                    for (int j = 1; j <= endMonth; j++)
+                    {
+                        blockData.AddRange(smoothedSeries.Where(x => x.Index.Year == i && x.Index.Month == j).ToList());
+                    }
+                }
 
                 if (blockFunction == BlockFunctionType.Minimum)
                 {
@@ -1641,15 +1719,15 @@ namespace Numerics.Data
             TimeSeries smoothedSeries = null;
             if (smoothingFunction == SmoothingFunctionType.None)
             {
-                smoothedSeries = this.Clone();
+                smoothedSeries = Clone();
             }
             else if (smoothingFunction == SmoothingFunctionType.MovingAverage)
             {
-                smoothedSeries = period == 1 ? this : MovingAverage(period);
+                smoothedSeries = period == 1 ? Clone() : MovingAverage(period);
             }
             else if (smoothingFunction == SmoothingFunctionType.MovingSum)
             {
-                smoothedSeries = period == 1 ? this : MovingSum(period);
+                smoothedSeries = period == 1 ? Clone() : MovingSum(period);
             }
             else if (smoothingFunction == SmoothingFunctionType.Difference)
             {
@@ -1737,15 +1815,15 @@ namespace Numerics.Data
             TimeSeries smoothedSeries = null;
             if (smoothingFunction == SmoothingFunctionType.None)
             {
-                smoothedSeries = this.Clone();
+                smoothedSeries = Clone();
             }
             else if (smoothingFunction == SmoothingFunctionType.MovingAverage)
             {
-                smoothedSeries = period == 1 ? this : MovingAverage(period);
+                smoothedSeries = period == 1 ? Clone() : MovingAverage(period);
             }
             else if (smoothingFunction == SmoothingFunctionType.MovingSum)
             {
-                smoothedSeries = period == 1 ? this : MovingSum(period);
+                smoothedSeries = period == 1 ? Clone() : MovingSum(period);
             }
             else if (smoothingFunction == SmoothingFunctionType.Difference)
             {
@@ -1849,21 +1927,22 @@ namespace Numerics.Data
             TimeSeries smoothedSeries = null;
             if (smoothingFunction == SmoothingFunctionType.None)
             {
-                smoothedSeries = this.Clone();
+                smoothedSeries = Clone();
             }
             else if (smoothingFunction == SmoothingFunctionType.MovingAverage)
             {
-                smoothedSeries = period == 1 ? this : MovingAverage(period);
+                smoothedSeries = period == 1 ? Clone() : MovingAverage(period);
             }
             else if (smoothingFunction == SmoothingFunctionType.MovingSum)
             {
-                smoothedSeries = period == 1 ? this : MovingSum(period);
+                smoothedSeries = period == 1 ? Clone() : MovingSum(period);
             }
             else if (smoothingFunction == SmoothingFunctionType.Difference)
             {
                 smoothedSeries = Difference(period);
             }
 
+            // Get peaks
             var result = new TimeSeries(TimeInterval.Irregular);
             for (int i = 0; i < smoothedSeries.Count; i++)
             {

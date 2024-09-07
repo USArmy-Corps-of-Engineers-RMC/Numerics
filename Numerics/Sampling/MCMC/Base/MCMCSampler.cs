@@ -30,7 +30,6 @@
 
 using Numerics.Distributions;
 using Numerics.Mathematics.LinearAlgebra;
-using Numerics.Mathematics;
 using Numerics.Mathematics.Optimization;
 using System;
 using System.Collections.Generic;
@@ -66,8 +65,114 @@ namespace Numerics.Sampling.MCMC
     public abstract class MCMCSampler
     {
 
+        /// <summary>
+        /// Constructs a new MCMC sampler.
+        /// </summary>
+        /// <param name="priorDistributions">The list of prior distributions for the model parameters.</param>
+        /// <param name="logLikelihoodFunction">The Log-Likelihood function to evaluate.</param>    
+        public MCMCSampler(List<IUnivariateDistribution> priorDistributions, LogLikelihood logLikelihoodFunction)
+        {
+            PriorDistributions = priorDistributions;
+            LogLikelihoodFunction = logLikelihoodFunction;
+
+            // Initialize output arrays
+            Reset();
+        }
+
+
         #region Inputs
-       
+
+        protected int _prngSeed = 12345;
+        protected int _initialIterations = 10;
+        protected int _warmupIterations = 1750;
+        protected int _iterations = 3500;
+        protected int _numberOfChains = 4;
+        protected int _thinningInterval = 20;
+
+        /// <summary>
+        /// Gets and sets the pseudo random number generator (PRNG) seed.
+        /// </summary>
+        public int PRNGSeed
+        {
+            get { return _prngSeed; }
+            set
+            {
+                _prngSeed = value;
+                Reset();
+            }
+        }
+
+        /// <summary>
+        /// Determines the number of iterations used to initialize the chains. It is recommended that the initial iterations be at least 10 x number of parameters in length.
+        /// </summary>
+
+        public int InitialIterations
+        {
+            get { return _initialIterations; }
+            set
+            {
+                _initialIterations = value;
+                Reset();
+            }
+        }
+
+        /// <summary>
+        /// Gets and sets the number of warm up MCMC iterations to discard at the beginning of the simulation.
+        /// </summary>
+        public int WarmupIterations
+        {
+            get { return _warmupIterations; }
+            set
+            {
+                _warmupIterations = value;
+                Reset();
+            }
+        }
+
+        /// <summary>
+        /// Gets and sets the number of MCMC iterations to simulate.
+        /// </summary>
+        public int Iterations
+        {
+            get { return _iterations; }
+            set
+            {
+                _iterations = value;
+                Reset();
+            }
+        }
+
+        /// <summary>
+        /// Gets and sets the number of Markov Chains.
+        /// </summary>
+        public int NumberOfChains
+        {
+            get { return _numberOfChains; }
+            set
+            {
+                _numberOfChains = value;
+                Reset();
+            }
+        }
+
+        /// <summary>
+        /// Gets and sets the thinning interval. This determines how often the MCMC iterations will be recorded and evaluated.
+        /// </summary>
+        public int ThinningInterval
+        {
+            get { return _thinningInterval; }
+            set
+            {
+                _thinningInterval = value;
+                Reset();
+            }
+        }
+
+        /// <summary>
+        /// The number of simulations that have been run with this instance of the sampler. 
+        /// </summary>
+        protected int _simulations = 0;
+
         /// <summary>
         /// The master pseudo random number generator (PRNG).
         /// </summary>
@@ -79,39 +184,14 @@ namespace Numerics.Sampling.MCMC
         protected Random[] _chainPRNGs;
 
         /// <summary>
-        /// The number of simulations that have been run with this instance of the sampler. 
-        /// </summary>
-        protected int _simulations = 0;
-
-        /// <summary>
         /// The current states of each chain. 
         /// </summary>
         protected ParameterSet[] _chainStates;
 
         /// <summary>
-        /// Gets and sets the pseudo random number generator (PRNG) seed.
+        /// The Log-Likelihood function to evaluate. 
         /// </summary>
-        public int PRNGSeed { get; set; } = 12345;
-
-        /// <summary>
-        /// Gets and sets the number of MCMC iterations to simulate.
-        /// </summary>
-        public int Iterations { get; set; } = 3500;
-
-        /// <summary>
-        /// Gets and sets the number of warm up MCMC iterations to discard at the beginning of the simulation.
-        /// </summary>
-        public int WarmupIterations { get; set; } = 1750;
-
-        /// <summary>
-        /// Gets and sets the number of Markov Chains.
-        /// </summary>
-        public int NumberOfChains { get; set; } = 4;
-
-        /// <summary>
-        /// Gets and sets the thinning interval. This determines how often the MCMC iterations will be recorded and evaluated.
-        /// </summary>
-        public int ThinningInterval { get; set; } = 20;
+        public LogLikelihood LogLikelihoodFunction { get; protected set; }
 
         /// <summary>
         /// Gets and sets the list of prior distributions for the model parameters.
@@ -124,15 +204,9 @@ namespace Numerics.Sampling.MCMC
         public int NumberOfParameters => PriorDistributions.Count;
 
         /// <summary>
-        /// Determines the length of the initial population vector. It is recommended that the initial population be at least 10 x number of parameters in length.
-        /// </summary>
-
-        public int InitialPopulationLength { get; set; } = 10;
-
-        /// <summary>
         /// Determines whether to update the population matrix when the chain states are recorded.
         /// </summary>
-        public bool IsPopulationSampler { get; set; } = false;
+        public bool IsPopulationSampler { get; protected set; } = false;
 
         /// <summary>
         /// Determines if the chains should be sampled in parallel. Default = true.
@@ -177,12 +251,7 @@ namespace Numerics.Sampling.MCMC
         /// <summary>
         /// The Multivariate Normal proposal distribution set from the MAP estimate.
         /// </summary>
-        protected MultivariateNormal _mvn;
-
-        /// <summary>
-        /// The Log-Likelihood function to evaluate. 
-        /// </summary>
-        public LogLikelihood LogLikelihoodFunction { get; protected set; }
+        protected MultivariateNormal _MVN;
 
         /// <summary>
         /// Event is raised when the simulation progress changes.
@@ -257,7 +326,7 @@ namespace Numerics.Sampling.MCMC
         /// <summary>
         /// Output posterior parameter sets. These are recorded after the iterations have been completed. 
         /// </summary>
-        public List<ParameterSet> Output { get; protected set; }
+        public List<ParameterSet>[] Output { get; protected set; }
 
         /// <summary>
         /// The output parameter set that produced the maximum likelihood. 
@@ -279,7 +348,7 @@ namespace Numerics.Sampling.MCMC
             if (WarmupIterations < 1) throw new ArgumentException(nameof(WarmupIterations), "The number of warm up iterations cannot be less than 1.");
             if (WarmupIterations > (int)(0.5 * Iterations)) throw new ArgumentException(nameof(WarmupIterations), "The number of warm up iterations cannot be greater than half the number of iterations.");
             if (ThinningInterval < 1) throw new ArgumentException(nameof(ThinningInterval), "The thinning interval cannot be less than 1.");
-            if (InitialPopulationLength < NumberOfChains) throw new ArgumentException(nameof(InitialPopulationLength), "The initial population cannot be less than the number of chains.");
+            if (InitialIterations < NumberOfChains) throw new ArgumentException(nameof(InitialIterations), "The initial population cannot be less than the number of chains.");
             if (OutputLength < 100) throw new ArgumentException(nameof(OutputLength), "The output length must be at least 100.");
             ValidateCustomSettings();
         }
@@ -299,9 +368,9 @@ namespace Numerics.Sampling.MCMC
         /// </summary>
         protected virtual ParameterSet[] InitializeChains()
         {
-            // Just return the user-defined last states of the chains
             if (Initialize == InitializationType.UserDefined)
             {
+                // If user-defined, return the last states of the chains.
                 var chainStates = new ParameterSet[NumberOfChains];
                 for (int i = 0; i < NumberOfChains; i++)
                 {
@@ -311,7 +380,7 @@ namespace Numerics.Sampling.MCMC
             }
 
             var prng = new Random(PRNGSeed);
-            var rnds = LatinHypercube.Random(InitialPopulationLength, NumberOfParameters, prng.Next());
+            var rnds = LatinHypercube.Random(InitialIterations, NumberOfParameters, prng.Next());
             var parameters = new double[NumberOfParameters];
             var tempPopulation = new List<ParameterSet>();       
             var initials = new ParameterSet[NumberOfChains];
@@ -342,11 +411,11 @@ namespace Numerics.Sampling.MCMC
                         fisher = fisher * 3;
 
                         // Set up proposal distribution
-                        _mvn = new MultivariateNormal(MAP.Values, fisher.ToArray());
+                        _MVN = new MultivariateNormal(MAP.Values, fisher.ToArray());
                         // Then randomly sample from the proposal
-                        for (int i = 0; i < InitialPopulationLength; i++)
+                        for (int i = 0; i < InitialIterations; i++)
                         {
-                            parameters = _mvn.InverseCDF(rnds.GetRow(i));
+                            parameters = _MVN.InverseCDF(rnds.GetRow(i));
                             logLH = LogLikelihoodFunction(parameters);
                             if (IsPopulationSampler) PopulationMatrix.Add(new ParameterSet(parameters, logLH));
                             tempPopulation.Add(new ParameterSet(parameters, logLH));
@@ -361,7 +430,7 @@ namespace Numerics.Sampling.MCMC
                     }
                     catch (Exception) 
                     {
-                        // if this fails go to naive initialization below
+                        // If this fails go to naive initialization below
                         Initialize = InitializationType.Randomize;
                     }
                 }
@@ -379,14 +448,14 @@ namespace Numerics.Sampling.MCMC
 
             // If the initial population and the number of chains is 1, 
             // then just take the mean of the priors
-            if (InitialPopulationLength == 1 && NumberOfChains == 1)
+            if (InitialIterations == 1 && NumberOfChains == 1)
             {
                 initials[0] = tempPopulation.First().Clone();
                 return initials;
             }
 
             // Then randomly sample from the priors
-            for (int i = 1; i < InitialPopulationLength; i++)
+            for (int i = 1; i < InitialIterations; i++)
             {
                 for (int j = 0; j < NumberOfParameters; j++)
                     parameters[j] = PriorDistributions[j].InverseCDF(rnds[i, j]);
@@ -421,15 +490,6 @@ namespace Numerics.Sampling.MCMC
         }
 
         /// <summary>
-        /// Update the population matrix with a new chain state.
-        /// </summary>
-        /// <param name="state">The chain state.</param>
-        protected virtual void UpdatePopulationMatrix(ParameterSet state)
-        {
-            PopulationMatrix.Add(state.Clone());
-        }
-
-        /// <summary>
         /// Returns a proposed MCMC parameter set and its fitness. 
         /// </summary>
         /// <param name="index">The Markov Chain zero-based index.</param>
@@ -449,39 +509,20 @@ namespace Numerics.Sampling.MCMC
             // Setup the sampler
             if (ResumeSimulation = false || _simulations < 1)
             {
-                // Create inputs for the chains
-                _masterPRNG = new Random(PRNGSeed);
-                _chainPRNGs = new Random[NumberOfChains];
-                PopulationMatrix = new List<ParameterSet>();
-                MarkovChains = new List<ParameterSet>[NumberOfChains];
-                for (int i = 0; i < NumberOfChains; i++)
-                {
-                    _chainPRNGs[i] = new Random(_masterPRNG.Next());
-                    MarkovChains[i] = new List<ParameterSet>();
-                }
-
-                // Create sample & accept counts
-                AcceptCount = new int[NumberOfChains];
-                SampleCount = new int[NumberOfChains];
-
-                // Create mean log-likelihood list
-                MeanLogLikelihood = new List<double>();
-
-                // Keeps track of best parameter set
-                MAP = new ParameterSet(new double[] { }, double.MinValue);
-
                 // Initialize the chains
                 _chainStates = InitializeChains();
 
                 // Initialize custom settings
                 InitializeCustomSettings();
-
             }
 
             // Output settings
             int outputIterations = (int)Math.Ceiling(OutputLength / (double)NumberOfChains);
             int totalIterations = Iterations + outputIterations;
-            Output = new List<ParameterSet>();
+            int outputCount = 0;
+            Output = new List<ParameterSet>[NumberOfChains];
+            for (int i = 0; i < NumberOfChains; i++)
+                Output[i] = new List<ParameterSet>();
 
             // progress counter
             int progress = 0;
@@ -509,7 +550,7 @@ namespace Numerics.Sampling.MCMC
                 {
                     // Update population
                     if (IsPopulationSampler == true)
-                        UpdatePopulationMatrix(_chainStates[j].Clone());
+                        PopulationMatrix.Add(_chainStates[j].Clone());
 
                     if (i <= Iterations)
                     {
@@ -519,9 +560,11 @@ namespace Numerics.Sampling.MCMC
                         // Save chain state
                         MarkovChains[j].Add(_chainStates[j].Clone());
                     }
-                    else if (i > Iterations && Output.Count < OutputLength)
+                    else if (i > Iterations && outputCount < OutputLength)
                     {
-                        Output.Add(_chainStates[j].Clone());
+                        // Record the output and keep track of MAP
+                        Output[j].Add(_chainStates[j].Clone());
+                        outputCount++;
                         if (_chainStates[j].Fitness > MAP.Fitness)
                             MAP = _chainStates[j].Clone();
                     }
@@ -564,9 +607,9 @@ namespace Numerics.Sampling.MCMC
         }
 
         /// <summary>
-        /// Clear simulation results.
+        /// Reset simulation results.
         /// </summary>
-        public void ClearResults()
+        public void Reset()
         {
             _simulations = 0;
             // Clear old memory and re-instantiate the result storage
@@ -582,8 +625,8 @@ namespace Numerics.Sampling.MCMC
             AcceptCount = new int[NumberOfChains];
             SampleCount = new int[NumberOfChains];
             MeanLogLikelihood = new List<double>();
-            MAP = new ParameterSet(new double[] { }, double.MinValue);
-            Output = new List<ParameterSet>();
+            MAP = new ParameterSet([], double.MinValue);
+            Output = new List<ParameterSet>[NumberOfChains];
         }
 
         #endregion

@@ -57,7 +57,7 @@ namespace Numerics.Mathematics.Optimization
         /// <param name="fitness">The objective function result (or fitness) given the parameter set.</param>
         public ParameterSet(double[] values, double fitness)
         {
-            Values = values.ToArray();
+            Values = (double[])values.Clone();
             Fitness = fitness;
         }
 

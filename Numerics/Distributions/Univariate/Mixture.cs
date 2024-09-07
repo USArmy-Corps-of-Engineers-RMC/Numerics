@@ -439,13 +439,15 @@ namespace Numerics.Distributions
         public void SetParameters(double[] weights, double[] parameters)
         {
             if (weights == null) throw new ArgumentNullException(nameof(Weights));
+            if (weights.Length != Distributions.Length)
+                throw new ArgumentException("The weight and distribution arrays must have the same length.", nameof(Weights));
             if (parameters.Length != Distributions.Sum(x => x.NumberOfParameters))
             {
                 throw new ArgumentException("The length of the parameter array is invalid.", nameof(parameters));
             }
 
             // Set weights
-            _weights = weights;
+            _weights = weights.ToArray();
             // Set distribution parameters
             int t = 0;
             for (int i = 0; i < Distributions.Count(); i++)
@@ -465,8 +467,34 @@ namespace Numerics.Distributions
         /// <inheritdoc/>
         public override void SetParameters(IList<double> parameters)
         {
-            var x = parameters as double[];
-            SetParameters(ref x);
+            if (parameters.Count != NumberOfParameters)
+            {
+                throw new ArgumentException("The length of the parameter array is invalid.", nameof(parameters));
+            }
+
+            // Set the weights
+            int t = 0;
+            for (int i = 0; i < Distributions.Count(); i++)
+            {
+                Weights[i] = parameters[i];
+                t++;
+            }
+
+            // Set the distribution parameters
+            for (int i = 0; i < Distributions.Count(); i++)
+            {
+                var parms = new List<double>();
+                for (int j = t; j < t + Distributions[i].NumberOfParameters; j++)
+                {
+                    parms.Add(parameters[j]);
+                }
+                Distributions[i].SetParameters(parms);
+                t += Distributions[i].NumberOfParameters;
+            }
+            // Validate parameters
+            _parametersValid = ValidateParameters(parameters, false) is null;
+            _momentsComputed = false;
+            _inverseCDFCreated = false;
         }
 
         /// <summary>
@@ -475,6 +503,8 @@ namespace Numerics.Distributions
         /// <param name="parameters">The array of parameters.</param>
         public void SetParameters(ref double[] parameters)
         {
+            if (parameters == null) return;
+            if (Weights == null || Weights.Length == 0) return;
             if (Distributions == null || Distributions.Count() == 0) return;
             if (Distributions.Count() == 1 && parameters.Length == Distributions[0].NumberOfParameters)
             {
@@ -490,56 +520,43 @@ namespace Numerics.Distributions
             }
             else
             {
-                bool sortWeights = true;
-                UnivariateDistributionType type = Distributions[0].Type;
-                for (int i = 1; i < Distributions.Count(); i++)
-                {
-                    if (Distributions[i].Type != type) { sortWeights = false; break; }
-                }
-                    
-
+                   
                 // Get the weights
-                int k = Distributions.Count();
+                int K = Distributions.Count();
                 int t = 0; // keep track of parameter index
 
                 // Get weights
-                double c = 0;
-                for (int i = 0; i < k; i++)
+                double sum = 0.0;
+                for (int i = 0; i < K; i++)
                 {
                     Weights[i] = parameters[i];
-                    c += Weights[i];
+                    sum += Weights[i];
                     t++;
                 }
 
-                if (c > 0)
+                // Check if weights need to be normalized
+                if (sum <= 0.0)
                 {
-                    // Get normalization constant
-                    c = IsZeroInflated ? (1d - ZeroWeight) / c : 1d / c;
+                    // If weights sum to 0, reset to be uniformly distributed
+                    double w = IsZeroInflated ? (1d - ZeroWeight) / K : 1d / K;
+                    for (int i = 0; i < K; i++)
+                    {
+                        Weights[i] = w;
+                        parameters[i] = Weights[i];
+                    }
+                }                  
+                else
+                {
+                    // Normalize weights to sum to 1.
+                    var c = IsZeroInflated ? (1d - ZeroWeight) / sum : 1d / sum;
                     // Normalize weights
-                    for (int i = 0; i < k; i++)
+                    for (int i = 0; i < K; i++)
                     {
                         Weights[i] *= c;
                         parameters[i] = Weights[i];
                     }
                 }
-                else
-                {
-                    // If weights sum to 0, reset to be uniformly distributed
-                    double w = IsZeroInflated ? (1d - ZeroWeight) / k : 1d / k;
-                    for (int i = 0; i < k; i++)
-                    {
-                        Weights[i] = w;
-                        parameters[i] = Weights[i];
-                    }
-                }
-                if (sortWeights == true)
-                {
-                    Array.Sort(Weights);
-                    for (int i = 0; i < k; i++)
-                    {
-                        parameters[i] = Weights[i];
-                    }
-                }
+                
 
                 // Set distribution parameters
                 for (int i = 0; i < Distributions.Count(); i++)
@@ -583,7 +600,7 @@ namespace Numerics.Distributions
             double sum = IsZeroInflated ? ZeroWeight : 0.0;
             for (int i = 0; i < Distributions.Count(); i++)
                 sum += Weights[i];
-            if (sum.AlmostEquals(1d) == false)
+            if (sum.AlmostEquals(1d, 1E-8) == false)
             {
                 if (throwException)
                     throw new ArgumentOutOfRangeException(nameof(Weights), "The weights must sum to 1.0.");
@@ -657,11 +674,11 @@ namespace Numerics.Distributions
             var likelihood = new double[N, K];
             double oldLogLH = double.MinValue, newLogLH = double.MinValue;
 
-            // The expectation step. 
-            double EStep(double[] parameters)
+            // The Expectation step. 
+            double EStep(double[] x)
             {
                 var dist = (Mixture)Clone();
-                dist.SetParameters(mleWeights, parameters);
+                dist.SetParameters(mleWeights, x);
                 // Outer loop for computing the likelihoods
                 for (int k = 0; k < K; k++)
                 {
@@ -703,8 +720,8 @@ namespace Numerics.Distributions
                 return logLH;
             }
 
-            // The maximization step
-            double[] MStep(double[] parameters)
+            // The Maximization step
+            double[] MStep(double[] x)
             {
                 // Get updated weights
                 for (int k = 0; k < K; k++)
@@ -720,17 +737,17 @@ namespace Numerics.Distributions
                     mleWeights[k] = wgt / N;
                 }
                 // MLE
-                var solver = new NelderMead(logLH, Np, parameters, Lowers, Uppers);
+                var solver = new NelderMead(logLH, Np, x, Lowers, Uppers);
                 solver.Maximize();
                 return solver.BestParameterSet.Values;
             }
 
             // The log-likelihood to maximize in the M-Step
             // Weights are held fixed, only the distribution parameters are solved.
-            double logLH(double[] parameters)
+            double logLH(double[] x)
             {
                 var dist = (Mixture)Clone();
-                dist.SetParameters(mleWeights, parameters);
+                dist.SetParameters(mleWeights, x);
                 double lh = dist.LogLikelihood(sample);
                 if (double.IsNaN(lh) || double.IsInfinity(lh)) return double.MinValue;
                 return lh;
@@ -853,6 +870,32 @@ namespace Numerics.Distributions
             var F = Tools.LogSumExp(lnF);
             return F;
         }
+
+        /// <inheritdoc/>
+        public override double LogCCDF(double x)
+        {
+            // Validate parameters
+            if (_parametersValid == false)
+                ValidateParameters(GetParameters, true);
+
+            var lnF = new List<double>();
+            if (IsZeroInflated)
+            {
+                if (x > 0.0)
+                {
+                    for (int i = 0; i < Distributions.Count(); i++)
+                        lnF.Add(Math.Log(Weights[i]) + Distributions[i].LogCCDF(x));
+                }
+            }
+            else
+            {
+                for (int i = 0; i < Distributions.Count(); i++)
+                    lnF.Add(Math.Log(Weights[i]) + Distributions[i].LogCCDF(x));
+            }
+            var F = Tools.LogSumExp(lnF);
+            return F;
+        }
+
 
         /// <inheritdoc/>
         public override double InverseCDF(double probability)

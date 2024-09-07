@@ -92,7 +92,6 @@
     <Compile Include="Data\Statistics\Test_PlottingPositions.cs" />
     <Compile Include="Data\Statistics\Test_RunningStatistics.cs" />
     <Compile Include="Data\Time Series\Test_TimeSeries.cs" />
-    <Compile Include="Data\Time Series\Test_TimeSeriesMethods.cs" />
     <Compile Include="Distributions\Bivariate Copulas\Test_AMHCopula.cs" />
     <Compile Include="Distributions\Bivariate Copulas\Test_ClaytonCopula.cs" />
     <Compile Include="Distributions\Bivariate Copulas\Test_FrankCopula.cs" />

@@ -155,7 +155,6 @@ namespace Numerics.Data.Statistics
         public static double Mean(IList<double> sampleData)
         {
             if (sampleData.Count == 0) return double.NaN;
-
             double sum = 0d;
             for (int i = 0; i < sampleData.Count; i++)
                 sum += sampleData[i];

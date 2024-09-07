@@ -53,25 +53,24 @@ namespace Numerics.Sampling.MCMC
     public class SNIS : MCMCSampler
     {
         /// <summary>
-        /// Constructs an self-normalizing importance sampler.
+        /// Constructs a self-normalizing importance sampler.
         /// </summary>
         /// <param name="priorDistributions">The list of prior distributions for the model parameters.</param>
         /// <param name="logLikelihoodFunction">The Log-Likelihood function to evaluate.</param>
         /// <param name="multivariateNormal">Optional. The multivariate Normal distribution is used for importance sampling. If null, naive Monte Carlo is performed.</param>
-        public SNIS(List<IUnivariateDistribution> priorDistributions, LogLikelihood logLikelihoodFunction, MultivariateNormal multivariateNormal = null)
+        public SNIS(List<IUnivariateDistribution> priorDistributions, LogLikelihood logLikelihoodFunction, MultivariateNormal multivariateNormal = null) : base(priorDistributions, logLikelihoodFunction)
         {
-            PriorDistributions = priorDistributions;
-            LogLikelihoodFunction = logLikelihoodFunction;
             mvn = multivariateNormal;
             useImportanceSampling = multivariateNormal != null ? true : false;
 
             // Create default settings
-            NumberOfChains = 1;
-            WarmupIterations = 0;
-            ThinningInterval = 1;
-            InitialPopulationLength = 1;
-            Iterations = 100000;
+            _numberOfChains = 1;
+            _warmupIterations = 0;
+            _thinningInterval = 1;
+            _initialIterations = 1;
+            _iterations = 100000;
             OutputLength = 10000;
+            Reset();
         }
 
         private bool useImportanceSampling = false;
@@ -82,7 +81,7 @@ namespace Numerics.Sampling.MCMC
         {
             if (mvn == null && useImportanceSampling == false && Initialize == InitializationType.MAP && _mapSuccessful)
             {
-                mvn = (MultivariateNormal)_mvn.Clone();
+                mvn = (MultivariateNormal)_MVN.Clone();
                 useImportanceSampling = true;
             }
         }
@@ -96,12 +95,12 @@ namespace Numerics.Sampling.MCMC
         /// <inheritdoc/>
         protected override void ValidateSettings()
         {
-            if (NumberOfChains != 1) throw new ArgumentException(nameof(InitialPopulationLength), "There can only be 1 chain with this method.");
+            if (NumberOfChains != 1) throw new ArgumentException(nameof(InitialIterations), "There can only be 1 chain with this method.");
             if (OutputLength < 100) throw new ArgumentException(nameof(OutputLength), "The output length must be at least 100.");
             if (Iterations < OutputLength) throw new ArgumentException(nameof(Iterations), "The number of iterations cannot be less than the output length.");
             if (WarmupIterations != 0) throw new ArgumentException(nameof(WarmupIterations), "There are no warmup iterations with this method.");
             if (ThinningInterval != 1) throw new ArgumentException(nameof(ThinningInterval), "The thinning interval must be 1 for this method.");
-            if (InitialPopulationLength != 1) throw new ArgumentException(nameof(InitialPopulationLength), "The initial population must be 1 for this method.");
+            if (InitialIterations != 1) throw new ArgumentException(nameof(InitialIterations), "The initial population must be 1 for this method.");
             if (mvn != null && mvn.ParametersValid == false)
                 throw new ArgumentException(nameof(MultivariateNormal), "The multivariate Normal importance distribution is invalid.");
         }
@@ -123,7 +122,8 @@ namespace Numerics.Sampling.MCMC
             MarkovChains = new List<ParameterSet>[NumberOfChains];
             var sets = new ParameterSet[Iterations];
             MarkovChains[0] = sets.ToList();
-            Output = new List<ParameterSet>();
+            Output = new List<ParameterSet>[NumberOfChains];
+            Output[0] = new List<ParameterSet>();
 
             // Create sample & accept counts
             AcceptCount = new int[NumberOfChains];
@@ -133,7 +133,7 @@ namespace Numerics.Sampling.MCMC
             MeanLogLikelihood = new List<double>();
 
             // Keeps track of best parameter set
-            MAP = new ParameterSet(new double[] { }, double.MinValue, double.MinValue);
+            MAP = new ParameterSet([], double.MinValue, double.MinValue);
 
             // Create parameter random values
             var rnds = _masterPRNG.NextDoubles(Iterations, NumberOfParameters);
@@ -201,7 +201,7 @@ namespace Numerics.Sampling.MCMC
             for (int i = 0; i < OutputLength; i++)
             {
                 idx = Search.Sequential(rndOut[i], cdf, idx);
-                Output.Add(MarkovChains[0][idx].Clone());
+                Output[0].Add(MarkovChains[0][idx].Clone());
             }
         }
 

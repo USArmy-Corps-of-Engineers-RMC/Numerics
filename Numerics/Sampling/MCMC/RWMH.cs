@@ -63,15 +63,13 @@ namespace Numerics.Sampling.MCMC
         /// <param name="priorDistributions">The list of prior distributions for the model parameters.</param>
         /// <param name="logLikelihoodFunction">The Log-Likelihood function to evaluate.</param>
         /// <param name="proposalSigma">The covariance matrix Σ (sigma) for the proposal distribution.</param>
-        public RWMH(List<IUnivariateDistribution> priorDistributions, LogLikelihood logLikelihoodFunction, Matrix proposalSigma)
+        public RWMH(List<IUnivariateDistribution> priorDistributions, LogLikelihood logLikelihoodFunction, Matrix proposalSigma) : base(priorDistributions, logLikelihoodFunction)
         {
-            PriorDistributions = priorDistributions;
-            LogLikelihoodFunction = logLikelihoodFunction;
-            InitialPopulationLength = 100 * NumberOfParameters;
+            InitialIterations = 100 * NumberOfParameters;
             ProposalSigma = proposalSigma;
         }
 
-        private MultivariateNormal[] _MVN;
+        private MultivariateNormal[] mvn;
 
         /// <summary>
         /// The covariance matrix Σ (sigma) for the proposal distribution.
@@ -90,15 +88,15 @@ namespace Numerics.Sampling.MCMC
         protected override void InitializeCustomSettings()
         {
             // Set up multivariate Normal distributions for each chain
-            _MVN = new MultivariateNormal[NumberOfChains];
+            mvn = new MultivariateNormal[NumberOfChains];
             for (int i = 0; i < NumberOfChains; i++)
             {
-                _MVN[i] = new MultivariateNormal(NumberOfParameters);
+                mvn[i] = new MultivariateNormal(NumberOfParameters);
             }
             // Set up proposal matrix
             if (Initialize == InitializationType.MAP && _mapSuccessful)
             {
-                ProposalSigma = new Matrix(_mvn.Covariance);
+                ProposalSigma = new Matrix(base._MVN.Covariance);
             }
         }
 
@@ -109,8 +107,8 @@ namespace Numerics.Sampling.MCMC
             SampleCount[index] += 1;
 
             // Get proposal vector
-            _MVN[index].SetParameters(state.Values.ToArray(), ProposalSigma.ToArray());
-            var xp = _MVN[index].InverseCDF(_chainPRNGs[index].NextDoubles(NumberOfParameters));
+            mvn[index].SetParameters(state.Values.ToArray(), ProposalSigma.ToArray());
+            var xp = mvn[index].InverseCDF(_chainPRNGs[index].NextDoubles(NumberOfParameters));
 
             for (int i = 0; i < NumberOfParameters; i++)
             {

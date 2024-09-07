@@ -62,11 +62,10 @@ namespace Numerics.Sampling.MCMC
         /// </summary>
         /// <param name="priorDistributions">The list of prior distributions for the model parameters.</param>
         /// <param name="logLikelihoodFunction">The Log-Likelihood function to evaluate.</param>      
-        public ARWMH(List<IUnivariateDistribution> priorDistributions, LogLikelihood logLikelihoodFunction)
+        public ARWMH(List<IUnivariateDistribution> priorDistributions, LogLikelihood logLikelihoodFunction) : base(priorDistributions, logLikelihoodFunction)
         {
-            PriorDistributions = priorDistributions;
-            LogLikelihoodFunction = logLikelihoodFunction;
-            InitialPopulationLength = 100 * NumberOfParameters;
+            // Set initial
+            InitialIterations = 100 * NumberOfParameters;
 
             // The optimal scale & adaptive covariance matrix
             Scale = 2.38 * 2.38 / NumberOfParameters;
@@ -92,7 +91,7 @@ namespace Numerics.Sampling.MCMC
         public double Beta { get; set; }
 
         /// <summary>
-        /// Determines ho ofter to sample from a different chain; e.g., 0.10 will result in sampling from a different chain 10% of the time.
+        /// Determines how often to sample from a different chain; e.g., 0.10 will result in sampling from a different chain 10% of the time.
         /// </summary>
         public double CrossoverProbability { get; set; } 
 
@@ -137,7 +136,7 @@ namespace Numerics.Sampling.MCMC
                     {
                         for (int k = 0; k < NumberOfParameters; k++)
                         {
-                            sigma[i].Covariance[j, k] = _mvn.Covariance[j, k];
+                            sigma[i].Covariance[j, k] = _MVN.Covariance[j, k];
                         }
                     }
                 }

@@ -92,7 +92,6 @@ namespace Numerics.Distributions
         private Matrix _covariance;
         
         private CholeskyDecomposition _cholesky;
-        private SingularValueDecomposition _svd;
         private double _lnconstant;
         private double[] _variance;
         private double[] _standardDeviation;
@@ -266,9 +265,12 @@ namespace Numerics.Distributions
             _dimension = mean.Length;      
             _mean = mean;
             _covariance = new Matrix(covariance);
-            CreateCorrelationMatrix();
+            _cholesky = new CholeskyDecomposition(_covariance);
+            double lndet = _cholesky.LogDeterminant();
+            _lnconstant = -(Math.Log(2d * Math.PI) * _mean.Length + lndet) * 0.5d;
 
-            // Set up parameters for mvn CDF
+            // Set up parameters for MVN CDF
+            _correlationMatrixCreated = false;
             _maxEvaluations = 1000 * _dimension;
             _lower = new double[Dimension];
             _upper = new double[Dimension];
@@ -280,29 +282,15 @@ namespace Numerics.Distributions
             }
             // Set up arrays
             NL = (int)(Dimension * (Dimension - 1) / 2d);
-
-            try
-            {
-                _cholesky = new CholeskyDecomposition(_covariance);
-            }
-            catch (Exception ex)
-            {
-                if (ex.Message == "Cholesky Decomposition failed. The input matrix is not positive-definite.")
-                {
-                    _svd = new SingularValueDecomposition(_covariance);
-                }
-                else
-                {
-                    throw ex;
-                }
-            }
-            
-            double lndet = (_cholesky != null) ? _cholesky.LogDeterminant() : _svd.LogPseudoDeterminant();
-            _lnconstant = -(Math.Log(2d * Math.PI) * _mean.Length + lndet) * 0.5d;
+            // Create empty arrays
+            _correl = new double[NL];
+            _correlation = new Matrix(Dimension, Dimension);
 
         }
 
-
+        /// <summary>
+        /// Create the correlation arrays required for computing the CDF.
+        /// </summary>
         private void CreateCorrelationMatrix()
         {
             // Save correlation matrix
@@ -384,7 +372,7 @@ namespace Numerics.Distributions
             var z = new double[_mean.Length];
             for (int i = 0; i < x.Length; i++)
                 z[i] = x[i] - _mean[i];
-            var a = (_covariance != null) ? _cholesky.Solve(new Vector(z)) : _svd.Solve(new Vector(z));
+            var a = _cholesky.Solve(new Vector(z));
             double b = 0d;
             for (int i = 0; i < z.Length; i++)
                 b += a[i] * z[i];
@@ -2134,13 +2122,10 @@ namespace Numerics.Distributions
                 _dimension = this.Dimension,
                 _mean = this.Mean.ToArray(),
                 _covariance = this._covariance.Clone(),
-
                 _cholesky = this._cholesky,
-                _svd = this._svd,
                 _lnconstant = this._lnconstant,
                 _variance = this.Variance.ToArray(),
                 _standardDeviation = this.StandardDeviation.ToArray(),
-                
                 _correlation = this._correlation.Clone(),
                 _correl = this._correl.ToArray(),
                 _MVNUNI = this._MVNUNI,
