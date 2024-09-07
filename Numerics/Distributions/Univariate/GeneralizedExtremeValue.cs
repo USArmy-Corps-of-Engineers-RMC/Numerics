@@ -187,7 +187,7 @@ namespace Numerics.Distributions
                 }
                 else if (Math.Abs(Kappa) < 1d)
                 {
-                    return Xi + Alpha / Kappa * (1d - Gamma.Function(1d + Kappa));
+                    return Xi + (Alpha / Kappa * (1d - Gamma.Function(1d + Kappa)));
                 }
                 else
                 {

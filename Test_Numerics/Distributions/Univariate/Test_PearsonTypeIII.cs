@@ -29,11 +29,30 @@
 */
 
 using System;
+using System.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Numerics.Distributions;
 
 namespace Distributions.Univariate
 {
+    /// <summary>
+    /// Testing the Pearson Type III distribution algorithm.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    ///     <b> Authors: </b>
+    ///     <list type="bullet">
+    ///     <item> Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil </item>
+    ///     <item> Tiki Gonzalez, USACE Risk Management Center, julian.t.gonzalez@usace.army.mil</item>
+    ///     </list> 
+    /// </para>
+    /// <para>
+    /// <b> References: </b>
+    /// </para>
+    /// <para>
+    /// <see href = "https://github.com/mathnet/mathnet-numerics/blob/master/src/Numerics.Tests/DistributionTests" />
+    /// </para>
+    /// </remarks>
     [TestClass]
     public class Test_PearsonTypeIII
     {
@@ -205,7 +224,154 @@ namespace Distributions.Univariate
             Assert.AreEqual((qVar999 - true_qVar999) / true_qVar999 < 0.01d, true);
         }
 
+        /// <summary>
+        /// Verifying input parameters can create distribution.
+        /// </summary>
+        [TestMethod()]
+        public void CanCreateP3()
+        {
+            var P3 = new PearsonTypeIII();
+            Assert.AreEqual(P3.Mu, 100);
+            Assert.AreEqual(P3.Sigma, 10);
+            Assert.AreEqual(P3.Gamma, 0);
 
+            var P3ii = new PearsonTypeIII(1, 1, 1);
+            Assert.AreEqual(P3ii.Mu, 1);
+            Assert.AreEqual(P3ii.Sigma, 1);
+            Assert.AreEqual(P3ii.Gamma, 1);
+        }
+
+        /// <summary>
+        /// Testing distribution with bad parameters.
+        /// </summary>
+        [TestMethod()]
+        public void P3Fails()
+        {
+            var P3 = new PearsonTypeIII(double.PositiveInfinity, double.PositiveInfinity,double.PositiveInfinity);
+            Assert.IsFalse(P3.ParametersValid);
+
+            var P3ii = new PearsonTypeIII(double.NaN, double.NaN, double.NaN);
+            Assert.IsFalse(P3ii.ParametersValid);
+
+            var P3iii = new PearsonTypeIII(1, 0, 1);
+            Assert.IsFalse(P3iii.ParametersValid);
+        }
+
+        /// <summary>
+        /// Testing parameter to string.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateParameterToString()
+        {
+            var P3 = new PearsonTypeIII();
+            Assert.AreEqual(P3.ParametersToString[0, 0], "Mean (µ)");
+            Assert.AreEqual(P3.ParametersToString[1, 0], "Std Dev (σ)");
+            Assert.AreEqual(P3.ParametersToString[2, 0], "Skew (γ)");
+            Assert.AreEqual(P3.ParametersToString[0, 1], "100");
+            Assert.AreEqual(P3.ParametersToString[1, 1], "10");
+            Assert.AreEqual(P3.ParametersToString[2, 1], "0");
+        }
+
+        /// <summary>
+        /// Testing mean.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateMean()
+        {
+            var P3 = new PearsonTypeIII();
+            Assert.AreEqual(P3.Mean, 100);
+
+            var P3ii = new PearsonTypeIII(100, 1, 1);
+            Assert.AreEqual(P3ii.Mean, 100);
+        }
+
+        /// <summary>
+        /// Testing median.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateMedian()
+        {
+            var P3 = new PearsonTypeIII();
+            Assert.AreEqual(P3.Median, 100);
+        }
+
+        /// <summary>
+        /// Testing mode.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateMode()
+        {
+            var P3 = new PearsonTypeIII();
+            Assert.AreEqual(P3.Mode, 100);
+
+            var P3ii = new PearsonTypeIII(1, 1, 1);
+            Assert.AreEqual(P3ii.Mode, 0.5);
+        }
+
+        /// <summary>
+        /// Testing standard deviation.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateStandardDeviation()
+        {
+            var P3 = new PearsonTypeIII();
+            Assert.AreEqual(P3.StandardDeviation, 10);
+
+            var P3ii = new PearsonTypeIII(1, 1, 1);
+            Assert.AreEqual(P3ii.StandardDeviation, 1);
+        }
+
+        /// <summary>
+        /// Testing skew function.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateSkew()
+        {
+            var P3 = new PearsonTypeIII();
+            Assert.AreEqual(P3.Skew, 0);
+
+            var P3ii = new PearsonTypeIII(1, 1, 1);
+            Assert.AreEqual(P3.Skew, 0);
+        }
+
+        /// <summary>
+        /// Testing Kurtosis.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateKurtosis()
+        {
+            var P3 = new PearsonTypeIII();
+            Assert.AreEqual(P3.Kurtosis, 3);
+
+            var P3ii = new PearsonTypeIII(1, 1, 1);
+            Assert.AreEqual(P3ii.Kurtosis, 4.5);
+        }
+
+        /// <summary>
+        /// Testing minimum function.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateMinimum()
+        {
+            var P3 = new PearsonTypeIII();
+            Assert.AreEqual(P3.Minimum,double.NegativeInfinity);
+
+            var P3ii = new PearsonTypeIII(1, 1, 1);
+            Assert.AreEqual(P3ii.Minimum, -1);
+        }
+
+        /// <summary>
+        /// Testing maximum function.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateMaximum() 
+        {
+            var P3 = new PearsonTypeIII();
+            Assert.AreEqual(P3.Maximum,double.PositiveInfinity);
+
+            var P3ii = new PearsonTypeIII(1, 1, 1);
+            Assert.AreEqual(P3ii.Maximum, double.PositiveInfinity);
+        }
 
     }
 

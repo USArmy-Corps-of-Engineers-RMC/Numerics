@@ -51,7 +51,7 @@ namespace Distributions.Univariate
     /// </para>
     /// <list type="bullet">
     /// <item> <see href = "https://en.wikipedia.org/wiki/Beta_distribution" /></item>
-    /// <item> <see href="https://github.com/mathnet/mathnet-numerics/blob/master/src/Numerics.Tests/DistributionTests/Discrete/BinomialTests.cs"/></item>
+    /// <item> <see href="https://github.com/mathnet/mathnet-numerics/blob/master/src/Numerics.Tests/DistributionTests"/></item>
     /// </list>
     /// </remarks>
     [TestClass]
@@ -338,8 +338,8 @@ namespace Distributions.Univariate
             Assert.AreEqual(1, b.InverseCDF(1));
 
             var b2 = new BetaDistribution(9, 1);
-            Assert.AreEqual(0,b.InverseCDF(0));
-            Assert.AreEqual(1, b.InverseCDF(1));
+            Assert.AreEqual(0,b2.InverseCDF(0));
+            Assert.AreEqual(1, b2.InverseCDF(1));
 
             var b3 = new BetaDistribution(5, 100);
             Assert.AreEqual(0,b3.InverseCDF(0));

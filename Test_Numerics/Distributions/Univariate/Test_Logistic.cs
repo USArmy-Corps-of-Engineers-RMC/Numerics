@@ -34,6 +34,24 @@ using Numerics.Distributions;
 
 namespace Distributions.Univariate
 {
+    /// <summary>
+    /// Testing the Logistic distribution algorithm.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    ///     <b> Authors: </b>
+    ///     <list type="bullet">
+    ///     <item> Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil </item>
+    ///     <item> Tiki Gonzalez, USACE Risk Management Center, julian.t.gonzalez@usace.army.mil</item>
+    ///     </list> 
+    /// </para>
+    /// <para>
+    /// <b> References: </b>
+    /// </para>
+    /// <para>
+    /// <see href = "https://github.com/mathnet/mathnet-numerics/blob/master/src/Numerics.Tests/DistributionTests" />
+    /// </para>
+    /// </remarks>
     [TestClass]
     public class Test_Logistic
     {
@@ -139,6 +157,179 @@ namespace Distributions.Univariate
             se100 = Math.Sqrt(LO.QuantileVariance(0.99d, 48, ParameterEstimationMethod.MaximumLikelihood));
             true_se100 = 1648d;
             Assert.AreEqual((se100 - true_se100) / true_se100 < 0.01d, true);
+        }
+
+        /// <summary>
+        /// Verifying distribution is being created with inputs.
+        /// </summary>
+        [TestMethod()]
+        public void CanCreateLogistic()
+        {
+            var LO = new Logistic();
+            Assert.AreEqual(LO.Xi, 0);
+            Assert.AreEqual(LO.Alpha, 0.1);
+
+            var LO2 = new Logistic(1, 1);
+            Assert.AreEqual(LO2.Xi, 1);
+            Assert.AreEqual(LO2.Alpha, 1);
+        }
+
+        /// <summary>
+        /// Testing distribution with bad parameters.
+        /// </summary>
+        [TestMethod()]
+        public void LogisticFails()
+        {
+            var LO = new Logistic(double.NaN,double.NaN);
+            Assert.IsFalse(LO.ParametersValid);
+
+            var LO2 = new Logistic(double.PositiveInfinity,double.PositiveInfinity);
+            Assert.IsFalse(LO2.ParametersValid);
+
+            var LO3 = new Logistic(1, 0);
+            Assert.IsFalse(LO3.ParametersValid);
+        }
+
+        /// <summary>
+        /// Testing ParametersToString().
+        /// </summary>
+        [TestMethod()]
+        public void ValidateParametersToString()
+        {
+            var LO = new Logistic();
+            Assert.AreEqual(LO.ParametersToString[0, 0], "Location (ξ)");
+            Assert.AreEqual(LO.ParametersToString[1, 0], "Scale (α)");
+            Assert.AreEqual(LO.ParametersToString[0, 1], "0");
+            Assert.AreEqual(LO.ParametersToString[1, 1], "0.1");
+        }
+
+        /// <summary>
+        /// Testing mean function.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateMean()
+        {
+            var LO = new Logistic();
+            Assert.AreEqual(LO.Mean, 0);
+
+            var LO2 = new Logistic(1,1);
+            Assert.AreEqual(LO2.Mean, 1);
+        }
+
+        /// <summary>
+        /// Testing median function.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateMedian()
+        {
+            var LO = new Logistic();
+            Assert.AreEqual(LO.Median,0);
+
+            var LO2 = new Logistic(1, 1);
+            Assert.AreEqual(LO2.Median, 1);
+        }
+
+        /// <summary>
+        /// Testing mode function.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateMode()
+        {
+            var LO = new Logistic();
+            Assert.AreEqual(LO.Mode, 0);
+
+            var LO2 = new Logistic(1, 1);
+            Assert.AreEqual(LO2.Mode, 1);
+        }
+
+        /// <summary>
+        /// Testing Standard deviation.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateStandardDeviation()
+        {
+            var LO = new Logistic();
+            Assert.AreEqual(LO.StandardDeviation, 0.18137, 1E-04);
+
+            var LO2 = new Logistic(1, 1);
+            Assert.AreEqual(LO2.StandardDeviation, 1.81379, 1e-04);
+        }
+
+        /// <summary>
+        /// Testing skew function.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateSkew()
+        {
+            var LO = new Logistic();
+            Assert.AreEqual(LO.Skew, 0);
+
+            var LO2 = new Logistic(1, 1);
+            Assert.AreEqual(LO2.Skew, 0);
+        }
+
+        /// <summary>
+        /// Testing Kurtosis function.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateKurtosis()
+        {
+            var LO = new Logistic();
+            Assert.AreEqual(LO.Kurtosis, 4.2);
+
+            var LO2 = new Logistic(1, 1);
+            Assert.AreEqual(LO2.Kurtosis, 4.2);
+        }
+
+        /// <summary>
+        /// Testing range for distribution is negative infinity to positive infinity.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateMinMax()
+        {
+            var LO = new Logistic();
+            Assert.AreEqual(LO.Minimum, double.NegativeInfinity);
+            Assert.AreEqual(LO.Maximum,double.PositiveInfinity);
+
+            var LO2 = new Logistic(1, 1);
+            Assert.AreEqual(LO2.Minimum, double.NegativeInfinity);
+            Assert.AreEqual(LO2.Maximum, double.PositiveInfinity);
+        }
+
+        /// <summary>
+        /// Testing PDF method.
+        /// </summary>
+        [TestMethod()]
+        public void ValidatePDF()
+        {
+            var LO = new Logistic(5,2);
+            Assert.AreEqual(LO.PDF(-5), 0.00332, 1e-04);
+            Assert.AreEqual(LO.PDF(0), 0.03505, 1e-04);
+            Assert.AreEqual(LO.PDF(5), 0.125);
+        }
+
+        /// <summary>
+        /// Testing CDF method.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateCDF()
+        {
+            var LO = new Logistic(5,2);
+            Assert.AreEqual(LO.CDF(-5), 0.00669, 1e-05);
+            Assert.AreEqual(LO.CDF(0), 0.07585, 1e-04);
+            Assert.AreEqual(LO.CDF(5), 0.5);
+        }
+
+        /// <summary>
+        /// Testing inverse cdf method.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateInverseCDF()
+        {
+            var LO = new Logistic(5, 2);
+            Assert.AreEqual(LO.InverseCDF(0), double.NegativeInfinity);
+            Assert.AreEqual(LO.InverseCDF(1),double.PositiveInfinity);
+            Assert.AreEqual(LO.InverseCDF(0.3), 3.3054, 1e-04);
         }
     }
 }

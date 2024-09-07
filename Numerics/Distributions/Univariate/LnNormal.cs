@@ -204,7 +204,7 @@ namespace Numerics.Distributions
             get
             {
                 double siqma2 = Math.Pow(Sigma, 2d);
-                return 3d + (Math.Exp(4d * siqma2) + 2d * Math.Exp(3d * siqma2) + 3d * Math.Exp(2d * siqma2) - 6d);
+                return 3d + (Math.Exp(4d * siqma2) + 2d * Math.Exp(3d * siqma2) + 3d * Math.Exp(2d * siqma2) - 6d)  ;
             }
         }
 

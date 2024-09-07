@@ -29,11 +29,30 @@
 */
 
 using System;
+using System.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Numerics.Distributions;
 
 namespace Distributions.Univariate
 {
+    /// <summary>
+    /// Testing the Uniform distribution algorithm.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    ///     <b> Authors: </b>
+    ///     <list type="bullet">
+    ///     <item> Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil </item>
+    ///     <item> Tiki Gonzalez, USACE Risk Management Center, julian.t.gonzalez@usace.army.mil</item>
+    ///     </list> 
+    /// </para>
+    /// <para>
+    /// <b> References: </b>
+    /// </para>
+    /// <para>
+    /// <see href = "https://github.com/mathnet/mathnet-numerics/blob/master/src/Numerics.Tests/DistributionTests" />
+    /// </para>
+    /// </remarks>
     [TestClass]
     public class Test_Uniform
     {
@@ -78,6 +97,185 @@ namespace Distributions.Univariate
             {
                 Assert.AreEqual(x[i], u.InverseCDF(p[i]), 1E-7);
             }
+        }
+
+        /// <summary>
+        /// Verifying input parameters can create distribution.
+        /// </summary>
+        [TestMethod]
+        public void CanCreateUniform()
+        {
+            var U = new Uniform();
+            Assert.AreEqual(U.Min, 0);
+            Assert.AreEqual(U.Max, 1);
+
+            var U2 = new Uniform(2,10);
+            Assert.AreEqual(U2.Min, 2); 
+            Assert.AreEqual(U2.Max, 10);
+        }
+
+        /// <summary>
+        /// Testing distribution with bad parameters.
+        /// </summary>
+        [TestMethod]
+        public void UniformFails()
+        {
+            var U = new Uniform(1, 0);
+            Assert.IsFalse(U.ParametersValid);
+
+            var U2 = new Uniform(double.NaN, 0);
+            Assert.IsFalse(U2.ParametersValid);
+
+            var U3 = new Uniform(0,double.NaN);
+            Assert.IsFalse(U3.ParametersValid);
+
+            var U4 = new Uniform(0,double.PositiveInfinity);
+            Assert.IsFalse(U4.ParametersValid);
+
+            var U5 = new Uniform(double.PositiveInfinity, 0);
+            Assert.IsFalse(U5.ParametersValid);
+        }
+
+        /// <summary>
+        /// Testing parameter to string.
+        /// </summary>
+        [TestMethod]
+        public void ValidateParametersToString()
+        {
+            var U = new Uniform();
+            Assert.AreEqual(U.ParametersToString[0, 0], "Min");
+            Assert.AreEqual(U.ParametersToString[1, 0], "Max");
+            Assert.AreEqual(U.ParametersToString[0, 1], "0");
+            Assert.AreEqual(U.ParametersToString[1, 1], "1");
+        }
+
+        /// <summary>
+        /// Testing mean.
+        /// </summary>
+        [TestMethod]
+        public void ValidateMean()
+        {
+            var U = new Uniform();
+            Assert.AreEqual(U.Mean, 0.5);
+
+            var U2 = new Uniform(2, 10);
+            Assert.AreEqual(U2.Mean, 6);
+        }
+
+        /// <summary>
+        /// Testing median.
+        /// </summary>
+        [TestMethod]
+        public void ValidateMedian()
+        {
+            var U = new Uniform();
+            Assert.AreEqual(U.Median, 0.5);
+
+            var U2 = new Uniform(2, 10);
+            Assert.AreEqual(U2.Median, 6);
+        }
+
+        /// <summary>
+        /// Testing mode.
+        /// </summary>
+        [TestMethod]
+        public void ValidateMode()
+        {
+            var U = new Uniform();
+            Assert.AreEqual(U.Mode,double.NaN);
+
+            var U2 = new Uniform(2, 10);
+            Assert.AreEqual(U2.Mode,double.NaN);
+        }
+
+        /// <summary>
+        /// Testing Standard deviation.
+        /// </summary>
+        [TestMethod]
+        public void ValidateStandardDeviation()
+        {
+            var U = new Uniform();
+            Assert.AreEqual(U.StandardDeviation, 0.288675, 1e-05);
+
+            var U2 = new Uniform(2, 10);
+            Assert.AreEqual(U2.StandardDeviation, 2.3094, 1e-04);
+        }
+
+        /// <summary>
+        /// Testing skew.
+        /// </summary>
+        [TestMethod]
+        public void ValidateSkew()
+        {
+            var U = new Uniform();
+            Assert.AreEqual(U.Skew, 0);
+
+            var U2 = new Uniform(2, 10);
+            Assert.AreEqual(U2.Skew, 0);
+        }
+
+        /// <summary>
+        /// Testing Kurtosis.
+        /// </summary>
+        [TestMethod]
+        public void ValidateKurtosis()
+        {
+            var U = new Uniform();
+            Assert.AreEqual(U.Kurtosis, 9d / 5d);
+
+            var U2 = new Uniform(2, 10);
+            Assert.AreEqual(U2.Kurtosis, 9d / 5d);
+        }
+
+        /// <summary>
+        /// Testing minimum and maximum functions.
+        /// </summary>
+        [TestMethod]
+        public void ValidateMinMax()
+        {
+            var U = new Uniform();
+            Assert.AreEqual(U.Minimum, 0);
+            Assert.AreEqual(U.Maximum, 1);
+
+            var U2 = new Uniform(2, 10);
+            Assert.AreEqual(U2.Minimum, 2);
+            Assert.AreEqual(U2.Maximum, 10);
+        }
+
+        /// <summary>
+        /// Testing PDF method.
+        /// </summary>
+        [TestMethod]
+        public void ValidatePDF()
+        {
+            var U = new Uniform();
+            Assert.AreEqual(U.PDF(-1),0);
+            Assert.AreEqual(U.PDF(2),0);
+            Assert.AreEqual(U.PDF(1), 1);
+        }
+
+        /// <summary>
+        /// Testing CDF.
+        /// </summary>
+        [TestMethod]
+        public void ValidateCDF()
+        {
+            var U = new Uniform();
+            Assert.AreEqual(U.CDF(0),0);
+            Assert.AreEqual(U.CDF(1),1);
+            Assert.AreEqual(U.CDF(0.5), 0.5);
+        }
+
+        /// <summary>
+        /// Testing inverse CDF.
+        /// </summary>
+        [TestMethod]
+        public void ValidateInverseCDF()
+        {
+            var U = new Uniform();
+            Assert.AreEqual(U.InverseCDF(0), 0);
+            Assert.AreEqual(U.InverseCDF(1), 1);
+            Assert.AreEqual(U.InverseCDF(0.3), 0.3);        
         }
     }
 }

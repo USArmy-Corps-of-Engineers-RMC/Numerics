@@ -34,6 +34,25 @@ using Numerics.Distributions;
 
 namespace Distributions.Univariate
 {
+    /// <summary>
+    /// Testing the Generalized Beta distribution algorithm.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    ///     <b> Authors: </b>
+    ///     <list type="bullet">
+    ///     <item> Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil </item>
+    ///     <item> Tiki Gonzalez, USACE Risk Management Center, julian.t.gonzalez@usace.army.mil</item>
+    ///     </list> 
+    /// </para>
+    /// <para>
+    /// <b> References: </b>
+    /// </para>
+    /// <para>
+    /// <see href = "https://github.com/mathnet/mathnet-numerics/blob/master/src/Numerics.Tests/DistributionTests" />
+    /// </para>
+    /// </remarks>
+
     [TestClass]
     public class Test_GeneralizedBeta
     {
@@ -86,6 +105,225 @@ namespace Distributions.Univariate
             {
                 Assert.AreEqual(x[i], B.InverseCDF(p[i]), 1E-7);
             }
+        }
+
+        /// <summary>
+        /// See if Generalized beta is being created.
+        /// </summary>
+        [TestMethod]
+        public void CanCreateGeneralizedBeta()
+        {
+            var b = new GeneralizedBeta(0, 0,0,1);
+            Assert.AreEqual(0, b.Alpha);
+            Assert.AreEqual(0, b.Beta);
+            Assert.AreEqual(0, b.Min);
+            Assert.AreEqual(1, b.Max);
+
+            var b2 = new GeneralizedBeta(0, 1,0,1);
+            Assert.AreEqual(0, b2.Alpha);
+            Assert.AreEqual(1, b2.Beta);
+            Assert.AreEqual(0, b2.Min);
+            Assert.AreEqual(1, b2.Max);
+
+            var b3 = new GeneralizedBeta(1, 0,0,1);
+            Assert.AreEqual(1, b3.Alpha);
+            Assert.AreEqual(0, b3.Beta);
+            Assert.AreEqual(0, b3.Min);
+            Assert.AreEqual(1, b3.Max);
+
+            var b4 = new GeneralizedBeta(1, 1,0,1);
+            Assert.AreEqual(1, b4.Alpha);
+            Assert.AreEqual(1, b4.Beta);
+            Assert.AreEqual(0, b4.Min);
+            Assert.AreEqual(1, b4.Max);
+
+            var b5 = new GeneralizedBeta(9, 1, 0, 1);
+            Assert.AreEqual(9, b5.Alpha);
+            Assert.AreEqual(1, b5.Beta);
+            Assert.AreEqual(0, b5.Min);
+            Assert.AreEqual(1, b5.Max);
+        }
+
+        /// <summary>
+        /// Check Generalized beta function with bad parameters.
+        /// </summary>
+        [TestMethod()]
+        public void GeneralizedBetaFails()
+        {
+            var b = new GeneralizedBeta(double.NaN, 0);
+            Assert.IsFalse(b.ParametersValid);
+
+            var b2 = new GeneralizedBeta(-1, 1);
+            Assert.IsFalse(b2.ParametersValid);
+
+            var b3 = new GeneralizedBeta(double.PositiveInfinity, 0);
+            Assert.IsFalse(b3.ParametersValid);
+
+            var b4 = new GeneralizedBeta(1, 1, 1, 0);
+            Assert.IsFalse(b4.ParametersValid);
+        }
+
+        /// <summary>
+        /// Testing ParameterToString function.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateParameterToString()
+        {
+            var b = new GeneralizedBeta(1d, 1d,0,1);
+            Assert.AreEqual("Shape (α)", b.ParametersToString[0, 0]);
+            Assert.AreEqual("Shape (β)", b.ParametersToString[1, 0]);
+            Assert.AreEqual("Min",b.ParametersToString[2, 0]);
+            Assert.AreEqual("Max", b.ParametersToString[3,0]);
+
+            Assert.AreEqual("1", b.ParametersToString[0, 1]);
+            Assert.AreEqual("1", b.ParametersToString[1, 1]);
+            Assert.AreEqual("0", b.ParametersToString[2, 1]);
+            Assert.AreEqual("1", b.ParametersToString[3, 1]);    
+        }
+
+        /// <summary>
+        /// Validating the mean of this distribution with different parameters.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateMean()
+        {
+            var b = new GeneralizedBeta(2, 2, 0, 1);
+            Assert.AreEqual(b.Mean, 0.5);
+
+            var b2 = new GeneralizedBeta(2, 2, -10, 10);
+            Assert.AreEqual(b2.Mean, 0);
+        }
+
+        /// <summary>
+        /// Verified using MathNet-Numerics testing. Checking median of distribution with different parameters.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateMedian()
+        {
+            var b = new GeneralizedBeta(2, 2);
+            Assert.AreEqual(0.5, b.Median);
+        }
+
+        /// <summary>
+        /// Verifies the mode of the distribution.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateMode()
+        {
+            var b = new GeneralizedBeta();
+            Assert.AreEqual(b.Mode, 0.5);
+
+            var b2 = new GeneralizedBeta(2, 2, -10, 10);
+            Assert.AreEqual(b2.Mode, 0);
+        }
+
+        /// <summary>
+        /// Testing Standard Deviation with different Max and min values
+        /// </summary>
+        [TestMethod()]
+        public void ValidateStandardDeviation()
+        {
+            var b = new GeneralizedBeta();
+            Assert.AreEqual(b.StandardDeviation, 0.223606, 1e-04);
+
+            var b2 = new GeneralizedBeta(2, 2, -10, 10);
+            Assert.AreEqual(b2.StandardDeviation, 4.47213,1e-04);
+        }
+
+        /// <summary>
+        /// Verifying skew function.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateSkew()
+        {
+            var b = new GeneralizedBeta();
+            Assert.AreEqual(b.Skew, 0);
+
+            var b2 = new GeneralizedBeta(2, 10);
+            Assert.AreEqual(b2.Skew, 0.92140088,1e-04);
+        }
+
+        /// <summary>
+        /// Checking Kurtosis of distribution with different parameters.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateKurtosis()
+        {
+            var b = new GeneralizedBeta(2, 2);
+            Assert.AreEqual(2.14285, b.Kurtosis, 1e-04);
+
+            var b2 = new GeneralizedBeta(5, 2);
+            Assert.AreEqual(2.88, b2.Kurtosis);
+
+            var b3 = new GeneralizedBeta(2, 5);
+            Assert.AreEqual(2.88, b3.Kurtosis);
+        }
+
+        /// <summary>
+        /// Testing minimum and maximum functions of this distribution.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateMinimumMaximum()
+        {
+            var b = new GeneralizedBeta();
+            Assert.AreEqual(b.Minimum, 0);
+            Assert.AreEqual(b.Maximum, 1);
+
+            var b2 = new GeneralizedBeta(2, 2, -10, 10);
+            Assert.AreEqual(b2.Minimum, -10);
+            Assert.AreEqual(b2.Maximum, 10);
+        }
+
+        /// <summary>
+        /// Verifying the PDF for Generalized Beta with known inputs from Test_Beta.cs.
+        /// </summary>
+        [TestMethod()]
+        public void ValidatePDF()
+        {
+            var b = new GeneralizedBeta(1, 1,0,2);
+            Assert.AreEqual(0.5, b.PDF(0));
+            Assert.AreEqual(0.5, b.PDF(0.5));
+            Assert.AreEqual(0.5, b.PDF(1));
+
+            var b2 = new GeneralizedBeta(9, 1);
+            Assert.AreEqual(0, b2.PDF(0));
+            Assert.AreEqual(0.035156, b2.PDF(0.5), 1e-04);
+            Assert.AreEqual(8.9999, b2.PDF(1), 1e-04);
+            Assert.AreEqual(0, b2.PDF(-1));
+            Assert.AreEqual(0, b2.PDF(2));
+        }
+
+        /// <summary>
+        /// Verifying CDF function.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateCDF()
+        {
+            var b = new GeneralizedBeta(2,2,-10,10);
+            Assert.AreEqual(b.CDF(-11), 0);
+            Assert.AreEqual(b.CDF(11),1);
+
+            var b2 = new GeneralizedBeta(9, 1);
+            Assert.AreEqual(0, b2.CDF(0));
+            Assert.AreEqual(0.001953125, b2.CDF(0.5));
+            Assert.AreEqual(1, b2.CDF(1));
+        }
+
+        /// <summary>
+        /// Verifying inverse CDF function.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateInverseCDF()
+        {
+            var b = new GeneralizedBeta(1, 1);
+            Assert.AreEqual(1, b.InverseCDF(1));
+
+            var b2 = new GeneralizedBeta(9, 1,-10,10);
+            Assert.AreEqual(-10, b2.InverseCDF(0));
+            Assert.AreEqual(10, b2.InverseCDF(1));
+
+            var b3 = new GeneralizedBeta(5, 100,0,10);
+            Assert.AreEqual(0, b3.InverseCDF(0));
         }
     }
 }

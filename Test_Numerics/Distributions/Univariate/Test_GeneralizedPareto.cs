@@ -29,11 +29,31 @@
 */
 
 using System;
+using System.Runtime.InteropServices;
+using System.Runtime.Remoting.Messaging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Numerics.Distributions;
 
 namespace Distributions.Univariate
 {
+    /// <summary>
+    /// Testing the Generalized Pareto distribution algorithm.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    ///     <b> Authors: </b>
+    ///     <list type="bullet">
+    ///     <item> Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil </item>
+    ///     <item> Tiki Gonzalez, USACE Risk Management Center, julian.t.gonzalez@usace.army.mil</item>
+    ///     </list> 
+    /// </para>
+    /// <para>
+    /// <b> References: </b>
+    /// </para>
+    /// <para>
+    /// <see href = "https://github.com/mathnet/mathnet-numerics/blob/master/src/Numerics.Tests/DistributionTests" />
+    /// </para>
+    /// </remarks>
     [TestClass]
     public class Test_GeneralizedPareto
     {
@@ -212,6 +232,214 @@ namespace Distributions.Univariate
             qVar99 = Math.Sqrt(GPA.QuantileVariance(0.99d, sample.Length, ParameterEstimationMethod.MaximumLikelihood));
             true_qVar99 = 15938d;
             Assert.AreEqual((qVar99 - true_qVar99) / true_qVar99 < 0.01d, true);
+        }
+
+        /// <summary>
+        /// Checking if parameters can construct Generalized Pareto.
+        /// </summary>
+        [TestMethod()]
+        public void CanCreateGeneralizedPareto()
+        {
+            var GPA = new GeneralizedPareto();
+            Assert.AreEqual(GPA.Xi, 100);
+            Assert.AreEqual(GPA.Alpha, 10);
+            Assert.AreEqual(GPA.Kappa, 0);
+
+            var GPA2 = new GeneralizedExtremeValue(-100, 1, 1);
+            Assert.AreEqual(GPA2.Xi, -100);
+            Assert.AreEqual(GPA2.Alpha, 1);
+            Assert.AreEqual(GPA2.Kappa, 1);
+        }
+
+        /// <summary>
+        /// Testing distribution with bad parameters.
+        /// </summary>
+        [TestMethod()]
+        public void GeneralizedParetoFails()
+        {
+            var GPA = new GeneralizedPareto(double.NaN, double.NaN, double.NaN);
+            Assert.IsFalse(GPA.ParametersValid);
+
+            var GPA2 = new GeneralizedPareto(double.PositiveInfinity, double.PositiveInfinity, double.PositiveInfinity);
+            Assert.IsFalse(GPA2.ParametersValid);
+
+            var GPA3 = new GeneralizedPareto(100, 0, 1);
+            Assert.IsFalse(GPA3.ParametersValid);
+        }
+
+        /// <summary>
+        /// Checking ParametersToString().
+        /// </summary>
+        [TestMethod()]
+        public void ValidateParametersToString()
+        {
+            var GPA = new GeneralizedPareto();
+            Assert.AreEqual(GPA.ParametersToString[0, 0], "Location (ξ)");
+            Assert.AreEqual(GPA.ParametersToString[1, 0], "Scale (α)");
+            Assert.AreEqual(GPA.ParametersToString[2, 0], "Shape (κ)");
+            Assert.AreEqual(GPA.ParametersToString[0, 1], "100");
+            Assert.AreEqual(GPA.ParametersToString[1, 1], "10");
+            Assert.AreEqual(GPA.ParametersToString[2, 1], "0");
+        }
+
+        /// <summary>
+        /// Testing mean function.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateMean()
+        {
+            var GPA = new GeneralizedPareto();
+            Assert.AreEqual(GPA.Mean, 110);
+
+            var GPA2 = new GeneralizedPareto(100, 10, 0.9);
+            Assert.AreEqual(GPA2.Mean, 105.26315, 1e-04);
+
+            var GPA3 = new GeneralizedPareto(100, 10, 1);
+            Assert.AreEqual(GPA3.Mean, double.NaN);
+        }
+
+        /// <summary>
+        /// Testing median function.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateMedian()
+        {
+            var GPA = new GeneralizedPareto();
+            Assert.AreEqual(GPA.Median, 106.93147, 1e-04);
+
+            var GPA2 = new GeneralizedPareto(100, 10, 1);
+            Assert.AreEqual(GPA2.Median, 95);
+        }
+
+        /// <summary>
+        /// Testing mode function.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateMode()
+        {
+            var GPA = new GeneralizedPareto();
+            Assert.AreEqual(GPA.Mode, 100);
+
+            var GPA2 = new GeneralizedPareto(100, 10, 1);
+            Assert.AreEqual(GPA2.Mode, 95);
+        }
+
+        /// <summary>
+        /// Testing standard deviation function.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateStandardDeviation()
+        {
+            var GPA = new GeneralizedPareto();
+            Assert.AreEqual(GPA.StandardDeviation, 10);
+
+            var GPA2 = new GeneralizedPareto(100, 10, 0.25);
+            Assert.AreEqual(GPA2.StandardDeviation, 6.531972, 1e-04);
+
+            var GPA3 = new GeneralizedPareto(100, 10, 1);
+            Assert.AreEqual(GPA3.StandardDeviation, double.NaN);
+        }
+        
+        /// <summary>
+        /// Testing the skew function.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateSkew()
+        {
+            var GPA = new GeneralizedPareto();
+            Assert.AreEqual(GPA.Skew, 2);
+
+            var GPA2 = new GeneralizedPareto(100, 10, 0.3);
+            Assert.AreEqual(GPA2.Skew, 0.932039, 1e-04);
+
+            var GPA3 = new GeneralizedPareto(100, 10, 1);
+            Assert.AreEqual(GPA3.Skew, double.NaN);
+        }
+
+        /// <summary>
+        /// Testing Kurtosis function.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateKurtosis()
+        {
+            var GPA = new GeneralizedPareto();
+            Assert.AreEqual(GPA.Kurtosis, 9);
+
+            var GPA2 = new GeneralizedPareto(100, 10, 0.24);
+            Assert.AreEqual(GPA2.Kurtosis, 3.786748, 1e-04);
+
+            var GPA3 = new GeneralizedPareto(100, 10, 1);
+            Assert.AreEqual(GPA3.Kurtosis, double.NaN);
+        }
+
+        /// <summary>
+        /// Checking minimum function.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateMinimum()
+        {
+            var GPA = new GeneralizedPareto();
+            Assert.AreEqual(GPA.Minimum, 100);
+        }
+
+        /// <summary>
+        /// Testing maximum function.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateMaximum() 
+        {
+            var GPA = new GeneralizedPareto();
+            Assert.AreEqual(GPA.Maximum, double.PositiveInfinity);
+
+            var GPA2 = new GeneralizedPareto(100, 10, 1);
+            Assert.AreEqual(GPA2.Maximum, 110);
+        }
+
+        /// <summary>
+        /// Testing PDF method at different locations and parameters.
+        /// </summary>
+        [TestMethod()]
+        public void ValidatePDF()
+        {
+            var GPA = new GeneralizedPareto();
+            Assert.AreEqual(GPA.PDF(100), 0.1);
+            Assert.AreEqual(GPA.PDF(200), 4.53999e-06, 1e-10);
+
+            var GPA2 = new GeneralizedPareto(100, 10, 1);
+            Assert.AreEqual(GPA2.PDF(200), 0);
+            Assert.AreEqual(GPA2.PDF(50), 0);
+        }
+
+        /// <summary>
+        /// Testing CDF method at different locations and parameters.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateCDF()
+        {
+            var GPA = new GeneralizedPareto();
+            Assert.AreEqual(GPA.CDF(100), 0);
+            Assert.AreEqual(GPA.CDF(0), 0, 1e-04);
+            Assert.AreEqual(GPA.CDF(200), 0.999954, 1e-06);
+
+            var GPA2 = new GeneralizedPareto(100, 10, 1);
+            Assert.AreEqual(GPA2.CDF(50), 0);
+            Assert.AreEqual(GPA2.CDF(20), 0);
+            Assert.AreEqual(GPA2.CDF(200), 1);
+        }
+
+        /// <summary>
+        /// Testing InverseCDF method at different probabilities.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateInverseCDF()
+        {
+            var GPA = new GeneralizedPareto();
+            Assert.AreEqual(GPA.InverseCDF(0), 100);
+            Assert.AreEqual(GPA.InverseCDF(1), double.PositiveInfinity);
+            Assert.AreEqual(GPA.InverseCDF(0.5), 106.93147, 1e-04);
+
+            var GPA2 = new GeneralizedPareto(100, 10, 1);
+            Assert.AreEqual(GPA2.InverseCDF(0.3), 103);
         }
     }
 }

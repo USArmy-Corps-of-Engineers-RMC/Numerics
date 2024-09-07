@@ -34,6 +34,24 @@ using Numerics.Distributions;
 
 namespace Distributions.Univariate
 {
+    /// <summary>
+    /// Testing the Rayleigh distribution algorithm.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    ///     <b> Authors: </b>
+    ///     <list type="bullet">
+    ///     <item> Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil </item>
+    ///     <item> Tiki Gonzalez, USACE Risk Management Center, julian.t.gonzalez@usace.army.mil</item>
+    ///     </list> 
+    /// </para>
+    /// <para>
+    /// <b> References: </b>
+    /// </para>
+    /// <para>
+    /// <see href = "https://github.com/mathnet/mathnet-numerics/blob/master/src/Numerics.Tests/DistributionTests" />
+    /// </para>
+    /// </remarks>
     [TestClass]
     public class Test_Rayleigh
     {
@@ -57,6 +75,172 @@ namespace Distributions.Univariate
             Assert.AreEqual(R.PDF(1.4d), true_pdf, 0.0001d);
             Assert.AreEqual(R.CDF(1.4d), true_cdf, 0.0001d);
             Assert.AreEqual(R.InverseCDF(true_cdf), true_icdf, 0.0001d);
+        }
+
+        /// <summary>
+        /// Verifying input parameters can create distribution.
+        /// </summary>
+        [TestMethod()]
+        public void CanCreateRayleigh()
+        {
+            var R = new Rayleigh();
+            Assert.AreEqual(R.Sigma, 10);
+
+            var R2 = new Rayleigh(2);
+            Assert.AreEqual(R2.Sigma, 2);
+        }
+
+        /// <summary>
+        /// Testing distribution with bad parameters.
+        /// </summary>
+        [TestMethod()]
+        public void RayleighFails()
+        {
+            var R = new Rayleigh(double.NaN);
+            Assert.IsFalse(R.ParametersValid);
+
+            var R2 = new Rayleigh(double.PositiveInfinity);
+            Assert.IsFalse(R2.ParametersValid);
+
+            var R3 = new Rayleigh(0);
+            Assert.IsFalse(R3.ParametersValid);
+        }
+
+        /// <summary>
+        /// Testing Parameter to string.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateParameterToString()
+        {
+            var R = new Rayleigh();
+            Assert.AreEqual(R.ParametersToString[0, 0], "Scale (σ)");
+            Assert.AreEqual(R.ParametersToString[0, 1], "10");
+        }
+
+        /// <summary>
+        /// Testing mean function.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateMean()
+        {
+            var R = new Rayleigh();
+            Assert.AreEqual(R.Mean, 12.53314, 1e-04);
+
+            var R2 = new Rayleigh(1);
+            Assert.AreEqual(R2.Mean, 1.25331, 1e-04);
+        }
+
+        /// <summary>
+        /// Testing median.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateMedian()
+        {
+            var R = new Rayleigh();
+            Assert.AreEqual(R.Median, 11.7741, 1e-04);
+
+            var R2 = new Rayleigh(1);
+            Assert.AreEqual(R2.Median, 1.1774, 1e-04);
+        }
+
+        /// <summary>
+        /// Testing mode.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateMode()
+        {
+            var R = new Rayleigh();
+            Assert.AreEqual(R.Mode, 10);
+
+            var R2 = new Rayleigh(1);
+            Assert.AreEqual(R2.Mode, 1);
+        }
+        
+        /// <summary>
+        /// Testing standard deviation.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateStandardDeviation()
+        {
+            var R = new Rayleigh();
+            Assert.AreEqual(R.StandardDeviation, 6.55136, 1e-05);
+
+            var R2 = new Rayleigh(1);
+            Assert.AreEqual(R2.StandardDeviation, 0.65513, 1e-04);
+        }
+
+        /// <summary>
+        /// Testing skew.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateSkew()
+        {
+            var R = new Rayleigh();
+            Assert.AreEqual(R.Skew, 0.63111, 1e-04);
+
+            var R2 = new Rayleigh(1);
+            Assert.AreEqual(R2.Skew, 0.63111, 1e-04);
+        }
+
+        /// <summary>
+        /// Testing kurtosis.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateKurtosis()
+        {
+            var R = new Rayleigh();
+            Assert.AreEqual(R.Kurtosis, 3.24508,1e-05);
+
+            var R2 = new Rayleigh(1);
+            Assert.AreEqual(R2.Kurtosis, 3.24508,1e-05);
+        }
+
+        /// <summary>
+        /// Testing minimum and maximum functions.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateMinMax()
+        {
+            var R = new Rayleigh();
+            Assert.AreEqual(R.Minimum, 0);
+            Assert.AreEqual(R.Maximum, double.PositiveInfinity);
+        }
+
+        /// <summary>
+        /// Testing PDF method.
+        /// </summary>
+        [TestMethod()]
+        public void ValidatePDF()
+        {
+            var R = new Rayleigh();
+            Assert.AreEqual(R.PDF(-1), 0);
+            Assert.AreEqual(R.PDF(1), 9.9501e-03, 1e-06);
+
+            var R2 = new Rayleigh(1);
+            Assert.AreEqual(R.PDF(2), 0.019603, 1e-05);
+        }
+
+        /// <summary>
+        /// Testing CDF method.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateCDF()
+        {
+            var R = new Rayleigh();
+            Assert.AreEqual(R.CDF(-1), 0);
+            Assert.AreEqual(R.CDF(1), 4.9875e-03,1e-04);
+        }
+
+        /// <summary>
+        /// Testing inverse CDF method.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateInverseCDF()
+        {
+            var R = new Rayleigh();
+            Assert.AreEqual(R.InverseCDF(0), 0);
+            Assert.AreEqual(R.InverseCDF(1), double.PositiveInfinity);
+            Assert.AreEqual(R.InverseCDF(0.4), 10.1076, 1e-04);
         }
     }
 }

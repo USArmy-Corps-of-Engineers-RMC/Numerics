@@ -29,11 +29,30 @@
 */
 
 using System;
+using System.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Numerics.Distributions;
 
 namespace Distributions.Univariate
 {
+    /// <summary>
+    /// Testing the Triangular distribution algorithm.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    ///     <b> Authors: </b>
+    ///     <list type="bullet">
+    ///     <item> Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil </item>
+    ///     <item> Tiki Gonzalez, USACE Risk Management Center, julian.t.gonzalez@usace.army.mil</item>
+    ///     </list> 
+    /// </para>
+    /// <para>
+    /// <b> References: </b>
+    /// </para>
+    /// <para>
+    /// <see href = "https://github.com/mathnet/mathnet-numerics/blob/master/src/Numerics.Tests/DistributionTests" />
+    /// </para>
+    /// </remarks>
     [TestClass]
     public class Test_Triangular
     {
@@ -105,6 +124,192 @@ namespace Distributions.Univariate
             Assert.AreEqual(-2, dist.Min, 1);
             Assert.AreEqual(10, dist.MostLikely, 1);
             Assert.AreEqual(35, dist.Max, 1);
+        }
+
+        /// <summary>
+        /// Verifying input parameters can create distribution.
+        /// </summary>
+        [TestMethod]
+        public void CanCreateTriangular()
+        {
+            var T = new Triangular();
+            Assert.AreEqual(T.Min, 0);
+            Assert.AreEqual(T.Mode, 0.5);
+            Assert.AreEqual(T.Max, 1);
+
+            var T2 = new Triangular(-1,1,2);
+            Assert.AreEqual(T2.Min, -1);
+            Assert.AreEqual(T2.Mode, 1);
+            Assert.AreEqual(T2.Max, 2);
+        }
+
+        /// <summary>
+        /// Testing distribution with bad parameters.
+        /// </summary>
+        [TestMethod]
+        public void TriangularFails()
+        {
+            var T = new Triangular(double.NaN,double.PositiveInfinity,double.PositiveInfinity);
+            Assert.IsFalse(T.ParametersValid);
+
+            var T2 = new Triangular(double.PositiveInfinity,double.NaN,double.NaN);
+            Assert.IsFalse(T2.ParametersValid);
+
+            var T3 = new Triangular(4, 1, 0);
+            Assert.IsFalse(T3.ParametersValid);
+
+            var T4 = new Triangular(1, 0, -1);
+            Assert.IsFalse(T4.ParametersValid);
+        }
+
+        /// <summary>
+        /// Testing parameters to string.
+        /// </summary>
+        [TestMethod]
+        public void ValidateParametersToString()
+        {
+            var T = new Triangular();
+            Assert.AreEqual(T.ParametersToString[0, 0], "Min (a)");
+            Assert.AreEqual(T.ParametersToString[1, 0], "Most Likely (c)");
+            Assert.AreEqual(T.ParametersToString[2, 0], "Max (b)");
+            Assert.AreEqual(T.ParametersToString[0, 1], "0");
+            Assert.AreEqual(T.ParametersToString[1, 1], "0.5");
+            Assert.AreEqual(T.ParametersToString[2, 1], "1");
+        }
+
+        /// <summary>
+        /// Testing mean.
+        /// </summary>
+        [TestMethod]
+        public void ValidateMean()
+        {
+            var T = new Triangular();
+            Assert.AreEqual(T.Mean, 0.5);
+
+            var T2 = new Triangular(1, 3, 6);
+            Assert.AreEqual(T2.Mean, 3.3333, 1e-04);
+        }
+
+        /// <summary>
+        /// Testing median.
+        /// </summary>
+        [TestMethod]
+        public void ValidateMedian()
+        {
+            var T = new Triangular();
+            Assert.AreEqual(T.Median, 0.5);
+
+            var T2 = new Triangular(1,3,6);
+            Assert.AreEqual(T2.Median, 3.26138, 1e-05);
+        }
+
+        /// <summary>
+        /// Testing mode
+        /// </summary>
+        [TestMethod]
+        public void ValidateMode()
+        {
+            var T = new Triangular();
+            Assert.AreEqual(T.Mode, 0.5);
+
+            var T2 = new Triangular(1, 3, 6);
+            Assert.AreEqual(T2.Mode, 3);
+        }
+
+        /// <summary>
+        /// Testing standard deviation.
+        /// </summary>
+        [TestMethod]
+        public void ValidateStandardDeviation()
+        {
+            var T = new Triangular();
+            Assert.AreEqual(T.StandardDeviation, 0.20412, 1e-04);
+
+            var T2 = new Triangular(1, 3, 6);
+            Assert.AreEqual(T2.StandardDeviation, 1.02739, 1e-04);
+        }
+
+        /// <summary>
+        /// Testing skew.
+        /// </summary>
+        [TestMethod]
+        public void ValidateSkew()
+        {
+            var T = new Triangular();
+            Assert.AreEqual(T.Skew, 0);
+        }
+
+        /// <summary>
+        /// Testing kurtosis.
+        /// </summary>
+        [TestMethod]
+        public void ValidateKurtosis()
+        {
+            var T = new Triangular();
+            Assert.AreEqual(T.Kurtosis, 12d / 5d);
+
+            var T2 = new Triangular(1, 3, 6);
+            Assert.AreEqual(T2.Kurtosis, 12d / 5d);
+        }
+
+        /// <summary>
+        /// Testing minimum and maximum functions.
+        /// </summary>
+        [TestMethod]
+        public void ValidateMinMax()
+        {
+            var T = new Triangular();
+            Assert.AreEqual(T.Minimum, 0);
+            Assert.AreEqual(T.Maximum, 1);
+
+            var T2 = new Triangular(1, 3, 6);
+            Assert.AreEqual(T2.Minimum, 1);
+            Assert.AreEqual(T2.Maximum, 6);
+        }
+
+        /// <summary>
+        /// Testing PDF method.
+        /// </summary>
+        [TestMethod]
+        public void ValidatePDF()
+        {
+            var T = new Triangular();
+            Assert.AreEqual(T.PDF(-1), 0);
+            Assert.AreEqual(T.PDF(0.4), 1.6);
+            Assert.AreEqual(T.PDF(0.6), 1.6);
+            Assert.AreEqual(T.PDF(0.5), 2);
+
+            var T2 = new Triangular(1, 3, 6);
+            Assert.AreEqual(T2.PDF(2), 0.2, 1e-04);
+        }
+
+        /// <summary>
+        /// Testing CDF.
+        /// </summary>
+        [TestMethod]
+        public void ValidateCDF()
+        {
+            var T = new Triangular();
+            Assert.AreEqual(T.CDF(-1), 0);
+            Assert.AreEqual(T.CDF(2), 1);
+            Assert.AreEqual(T.CDF(0.4), 0.32,1e-04);
+            Assert.AreEqual(T.CDF(0.6), 0.68,1e-04);
+
+            var T2 = new Triangular(1,3, 6);
+            Assert.AreEqual(T2.CDF(2), 0.1, 1e-04);
+        }
+
+        /// <summary>
+        /// Testing inverse CDF.
+        /// </summary>
+        [TestMethod]
+        public void ValidateInverseCDF()
+        {
+            var T = new Triangular();
+            Assert.AreEqual(T.InverseCDF(0), 0);
+            Assert.AreEqual(T.InverseCDF(1), 1);
+            Assert.AreEqual(T.InverseCDF(0.2), 0.31622, 1e-04);
+            Assert.AreEqual(T.InverseCDF(0.5), 0.5);
         }
     }
 }

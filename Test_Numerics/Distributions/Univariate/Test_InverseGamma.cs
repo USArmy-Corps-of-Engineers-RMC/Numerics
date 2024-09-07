@@ -29,11 +29,30 @@
 */
 
 using System;
+using System.Runtime.CompilerServices;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Numerics.Distributions;
 
 namespace Distributions.Univariate
 {
+    /// <summary>
+    /// Testing the Inverse Gamma distribution algorithm.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    ///     <b> Authors: </b>
+    ///     <list type="bullet">
+    ///     <item> Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil </item>
+    ///     <item> Tiki Gonzalez, USACE Risk Management Center, julian.t.gonzalez@usace.army.mil</item>
+    ///     </list> 
+    /// </para>
+    /// <para>
+    /// <b> References: </b>
+    /// </para>
+    /// <para>
+    /// <see href = "https://github.com/mathnet/mathnet-numerics/blob/master/src/Numerics.Tests/DistributionTests" />
+    /// </para>
+    /// </remarks>
     [TestClass]
     public class Test_InverseGamma
     {
@@ -54,6 +73,184 @@ namespace Distributions.Univariate
             Assert.AreEqual(IG.PDF(0.27d), true_pdf, 0.0001d);
             Assert.AreEqual(IG.CDF(0.27d), true_cdf, 0.0001d);
             Assert.AreEqual(IG.InverseCDF(IG.CDF(0.27d)), true_icdf05, 0.0001d);
+        }
+
+        /// <summary>
+        /// Testing InverseGamma is being created.
+        /// </summary>
+        [TestMethod()]
+        public void CanCreateInverseGamma()
+        {
+            var IG = new InverseGamma();
+            Assert.AreEqual(IG.Beta, 0.5);
+            Assert.AreEqual(IG.Alpha, 2);
+
+            var IG2 = new InverseGamma(2, 4);
+            Assert.AreEqual(IG2.Beta, 2);
+            Assert.AreEqual(IG2.Alpha, 4);
+        }
+
+        /// <summary>
+        /// Checking inverse gamma distribution with bad parameters.
+        /// </summary>
+        [TestMethod()]
+        public void InverseGammaFails()
+        {
+            var IG = new InverseGamma(double.NaN, double.NaN);
+            Assert.IsFalse(IG.ParametersValid);
+
+            var IG2 = new InverseGamma(double.PositiveInfinity, double.PositiveInfinity);
+            Assert.IsFalse(IG2.ParametersValid);
+
+            var IG3 = new InverseGamma(0, 0);
+            Assert.IsFalse(IG3.ParametersValid);
+        }
+
+        /// <summary>
+        /// Checking ParametersToString()
+        /// </summary>
+        [TestMethod()]
+        public void ValidateParametersToString()
+        {
+            var IG = new InverseGamma();
+            Assert.AreEqual(IG.ParametersToString[0, 0], "Scale (β)");
+            Assert.AreEqual(IG.ParametersToString[1, 0], "Shape (α)");
+            Assert.AreEqual(IG.ParametersToString[0, 1], "0.5");
+            Assert.AreEqual(IG.ParametersToString[1, 1], "2");
+        }
+
+        /// <summary>
+        /// Testing mean function.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateMean()
+        {
+            var IG = new InverseGamma();
+            Assert.AreEqual(IG.Mean, 0.5);
+
+            var IG2 = new InverseGamma(1, 1);
+            Assert.AreEqual(IG2.Mean,double.PositiveInfinity);
+        }
+
+        /// <summary>
+        /// Testing median function.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateMedian()
+        {
+            var IG = new InverseGamma();
+            Assert.AreEqual(IG.Median, 0.2979,1e-04);
+        }
+
+        /// <summary>
+        /// Testing mode function.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateMode()
+        {
+            var IG = new InverseGamma();
+            Assert.AreEqual(IG.Mode, 0.1666, 1e-04);
+
+            var IG2 = new InverseGamma(1, 1);
+            Assert.AreEqual(IG2.Mode, 0.5);
+        }
+
+        /// <summary>
+        /// Testing standard deviation.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateStandardDeviation()
+        {
+            var IG = new InverseGamma();
+            Assert.AreEqual(IG.StandardDeviation, double.NaN);
+
+            var IG2 = new InverseGamma(0.5, 3);
+            Assert.AreEqual(IG2.StandardDeviation, 0.25);
+        }
+
+        /// <summary>
+        /// Testing skew function.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateSkew()
+        {
+            var IG = new InverseGamma();
+            Assert.AreEqual(IG.Skew,double.NaN);
+
+            var IG2 = new InverseGamma(0.5, 4);
+            Assert.AreEqual(IG2.Skew, 5.65685, 1e-04);
+        }
+
+        /// <summary>
+        /// Testing kurtosis with different parameters.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateKurtosis()
+        {
+            var IG = new InverseGamma();
+            Assert.AreEqual(IG.Kurtosis, double.NaN);
+
+            var IG2 = new InverseGamma(0.5, 5);
+            Assert.AreEqual(IG2.Kurtosis, 45);
+        }
+
+        /// <summary>
+        /// Testing minimum and maxium functions are 0 and positive infinity respectively.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateMinMax()
+        {
+            var IG = new InverseGamma();
+            Assert.AreEqual(IG.Minimum, 0);
+            Assert.AreEqual(IG.Maximum, double.PositiveInfinity);
+
+            var IG2 = new InverseGamma(2, 2);
+            Assert.AreEqual(IG2.Minimum, 0);
+            Assert.AreEqual(IG2.Maximum, double.PositiveInfinity);
+        }
+
+        /// <summary>
+        /// Testing PDF method at different locations with varying parameters.
+        /// </summary>
+        [TestMethod()]
+        public void ValidatePDF()
+        {
+            var IG = new InverseGamma(2,4);
+            Assert.AreEqual(IG.PDF(-2), 0);
+            Assert.AreEqual(IG.PDF(5), 0.00057200, 1e-07);
+            Assert.AreEqual(IG.PDF(0.42), 1.74443, 1e-04);
+
+            var IG2 = new InverseGamma(0.42,2.4);
+            Assert.AreEqual(IG2.PDF(0), double.NaN);
+            Assert.AreEqual(IG2.PDF(0.3), 1.48386, 1e-05);
+        }
+
+        /// <summary>
+        /// Testing CDF method.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateCDF()
+        {
+            var IG = new InverseGamma();
+            Assert.AreEqual(IG.CDF(-1), 0);
+            Assert.AreEqual(IG.CDF(double.PositiveInfinity), 1);
+
+            var IG2 = new InverseGamma(2, 2);
+            Assert.AreEqual(IG2.CDF(2), 0.73575,1e-04);
+        }
+
+        /// <summary>
+        /// Testing InverseCDF method.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateInverseCDF()
+        {
+            var IG = new InverseGamma();
+            Assert.AreEqual(IG.InverseCDF(0), 0);
+            Assert.AreEqual(IG.InverseCDF(1),double.PositiveInfinity);
+
+            var IG2 = new InverseGamma(2, 2);
+            Assert.AreEqual(IG2.InverseCDF(0.3), 0.81993,1e-04);
         }
     }
 }

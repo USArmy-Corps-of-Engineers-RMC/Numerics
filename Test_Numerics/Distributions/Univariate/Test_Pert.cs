@@ -34,6 +34,24 @@ using Numerics.Distributions;
 
 namespace Distributions.Univariate
 {
+    /// <summary>
+    /// Testing the Pert distribution algorithm.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    ///     <b> Authors: </b>
+    ///     <list type="bullet">
+    ///     <item> Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil </item>
+    ///     <item> Tiki Gonzalez, USACE Risk Management Center, julian.t.gonzalez@usace.army.mil</item>
+    ///     </list> 
+    /// </para>
+    /// <para>
+    /// <b> References: </b>
+    /// </para>
+    /// <para>
+    /// <see href = "https://github.com/mathnet/mathnet-numerics/blob/master/src/Numerics.Tests/DistributionTests" />
+    /// </para>
+    /// </remarks>
     [TestClass]
     public class Test_Pert
     {
@@ -118,6 +136,133 @@ namespace Distributions.Univariate
             Assert.AreEqual(-2, dist.Min, 1);
             Assert.AreEqual(10, dist.MostLikely, 1);
             Assert.AreEqual(35, dist.Max, 1);
+        }
+
+        /// <summary>
+        /// Verifying that input parameters create distribution.
+        /// </summary>
+        [TestMethod]
+        public void CanCreatePert()
+        {
+            var p = new Pert();
+            Assert.AreEqual(p.Min, 0);
+            Assert.AreEqual(p.Max, 1);
+            Assert.AreEqual(p.Mode, 0.5);
+        }
+
+        /// <summary>
+        /// Testing distribution with bad parameters.
+        /// </summary>
+        [TestMethod]
+        public void PertFails()
+        {
+            var p = new Pert(double.NaN, double.NaN,double.NaN);
+            Assert.IsFalse(p.ParametersValid);
+            
+            var p2 = new Pert(double.PositiveInfinity, double.PositiveInfinity, double.PositiveInfinity);
+            Assert.IsFalse(p2.ParametersValid);
+
+            var p3 = new Pert(3, 2, 1);
+            Assert.IsFalse(p3.ParametersValid);
+
+            var p4 = new Pert(1, 2, 0.5);
+            Assert.IsFalse(p4.ParametersValid);
+        }
+
+        /// <summary>
+        /// Testing ParametersToString()
+        /// </summary>
+        [TestMethod]
+        public void ValidateParametersToString()
+        {
+            var p = new Pert();
+            Assert.AreEqual(p.ParametersToString[0, 0], "Min (a)");
+            Assert.AreEqual(p.ParametersToString[1,0], "Most Likely (c)");
+            Assert.AreEqual(p.ParametersToString[2, 0], "Max (b)");
+            Assert.AreEqual(p.ParametersToString[0, 1], "0");
+            Assert.AreEqual(p.ParametersToString[1, 1], "0.5");
+            Assert.AreEqual(p.ParametersToString[2, 1], "1");
+        }
+
+        /// <summary>
+        /// Testing mean.
+        /// </summary>
+        [TestMethod]
+        public void ValidateMean()
+        {
+            var p = new Pert();
+            Assert.AreEqual(p.Mean, 0.5);
+
+            var p2 = new Pert(0, 0, 0);
+            Assert.AreEqual(p2.Mean, 0);
+        }
+
+        /// <summary>
+        /// Testing median.
+        /// </summary>
+        [TestMethod]
+        public void ValidateMedian()
+        {
+            var p = new Pert();
+            Assert.AreEqual(p.Median, 0.5);
+
+            var p2 = new Pert(0,0,0);
+            Assert.AreEqual(p2.Median, 0);
+        }
+
+        /// <summary>
+        /// Testing mode.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateMode()
+        {
+            var p = new Pert();
+            Assert.AreEqual(p.Mode, 0.5);        
+        }
+
+        /// <summary>
+        /// Testing Standard deviation.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateStandardDeviation()
+        {
+            var p = new Pert();
+            Assert.AreEqual(p.StandardDeviation, 0.1889, 1e-04);
+        }
+
+        /// <summary>
+        /// Testing skew.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateSkew()
+        {
+            var p = new Pert();
+            Assert.AreEqual(p.Skew, 0);
+        }
+
+        /// <summary>
+        /// Testing kurtosis.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateKurtosis()
+        {
+            var p = new Pert();
+            Assert.AreEqual(p.Kurtosis, 2.3333,1e-04);
+        }
+
+        /// <summary>
+        /// Testing minimum and maximum functions.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateMinMax()
+        {
+            var p = new Pert();
+            Assert.AreEqual(p.Minimum, 0);
+            Assert.AreEqual(p.Maximum, 1);
+
+            var p2 = new Pert(1, 1.5, 2);
+            Assert.AreEqual(p2.Minimum, 1);
+            Assert.AreEqual(p2.Maximum, 2);
         }
     }
 }

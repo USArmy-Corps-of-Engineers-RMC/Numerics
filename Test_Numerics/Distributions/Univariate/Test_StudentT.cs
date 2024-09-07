@@ -29,15 +29,36 @@
 */
 
 using System;
+using System.Runtime.InteropServices;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Numerics.Distributions;
 
 namespace Distributions.Univariate
 {
+    /// <summary>
+    /// Testing the Student T distribution algorithm.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    ///     <b> Authors: </b>
+    ///     <list type="bullet">
+    ///     <item> Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil </item>
+    ///     <item> Tiki Gonzalez, USACE Risk Management Center, julian.t.gonzalez@usace.army.mil</item>
+    ///     </list> 
+    /// </para>
+    /// <para>
+    /// <b> References: </b>
+    /// </para>
+    /// <para>
+    /// <see href = "https://github.com/mathnet/mathnet-numerics/blob/master/src/Numerics.Tests/DistributionTests" />
+    /// </para>
+    /// </remarks>
     [TestClass]
     public class Test_StudentT
     {
-
+        /// <summary>
+        /// Testing PDF method.
+        /// </summary>
         [TestMethod()]
         public void Test_StudentT_PDF()
         {
@@ -51,6 +72,9 @@ namespace Distributions.Univariate
             Assert.AreEqual(pdf, result, 1E-10);
         }
 
+        /// <summary>
+        /// Testing CDF method.
+        /// </summary>
         [TestMethod()]
         public void Test_StudentT_CDF()
         {
@@ -64,6 +88,9 @@ namespace Distributions.Univariate
             Assert.AreEqual(cdf, result, 1E-10);
         }
 
+        /// <summary>
+        /// Testing inverse CDF method.
+        /// </summary>
         [TestMethod()]
         public void Test_StudentT_InverseCDF()
         {
@@ -77,6 +104,149 @@ namespace Distributions.Univariate
             invcdf = t.InverseCDF(cdf);
             result = 1.4d;
             Assert.AreEqual(invcdf, result, 1E-2);
+        }
+
+        /// <summary>
+        /// Verifying input parameters can create distribution.
+        /// </summary>
+        [TestMethod()]
+        public void CanCreateStudentT()
+        {
+            var t = new StudentT();
+            Assert.AreEqual(t.Mu, 0);
+            Assert.AreEqual(t.Sigma, 1);
+            Assert.AreEqual(t.DegreesOfFreedom, 10);
+
+            var t2 = new StudentT(10, 10, 10);
+            Assert.AreEqual(t2.Mu, 10);
+            Assert.AreEqual(t2.Sigma, 10);
+            Assert.AreEqual(t2.DegreesOfFreedom, 10);
+        }
+
+        /// <summary>
+        /// Testing distribution with bad parameters.
+        /// </summary>
+        [TestMethod()]
+        public void StudentTFails()
+        {
+            var t = new StudentT(double.NaN, double.NaN, 1);
+            Assert.IsFalse(t.ParametersValid);
+
+            var t2 = new StudentT(double.PositiveInfinity, double.PositiveInfinity, 1);
+            Assert.IsFalse(t2.ParametersValid);
+
+            var t3 = new StudentT(1, 1, 0);
+            Assert.IsFalse(t3.ParametersValid);
+        }
+        
+        /// <summary>
+        /// Testing parameter to string.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateParameterToString()
+        {
+            var t = new StudentT();
+            Assert.AreEqual(t.ParametersToString[0, 0], "Location (µ)");
+            Assert.AreEqual(t.ParametersToString[1, 0], "Scale (σ)");
+            Assert.AreEqual(t.ParametersToString[2, 0], "Degrees of Freedom (ν)");
+            Assert.AreEqual(t.ParametersToString[0, 1], "0");
+            Assert.AreEqual(t.ParametersToString[1,1],"1");
+            Assert.AreEqual(t.ParametersToString[2, 1], "10");
+        }
+
+        /// <summary>
+        /// Testing mean.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateMean()
+        {
+            var t = new StudentT();
+            Assert.AreEqual(t.Mean, 0);
+
+            var t2 = new StudentT(1, 1, 1);
+            Assert.AreEqual(t2.Mean, double.NaN);
+        }
+
+        /// <summary>
+        /// Testing median.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateMedian()
+        {
+            var t = new StudentT();
+            Assert.AreEqual(t.Median, 0);
+
+            var t2 = new StudentT(1, 1, 1);
+            Assert.AreEqual(t2.Median, 1);
+        }
+
+        /// <summary>
+        /// Testing mode.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateMode()
+        {
+            var t = new StudentT();
+            Assert.AreEqual(t.Mode, 0);
+
+            var t2 = new StudentT(1,1,1);
+            Assert.AreEqual(t2.Mode, 1);
+        }
+
+        /// <summary>
+        /// Testing standard deviation.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateStandardDeviation()
+        {
+            var t = new StudentT();
+            Assert.AreEqual(t.StandardDeviation, 1.11803, 1e-04);
+
+            var t2 = new StudentT(1, 1, 2);
+            Assert.AreEqual(t2.StandardDeviation,double.PositiveInfinity);
+
+            var t3 = new StudentT(1, 1, 1);
+            Assert.AreEqual(t3.StandardDeviation, double.NaN);
+        }
+
+        /// <summary>
+        /// Testing skew.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateSkew()
+        {
+            var t = new StudentT();
+            Assert.AreEqual(t.Skew, 0);
+
+            var t2 = new StudentT(1, 1, 1);
+            Assert.AreEqual(t2.Skew,double.NaN);
+        }
+
+        /// <summary>
+        /// Testing kurtosis.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateKurtosis()
+        {
+            var t = new StudentT();
+            Assert.AreEqual(t.Kurtosis, 4);
+
+            var t2 = new StudentT(1, 1, 4);
+            Assert.AreEqual(t2.Kurtosis, double.PositiveInfinity);
+
+            var t3 = new StudentT(1, 1, 2);
+            Assert.AreEqual(t3.Kurtosis, double.NaN);
+        }
+
+        /// <summary>
+        /// Testing minimum and maximum functions.
+        /// </summary>
+        [TestMethod()]
+        public void ValidateMinMax()
+        {
+            var t = new StudentT();
+            Assert.AreEqual(t.Minimum, double.NegativeInfinity);
+            Assert.AreEqual(t.Maximum, double.PositiveInfinity);
         }
     }
 }
