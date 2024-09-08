@@ -29,7 +29,6 @@
 */
 
 using System;
-using System.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Numerics.Distributions;
 
@@ -328,10 +327,10 @@ namespace Distributions.Univariate
         public void ValidateSkew()
         {
             var P3 = new PearsonTypeIII();
-            Assert.AreEqual(P3.Skew, 0);
+            Assert.AreEqual(P3.Skewness, 0);
 
             var P3ii = new PearsonTypeIII(1, 1, 1);
-            Assert.AreEqual(P3.Skew, 0);
+            Assert.AreEqual(P3.Skewness, 0);
         }
 
         /// <summary>

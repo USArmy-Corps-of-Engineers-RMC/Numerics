@@ -33,7 +33,6 @@ using Numerics.Mathematics.LinearAlgebra;
 using System;
 using System.Collections.Generic;
 
-
 namespace Numerics
 {
     /// <summary>

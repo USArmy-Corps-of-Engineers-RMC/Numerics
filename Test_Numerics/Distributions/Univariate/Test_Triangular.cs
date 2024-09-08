@@ -29,7 +29,6 @@
 */
 
 using System;
-using System.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Numerics.Distributions;
 
@@ -236,7 +235,7 @@ namespace Distributions.Univariate
         public void ValidateSkew()
         {
             var T = new Triangular();
-            Assert.AreEqual(T.Skew, 0);
+            Assert.AreEqual(T.Skewness, 0);
         }
 
         /// <summary>

@@ -29,7 +29,6 @@
 */
 
 using System;
-using System.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Numerics.Distributions;
 
@@ -289,10 +288,10 @@ namespace Distributions.Univariate
         public void ValidateSkew()
         {
             var G = new GammaDistribution();
-            Assert.AreEqual(G.Skew, 1.4142135, 1e-04);
+            Assert.AreEqual(G.Skewness, 1.4142135, 1e-04);
 
             var G2 = new GammaDistribution(10, 100);
-            Assert.AreEqual(G2.Skew, 0.2);
+            Assert.AreEqual(G2.Skewness, 0.2);
         }
 
         /// <summary>

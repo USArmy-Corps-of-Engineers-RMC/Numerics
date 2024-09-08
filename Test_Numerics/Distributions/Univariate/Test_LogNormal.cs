@@ -276,10 +276,10 @@ namespace Distributions.Univariate
         public void ValidateSkew()
         {
             var LogN = new LogNormal(-1,0.1);
-            Assert.AreEqual(LogN.Skew, 0.46141, 1e-05);
+            Assert.AreEqual(LogN.Skewness, 0.46141, 1e-05);
 
             var LogN2 = new LogNormal(2.5, 1.5);
-            Assert.AreEqual(LogN2.Skew, 2391.29203, 1e-04);
+            Assert.AreEqual(LogN2.Skewness, 2391.29203, 1e-04);
         }
 
         /// <summary>

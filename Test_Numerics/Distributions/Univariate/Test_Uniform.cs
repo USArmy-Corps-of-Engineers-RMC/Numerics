@@ -29,7 +29,6 @@
 */
 
 using System;
-using System.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Numerics.Distributions;
 
@@ -208,10 +207,10 @@ namespace Distributions.Univariate
         public void ValidateSkew()
         {
             var U = new Uniform();
-            Assert.AreEqual(U.Skew, 0);
+            Assert.AreEqual(U.Skewness, 0);
 
             var U2 = new Uniform(2, 10);
-            Assert.AreEqual(U2.Skew, 0);
+            Assert.AreEqual(U2.Skewness, 0);
         }
 
         /// <summary>

@@ -28,7 +28,6 @@
 * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Numerics.Distributions;
 
@@ -232,7 +231,7 @@ namespace Distributions.Univariate
         public void ValidateSkew()
         {
             var t = new NoncentralT();
-            Assert.AreEqual(t.Skew, double.NaN);
+            Assert.AreEqual(t.Skewness, double.NaN);
         }
 
         /// <summary>

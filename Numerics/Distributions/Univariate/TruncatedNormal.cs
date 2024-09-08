@@ -31,7 +31,6 @@
 using Numerics.Data.Statistics;
 using System;
 using System.Collections.Generic;
-using static System.Net.WebRequestMethods;
 
 namespace Numerics.Distributions
 {

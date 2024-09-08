@@ -29,7 +29,7 @@
 */
 
 using System.Collections.Generic;
-using System.Diagnostics;                               // keep to be able to uncomment and run Debug.WriteLine()
+using System.Diagnostics; // keep to be able to uncomment and run Debug.WriteLine()
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Numerics.Data;
 using Numerics.Mathematics.LinearAlgebra;

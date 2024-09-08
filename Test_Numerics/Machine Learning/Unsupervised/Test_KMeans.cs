@@ -32,7 +32,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Numerics.MachineLearning;
 using System.Collections.Generic;
 using Numerics.Mathematics.LinearAlgebra;
-using System.Reflection.Emit;
 using System.Linq;
 
 namespace MachineLearning

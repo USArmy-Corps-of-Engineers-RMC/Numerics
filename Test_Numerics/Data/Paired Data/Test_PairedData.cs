@@ -28,7 +28,6 @@
 * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-using System;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Numerics.Data;

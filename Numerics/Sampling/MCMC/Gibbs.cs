@@ -32,7 +32,6 @@ using Numerics.Distributions;
 using Numerics.Mathematics.Optimization;
 using System;
 using System.Collections.Generic;
-using System.Dynamic;
 
 namespace Numerics.Sampling.MCMC
 {

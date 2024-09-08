@@ -28,8 +28,6 @@
 * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-using System;
-using System.Runtime.CompilerServices;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Numerics.Distributions;
 
@@ -175,10 +173,10 @@ namespace Distributions.Univariate
         public void ValidateSkew()
         {
             var IG = new InverseGamma();
-            Assert.AreEqual(IG.Skew,double.NaN);
+            Assert.AreEqual(IG.Skewness, double.NaN);
 
             var IG2 = new InverseGamma(0.5, 4);
-            Assert.AreEqual(IG2.Skew, 5.65685, 1e-04);
+            Assert.AreEqual(IG2.Skewness, 5.65685, 1e-04);
         }
 
         /// <summary>

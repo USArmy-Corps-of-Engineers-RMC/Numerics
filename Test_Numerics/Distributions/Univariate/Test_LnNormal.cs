@@ -29,8 +29,6 @@
 */
 
 using System;
-using System.CodeDom;
-using System.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Numerics.Distributions;
 
@@ -313,10 +311,10 @@ namespace Distributions.Univariate
         public void ValidateSkew()
         {
             var LN = new LnNormal();
-            Assert.AreEqual(LN.Skew, 1.39e65, 1e67);
+            Assert.AreEqual(LN.Skewness, 1.39e65, 1e67);
 
             var LN2 = new LnNormal(1, 1);
-            Assert.AreEqual(LN2.Skew, 4, 1e-04);
+            Assert.AreEqual(LN2.Skewness, 4, 1e-04);
         }
 
         /// <summary>

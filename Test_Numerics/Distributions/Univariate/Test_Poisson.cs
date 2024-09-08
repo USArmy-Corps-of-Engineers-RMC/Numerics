@@ -29,7 +29,6 @@
 */
 
 using System;
-using Microsoft.VisualBasic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Numerics.Distributions;
 
@@ -182,10 +181,10 @@ namespace Distributions.Univariate
         public void ValidateSkew()
         {
             var P = new Poisson();
-            Assert.AreEqual(P.Skew,1);
+            Assert.AreEqual(P.Skewness, 1);
 
             var P2 = new Poisson(4);
-            Assert.AreEqual(P2.Skew, 0.5);
+            Assert.AreEqual(P2.Skewness, 0.5);
         }
 
         /// <summary>

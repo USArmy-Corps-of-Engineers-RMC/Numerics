@@ -28,9 +28,6 @@
 * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-using System;
-using System.Runtime.Remoting.Messaging;
-using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Numerics.Distributions;
 
@@ -182,10 +179,10 @@ namespace Distributions.Univariate
         public void ValidateSkew()
         {
             var IX = new InverseChiSquared();
-            Assert.AreEqual(IX.Skew, 3.46410, 1e-04);
+            Assert.AreEqual(IX.Skewness, 3.46410, 1e-04);
 
             var IX2 = new InverseChiSquared(2, 2);
-            Assert.AreEqual(IX2.Skew,double.NaN);
+            Assert.AreEqual(IX2.Skewness, double.NaN);
         }
 
         /// <summary>

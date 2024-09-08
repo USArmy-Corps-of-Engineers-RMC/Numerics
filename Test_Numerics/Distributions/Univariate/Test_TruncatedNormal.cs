@@ -28,9 +28,6 @@
 * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-using System;
-using System.Diagnostics;
-using System.Security.Policy;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Numerics.Distributions;
 
@@ -195,7 +192,7 @@ namespace Distributions.Univariate
         public void ValidateSkew()
         {
             var tn = new TruncatedNormal();
-            Assert.AreEqual(tn.Skew, 0);
+            Assert.AreEqual(tn.Skewness, 0);
         }
 
         /// <summary>

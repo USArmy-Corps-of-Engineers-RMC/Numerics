@@ -29,15 +29,12 @@
 */
 
 using Numerics.Data;
-using Numerics.Mathematics.LinearAlgebra;
 using Numerics.Mathematics.Optimization;
 using Numerics.Mathematics.RootFinding;
 using Numerics.Sampling;
 using System;
 using System.Collections.Generic;
-using System.Drawing.Text;
 using System.Linq;
-using System.Security.Cryptography;
 using System.Xml.Linq;
 
 namespace Numerics.Distributions

@@ -32,11 +32,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Numerics;
 using Numerics.Data.Statistics;
 using Numerics.Distributions;
-using Numerics.Mathematics.SpecialFunctions;
-using Numerics.Sampling;
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 
 namespace Data.Statistics
 {

@@ -262,10 +262,10 @@ namespace Distributions.Univariate
         public void ValidateSkew()
         {
             var LO = new Logistic();
-            Assert.AreEqual(LO.Skew, 0);
+            Assert.AreEqual(LO.Skewness, 0);
 
             var LO2 = new Logistic(1, 1);
-            Assert.AreEqual(LO2.Skew, 0);
+            Assert.AreEqual(LO2.Skewness, 0);
         }
 
         /// <summary>

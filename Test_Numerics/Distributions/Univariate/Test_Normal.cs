@@ -30,8 +30,6 @@
 
 using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Numerics;
-using Numerics.Data.Statistics;
 using Numerics.Distributions;
 
 namespace Distributions.Univariate
@@ -282,10 +280,10 @@ namespace Distributions.Univariate
         public void ValidateSkew()
         {
             var N = new Normal();
-            Assert.AreEqual(N.Skew,0);
+            Assert.AreEqual(N.Skewness, 0);
 
             var N2 = new Normal(5, 9);
-            Assert.AreEqual(N2.Skew,0);
+            Assert.AreEqual(N2.Skewness, 0);
         }
 
         /// <summary>

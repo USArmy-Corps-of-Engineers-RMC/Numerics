@@ -29,8 +29,6 @@
 */
 
 using System;
-using System.CodeDom;
-using System.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Numerics.Distributions;
 
@@ -265,10 +263,10 @@ namespace Distributions.Univariate
         public void ValidateSkew()
         {
             var GUM = new Gumbel();
-            Assert.AreEqual(GUM.Skew, 1.1396);
+            Assert.AreEqual(GUM.Skewness, 1.1396);
 
             var GUM2 = new Gumbel(10, 1);
-            Assert.AreEqual(GUM2.Skew, 1.1396);
+            Assert.AreEqual(GUM2.Skewness, 1.1396);
         }
 
         /// <summary>

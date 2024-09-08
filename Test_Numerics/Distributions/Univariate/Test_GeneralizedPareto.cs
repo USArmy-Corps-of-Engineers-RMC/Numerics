@@ -29,8 +29,6 @@
 */
 
 using System;
-using System.Runtime.InteropServices;
-using System.Runtime.Remoting.Messaging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Numerics.Distributions;
 
@@ -347,13 +345,13 @@ namespace Distributions.Univariate
         public void ValidateSkew()
         {
             var GPA = new GeneralizedPareto();
-            Assert.AreEqual(GPA.Skew, 2);
+            Assert.AreEqual(GPA.Skewness, 2);
 
             var GPA2 = new GeneralizedPareto(100, 10, 0.3);
-            Assert.AreEqual(GPA2.Skew, 0.932039, 1e-04);
+            Assert.AreEqual(GPA2.Skewness, 0.932039, 1e-04);
 
             var GPA3 = new GeneralizedPareto(100, 10, 1);
-            Assert.AreEqual(GPA3.Skew, double.NaN);
+            Assert.AreEqual(GPA3.Skewness, double.NaN);
         }
 
         /// <summary>

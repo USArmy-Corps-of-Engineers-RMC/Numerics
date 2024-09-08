@@ -29,9 +29,7 @@
 */
 
 using System;
-using System.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Numerics;
 using Numerics.Distributions;
 
 namespace Distributions.Univariate

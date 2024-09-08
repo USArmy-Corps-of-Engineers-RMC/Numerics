@@ -29,13 +29,10 @@
 */
 
 using System;
-using System.Diagnostics;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Numerics;
 using Numerics.Distributions;
-using Numerics.Mathematics;
-using Numerics.Mathematics.LinearAlgebra;
 
 namespace Distributions.Univariate
 {
@@ -221,13 +218,13 @@ namespace Distributions.Univariate
             Assert.AreEqual((qSigma - true_QSigma) / true_QSigma < 0.01d, true);
         }
 
-        [TestMethod()]
-        public void Test_GEV_Jacobian()
-        {
-            var GEV = new GeneralizedExtremeValue(22299.7822d, 11080.8716d, -0.0378d);
-            double J = GEV.Jacobian(new[] { 0.9d, 0.99d, 0.999d });
+        //[TestMethod()]
+        //public void Test_GEV_Jacobian()
+        //{
+        //    var GEV = new GeneralizedExtremeValue(22299.7822d, 11080.8716d, -0.0378d);
+        //    double J = GEV.Jacobian(new[] { 0.9d, 0.99d, 0.999d });
           
-        }
+        //}
 
         /// <summary>
         /// Testing GEV constructor
@@ -343,13 +340,13 @@ namespace Distributions.Univariate
         public void ValidateSkew()
         {
             var GEV = new GeneralizedExtremeValue();
-            Assert.AreEqual(GEV.Skew, 1.1396);
+            Assert.AreEqual(GEV.Skewness, 1.1396);
 
             var GEV2 = new GeneralizedExtremeValue(100, 10, 0.3);
-            Assert.AreEqual(GEV2.Skew,-0.0690175,1e-03);
+            Assert.AreEqual(GEV2.Skewness, -0.0690175,1e-03);
 
             var GEV3 = new GeneralizedExtremeValue(100, 10, 1);
-            Assert.AreEqual(GEV3.Skew,double.NaN);
+            Assert.AreEqual(GEV3.Skewness, double.NaN);
         }
 
         /// <summary>

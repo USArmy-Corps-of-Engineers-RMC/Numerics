@@ -29,7 +29,6 @@
 */
 
 using System;
-using System.Runtime.InteropServices;
 
 namespace Numerics.Mathematics.LinearAlgebra
 {

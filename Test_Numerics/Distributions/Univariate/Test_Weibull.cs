@@ -246,10 +246,10 @@ namespace Distributions.Univariate
         public void ValidateSkew()
         {
             var W = new Weibull(0.1, 1);
-            Assert.AreEqual(W.Skew, 2,1e-04);
+            Assert.AreEqual(W.Skewness, 2,1e-04);
 
             var W2 = new Weibull(1, 1);
-            Assert.AreEqual(W2.Skew, 2);
+            Assert.AreEqual(W2.Skewness, 2);
         }
 
         /// <summary>

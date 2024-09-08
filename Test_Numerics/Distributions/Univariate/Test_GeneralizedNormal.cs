@@ -163,18 +163,18 @@ namespace Distributions.Univariate
             }, gno.GetParameters);
 
 
-            var stopWatch = new Stopwatch();
-            stopWatch.Start();
+            //var stopWatch = new Stopwatch();
+            //stopWatch.Start();
 
-            var ps = new double[] { 0.1, 0.01, 0.001 };
-            var J = gno.Jacobian(ps);
+            //var ps = new double[] { 0.1, 0.01, 0.001 };
+            //var J = gno.Jacobian(ps);
 
 
-            // Write out results
-            stopWatch.Stop();
-            var timeSpan = stopWatch.Elapsed;
-            string elapsedTime = string.Format("{0:00}:{1:00}:{2:00}.{3:00}", timeSpan.Hours, timeSpan.Minutes, timeSpan.Seconds, timeSpan.Milliseconds / 10d);
-            Debug.WriteLine("Runtime: " + elapsedTime);
+            //// Write out results
+            //stopWatch.Stop();
+            //var timeSpan = stopWatch.Elapsed;
+            //string elapsedTime = string.Format("{0:00}:{1:00}:{2:00}.{3:00}", timeSpan.Hours, timeSpan.Minutes, timeSpan.Seconds, timeSpan.Milliseconds / 10d);
+            //Debug.WriteLine("Runtime: " + elapsedTime);
 
 
 
@@ -235,9 +235,9 @@ namespace Distributions.Univariate
         public void ValidateMean()
         {
             var n = new GeneralizedNormal();
-            Assert.AreEqual(n.Mean, 100,1e-04);
+            Assert.AreEqual(n.Mean, 100, 1e-04);
 
-            var n2 = new GeneralizedNormal(1, 5,0.42);
+            var n2 = new GeneralizedNormal(1, 5, 0.42);
             var mean = n2.Mean;
             Assert.AreEqual(n2.Mean, 1, 1e-04);
         }

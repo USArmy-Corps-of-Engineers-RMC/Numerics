@@ -176,10 +176,10 @@ namespace Distributions.Univariate
         public void ValidateSkew()
         {
             var R = new Rayleigh();
-            Assert.AreEqual(R.Skew, 0.63111, 1e-04);
+            Assert.AreEqual(R.Skewness, 0.63111, 1e-04);
 
             var R2 = new Rayleigh(1);
-            Assert.AreEqual(R2.Skew, 0.63111, 1e-04);
+            Assert.AreEqual(R2.Skewness, 0.63111, 1e-04);
         }
 
         /// <summary>

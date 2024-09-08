@@ -37,7 +37,6 @@ using Numerics.Data;
 using Numerics.Data.Statistics;
 using Numerics.Mathematics.Optimization;
 using Numerics.Sampling;
-using static Numerics.Data.Statistics.Histogram;
 
 namespace Numerics.Distributions
 {

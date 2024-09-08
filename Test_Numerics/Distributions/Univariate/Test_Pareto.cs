@@ -29,7 +29,6 @@
 */
 
 using System;
-using System.Runtime.Remoting.Messaging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Numerics.Distributions;
 
@@ -192,10 +191,10 @@ namespace Distributions.Univariate
         public void ValidateSkew()
         {
             var p = new Pareto();
-            Assert.AreEqual(p.Skew, 2.81105, 1e-04);
+            Assert.AreEqual(p.Skewness, 2.81105, 1e-04);
 
             var p2 = new Pareto(1, 3);
-            Assert.AreEqual(p2.Skew,double.NaN);
+            Assert.AreEqual(p2.Skewness, double.NaN);
         }
 
         /// <summary>

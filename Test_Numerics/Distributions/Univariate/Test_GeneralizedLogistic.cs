@@ -28,8 +28,6 @@
 * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-using System;
-using System.Runtime.InteropServices;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Numerics.Distributions;
 
@@ -305,13 +303,13 @@ namespace Distributions.Univariate
         public void ValidateSkew()
         {
             var l = new GeneralizedLogistic();
-            Assert.AreEqual(l.Skew, 0);
+            Assert.AreEqual(l.Skewness, 0);
 
             var l2 = new GeneralizedLogistic(100, 10, 0.3);
-            Assert.AreEqual(l2.Skew, -10.90354,1e-04);
+            Assert.AreEqual(l2.Skewness, -10.90354,1e-04);
 
             var l3 = new GeneralizedLogistic(100, 10, 1);
-            Assert.AreEqual(l3.Skew,double.NaN);
+            Assert.AreEqual(l3.Skewness, double.NaN);
         }
 
         /// <summary>

@@ -29,7 +29,6 @@
 */
 
 using System;
-using System.Runtime.Remoting.Messaging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Numerics.Distributions;
 
@@ -193,10 +192,10 @@ namespace Distributions.Univariate
         public void ValidateSkew()
         {
             var G = new Geometric();
-            Assert.AreEqual(G.Skew, 2.12132, 1e-04);
+            Assert.AreEqual(G.Skewness, 2.12132, 1e-04);
 
             var G2 = new Geometric(0.3);
-            Assert.AreEqual(G2.Skew, 2.03188, 1e-04);
+            Assert.AreEqual(G2.Skewness, 2.03188, 1e-04);
         }
 
         /// <summary>

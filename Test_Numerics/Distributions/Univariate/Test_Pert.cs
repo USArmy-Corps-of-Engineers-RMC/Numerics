@@ -28,7 +28,6 @@
 * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Numerics.Distributions;
 
@@ -237,7 +236,7 @@ namespace Distributions.Univariate
         public void ValidateSkew()
         {
             var p = new Pert();
-            Assert.AreEqual(p.Skew, 0);
+            Assert.AreEqual(p.Skewness, 0);
         }
 
         /// <summary>

@@ -31,14 +31,6 @@
 using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Numerics.Distributions;
-using Numerics;
-using Numerics.Data;
-using Numerics.Data.Statistics;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Data;
-using System.Linq;
 
 namespace Distributions.Univariate
 {

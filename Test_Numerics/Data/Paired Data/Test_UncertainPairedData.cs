@@ -32,7 +32,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Numerics.Data;
 using Numerics.Distributions;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 
 namespace Data.PairedData

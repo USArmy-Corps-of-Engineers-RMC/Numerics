@@ -29,12 +29,8 @@
 */
 
 using System;
-using System.CodeDom;
-using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Numerics.Distributions;
-using Numerics.Mathematics;
-using Numerics.Mathematics.RootFinding;
 
 namespace Distributions.Univariate
 {
@@ -341,10 +337,10 @@ namespace Distributions.Univariate
         public void ValidateSkew()
         {
             var LP3 = new LogPearsonTypeIII();
-            Assert.AreEqual(LP3.Skew, 3.3332,1e-04);
+            Assert.AreEqual(LP3.Skewness, 3.3332,1e-04);
 
             var LP3ii = new LogPearsonTypeIII(1, 1, 1);
-            Assert.AreEqual(LP3ii.Skew, double.NaN);
+            Assert.AreEqual(LP3ii.Skewness, double.NaN);
         }
 
         /// <summary>

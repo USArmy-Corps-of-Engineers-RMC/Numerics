@@ -28,8 +28,6 @@
 * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-using System;
-using System.Security.Cryptography;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Numerics.Mathematics.LinearAlgebra;
 

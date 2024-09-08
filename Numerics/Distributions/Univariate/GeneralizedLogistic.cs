@@ -30,7 +30,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Numerics.Data.Statistics;
 using Numerics.Mathematics.Optimization;
 using Numerics.Mathematics.RootFinding;

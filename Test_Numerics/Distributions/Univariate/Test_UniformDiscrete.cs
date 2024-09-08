@@ -192,10 +192,10 @@ namespace Distributions.Univariate
         public void ValidateSkew()
         {
             var U = new UniformDiscrete();
-            Assert.AreEqual(U.Skew, 0);
+            Assert.AreEqual(U.Skewness, 0);
 
             var U2 = new UniformDiscrete(2, 10);
-            Assert.AreEqual(U2.Skew, 0);
+            Assert.AreEqual(U2.Skewness, 0);
         }
 
         /// <summary>
