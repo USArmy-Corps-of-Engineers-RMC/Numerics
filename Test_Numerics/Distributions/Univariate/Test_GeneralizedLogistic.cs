@@ -90,7 +90,7 @@ namespace Distributions.Univariate
         }
 
         /// <summary>
-        /// Verification of Generalized Logistic Distribution fit with method of moments.
+        /// Verification of Generalized Logistic Distribution fit with method of linear moments.
         /// </summary>
         /// <remarks>
         /// <para>
@@ -194,7 +194,7 @@ namespace Distributions.Univariate
         /// Testing parameters can create a generalized logistic distribution.
         /// </summary>
         [TestMethod()]
-        public void CanCreateGeneralizedLogistic()
+        public void Test_Construction()
         {
             var l = new GeneralizedLogistic();
             Assert.AreEqual(l.Xi, 100);
@@ -211,7 +211,7 @@ namespace Distributions.Univariate
         /// Testing distribution with bad parameters.
         /// </summary>
         [TestMethod()]
-        public void GeneralizedLogisticFails()
+        public void Test_InvalidParameters()
         {
             var l = new GeneralizedLogistic(double.NaN,double.NaN,double.NaN);
             Assert.IsFalse(l.ParametersValid);
@@ -227,7 +227,7 @@ namespace Distributions.Univariate
         /// Testing ParameterToString()
         /// </summary>
         [TestMethod()]
-        public void ValidateParametersToString()
+        public void Test_ParametersToString()
         {
             var l = new GeneralizedLogistic();
             Assert.AreEqual(l.ParametersToString[0, 0], "Location (ξ)");
@@ -239,10 +239,24 @@ namespace Distributions.Univariate
         }
 
         /// <summary>
+        /// Compare analytical moments against numerical integration.
+        /// </summary>
+        [TestMethod()]
+        public void Test_Moments()
+        {
+            var dist = new GeneralizedLogistic(100, 10, -0.1);
+            var mom = dist.CentralMoments(1E-8);
+            Assert.AreEqual(mom[0], dist.Mean, 1E-2);
+            Assert.AreEqual(mom[1], dist.StandardDeviation, 1E-2);
+            Assert.AreEqual(mom[2], dist.Skewness, 1E-2);
+            Assert.AreEqual(mom[3], dist.Kurtosis, 1E-2);
+        }
+
+        /// <summary>
         /// Checking mean function.
         /// </summary>
         [TestMethod()]
-        public void ValidateMean()
+        public void Test_Mean()
         {
             var l = new GeneralizedLogistic();
             Assert.AreEqual(l.Mean, 100);
@@ -258,7 +272,7 @@ namespace Distributions.Univariate
         /// Testing Median is Xi.
         /// </summary>
         [TestMethod()]
-        public void ValidateMedian()
+        public void Test_Median()
         {
             var l = new GeneralizedLogistic();
             Assert.AreEqual(l.Median, 100);
@@ -271,7 +285,7 @@ namespace Distributions.Univariate
         /// Testing mode function.
         /// </summary>
         [TestMethod()]
-        public void ValidateMode()
+        public void Test_Mode()
         {
             var l = new GeneralizedLogistic();
             Assert.AreEqual(l.Mode, 100);
@@ -284,7 +298,7 @@ namespace Distributions.Univariate
         /// Checking Standard deviation.
         /// </summary>
         [TestMethod()]
-        public void ValidateStandardDeviation()
+        public void Test_StandardDeviation()
         {
             var l = new GeneralizedLogistic();
             Assert.AreEqual(l.StandardDeviation, 18.13799, 1e-04);
@@ -300,13 +314,13 @@ namespace Distributions.Univariate
         /// Checking skew function.
         /// </summary>
         [TestMethod()]
-        public void ValidateSkew()
+        public void Test_Skewness()
         {
             var l = new GeneralizedLogistic();
             Assert.AreEqual(l.Skewness, 0);
 
             var l2 = new GeneralizedLogistic(100, 10, 0.3);
-            Assert.AreEqual(l2.Skewness, -10.90354,1e-04);
+            Assert.AreEqual(l2.Skewness, -10.90354, 1e-04);
 
             var l3 = new GeneralizedLogistic(100, 10, 1);
             Assert.AreEqual(l3.Skewness, double.NaN);
@@ -316,13 +330,13 @@ namespace Distributions.Univariate
         /// Testing Kurtosis method.
         /// </summary>
         [TestMethod()]
-        public void ValidateKurtosis()
+        public void Test_Kurtosis()
         {
             var l = new GeneralizedLogistic();
             Assert.AreEqual(l.Kurtosis, 21d / 5d);
 
             var l2 = new GeneralizedLogistic(100, 10, 0.24);
-            Assert.AreEqual(l2.Kurtosis, 196.733369,1e-04);
+            Assert.AreEqual(l2.Kurtosis, 199.733369,1e-04);
 
             var l3 = new GeneralizedLogistic(100, 10, 0.25);
             Assert.AreEqual(l3.Kurtosis, double.NaN);
@@ -332,7 +346,7 @@ namespace Distributions.Univariate
         /// Testing minimum function.
         /// </summary>
         [TestMethod()]
-        public void ValidateMinimum()
+        public void Test_Minimum()
         {
             var l = new GeneralizedLogistic();
             Assert.AreEqual(l.Minimum, double.NegativeInfinity);
@@ -345,7 +359,7 @@ namespace Distributions.Univariate
         /// Testing maximum function.
         /// </summary>
         [TestMethod()]
-        public void ValidateMaximum() 
+        public void Test_Maximum() 
         {
             var l = new GeneralizedLogistic();
             Assert.AreEqual(l.Maximum, double.PositiveInfinity);
@@ -358,7 +372,7 @@ namespace Distributions.Univariate
         /// Testing PDF method
         /// </summary>
         [TestMethod()]
-        public void ValidatePDF()
+        public void Test_PDF()
         {
             var l = new GeneralizedLogistic();
             Assert.AreEqual(l.PDF(100), 0.025);
@@ -373,7 +387,7 @@ namespace Distributions.Univariate
         /// Testing CDF method.
         /// </summary>
         [TestMethod()]
-        public void ValidateCDF()
+        public void Test_CDF()
         {
             var l = new GeneralizedLogistic();
             Assert.AreEqual(l.CDF(100), 0.5);
@@ -387,7 +401,7 @@ namespace Distributions.Univariate
         /// Testing the inverse CDF method.
         /// </summary>
         [TestMethod()]
-        public void ValidateInverseCDF()
+        public void Test_InverseCDF()
         {
             var l = new GeneralizedLogistic();
             Assert.AreEqual(l.InverseCDF(0), double.NegativeInfinity);

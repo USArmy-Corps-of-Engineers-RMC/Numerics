@@ -30,6 +30,8 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Numerics.Distributions;
+using System;
+using System.Diagnostics;
 
 namespace Distributions.Univariate
 {
@@ -103,33 +105,13 @@ namespace Distributions.Univariate
                 Assert.AreEqual(expectedX, x, 0.000001d);
             }
 
-            //var quantiles = new double[] { 0.9999995d, 0.999999d, 0.999998d, 0.999995d, 0.99999d, 0.99998d, 0.99995d, 0.9999d, 0.9998d, 0.9995d, 0.999d, 0.998d, 0.995d, 0.99d, 0.98d, 0.95d, 0.9d, 0.85d, 0.8d, 0.7d, 0.6d, 0.5d, 0.4d, 0.3d, 0.2d, 0.1d, 0.05d };
-            //var NC = new double[quantiles.Length];
-            //double N = 30d;
-            //double DF = N - 1d;
-            //for (int i = 0, loopTo1 = quantiles.Length - 1; i <= loopTo1; i++)
-            //{
-            //    var Norm = new Normal();
-            //    double Z = Norm.InverseCDF(quantiles[i]);
-            //    var NCT = new NoncentralT(DF, Z * Math.Sqrt(N));
-            //    var Output = new double[quantiles.Length];
-            //    double Za = Norm.InverseCDF(0.95d);
-            //    double term1 = 1d / N;
-            //    double term2 = Z * Z / (2d * (N - 1d));
-            //    double term3 = Za * Za / (2d * N * (N - 1d));
-            //    double term4 = 1d - Za * Za / (2d * (N - 1d));
-            //    double term5 = Z + Za * Math.Sqrt(term1 + term2 - term3);
-            //    double TNC = term5 / term4;
-            //    Output[i] = NCT.InverseCDF(0.95d);
-            //    // Trace.WriteLine(Output(i) & "," & NCT.CDF(Output(i)))
-            //}
         }
 
         /// <summary>
         /// Verifying input parameters can create Noncentral T distribution.
         /// </summary>
         [TestMethod()]
-        public void CanCreateNoncentralT()
+        public void Test_Construction()
         {
             var t = new NoncentralT();
             Assert.AreEqual(t.DegreesOfFreedom, 10);
@@ -144,7 +126,7 @@ namespace Distributions.Univariate
         /// Testing distribution with bad parameters.
         /// </summary>
         [TestMethod()]
-        public void NoncentralTFails()
+        public void Test_InvalidParameters()
         {
             var t = new NoncentralT(0, 1);
             Assert.IsFalse(t.ParametersValid);
@@ -160,7 +142,7 @@ namespace Distributions.Univariate
         /// Testing ParametersToString
         /// </summary>
         [TestMethod()]
-        public void ValidateParametersToString()
+        public void Test_ParametersToString()
         {
             var t = new NoncentralT();
             Assert.AreEqual(t.ParametersToString[0, 0], "Degrees of Freedom (ν)");
@@ -173,7 +155,7 @@ namespace Distributions.Univariate
         /// Testing mean.
         /// </summary>
         [TestMethod()]
-        public void ValidateMean()
+        public void Test_Mean()
         {
             var t = new NoncentralT();
             Assert.AreEqual(t.Mean, 0);
@@ -186,7 +168,7 @@ namespace Distributions.Univariate
         /// Testing median.
         /// </summary>
         [TestMethod()]
-        public void ValidateMedian()
+        public void Test_Median()
         {
             var t = new NoncentralT();
             Assert.AreEqual(t.Median, 0,1e-04);
@@ -199,56 +181,53 @@ namespace Distributions.Univariate
         /// Testing mode.
         /// </summary>
         [TestMethod()]
-        public void ValidateMode()
+        public void Test_Mode()
         {
             var t = new NoncentralT();
-            Assert.AreEqual(t.Mode, 0);
-
-            var t2 = new NoncentralT(10, double.PositiveInfinity);
-            Assert.AreEqual(t2.Mode, double.PositiveInfinity);
+            Assert.AreEqual(t.Mode, 0, 1E-4);
 
             var t3 = new NoncentralT(10, 1);
-            Assert.AreEqual(t3.Mode, 0.9329,1e-04);
+            Assert.AreEqual(t3.Mode, 0.9329, 1e-04);
         }
 
         /// <summary>
         /// Testing standard deviation.
         /// </summary>
         [TestMethod()]
-        public void ValidateStandardDeviation()
+        public void Test_StandardDeviation()
         {
             var t = new NoncentralT();
             Assert.AreEqual(t.StandardDeviation,1.1180,1e-04);
 
             var t2 = new NoncentralT(1, 0);
-            Assert.AreEqual(t2.StandardDeviation,double.NaN);
+            Assert.AreEqual(t2.StandardDeviation, double.NaN);
         }
 
         /// <summary>
         /// Testing skew.
         /// </summary>
         [TestMethod()]
-        public void ValidateSkew()
+        public void Test_Skewness()
         {
             var t = new NoncentralT();
-            Assert.AreEqual(t.Skewness, double.NaN);
+            Assert.AreEqual(t.Skewness, 0.0, 1E-4);
         }
 
         /// <summary>
         /// Testing Kurtosis
         /// </summary>
         [TestMethod()]
-        public void ValidateKurtosis()
+        public void Test_Kurtosis()
         {
             var t = new NoncentralT();
-            Assert.AreEqual(t.Kurtosis, double.NaN);
+            Assert.AreEqual(t.Kurtosis, 4.0, 1E-4);
         }
 
         /// <summary>
         /// Testing min and max functions.
         /// </summary>
         [TestMethod()]
-        public void ValidateMinMax()
+        public void Test_MinMax()
         {
             var t = new NoncentralT();
             Assert.AreEqual(t.Minimum,double.NegativeInfinity);
@@ -263,7 +242,7 @@ namespace Distributions.Univariate
         /// Testing PDF method.
         /// </summary>
         [TestMethod()]
-        public void ValidatePDF()
+        public void Test_PDF()
         {
             var t = new NoncentralT();
             Assert.AreEqual(t.PDF(0), 0.38910,1e-04);
@@ -274,7 +253,7 @@ namespace Distributions.Univariate
         /// Testing CDF method.
         /// </summary>
         [TestMethod()]
-        public void ValidateCDF()
+        public void Test_CDF()
         {
             var t = new NoncentralT();
             Assert.AreEqual(t.CDF(1), 0.82955,1e-04);
@@ -284,7 +263,7 @@ namespace Distributions.Univariate
         /// Testing inverse CDF method.
         /// </summary>
         [TestMethod()]
-        public void ValidateInverseCDF()
+        public void Test_InverseCDF()
         {
             var t = new NoncentralT();
             Assert.AreEqual(t.InverseCDF(0), double.NegativeInfinity);

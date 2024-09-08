@@ -56,6 +56,9 @@ namespace Distributions.Univariate
     [TestClass]
     public class Test_GeneralizedNormal
     {
+        /// <summary>
+        /// Verification using R lmom package.
+        /// </summary>
         [TestMethod]
         public void Test_GNO_LMOM()
         {
@@ -104,25 +107,9 @@ namespace Distributions.Univariate
 
         }
 
-        [TestMethod]
-        public void Test_GNO_MLE()
-        {
-            // Air quality - wind data from R
-            var data = new double[] { 7.4, 8, 12.6, 11.5, 14.3, 14.9, 8.6, 13.8, 20.1, 8.6, 6.9, 9.7, 9.2, 10.9, 13.2, 11.5, 12, 18.4, 11.5, 9.7, 9.7, 16.6, 9.7, 12, 16.6, 14.9, 8, 12, 14.9, 5.7, 7.4, 8.6, 9.7, 16.1, 9.2, 8.6, 14.3, 9.7, 6.9, 13.8, 11.5, 10.9, 9.2, 8, 13.8, 11.5, 14.9, 20.7, 9.2, 11.5, 10.3, 6.3, 1.7, 4.6, 6.3, 8, 8, 10.3, 11.5, 14.9, 8, 4.1, 9.2, 9.2, 10.9, 4.6, 10.9, 5.1, 6.3, 5.7, 7.4, 8.6, 14.3, 14.9, 14.9, 14.3, 6.9, 10.3, 6.3, 5.1, 11.5, 6.9, 9.7, 11.5, 8.6, 8, 8.6, 12, 7.4, 7.4, 7.4, 9.2, 6.9, 13.8, 7.4, 6.9, 7.4, 4.6, 4, 10.3, 8, 8.6, 11.5, 11.5, 11.5, 9.7, 11.5, 10.3, 6.3, 7.4, 10.9, 10.3, 15.5, 14.3, 12.6, 9.7, 3.4, 8, 5.7, 9.7, 2.3, 6.3, 6.3, 6.9, 5.1, 2.8, 4.6, 7.4, 15.5, 10.9, 10.3, 10.9, 9.7, 14.9, 15.5, 6.3, 10.9, 11.5, 6.9, 13.8, 10.3, 10.3, 8, 12.6, 9.2, 10.3, 10.3, 16.6, 6.9, 13.2, 14.3, 8, 11.5 };
-            var gno = new GeneralizedNormal();
-            gno.Estimate(data, ParameterEstimationMethod.MaximumLikelihood);
-            double xi = gno.Xi;
-            double a = gno.Alpha;
-            double k = gno.Kappa;
-
-            // L-Moment values:
-            // double true_xi = 9.7285364;
-            // double true_a = 3.4885029;
-            // double true_k = -0.1307169;
-
-        }
-
-
+        /// <summary>
+        /// Verification using R lmom package.
+        /// </summary>
         [TestMethod]
         public void Test_GNO_Dist()
         {
@@ -144,6 +131,9 @@ namespace Distributions.Univariate
 
         }
 
+        /// <summary>
+        /// Test partial derivatives of the quantile function. 
+        /// </summary>
         [TestMethod]
         public void Test_GNO_PartialDerivatives()
         {
@@ -162,29 +152,17 @@ namespace Distributions.Univariate
                 return gn.InverseCDF(p);
             }, gno.GetParameters);
 
-
-            //var stopWatch = new Stopwatch();
-            //stopWatch.Start();
-
-            //var ps = new double[] { 0.1, 0.01, 0.001 };
-            //var J = gno.Jacobian(ps);
-
-
-            //// Write out results
-            //stopWatch.Stop();
-            //var timeSpan = stopWatch.Elapsed;
-            //string elapsedTime = string.Format("{0:00}:{1:00}:{2:00}.{3:00}", timeSpan.Hours, timeSpan.Minutes, timeSpan.Seconds, timeSpan.Milliseconds / 10d);
-            //Debug.WriteLine("Runtime: " + elapsedTime);
-
-
-
+            for (int i = 0; i < pd1.Length; i++)
+            {
+                Assert.AreEqual(pd1[i], pd2[i], 1E-2);
+            }
         }
 
         /// <summary>
         /// Testing that parameters can create generalized normal distribution.
         /// </summary>
         [TestMethod()]
-        public void CanCreateGeneralizedNormal()
+        public void Test_Construction()
         {
             var n = new GeneralizedNormal();
             Assert.AreEqual(n.Xi, 100);
@@ -201,7 +179,7 @@ namespace Distributions.Univariate
         /// Testing Generalized normal distribution with bad parameters.
         /// </summary>
         [TestMethod()]
-        public void GeneralizedNormalFails()
+        public void Test_InvalidParameters()
         {
             var n = new GeneralizedNormal(double.PositiveInfinity, double.PositiveInfinity, double.PositiveInfinity);
             Assert.IsFalse(n.ParametersValid);
@@ -217,7 +195,7 @@ namespace Distributions.Univariate
         /// Testing ParametersToString() function.
         /// </summary>
         [TestMethod()]
-        public void ValidateParametersToString()
+        public void Test_ParametersToString()
         {
             var n = new GeneralizedNormal();
             Assert.AreEqual(n.ParametersToString[0, 0], "Location (ξ)");
@@ -229,54 +207,19 @@ namespace Distributions.Univariate
         }
 
         /// <summary>
-        /// Testing mean function. 
+        /// Compare analytical moments against numerical integration.
         /// </summary>
         [TestMethod()]
-        public void ValidateMean()
+        public void Test_Moments()
         {
-            var n = new GeneralizedNormal();
-            Assert.AreEqual(n.Mean, 100, 1e-04);
-
-            var n2 = new GeneralizedNormal(1, 5, 0.42);
-            var mean = n2.Mean;
-            Assert.AreEqual(n2.Mean, 1, 1e-04);
+            var dist = new GeneralizedNormal(100, 10, -0.1);
+            var mom = dist.CentralMoments(1E-8);
+            Assert.AreEqual(mom[0], dist.Mean, 1E-2);
+            Assert.AreEqual(mom[1], dist.StandardDeviation, 1E-2);
+            Assert.AreEqual(mom[2], dist.Skewness, 1E-2);
+            Assert.AreEqual(mom[3], dist.Kurtosis, 1E-2);
         }
 
-        /// <summary>
-        /// Testing median function.
-        /// </summary>
-        [TestMethod()]
-        public void ValidateMedian()
-        {
-            var n = new GeneralizedNormal();
-            Assert.AreEqual(n.Median, 100);
-
-            var n2 = new GeneralizedNormal(1, 5, 0.42);
-            Assert.AreEqual(n2.Median, 1);
-        }
-
-        /// <summary>
-        /// Testing mode is NaN.
-        /// </summary>
-        [TestMethod()]
-        public void ValidateMode()
-        {
-            var n = new GeneralizedNormal();
-            Assert.AreEqual(n.Mode, double.NaN);
-        }
-
-        ///// <summary>
-        ///// 
-        ///// </summary>
-        //[TestMethod()]
-        //public void ValidateStandardDeviation()
-        //{
-        //    var n = new GeneralizedNormal();
-        //    //Assert.AreEqual(n.StandardDeviation, );
-
-        //    var n2 = new GeneralizedNormal(1, 5, 0.42);
-        //    Assert.AreEqual(n2.StandardDeviation, 138.566885, 1e-04);
-        //}
 
     }
 }

@@ -61,9 +61,9 @@ namespace Numerics.Distributions
     [Serializable]
     public sealed class LogNormal : UnivariateDistributionBase, IEstimation, IMaximumLikelihoodEstimation, IMomentEstimation, ILinearMomentEstimation, IStandardError, IBootstrappable
     {
-  
+
         /// <summary>
-        /// Constructs a Log-Normal distribution with a mean (of log) of 3 and std dev (of log) of 0.5
+        /// Constructs a Log-Normal distribution with a mean (of log) of 3 and standard deviation (of log) of 0.5
         /// </summary>
         public LogNormal()
         {
@@ -84,6 +84,8 @@ namespace Numerics.Distributions
         private double _mu;
         private double _sigma;
         private double _base = 10d;
+        private bool _momentsComputed = false;
+        private double[] u = [double.NaN, double.NaN, double.NaN, double.NaN];
 
         /// <summary>
         /// Gets and sets the location parameter µ (Mu).
@@ -198,13 +200,21 @@ namespace Numerics.Distributions
         /// <inheritdoc/>
         public override double Mean
         {
-            get { return Math.Exp((Mu + Sigma * Sigma / 2.0d) / K); }
+            get
+            {
+                if (!_momentsComputed)
+                {
+                    u = CentralMoments(1000);
+                    _momentsComputed = true;
+                }
+                return u[0];
+            }
         }
 
         /// <inheritdoc/>
         public override double Median
         {
-            get { return Math.Exp(Mu / K); }
+            get { return InverseCDF(0.5d); }
         }
 
         /// <summary>
@@ -212,19 +222,38 @@ namespace Numerics.Distributions
         /// </summary>
         public override double Mode
         {
-            get { return Math.Exp((Mu - Sigma * Sigma) / K); }
+            get
+            {    
+                return Math.Exp(Mu / K);
+            }
         }
 
         /// <inheritdoc/>
         public override double StandardDeviation
         {
-            get { return Math.Sqrt((Math.Exp(Sigma * Sigma / K) - 1.0d) * Math.Exp((2d * Mu + Sigma * Sigma) / K)); }
+            get
+            {
+                if (!_momentsComputed)
+                {
+                    u = CentralMoments(1000);
+                    _momentsComputed = true;
+                }
+                return u[1];
+            }
         }
 
         /// <inheritdoc/>
         public override double Skewness
         {
-            get { return (Math.Exp(Sigma * Sigma / K) + 2.0d) * Math.Sqrt(Math.Exp(Sigma * Sigma / K) - 1d); }
+            get
+            {
+                if (!_momentsComputed)
+                {
+                    u = CentralMoments(1000);
+                    _momentsComputed = true;
+                }
+                return u[2];
+            }
         }
 
         /// <inheritdoc/>
@@ -232,8 +261,12 @@ namespace Numerics.Distributions
         {
             get
             {
-                double siqma2 = Math.Pow(Sigma, 2d);
-                return 3d + (Math.Exp(4d * siqma2 / K) + 2d * Math.Exp(3d * siqma2 / K) + 3d * Math.Exp(2d * siqma2 / K) - 6d);
+                if (!_momentsComputed)
+                {
+                    u = CentralMoments(1000);
+                    _momentsComputed = true;
+                }
+                return u[3];
             }
         }
 
@@ -275,6 +308,10 @@ namespace Numerics.Distributions
             else if (estimationMethod == ParameterEstimationMethod.MaximumLikelihood)
             {
                 SetParameters(MLE(sample));
+            }
+            else
+            {
+                throw new NotImplementedException();
             }
         }
 
@@ -578,28 +615,6 @@ namespace Numerics.Distributions
 
             // Return confidence percentile output
             return Output;
-        }
-
-        /// <summary>
-        /// Compute the expected probability curve given a list of distributions.
-        /// </summary>
-        /// <param name="distributions">List of probability distributions.</param>
-        /// <param name="XValues">List of X values for computing the expected probability E[AEP|X].</param>
-        /// <param name="quantiles">List of exceedance probabilities for output frequency curve.</param>
-        private double[] ExpectedProbability(IEnumerable<UnivariateDistributionBase> distributions, IList<double> XValues, IList<double> quantiles)
-        {
-            // Variables
-            var F_Expected = new double[XValues.Count];
-            var ExpectedCurve = new double[quantiles.Count];
-            // Compute the expected probability E[AEP] given X
-            // Use Total Probability Theorem to compute the expected probability curve.
-            // Here all of the realizations have equal weight so the calculation is a simple average. 
-            Parallel.For(0, XValues.Count, idx => { for (int j = 0; j < distributions.Count(); j++) F_Expected[idx] += distributions.ElementAtOrDefault(j).CDF(XValues[idx]) / distributions.Count(); });
-            // Now interpolate X given E[AEP]. This is so we can plot the expected curve in a tradition manner with AEP on the X axis, and X on the Y axis.
-            Linear linInt = new Linear(F_Expected, XValues);
-            Parallel.For(0, quantiles.Count, (int idx) => ExpectedCurve[idx] = linInt.Interpolate(1d-quantiles[idx]));
-            // Return the expected curve
-            return ExpectedCurve;
         }
 
         /// <inheritdoc/>

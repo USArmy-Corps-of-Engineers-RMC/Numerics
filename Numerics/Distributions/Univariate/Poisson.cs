@@ -56,7 +56,7 @@ namespace Numerics.Distributions
     {
  
         /// <summary>
-        /// Constructs a Poisson distribution with λ=4.
+        /// Constructs a Poisson distribution with λ = 1.
         /// </summary>
         public Poisson()
         {
@@ -149,10 +149,9 @@ namespace Numerics.Distributions
         }
 
         /// <inheritdoc/>
-        /// <remarks>Approximation, see Wikipedia <a href="http://en.wikipedia.org/wiki/Poisson_distribution">Poisson distribution</a></remarks>
         public override double Median
         {
-            get { return Math.Floor(Lambda + 1.0d / 3.0d - 0.02d / Lambda); }
+            get { return InverseCDF(0.5); }
         }
 
         /// <inheritdoc/>
@@ -259,16 +258,10 @@ namespace Numerics.Distributions
             // Validate parameters
             if (_parametersValid == false)
                 ValidateParameters([Lambda], true);
-            // First bound the problem
-            int lower = (int)Minimum;
-            int upper = lower + 1;
-            double f = CDF(upper);
-            while (f < probability)
-            {
-                upper *= 2;
-                f = CDF(upper);
-            }
-            // Then solve with Brent
+
+            double lower = Minimum;
+            double upper = Mean;           
+            Brent.Bracket(x => CDF(x) - probability, ref lower, ref upper, out var f1, out var f2);
             return Brent.Solve(x => CDF(x) - probability, lower, upper);
         }
 

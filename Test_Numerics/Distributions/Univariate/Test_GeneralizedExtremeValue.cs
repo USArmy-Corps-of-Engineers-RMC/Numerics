@@ -90,7 +90,7 @@ namespace Distributions.Univariate
         }
 
         /// <summary>
-        /// Verification of GEV Distribution fit with method of moments.
+        /// Verification of GEV Distribution fit with method of linear moments.
         /// </summary>
         /// <remarks>
         /// <para>
@@ -218,19 +218,11 @@ namespace Distributions.Univariate
             Assert.AreEqual((qSigma - true_QSigma) / true_QSigma < 0.01d, true);
         }
 
-        //[TestMethod()]
-        //public void Test_GEV_Jacobian()
-        //{
-        //    var GEV = new GeneralizedExtremeValue(22299.7822d, 11080.8716d, -0.0378d);
-        //    double J = GEV.Jacobian(new[] { 0.9d, 0.99d, 0.999d });
-          
-        //}
-
         /// <summary>
         /// Testing GEV constructor
         /// </summary>
         [TestMethod()]
-        public void CanCreateGEV()
+        public void Test_Construction()
         {
             var GEV = new GeneralizedExtremeValue();
             Assert.AreEqual(GEV.Xi, 100);
@@ -247,7 +239,7 @@ namespace Distributions.Univariate
         /// Testing bad parameters on GEV distribution.
         /// </summary>
         [TestMethod()]
-        public void GEVFails()
+        public void Test_InvalidParameters()
         {
             var GEV = new GeneralizedExtremeValue(double.NaN, double.NaN, double.NaN);
             Assert.IsFalse(GEV.ParametersValid);
@@ -263,7 +255,7 @@ namespace Distributions.Univariate
         /// Testing Parameters to string.
         /// </summary>
         [TestMethod()]
-        public void ValidateParametersToString()
+        public void Test_ParametersToString()
         {
             var GEV = new GeneralizedExtremeValue();
             Assert.AreEqual(GEV.ParametersToString[0, 0], "Location (ξ)");
@@ -275,10 +267,24 @@ namespace Distributions.Univariate
         }
 
         /// <summary>
+        /// Compare analytical moments against numerical integration.
+        /// </summary>
+        [TestMethod()]
+        public void Test_Moments()
+        {
+            var dist = new GeneralizedExtremeValue(100, 10, -0.1);
+            var mom = dist.CentralMoments(1E-8);
+            Assert.AreEqual(mom[0], dist.Mean, 1E-2);
+            Assert.AreEqual(mom[1], dist.StandardDeviation, 1E-2);
+            Assert.AreEqual(mom[2], dist.Skewness, 1E-2);
+            Assert.AreEqual(mom[3], dist.Kurtosis, 1E-2);
+        }
+
+        /// <summary>
         /// Testing mean function.
         /// </summary>
         [TestMethod()]
-        public void ValidateMean()
+        public void Test_Mean()
         {
             var GEV = new GeneralizedExtremeValue();
             var true_val = 100 + 10 * Tools.Euler;
@@ -295,7 +301,7 @@ namespace Distributions.Univariate
         /// Testing Median function.
         /// </summary>
         [TestMethod()]
-        public void ValidateMedian()
+        public void Test_Median()
         {
             var GEV = new GeneralizedExtremeValue();
             Assert.AreEqual(GEV.Median, 103.66512, 1e-04);
@@ -308,7 +314,7 @@ namespace Distributions.Univariate
         /// Testing mode function.
         /// </summary>
         [TestMethod()]
-        public void ValidateMode()
+        public void Test_Mode()
         {
             var GEV = new GeneralizedExtremeValue();
             Assert.AreEqual(GEV.Mode, 100);
@@ -321,7 +327,7 @@ namespace Distributions.Univariate
         /// Testing standard deviation method.
         /// </summary>
         [TestMethod()]
-        public void ValidateStandadDeviation()
+        public void Test_StandardDeviation()
         {
             var GEV = new GeneralizedExtremeValue();
             Assert.AreEqual(GEV.StandardDeviation, 12.825498, 1e-05);
@@ -337,13 +343,13 @@ namespace Distributions.Univariate
         /// Testing skew function.
         /// </summary>
         [TestMethod()]
-        public void ValidateSkew()
+        public void Test_Skewness()
         {
             var GEV = new GeneralizedExtremeValue();
             Assert.AreEqual(GEV.Skewness, 1.1396);
 
             var GEV2 = new GeneralizedExtremeValue(100, 10, 0.3);
-            Assert.AreEqual(GEV2.Skewness, -0.0690175,1e-03);
+            Assert.AreEqual(GEV2.Skewness, -0.0690175, 1e-03);
 
             var GEV3 = new GeneralizedExtremeValue(100, 10, 1);
             Assert.AreEqual(GEV3.Skewness, double.NaN);
@@ -353,23 +359,23 @@ namespace Distributions.Univariate
         /// Testing kurtosis function.
         /// </summary>
         [TestMethod()]
-        public void ValidateKurtosis()
+        public void Test_Kurtosis()
         {
             var GEV = new GeneralizedExtremeValue();
-            Assert.AreEqual(GEV.Kurtosis, 12d / 5d);
+            Assert.AreEqual(GEV.Kurtosis, 3 + 12d / 5d);
 
             var GEV2 = new GeneralizedExtremeValue(100, 10, 0.24);
-            Assert.AreEqual(GEV2.Kurtosis, -.2340393, 1e-04);
+            Assert.AreEqual(GEV2.Kurtosis, 2.7659607, 1e-04);
 
             var GEV3 = new GeneralizedExtremeValue(100, 10, 1);
             Assert.AreEqual(GEV3.Kurtosis,double.NaN);
         }
 
         /// <summary>
-        /// Tseting minimum function.
+        /// Testing minimum function.
         /// </summary>
         [TestMethod()]
-        public void ValidateMinimum()
+        public void Test_Minimum()
         {
             var GEV = new GeneralizedExtremeValue();
             Assert.AreEqual(GEV.Minimum,double.NegativeInfinity);
@@ -379,10 +385,10 @@ namespace Distributions.Univariate
         }
 
         /// <summary>
-        /// Testing maxiumum function.
+        /// Testing maximum function.
         /// </summary>
         [TestMethod()]
-        public void ValidateMaximum()
+        public void Test_Maximum()
         {
             var GEV = new GeneralizedExtremeValue();
             Assert.AreEqual(GEV.Maximum,double.PositiveInfinity);
@@ -395,7 +401,7 @@ namespace Distributions.Univariate
         /// Testing PDF method.
         /// </summary>
         [TestMethod()]
-        public void ValidatePDF()
+        public void Test_PDF()
         {
             var GEV = new GeneralizedExtremeValue();
             Assert.AreEqual(GEV.PDF(0), 0);
@@ -409,7 +415,7 @@ namespace Distributions.Univariate
         /// Testing CDF method.
         /// </summary>
         [TestMethod()]
-        public void ValidateCDF()
+        public void Test_CDF()
         {
             var GEV = new GeneralizedExtremeValue();
             Assert.AreEqual(GEV.CDF(100), 0.367879, 1e-04);
@@ -424,15 +430,12 @@ namespace Distributions.Univariate
         /// Testing InverseCDF method.
         /// </summary>
         [TestMethod()]
-        public void ValidateInverseCDF()
+        public void Test_InverseCDF()
         {
             var GEV = new GeneralizedExtremeValue();
             Assert.AreEqual(GEV.InverseCDF(0), double.NegativeInfinity);
             Assert.AreEqual(GEV.InverseCDF(0.5), 103.66512, 1e-05);
             Assert.AreEqual(GEV.InverseCDF(1), double.PositiveInfinity);
-
-            var GEV2 = new GeneralizedExtremeValue(100, 10, 1);
-            Assert.AreEqual(GEV.InverseCDF(0.5), 103.665129, 1e-04);
         }
     }
 }

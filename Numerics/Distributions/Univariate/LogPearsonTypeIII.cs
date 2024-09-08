@@ -80,6 +80,8 @@ namespace Numerics.Distributions
         private double _sigma;
         private double _gamma;
         private double _base = 10d;
+        private bool _momentsComputed = false;
+        private double[] u = [double.NaN, double.NaN, double.NaN, double.NaN];
 
         /// <summary>
         /// Gets and sets the Mean (of log) of the distribution.
@@ -230,25 +232,19 @@ namespace Numerics.Distributions
         }
 
         /// <inheritdoc/>
-        public override double[] CentralMoments(double tolerance = 1E-8)
-        {
-            return [Mu, Sigma, Gamma];
-        }
-
-        /// <inheritdoc/>
         public override double Mean
         {
             get
             {
-                if (Math.Abs(Gamma) <= NearZero)
+                if (!_momentsComputed)
                 {
-                    // Use LogNormal
-                    return Math.Exp((Mu + Sigma * Sigma / 2.0d) / K);
+                    u = CentralMoments(1000);
+                    _momentsComputed = true;
                 }
-                else
-                {
-                    return Math.Exp(Xi / K) / Math.Pow(1d - Beta / K, Alpha);
-                }
+                return u[0];
+                // This is the analytical expression from Reference: "The Gamma Family and Derived Distributions Applied in Hydrology", B. Bobee & F. Ashkar, Water Resources Publications, 1991.
+                // It is not reliable enough for general use. But keeping this here for reference.
+                // return Math.Exp(Xi / K) / Math.Pow(1d - Beta / K, Alpha); 
             }
         }
 
@@ -265,8 +261,7 @@ namespace Numerics.Distributions
             {
                 if (Math.Abs(Gamma) <= NearZero)
                 {
-                    // Use LogNormal
-                    return Math.Exp((Mu - Sigma * Sigma) / K);
+                    return Math.Exp(Mu / K);
                 }
                 else
                 {
@@ -280,15 +275,15 @@ namespace Numerics.Distributions
         {
             get
             {
-                if (Math.Abs(Gamma) <= NearZero)
+                if (!_momentsComputed)
                 {
-                    // Use LogNormal
-                    return Math.Sqrt((Math.Exp(Sigma * Sigma / K) - 1.0d) * Math.Exp((2d * Mu + Sigma * Sigma) / K));
+                    u = CentralMoments(1000);
+                    _momentsComputed = true;
                 }
-                else
-                {
-                    return Math.Sqrt(Math.Pow(Math.Pow(1d - Beta / K, 2d) / (1d - 2d * Beta / K), Alpha) - 1d) * Mean;
-                }
+                return u[1];
+                // This is the analytical expression from Reference: "The Gamma Family and Derived Distributions Applied in Hydrology", B. Bobee & F. Ashkar, Water Resources Publications, 1991.
+                // It is not reliable enough for general use. But keeping this here for reference.
+                //return Math.Sqrt(Math.Pow(Math.Pow(1d - Beta / K, 2d) / (1d - 2d * Beta / K), Alpha) - 1d) * Mean;
             }
         }
 
@@ -297,15 +292,15 @@ namespace Numerics.Distributions
         {
             get
             {
-                if (Math.Abs(Gamma) <= NearZero)
+                if (!_momentsComputed)
                 {
-                    // Use LogNormal
-                    return (Math.Exp(Sigma * Sigma / K) + 2.0d) * Math.Sqrt(Math.Exp(Sigma * Sigma / K) - 1d);
+                    u = CentralMoments(1000);
+                    _momentsComputed = true;
                 }
-                else
-                {
-                    return (Math.Pow(1d - 3d * Beta / K, -Alpha) - 3d * Math.Pow(1d - 2d * Beta / K, -Alpha) * Math.Pow(1d - Beta / K, -Alpha) + 2d * Math.Pow(1d - Beta / K, -3 * Alpha)) / Math.Pow(Math.Pow(1d - 2d * Beta / K, -Alpha) - Math.Pow(1d - Beta / K, -2 * Alpha), 3d / 2d);
-                }
+                return u[2];
+                // This is the analytical expression from Reference: "The Gamma Family and Derived Distributions Applied in Hydrology", B. Bobee & F. Ashkar, Water Resources Publications, 1991.
+                // It is not reliable enough for general use. But keeping this here for reference.
+                //return (Math.Pow(1d - 3d * Beta / K, -Alpha) - 3d * Math.Pow(1d - 2d * Beta / K, -Alpha) * Math.Pow(1d - Beta / K, -Alpha) + 2d * Math.Pow(1d - Beta / K, -3 * Alpha)) / Math.Pow(Math.Pow(1d - 2d * Beta / K, -Alpha) - Math.Pow(1d - Beta / K, -2 * Alpha), 3d / 2d);
             }
         }
 
@@ -314,19 +309,17 @@ namespace Numerics.Distributions
         {
             get
             {
-                if (Math.Abs(Gamma) <= NearZero)
+                if (!_momentsComputed)
                 {
-                    // Use LogNormal
-                    double siqma2 = Math.Pow(Sigma, 2d);
-                    return 3d + (Math.Exp(4d * siqma2 / K) + 2d * Math.Exp(3d * siqma2 / K) + 3d * Math.Exp(2d * siqma2 / K) - 6d);
+                    u = CentralMoments(1000);
+                    _momentsComputed = true;
                 }
-                else
-                {
-                    return (Math.Pow(1d - 4d * Beta / K, -Alpha) - 4d * Math.Pow(1d - 3d * Beta / K, -Alpha) * Math.Pow(1d - Beta / K, -Alpha) + 6d * Math.Pow(1d - 2d * Beta / K, -Alpha) * Math.Pow(1d - Beta / K, -2 * Alpha) - 3d * Math.Pow(1d - Beta / K, -4 * Alpha)) / Math.Pow(Math.Pow(1d - 2d * Beta / K, -Alpha) - Math.Pow(1d - Beta / K, -2 * Alpha), 2d);
-                }
+                return u[3];
+                // This is the analytical expression from Reference: "The Gamma Family and Derived Distributions Applied in Hydrology", B. Bobee & F. Ashkar, Water Resources Publications, 1991.
+                // It is not reliable enough for general use. But keeping this here for reference.
+                //return (Math.Pow(1d - 4d * Beta / K, -Alpha) - 4d * Math.Pow(1d - 3d * Beta / K, -Alpha) * Math.Pow(1d - Beta / K, -Alpha) + 6d * Math.Pow(1d - 2d * Beta / K, -Alpha) * Math.Pow(1d - Beta / K, -2 * Alpha) - 3d * Math.Pow(1d - Beta / K, -4 * Alpha)) / Math.Pow(Math.Pow(1d - 2d * Beta / K, -Alpha) - Math.Pow(1d - Beta / K, -2 * Alpha), 2d);
             }
         }
-
 
         /// <inheritdoc/>
         public override double Minimum
@@ -396,6 +389,10 @@ namespace Numerics.Distributions
             else if (estimationMethod == ParameterEstimationMethod.MaximumLikelihood)
             {
                 SetParameters(MLE(sample));
+            }
+            else
+            {
+                throw new NotImplementedException();
             }
         }
 

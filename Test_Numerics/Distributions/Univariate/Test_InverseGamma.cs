@@ -60,13 +60,11 @@ namespace Distributions.Univariate
         [TestMethod()]
         public void Test_InverseGammaDist()
         {
-            double true_mean = -0.86206896551724133d;
             double true_median = 3.1072323347401709d;
             double true_pdf = 0.35679850067181362d;
             double true_cdf = 0.042243552114989695d;
             double true_icdf05 = 0.26999994629410995d;
             var IG = new InverseGamma(0.5d, 0.42d);
-            Assert.AreEqual(IG.Mean, true_mean, 0.0001d);
             Assert.AreEqual(IG.Median, true_median, 0.0001d);
             Assert.AreEqual(IG.PDF(0.27d), true_pdf, 0.0001d);
             Assert.AreEqual(IG.CDF(0.27d), true_cdf, 0.0001d);
@@ -77,7 +75,7 @@ namespace Distributions.Univariate
         /// Testing InverseGamma is being created.
         /// </summary>
         [TestMethod()]
-        public void CanCreateInverseGamma()
+        public void Test_Construction()
         {
             var IG = new InverseGamma();
             Assert.AreEqual(IG.Beta, 0.5);
@@ -92,7 +90,7 @@ namespace Distributions.Univariate
         /// Checking inverse gamma distribution with bad parameters.
         /// </summary>
         [TestMethod()]
-        public void InverseGammaFails()
+        public void Test_InvalidParameters()
         {
             var IG = new InverseGamma(double.NaN, double.NaN);
             Assert.IsFalse(IG.ParametersValid);
@@ -108,7 +106,7 @@ namespace Distributions.Univariate
         /// Checking ParametersToString()
         /// </summary>
         [TestMethod()]
-        public void ValidateParametersToString()
+        public void Test_ParametersToString()
         {
             var IG = new InverseGamma();
             Assert.AreEqual(IG.ParametersToString[0, 0], "Scale (β)");
@@ -121,20 +119,20 @@ namespace Distributions.Univariate
         /// Testing mean function.
         /// </summary>
         [TestMethod()]
-        public void ValidateMean()
+        public void Test_Mean()
         {
             var IG = new InverseGamma();
             Assert.AreEqual(IG.Mean, 0.5);
 
             var IG2 = new InverseGamma(1, 1);
-            Assert.AreEqual(IG2.Mean,double.PositiveInfinity);
+            Assert.AreEqual(IG2.Mean, double.NaN);
         }
 
         /// <summary>
         /// Testing median function.
         /// </summary>
         [TestMethod()]
-        public void ValidateMedian()
+        public void Test_Median()
         {
             var IG = new InverseGamma();
             Assert.AreEqual(IG.Median, 0.2979,1e-04);
@@ -144,7 +142,7 @@ namespace Distributions.Univariate
         /// Testing mode function.
         /// </summary>
         [TestMethod()]
-        public void ValidateMode()
+        public void Test_Mode()
         {
             var IG = new InverseGamma();
             Assert.AreEqual(IG.Mode, 0.1666, 1e-04);
@@ -157,7 +155,7 @@ namespace Distributions.Univariate
         /// Testing standard deviation.
         /// </summary>
         [TestMethod()]
-        public void ValidateStandardDeviation()
+        public void Test_StandardDeviation()
         {
             var IG = new InverseGamma();
             Assert.AreEqual(IG.StandardDeviation, double.NaN);
@@ -170,7 +168,7 @@ namespace Distributions.Univariate
         /// Testing skew function.
         /// </summary>
         [TestMethod()]
-        public void ValidateSkew()
+        public void Test_Skewness()
         {
             var IG = new InverseGamma();
             Assert.AreEqual(IG.Skewness, double.NaN);
@@ -183,7 +181,7 @@ namespace Distributions.Univariate
         /// Testing kurtosis with different parameters.
         /// </summary>
         [TestMethod()]
-        public void ValidateKurtosis()
+        public void Test_Kurtosis()
         {
             var IG = new InverseGamma();
             Assert.AreEqual(IG.Kurtosis, double.NaN);
@@ -193,10 +191,10 @@ namespace Distributions.Univariate
         }
 
         /// <summary>
-        /// Testing minimum and maxium functions are 0 and positive infinity respectively.
+        /// Testing minimum and maximum functions are 0 and positive infinity respectively.
         /// </summary>
         [TestMethod()]
-        public void ValidateMinMax()
+        public void Test_MinMax()
         {
             var IG = new InverseGamma();
             Assert.AreEqual(IG.Minimum, 0);
@@ -211,7 +209,7 @@ namespace Distributions.Univariate
         /// Testing PDF method at different locations with varying parameters.
         /// </summary>
         [TestMethod()]
-        public void ValidatePDF()
+        public void Test_PDF()
         {
             var IG = new InverseGamma(2,4);
             Assert.AreEqual(IG.PDF(-2), 0);
@@ -227,7 +225,7 @@ namespace Distributions.Univariate
         /// Testing CDF method.
         /// </summary>
         [TestMethod()]
-        public void ValidateCDF()
+        public void Test_CDF()
         {
             var IG = new InverseGamma();
             Assert.AreEqual(IG.CDF(-1), 0);
@@ -241,7 +239,7 @@ namespace Distributions.Univariate
         /// Testing InverseCDF method.
         /// </summary>
         [TestMethod()]
-        public void ValidateInverseCDF()
+        public void Test_InverseCDF()
         {
             var IG = new InverseGamma();
             Assert.AreEqual(IG.InverseCDF(0), 0);

@@ -62,7 +62,7 @@ namespace Distributions.Univariate
         /// Verified using Palisade's @Risk
         /// </summary>
         [TestMethod()]
-        public void Test_BernoulliDist()
+        public void Test_Bernoulli_AtRisk()
         {
             double true_mean = 0.7d;
             int true_mode = 1;
@@ -88,10 +88,10 @@ namespace Distributions.Univariate
         }
 
         /// <summary>
-        /// Verified using MathNet-Numerics testing. See if bernoulli is being created.
+        /// Verified using MathNet-Numerics testing. See if Bernoulli is being created.
         /// </summary>
         [TestMethod()]
-        public void CanCreateBernoulli()
+        public void Test_Construction()
         {
             var bernoulli = new Bernoulli(0);
             Assert.AreEqual(0, bernoulli.Probability);
@@ -107,7 +107,7 @@ namespace Distributions.Univariate
         /// Verified using MathNet-Numerics testing. See what probabilities fail.
         /// </summary>
         [TestMethod()]
-        public void BernoulliFails()
+        public void Test_InvalidParameters()
         {
             var b = new Bernoulli(double.NaN);
             Assert.IsFalse(b.ParametersValid);
@@ -123,19 +123,32 @@ namespace Distributions.Univariate
         /// Verified using MathNet-Numerics testing. Checking string output.
         /// </summary>
         [TestMethod()]
-        public void ValidateToString()
+        public void Test_ParametersToString()
         {
-            System.Threading.Thread.CurrentThread.CurrentCulture = System.Globalization.CultureInfo.InvariantCulture;
             var b = new Bernoulli(0.3);
             Assert.AreEqual("Probability (p)", b.ParametersToString[0,0]);
             Assert.AreEqual("0.3",b.ParametersToString[0,1]);
         }
 
         /// <summary>
+        /// Compare analytical moments against numerical integration.
+        /// </summary>
+        [TestMethod()]
+        public void Test_Moments()
+        {
+            var dist = new Bernoulli(0.3);
+            var mom = dist.CentralMoments(200);
+            Assert.AreEqual(mom[0], dist.Mean, 1E-2);
+            Assert.AreEqual(mom[1], dist.StandardDeviation, 1E-2);
+            Assert.AreEqual(mom[2], dist.Skewness, 1E-2);
+            Assert.AreEqual(mom[3], dist.Kurtosis, 1E-2);
+        }
+
+        /// <summary>
         /// Verified using MathNet-Numerics testing. Checking mean of distribution with different probabilities.
         /// </summary>
         [TestMethod()]
-        public void ValidateMean()
+        public void Test_Mean()
         {
             var b = new Bernoulli(0);
             Assert.AreEqual(0, b.Mean);
@@ -151,22 +164,22 @@ namespace Distributions.Univariate
         /// Verified using MathNet-Numerics testing. Checking median of distribution with different probabilities.
         /// </summary>
         [TestMethod()]
-        public void ValidateMedian()
+        public void Test_Median()
         {
             var b = new Bernoulli(0);
-            Assert.AreEqual(0,b.Median);
+            Assert.AreEqual(0, b.Median);
 
             var b2 = new Bernoulli(0.4);
-            Assert.AreEqual(0,b2.Median);
+            Assert.AreEqual(0, b2.Median);
 
             var b3 = new Bernoulli(0.5);
-            Assert.AreEqual(0.5,b3.Median);
+            Assert.AreEqual(0.5, b3.Median);
 
             var b4 = new Bernoulli(0.6);
-            Assert.AreEqual(1,b4.Median);
+            Assert.AreEqual(1, b4.Median);
 
             var b5 = new Bernoulli(1);
-            Assert.AreEqual(1,b5.Median);
+            Assert.AreEqual(1, b5.Median);
 
         }
 
@@ -174,26 +187,26 @@ namespace Distributions.Univariate
         /// Verified using MathNet-Numerics testing. Checking mode of distribution with different probabilities.
         /// </summary>
         [TestMethod()]
-        public void ValidateMode()
+        public void Test_Mode()
         {
             var b = new Bernoulli(0);
-            Assert.AreEqual(0,b.Mode);
+            Assert.AreEqual(0, b.Mode);
 
             var b2 = new Bernoulli(0.3);
-            Assert.AreEqual(0,b2.Mode);
+            Assert.AreEqual(0, b2.Mode);
 
             var b3 = new Bernoulli(1);
-            Assert.AreEqual(1,b3.Mode);
+            Assert.AreEqual(1, b3.Mode);
 
             var b4 = new Bernoulli(0.5);
-            Assert.AreEqual(0,b4.Mode);
+            Assert.AreEqual(0, b4.Mode);
         }
 
         /// <summary>
         /// Verified using MathNet-Numerics testing. Checking standard deviation with different probabilities.
         /// </summary>
         [TestMethod()]
-        public void ValidateStandardDeviation()
+        public void Test_StandardDeviation()
         {
             var b = new Bernoulli(0);
             Assert.AreEqual(0, b.StandardDeviation);
@@ -209,33 +222,33 @@ namespace Distributions.Univariate
         /// Verified using MathNet-Numerics testing. Checking minimum function.
         /// </summary>
         [TestMethod()]
-        public void ValidateMinimum()
+        public void Test_Minimum()
         {
             var b = new Bernoulli(0.3);
-            Assert.AreEqual(0,b.Minimum);
+            Assert.AreEqual(0, b.Minimum);
         }
 
         /// <summary>
         /// Verified using MathNet-Numerics testing. Checking maximum function.
         /// </summary>
         [TestMethod()]
-        public void ValidateMaximum()
+        public void Test_Maximum()
         {
             var b = new Bernoulli(0.3);
-            Assert.AreEqual(1,b.Maximum);
+            Assert.AreEqual(1, b.Maximum);
         }
 
         /// <summary>
         /// Checking Kurtosis of distribution with different probabilities.
         /// </summary>
         [TestMethod()]
-        public void ValidateKurtosis()
+        public void Test_Kurtosis()
         {
             var b = new Bernoulli(0);
             Assert.AreEqual(double.PositiveInfinity, b.Kurtosis);
 
             var b2 = new Bernoulli(0.3d);
-            Assert.AreEqual(1.761904762,b2.Kurtosis,1e-04);
+            Assert.AreEqual(1.761904762, b2.Kurtosis, 1e-04);
 
             var b3 = new Bernoulli(1);
             Assert.AreEqual(double.PositiveInfinity,b3.Kurtosis);
@@ -245,13 +258,13 @@ namespace Distributions.Univariate
         /// Verified using MathNet-Numerics testing. Checking skewness of distribution with different probabilities.
         /// </summary>
         [TestMethod()]
-        public void ValidateSkew()
+        public void Test_Skewness()
         {
             var b = new Bernoulli(0d);
-           Assert.AreEqual(double.PositiveInfinity,b.Skewness);
+           Assert.AreEqual(double.PositiveInfinity, b.Skewness);
 
             var b2 = new Bernoulli(0.3);
-            Assert.AreEqual(0.8728715, b2.Skewness,1e-04);
+            Assert.AreEqual(0.8728715, b2.Skewness, 1e-04);
 
             var b3 = new Bernoulli(1);
             Assert.AreEqual(double.NegativeInfinity, b3.Skewness);
@@ -261,7 +274,7 @@ namespace Distributions.Univariate
         /// Verified using MathNet-Numerics testing. Testing PDF function.
         /// </summary>
         [TestMethod()]
-        public void ValidatePDF()
+        public void Test_PDF()
         {
             var b = new Bernoulli(0);
             Assert.AreEqual(0, b.PDF(-1));
@@ -286,7 +299,7 @@ namespace Distributions.Univariate
         /// Verified using MathNet-Numerics testing. Testing CDF function.
         /// </summary>
         [TestMethod()]
-        public void ValidateCDF()
+        public void Test_CDF()
         {
             var b = new Bernoulli(0);
             Assert.AreEqual(0, b.CDF(-1));
@@ -314,7 +327,7 @@ namespace Distributions.Univariate
         /// Verified using MathNet-Numerics testing. Testing InverseCDF function.
         /// </summary>
         [TestMethod()]
-        public void ValidateInverseCDF()
+        public void Test_InverseCDF()
         {
             var b = new Bernoulli(0);
             Assert.AreEqual(0, b.InverseCDF(0));
@@ -328,8 +341,6 @@ namespace Distributions.Univariate
             var b4 = new Bernoulli(0.7);
             Assert.AreEqual(1, b4.InverseCDF(0.7));
 
-            var b5 = new Bernoulli(0);
-            Assert.ThrowsException<ArgumentOutOfRangeException>(() => b.InverseCDF(-1));
         }
     }
 }

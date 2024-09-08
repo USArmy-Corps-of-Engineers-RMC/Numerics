@@ -30,6 +30,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using Numerics.Mathematics.Optimization;
 
 namespace Numerics.Distributions
@@ -345,7 +346,6 @@ namespace Numerics.Distributions
             double fiftieth = Percentile50th;
             double ninetyFifth = Percentile95th;
 
-            //_pert = new Pert(fifth, fiftieth, ninetyFifth);
             if (fifth == fiftieth && fiftieth == ninetyFifth)
             {
                 _beta = GeneralizedBeta.PERT(fifth, fiftieth, ninetyFifth);
@@ -354,39 +354,42 @@ namespace Numerics.Distributions
             }
 
             _beta = GeneralizedBeta.PERT(fifth, fiftieth, ninetyFifth);
+            // Set wide bounds
             double min = fifth - (ninetyFifth - fifth) * 2;
             double max = ninetyFifth + (ninetyFifth - fifth) * 2;
-            var Initials = new double[] { _beta.Alpha, _beta.Beta, _beta.Min, _beta.Max };
-            var Lowers = new double[] { Tools.DoubleMachineEpsilon, Tools.DoubleMachineEpsilon, min, min };
-            var Uppers = new double[] { _beta.Alpha * 100, _beta.Beta * 100, max, max };
+            var Initials = new double[] { _beta.Min, _beta.Mode, _beta.Max };
+            var Lowers = new double[] { min, min, min };
+            var Uppers = new double[] { max, max, max };
 
-            // Solve using Nelder-Mead (Downhill Simplex)
+            // Objective function is the sum of squared errors
             double sse(double[] x)
             {
-                var dist = new GeneralizedBeta();
+                var dist = new Pert();
                 try
                 {
-                    dist = new GeneralizedBeta(x[0], x[1], x[2], x[3]);
+                    dist = new Pert(x[0], x[1], x[2]);
+                    if (dist.ParametersValid == false) return double.MaxValue;
+
+                    double SSE = 0d;
+                    SSE += Math.Pow(fifth - dist.InverseCDF(0.05), 2d);
+                    SSE += Math.Pow(fiftieth - dist.InverseCDF(0.5), 2d);
+                    SSE += Math.Pow(ninetyFifth - dist.InverseCDF(0.95), 2d);
+                    return SSE;
                 }
                 catch
                 {
                     return double.MaxValue;
                 }
-                if (dist.ParametersValid == false) return double.MaxValue;
 
-                double SSE = 0d;
-                SSE += Math.Pow(fifth - dist.InverseCDF(0.05), 2d);
-                SSE += Math.Pow(fiftieth - dist.InverseCDF(0.5), 2d);
-                SSE += Math.Pow(ninetyFifth - dist.InverseCDF(0.95), 2d);
-                return SSE;
             }
-            var solver = new NelderMead(sse, 4, Initials, Lowers, Uppers);
-            solver.RelativeTolerance = 1E-8;
+
+            var solver = new BFGS(sse, 3, Initials, Lowers, Uppers);
+            solver.RelativeTolerance = 1E-4;
             solver.AbsoluteTolerance = 1E-8;
             solver.ReportFailure = false;
             solver.Minimize();
             var solution = solver.BestParameterSet.Values;
-            _beta = new GeneralizedBeta(solution[0], solution[1], solution[2], solution[3]);
+            _beta = GeneralizedBeta.PERT(solution[0], solution[1], solution[2]);
             _parametersSolved = true;
         }
 

@@ -88,7 +88,7 @@ namespace Distributions.Univariate
         /// Verified using MathNet-Numerics testing. See if binomial is being created.
         /// </summary>
         [TestMethod()]
-        public void CanCreateBinomial()
+        public void Test_Construction()
         {
             var B = new Binomial(0, 4);
             Assert.AreEqual(0, B.ProbabilityOfSuccess);
@@ -107,7 +107,7 @@ namespace Distributions.Univariate
         /// Verified using MathNet-Numerics testing. See what parameters fail.
         /// </summary>
         [TestMethod()]
-        public void BinomialFails()
+        public void Test_InvalidParameters()
         {
             var b = new Binomial(double.NaN, 1); 
             Assert.IsFalse(b.ParametersValid);
@@ -126,7 +126,7 @@ namespace Distributions.Univariate
         /// Verified using MathNet-Numerics testing. Checking string output.
         /// </summary>
         [TestMethod()]
-        public void ValidateParametersToString()
+        public void Test_ParametersToString()
         {
             System.Threading.Thread.CurrentThread.CurrentCulture = System.Globalization.CultureInfo.InvariantCulture;
             var b = new Binomial(0.5, 4);
@@ -140,7 +140,7 @@ namespace Distributions.Univariate
         ///  Verified using MathNet-Numerics testing. Checking mean of distribution with different parameters.
         /// </summary>
         [TestMethod()]
-        public void ValidateMean()
+        public void Test_Mean()
         {
             var b = new Binomial(0.5, 4);
             Assert.AreEqual(2, b.Mean);
@@ -153,7 +153,7 @@ namespace Distributions.Univariate
         /// Verified using MathNet-Numerics testing. Checking median of distribution with different parameters.
         /// </summary>
         [TestMethod()]
-        public void ValidateMedian()
+        public void Test_Median()
         {
             var b = new Binomial(0.5, 4);
             Assert.AreEqual(2, b.Mean);
@@ -166,7 +166,7 @@ namespace Distributions.Univariate
         /// Verified using MathNet-Numerics testing. Checking mode of distribution with different parameters.
         /// </summary>
         [TestMethod()]
-        public void ValidateMode()
+        public void Test_Mode()
         {
             var b = new Binomial(0, 4);
             Assert.AreEqual(0, b.Mode);
@@ -182,7 +182,7 @@ namespace Distributions.Univariate
         /// Verified using MathNet-Numerics testing. Checking standard deviation with different parameters.
         /// </summary>
         [TestMethod()]
-        public void ValidateStandardDeviation()
+        public void Test_StandardDeviation()
         {
             var b = new Binomial(0, 4);
             Assert.AreEqual(0, b.StandardDeviation);
@@ -198,7 +198,7 @@ namespace Distributions.Univariate
         /// Verified using MathNet-Numerics testing. Checking skewness of distribution with different parameters.
         /// </summary>
         [TestMethod()]
-        public void ValidateSkew()
+        public void Test_Skewness()
         {
             var b = new Binomial(0.5, 5);
             Assert.AreEqual(0, b.Skewness);
@@ -211,7 +211,7 @@ namespace Distributions.Univariate
         /// Checking Kurtosis algorithm.
         /// </summary>
         [TestMethod()]
-        public void ValidateKurtosis()
+        public void Test_Kurtosis()
         {
             var b = new Binomial(0.5, 5);
             Assert.AreEqual(2.6, b.Kurtosis);
@@ -224,7 +224,7 @@ namespace Distributions.Univariate
         /// Checking minimum function
         /// </summary>
         [TestMethod()]
-        public void ValidateMinimum()
+        public void Test_Minimum()
         {
             var b = new Binomial(0.3, 3);
             Assert.AreEqual(0, b.Minimum);
@@ -234,7 +234,7 @@ namespace Distributions.Univariate
         /// Checking maximum function.
         /// </summary>
         [TestMethod()]
-        public void ValidateMaximum()
+        public void Test_Maximum()
         {
             var b = new Binomial(0.3, 3);
             Assert.AreEqual(3, b.Maximum);
@@ -244,7 +244,7 @@ namespace Distributions.Univariate
         /// Verified using MathNet-Numerics testing. Testing PDF function.
         /// </summary>
         [TestMethod()]
-        public void ValidatePDF()
+        public void Test_PDF()
         {
             var b = new Binomial(0, 1);
             Assert.AreEqual(1, b.PDF(0));
@@ -267,7 +267,7 @@ namespace Distributions.Univariate
         /// Testing CDF function.
         /// </summary>
         [TestMethod()]
-        public void ValidateCDF()
+        public void Test_CDF()
         {
             var b = new Binomial(0.4, 8);
             Assert.AreEqual(0.5940864, b.CDF(3),1e-04);
@@ -277,7 +277,7 @@ namespace Distributions.Univariate
         /// Testing inverse CDF function.
         /// </summary>
         [TestMethod()]
-        public void ValidateInverseCDF()
+        public void Test_InverseCDF()
         {
             var b = new Binomial(0.3, 100);
             Assert.AreEqual(32, b.InverseCDF(0.7));

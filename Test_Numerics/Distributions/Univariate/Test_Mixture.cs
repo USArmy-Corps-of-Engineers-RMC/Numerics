@@ -148,32 +148,87 @@ namespace Distributions.Univariate
 
         }
 
+        /// <summary>
+        /// Test the MLE fit for a mixture of 2 Normal distributions.
+        /// </summary>
         [TestMethod]
         public void Test_2D_Mixture_MLE()
         {
-            var mix = new Mixture(new[] { 0.7, 0.3 }, new[] { new Normal(0, 1), new Normal(3, 0.1) });
+            var mix = new Mixture(new[] { 0.3, 0.7 }, new[] { new Normal(0, 1), new Normal(3, 0.1) });
             var sample = mix.GenerateRandomValues(1000, 12345);
             mix.Estimate(sample, ParameterEstimationMethod.MaximumLikelihood);
 
+            var w = mix.Weights;
+            var d = mix.Distributions;
+            Array.Sort(w, d);
+
+            // Weights
+            Assert.AreEqual(0.3, w[0], 1E-1);
+            Assert.AreEqual(0.7, w[1], 1E-1);
+            // N1 parameters
+            Assert.AreEqual(0.0, d[0].GetParameters[0], 1E-1);
+            Assert.AreEqual(1.0, d[0].GetParameters[1], 1E-1);
+            // N2 parameters
+            Assert.AreEqual(3.0, d[1].GetParameters[0], 1E-1);
+            Assert.AreEqual(0.1, d[1].GetParameters[1], 1E-1);
+
         }
 
+        /// <summary>
+        /// Test the MLE fit for a zero-inflated mixture of 2 Normal distributions.
+        /// </summary>
         [TestMethod]
-        public void Test_2D_Mixture_MLE_Zero()
+        public void Test_2D_Mixture_MLE_ZeroInflated()
         {
-            var mix = new Mixture(new[] { 0.6, 0.3 }, new[] { new Normal(3, 0.1), new Normal(5, 2) });
+            var mix = new Mixture(new[] { 0.3, 0.6 }, new[] { new Normal(3, 0.1), new Normal(5, 2) });
             mix.IsZeroInflated = true;
             mix.ZeroWeight = 0.1;
             var sample = mix.GenerateRandomValues(1000, 12345);
             mix.Estimate(sample, ParameterEstimationMethod.MaximumLikelihood);
 
+            var w = mix.Weights;
+            var d = mix.Distributions;
+            Array.Sort(w, d);
+
+            // Weights
+            Assert.AreEqual(0.3, w[0], 1E-1);
+            Assert.AreEqual(0.6, w[1], 1E-1);
+            // N1 parameters
+            Assert.AreEqual(3.0, d[0].GetParameters[0], 1E-1);
+            Assert.AreEqual(0.1, d[0].GetParameters[1], 1E-1);
+            // N2 parameters
+            Assert.AreEqual(5.0, d[1].GetParameters[0], 1E-1);
+            Assert.AreEqual(2.0, d[1].GetParameters[1], 1E-1);
+
         }
 
+        /// <summary>
+        /// Test the MLE fit for a mixture of 3 Normal distributions.
+        /// </summary>
         [TestMethod]
         public void Test_3D_Mixture_MLE()
         {
-            var mix = new Mixture(new[] { 0.5, 0.3, 0.2 }, new[] { new Normal(0, 1), new Normal(3, 0.1), new Normal(5, 2) });
+            var mix = new Mixture(new[] { 0.2, 0.3, 0.5 }, new[] { new Normal(0, 1), new Normal(3, 0.1), new Normal(5, 2) });
             var sample = mix.GenerateRandomValues(1000, 12345);
             mix.Estimate(sample, ParameterEstimationMethod.MaximumLikelihood);
+
+            var w = mix.Weights;
+            var d = mix.Distributions;
+            Array.Sort(w, d);
+
+            // Weights
+            Assert.AreEqual(0.2, w[0], 1E-1);
+            Assert.AreEqual(0.3, w[1], 1E-1);
+            Assert.AreEqual(0.5, w[2], 1E-1);
+            // N1 parameters
+            Assert.AreEqual(0.0, d[0].GetParameters[0], 1E-1);
+            Assert.AreEqual(1.0, d[0].GetParameters[1], 1E-1);
+            // N2 parameters
+            Assert.AreEqual(3.0, d[1].GetParameters[0], 1E-1);
+            Assert.AreEqual(0.1, d[1].GetParameters[1], 1E-1);
+            // N3 parameters
+            Assert.AreEqual(5.0, d[2].GetParameters[0], 1E-1);
+            Assert.AreEqual(2.0, d[2].GetParameters[1], 1E-1);
 
         }
 

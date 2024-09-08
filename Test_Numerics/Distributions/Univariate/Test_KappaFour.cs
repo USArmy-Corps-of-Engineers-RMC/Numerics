@@ -106,26 +106,6 @@ namespace Distributions.Univariate
 
         }
 
-        [TestMethod]
-        public void Test_K4_MLE()
-        {
-            // Air quality - wind data from R
-            var data = new double[] { 7.4, 8, 12.6, 11.5, 14.3, 14.9, 8.6, 13.8, 20.1, 8.6, 6.9, 9.7, 9.2, 10.9, 13.2, 11.5, 12, 18.4, 11.5, 9.7, 9.7, 16.6, 9.7, 12, 16.6, 14.9, 8, 12, 14.9, 5.7, 7.4, 8.6, 9.7, 16.1, 9.2, 8.6, 14.3, 9.7, 6.9, 13.8, 11.5, 10.9, 9.2, 8, 13.8, 11.5, 14.9, 20.7, 9.2, 11.5, 10.3, 6.3, 1.7, 4.6, 6.3, 8, 8, 10.3, 11.5, 14.9, 8, 4.1, 9.2, 9.2, 10.9, 4.6, 10.9, 5.1, 6.3, 5.7, 7.4, 8.6, 14.3, 14.9, 14.9, 14.3, 6.9, 10.3, 6.3, 5.1, 11.5, 6.9, 9.7, 11.5, 8.6, 8, 8.6, 12, 7.4, 7.4, 7.4, 9.2, 6.9, 13.8, 7.4, 6.9, 7.4, 4.6, 4, 10.3, 8, 8.6, 11.5, 11.5, 11.5, 9.7, 11.5, 10.3, 6.3, 7.4, 10.9, 10.3, 15.5, 14.3, 12.6, 9.7, 3.4, 8, 5.7, 9.7, 2.3, 6.3, 6.3, 6.9, 5.1, 2.8, 4.6, 7.4, 15.5, 10.9, 10.3, 10.9, 9.7, 14.9, 15.5, 6.3, 10.9, 11.5, 6.9, 13.8, 10.3, 10.3, 8, 12.6, 9.2, 10.3, 10.3, 16.6, 6.9, 13.2, 14.3, 8, 11.5 };
-            var kappa4 = new KappaFour();
-            kappa4.Estimate(data, ParameterEstimationMethod.MaximumLikelihood);
-            double xi = kappa4.Xi;
-            double a = kappa4.Alpha;
-            double k = kappa4.Kappa;
-            double h = kappa4.Hondo;
-
-            // L-Moment values:
-            //double true_xi = 8.68360234;
-            //double true_a = 3.10384972;
-            //double true_k = 0.14470737;
-            //double true_h = -0.07348014;
-
-        }
-
 
         [TestMethod]
         public void Test_K4_Dist()
@@ -166,13 +146,17 @@ namespace Distributions.Univariate
                 return K4.InverseCDF(p);
             },kappa4.GetParameters);
 
+            for (int i = 0; i < pd1.Length; i++)
+            {
+                Assert.AreEqual(pd1[i], pd2[i], 1E-2);
+            }
         }
 
         /// <summary>
         /// Checking that Kappa-4 is being created with inputs.
         /// </summary>
         [TestMethod()]
-        public void CanCreateKappa4()
+        public void Test_Construction()
         {
             var k4 = new KappaFour();
             Assert.AreEqual(k4.Xi, 100);
@@ -191,7 +175,7 @@ namespace Distributions.Univariate
         /// Testting Kappa-4 with bad parameters.
         /// </summary>
         [TestMethod()]
-        public void Kappa4Fails()
+        public void Test_InvalidParameters()
         {
             var k4 = new KappaFour(double.NaN,double.NaN,double.NaN, double.NaN);
             Assert.IsFalse(k4.ParametersValid);
@@ -207,7 +191,7 @@ namespace Distributions.Univariate
         /// Testing ParametersToString
         /// </summary>
         [TestMethod()]
-        public void ValidateParametersToString()
+        public void Test_ParametersToString()
         {
             var k4 = new KappaFour();
             Assert.AreEqual(k4.ParametersToString[0, 0], "Location (ξ)");
@@ -218,92 +202,6 @@ namespace Distributions.Univariate
             Assert.AreEqual(k4.ParametersToString[1, 1], "10");
             Assert.AreEqual(k4.ParametersToString[2, 1], "0");
             Assert.AreEqual(k4.ParametersToString[3, 1], "0");
-        }
-
-        /// <summary>
-        /// Testing mean function.
-        /// </summary>
-        [TestMethod()]
-        public void ValidateMean()
-        {
-
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        [TestMethod()]
-        public void ValidateMedian()
-        {
-
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        [TestMethod()]
-        public void ValidateMode()
-        {
-            var k4 = new KappaFour();
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        [TestMethod()]
-        public void ValidateStandardDeviation()
-        {
-
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        [TestMethod()]
-        public void ValidateSkew()
-        {
-
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        [TestMethod()]
-        public void ValidateKurtosis()
-        {
-
-        }
-
-        /// <summary>
-        /// Testing minimum function with varying inputs
-        /// </summary>
-        [TestMethod()]
-        public void ValidateMinimum()
-        {
-            var k4 = new KappaFour(100, 10, -1, 0);
-            Assert.AreEqual(k4.Minimum, 90);
-
-            var k4ii = new KappaFour(100, 10, 1, 1);
-            Assert.AreEqual(k4ii.Minimum, 100);
-
-            var k4iii = new KappaFour(100, 10, 0, 1);
-            Assert.AreEqual(k4iii.Minimum, 100);
-
-            var k4iv = new KappaFour();
-            Assert.AreEqual(k4iv.Minimum, double.NegativeInfinity);
-        }
-
-        /// <summary>
-        /// Testing maximum function with varying inputs.
-        /// </summary>
-        [TestMethod()]
-        public void ValidateMaximum()
-        {
-            var k4 = new KappaFour();
-            Assert.AreEqual(k4.Maximum,double.PositiveInfinity);
-
-            var k4ii = new KappaFour(100, 10, 1, 1);
-            Assert.AreEqual(k4ii.Maximum, 110);
         }
      }
 }

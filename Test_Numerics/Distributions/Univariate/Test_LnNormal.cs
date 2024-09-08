@@ -76,7 +76,6 @@ namespace Distributions.Univariate
         {
 
             var LN = new LnNormal();
-            LN.SetParameters(10, -10);
             LN.Estimate(sample, ParameterEstimationMethod.MethodOfMoments);
             double u1 = LN.Mu;
             double u2 = LN.Sigma;
@@ -84,26 +83,6 @@ namespace Distributions.Univariate
             double true_u2 = 0.4544d;
             Assert.AreEqual((u1 - true_u1) / true_u1 < 0.01d, true);
             Assert.AreEqual((u2 - true_u2) / true_u2 < 0.01d, true);
-        }
-
-        [TestMethod()]
-        public void Test_LnNormal_LMOM_Fit()
-        {
-            // Air quality - wind data from R
-            var data = new double[] { 7.4, 8, 12.6, 11.5, 14.3, 14.9, 8.6, 13.8, 20.1, 8.6, 6.9, 9.7, 9.2, 10.9, 13.2, 11.5, 12, 18.4, 11.5, 9.7, 9.7, 16.6, 9.7, 12, 16.6, 14.9, 8, 12, 14.9, 5.7, 7.4, 8.6, 9.7, 16.1, 9.2, 8.6, 14.3, 9.7, 6.9, 13.8, 11.5, 10.9, 9.2, 8, 13.8, 11.5, 14.9, 20.7, 9.2, 11.5, 10.3, 6.3, 1.7, 4.6, 6.3, 8, 8, 10.3, 11.5, 14.9, 8, 4.1, 9.2, 9.2, 10.9, 4.6, 10.9, 5.1, 6.3, 5.7, 7.4, 8.6, 14.3, 14.9, 14.9, 14.3, 6.9, 10.3, 6.3, 5.1, 11.5, 6.9, 9.7, 11.5, 8.6, 8, 8.6, 12, 7.4, 7.4, 7.4, 9.2, 6.9, 13.8, 7.4, 6.9, 7.4, 4.6, 4, 10.3, 8, 8.6, 11.5, 11.5, 11.5, 9.7, 11.5, 10.3, 6.3, 7.4, 10.9, 10.3, 15.5, 14.3, 12.6, 9.7, 3.4, 8, 5.7, 9.7, 2.3, 6.3, 6.3, 6.9, 5.1, 2.8, 4.6, 7.4, 15.5, 10.9, 10.3, 10.9, 9.7, 14.9, 15.5, 6.3, 10.9, 11.5, 6.9, 13.8, 10.3, 10.3, 8, 12.6, 9.2, 10.3, 10.3, 16.6, 6.9, 13.2, 14.3, 8, 11.5 };
-            var norm = new LnNormal();
-            norm.Estimate(data, ParameterEstimationMethod.MethodOfLinearMoments);
-            double u1 = norm.Mu;
-            double u2 = norm.Sigma;
-            double true_u1 = 0.9672391d;
-            double true_u2 = 0.1675344d;
-            //Assert.AreEqual(u1, true_u1, 0.0001d);
-            //Assert.AreEqual(u2, true_u2, 0.0001d);
-            //var lmom = norm.LinearMomentsFromParameters(norm.GetParameters);
-            //Assert.AreEqual(lmom[0], 0.96723909d, 0.0001d);
-            //Assert.AreEqual(lmom[1], 0.09452119d, 0.0001d);
-            //Assert.AreEqual(lmom[2], 0.00000000d, 0.0001d);
-            //Assert.AreEqual(lmom[3], 0.12260172d, 0.0001d);
         }
 
         /// <summary>
@@ -175,7 +154,9 @@ namespace Distributions.Univariate
             Assert.AreEqual((qVar99 - true_qVar99) / true_qVar99 < 0.01d, true);
         }
 
-
+        /// <summary>
+        /// Test the conditional expectation using textbook solution.
+        /// </summary>
         [TestMethod()]
         public void Test_ConditionalExpectation()
         {
@@ -190,44 +171,26 @@ namespace Distributions.Univariate
 
         }
 
-        [TestMethod()]
-        public void Test_CentralMoments()
-        {
-
-            var LN = new LnNormal(10, 5);
-            var mom = LN.CentralMoments(1E-8);
-            double true_mean = LN.Mean;
-            double true_stDev = LN.StandardDeviation;
-            double true_skew = LN.Skewness;
-            double true_kurt = LN.Kurtosis;
-
-            Assert.AreEqual(mom[0], true_mean, 1E-4);
-            Assert.AreEqual(mom[1], true_stDev, 1E-4);
-            Assert.AreEqual(mom[2], true_skew, 1E-4);
-            Assert.AreEqual(mom[3], true_kurt, 1E-4);
-
-        }
-
         /// <summary>
         /// Verifying that inputs can create an Ln Normal distribution.
         /// </summary>
         [TestMethod()]
-        public void CanCreateLnNormal()
+        public void Test_Construction()
         {
             var LN = new LnNormal();
-            Assert.AreEqual(LN.Mu, 10);
-            Assert.AreEqual(LN.Sigma, 10);
+            Assert.AreEqual(LN.Mean, 10, 1E-4);
+            Assert.AreEqual(LN.StandardDeviation, 10, 1E-4);
 
-            var LN2 = new LnNormal(1,1);
-            Assert.AreEqual(LN2.Mu, 1);
-            Assert.AreEqual(LN2.Sigma, 1);
+            var LN2 = new LnNormal(1, 1);
+            Assert.AreEqual(LN2.Mean, 1, 1E-4);
+            Assert.AreEqual(LN2.StandardDeviation, 1, 1E-4);
         }
 
         /// <summary>
         /// Testing distribution with bad parameters.
         /// </summary>
         [TestMethod()]
-        public void LnNormalFails()
+        public void Test_InvalidParameters()
         {
             var LN = new LnNormal(double.NaN, 0);
             Assert.IsFalse(LN.ParametersValid);
@@ -243,7 +206,7 @@ namespace Distributions.Univariate
         /// Testing ParametersToString()
         /// </summary>
         [TestMethod()]
-        public void ValidateParametersToString()
+        public void Test_ParametersToString()
         {
             var LN = new LnNormal();
             Assert.AreEqual(LN.ParametersToString[0, 0], "Mean (µ)");
@@ -253,10 +216,24 @@ namespace Distributions.Univariate
         }
 
         /// <summary>
+        /// Compare analytical moments against numerical integration.
+        /// </summary>
+        [TestMethod()]
+        public void Test_Moments()
+        {
+            var dist = new LnNormal(10, 5);
+            var mom = dist.CentralMoments(1E-8);
+            Assert.AreEqual(mom[0], dist.Mean, 1E-2);
+            Assert.AreEqual(mom[1], dist.StandardDeviation, 1E-2);
+            Assert.AreEqual(mom[2], dist.Skewness, 1E-2);
+            Assert.AreEqual(mom[3], dist.Kurtosis, 1E-2);
+        }
+
+        /// <summary>
         /// Testing mean function.
         /// </summary>
         [TestMethod()]
-        public void ValidateMean()
+        public void Test_Mean()
         {
             var LN = new LnNormal();
             Assert.AreEqual(LN.Mean, 1.142e26, 1e30);
@@ -269,7 +246,7 @@ namespace Distributions.Univariate
         /// Testing median function.
         /// </summary>
         [TestMethod()]
-        public void ValidateMedian()
+        public void Test_Median()
         {
             var LN = new LnNormal();
             Assert.AreEqual(LN.Median, 7.07106,1e-05);
@@ -282,7 +259,7 @@ namespace Distributions.Univariate
         /// Testing mode function.
         /// </summary>
         [TestMethod()]
-        public void ValidateMode()
+        public void Test_Mode()
         {
             var LN = new LnNormal();
             Assert.AreEqual(LN.Mode, 3.5355, 1e-04);
@@ -295,7 +272,7 @@ namespace Distributions.Univariate
         /// Testing standard deviation function.
         /// </summary>
         [TestMethod()]
-        public void ValidateStandardDeviation()
+        public void Test_StandardDeviation()
         {
             var LN = new LnNormal();
             Assert.AreEqual(LN.StandardDeviation, 5.92e47, 1e49);
@@ -308,7 +285,7 @@ namespace Distributions.Univariate
         /// Testing skew function.
         /// </summary>
         [TestMethod()]
-        public void ValidateSkew()
+        public void Test_Skewness()
         {
             var LN = new LnNormal();
             Assert.AreEqual(LN.Skewness, 1.39e65, 1e67);
@@ -321,7 +298,7 @@ namespace Distributions.Univariate
         /// Testing Kurtosis
         /// </summary>
         [TestMethod()]
-        public void ValidateKurtosis()
+        public void Test_Kurtosis()
         {
             var LN = new LnNormal(1,1);
             Assert.AreEqual(LN.Kurtosis, 41, 1e-04);
@@ -331,7 +308,7 @@ namespace Distributions.Univariate
         /// Testing Minimum and Maximum functions are 0 and infinity, respectively.
         /// </summary>
         [TestMethod()]
-        public void ValidateMinMax()
+        public void Test_MinMax()
         {
             var LN = new LnNormal();
             Assert.AreEqual(LN.Minimum, 0);
@@ -346,7 +323,7 @@ namespace Distributions.Univariate
         /// Testing PDF method.
         /// </summary>
         [TestMethod()]
-        public void ValidatePDF()
+        public void Test_PDF()
         {
             var LN = new LnNormal();
             Assert.AreEqual(LN.PDF(1), 0.03033, 1e-04);
@@ -360,7 +337,7 @@ namespace Distributions.Univariate
         /// Testing CDF method.
         /// </summary>
         [TestMethod()]
-        public void ValidateCDF()
+        public void Test_CDF()
         {
             var LN = new LnNormal(2.5,2.5);
             Assert.AreEqual(LN.CDF(0.5), 0.06465, 1e-05);
@@ -371,7 +348,7 @@ namespace Distributions.Univariate
         /// Testing inverse cdf method.
         /// </summary>
         [TestMethod()]
-        public void ValidateInverseCDF()
+        public void Test_InverseCDF()
         {
             var LN = new LnNormal();
             Assert.AreEqual(LN.InverseCDF(0), 0);

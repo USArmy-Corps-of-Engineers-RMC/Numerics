@@ -259,6 +259,10 @@ namespace Numerics.Distributions
                 // is a biased estimator.
                 SetParameters(MLE(sample));
             }
+            else
+            {
+                throw new NotImplementedException();
+            }
         }
 
         /// <inheritdoc/>
@@ -638,7 +642,6 @@ namespace Numerics.Distributions
         public static double StandardCDF(double Z)
         {
             return MultivariateNormal.MVNPHI(Z);
-            //return 0.5d * (1.0d + Erf.Function(Z / Math.Sqrt(2.0d)));
         }
 
         /// <summary>

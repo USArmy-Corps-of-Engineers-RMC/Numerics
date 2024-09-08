@@ -71,8 +71,6 @@ namespace Distributions.Univariate
             double true_icdf = 2.0d;
             var T = new Triangular(1, 3, 6);
 
-            var m = T.Mean * 3 - 6 - 1;
-
             Assert.AreEqual(T.Mean, true_mean, 0.0001d);
             Assert.AreEqual(T.Median, true_median, 0.0001d);
             Assert.AreEqual(T.Mode, true_mode, 0.0001d);
@@ -103,6 +101,9 @@ namespace Distributions.Univariate
             }
         }
 
+        /// <summary>
+        /// Test estimation with moments.
+        /// </summary>
         [TestMethod]
         public void Test_Triangular_MOM()
         {
@@ -114,6 +115,9 @@ namespace Distributions.Univariate
             Assert.AreEqual(35, dist.Max, 1);
         }
 
+        /// <summary>
+        /// Test estimation with likelihood.
+        /// </summary>
         [TestMethod]
         public void Test_Triangular_MLE()
         {
@@ -129,7 +133,7 @@ namespace Distributions.Univariate
         /// Verifying input parameters can create distribution.
         /// </summary>
         [TestMethod]
-        public void CanCreateTriangular()
+        public void Test_Construction()
         {
             var T = new Triangular();
             Assert.AreEqual(T.Min, 0);
@@ -146,7 +150,7 @@ namespace Distributions.Univariate
         /// Testing distribution with bad parameters.
         /// </summary>
         [TestMethod]
-        public void TriangularFails()
+        public void Test_InvalidParameters()
         {
             var T = new Triangular(double.NaN,double.PositiveInfinity,double.PositiveInfinity);
             Assert.IsFalse(T.ParametersValid);
@@ -165,7 +169,7 @@ namespace Distributions.Univariate
         /// Testing parameters to string.
         /// </summary>
         [TestMethod]
-        public void ValidateParametersToString()
+        public void Test_ParametersToString()
         {
             var T = new Triangular();
             Assert.AreEqual(T.ParametersToString[0, 0], "Min (a)");
@@ -177,10 +181,24 @@ namespace Distributions.Univariate
         }
 
         /// <summary>
+        /// Compare analytical moments against numerical integration.
+        /// </summary>
+        [TestMethod()]
+        public void Test_Moments()
+        {
+            var dist = new Triangular(1, 3, 6);
+            var mom = dist.CentralMoments(1E-8);
+            Assert.AreEqual(mom[0], dist.Mean, 1E-2);
+            Assert.AreEqual(mom[1], dist.StandardDeviation, 1E-2);
+            Assert.AreEqual(mom[2], dist.Skewness, 1E-2);
+            Assert.AreEqual(mom[3], dist.Kurtosis, 1E-2);
+        }
+
+        /// <summary>
         /// Testing mean.
         /// </summary>
         [TestMethod]
-        public void ValidateMean()
+        public void Test_Mean()
         {
             var T = new Triangular();
             Assert.AreEqual(T.Mean, 0.5);
@@ -193,7 +211,7 @@ namespace Distributions.Univariate
         /// Testing median.
         /// </summary>
         [TestMethod]
-        public void ValidateMedian()
+        public void Test_Median()
         {
             var T = new Triangular();
             Assert.AreEqual(T.Median, 0.5);
@@ -206,7 +224,7 @@ namespace Distributions.Univariate
         /// Testing mode
         /// </summary>
         [TestMethod]
-        public void ValidateMode()
+        public void Test_Mode()
         {
             var T = new Triangular();
             Assert.AreEqual(T.Mode, 0.5);
@@ -219,7 +237,7 @@ namespace Distributions.Univariate
         /// Testing standard deviation.
         /// </summary>
         [TestMethod]
-        public void ValidateStandardDeviation()
+        public void Test_StandardDeviation()
         {
             var T = new Triangular();
             Assert.AreEqual(T.StandardDeviation, 0.20412, 1e-04);
@@ -232,7 +250,7 @@ namespace Distributions.Univariate
         /// Testing skew.
         /// </summary>
         [TestMethod]
-        public void ValidateSkew()
+        public void Test_Skewness()
         {
             var T = new Triangular();
             Assert.AreEqual(T.Skewness, 0);
@@ -242,7 +260,7 @@ namespace Distributions.Univariate
         /// Testing kurtosis.
         /// </summary>
         [TestMethod]
-        public void ValidateKurtosis()
+        public void Test_Kurtosis()
         {
             var T = new Triangular();
             Assert.AreEqual(T.Kurtosis, 12d / 5d);
@@ -255,7 +273,7 @@ namespace Distributions.Univariate
         /// Testing minimum and maximum functions.
         /// </summary>
         [TestMethod]
-        public void ValidateMinMax()
+        public void Test_MinMax()
         {
             var T = new Triangular();
             Assert.AreEqual(T.Minimum, 0);
@@ -270,7 +288,7 @@ namespace Distributions.Univariate
         /// Testing PDF method.
         /// </summary>
         [TestMethod]
-        public void ValidatePDF()
+        public void Test_PDF()
         {
             var T = new Triangular();
             Assert.AreEqual(T.PDF(-1), 0);
@@ -286,7 +304,7 @@ namespace Distributions.Univariate
         /// Testing CDF.
         /// </summary>
         [TestMethod]
-        public void ValidateCDF()
+        public void Test_CDF()
         {
             var T = new Triangular();
             Assert.AreEqual(T.CDF(-1), 0);
@@ -302,7 +320,7 @@ namespace Distributions.Univariate
         /// Testing inverse CDF.
         /// </summary>
         [TestMethod]
-        public void ValidateInverseCDF()
+        public void Test_InverseCDF()
         {
             var T = new Triangular();
             Assert.AreEqual(T.InverseCDF(0), 0);

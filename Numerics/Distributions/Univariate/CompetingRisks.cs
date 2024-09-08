@@ -174,9 +174,12 @@ namespace Numerics.Distributions
             get
             {
                 var result = new List<string>();
-                for (int i = 0; i < Distributions.Count; i++)
+                for (int i = 0; i < Distributions.Count(); i++)
                 {
-                    result.AddRange(Distributions[i].ParameterNames);
+                    for (int j = 0; j < Distributions[i].ParameterNames.Length; j++)
+                    {
+                        result.Add("D" + (i + 1).ToString() + " " + Distributions[i].ParameterNames[j]);
+                    }
                 }
                 return result.ToArray();
             }
@@ -189,9 +192,12 @@ namespace Numerics.Distributions
             get
             {
                 var result = new List<string>();
-                for (int i = 0; i < Distributions.Count; i++)
+                for (int i = 0; i < Distributions.Count(); i++)
                 {
-                    result.AddRange(Distributions[i].ParameterNamesShortForm);
+                    for (int j = 0; j < Distributions[i].ParameterNamesShortForm.Length; j++)
+                    {
+                        result.Add("D" + (i + 1).ToString() + " " + Distributions[i].ParameterNamesShortForm[j]);
+                    }
                 }
                 return result.ToArray();
             }
@@ -300,13 +306,29 @@ namespace Numerics.Distributions
         /// <inheritdoc/>
         public override double[] MinimumOfParameters
         {
-            get { return [double.NaN]; }
+            get
+            {
+                var result = new List<double>();
+                for (int i = 0; i < Distributions.Count(); i++)
+                {
+                    result.AddRange(Distributions[i].MinimumOfParameters);
+                }
+                return result.ToArray();
+            }
         }
 
         /// <inheritdoc/>
         public override double[] MaximumOfParameters
         {
-            get { return [double.NaN]; }
+            get
+            {
+                var result = new List<double>();
+                for (int i = 0; i < Distributions.Count(); i++)
+                {
+                    result.AddRange(Distributions[i].MaximumOfParameters);
+                }
+                return result.ToArray();
+            }
         }
 
         /// <inheritdoc/>
@@ -315,6 +337,10 @@ namespace Numerics.Distributions
             if (estimationMethod == ParameterEstimationMethod.MaximumLikelihood)
             {
                 SetParameters(MLE(sample));
+            }
+            else
+            {
+                throw new NotImplementedException();
             }
         }
 

@@ -54,7 +54,9 @@ namespace Distributions.Univariate
     [TestClass]
     public class Test_Pert
     {
-
+        /// <summary>
+        /// Verified against Palisade's @Risk.
+        /// </summary>
         [TestMethod]
         public void Test_PertDist()
         {
@@ -115,6 +117,9 @@ namespace Distributions.Univariate
             }
         }
 
+        /// <summary>
+        /// Testing fit with moments.
+        /// </summary>
         [TestMethod]
         public void Test_Pert_MOM()
         {
@@ -126,6 +131,9 @@ namespace Distributions.Univariate
             Assert.AreEqual(35, dist.Max, 5);
         }
 
+        /// <summary>
+        /// Testing fit with likelihood.
+        /// </summary>
         [TestMethod]
         public void Test_Pert_MLE()
         {
@@ -141,7 +149,7 @@ namespace Distributions.Univariate
         /// Verifying that input parameters create distribution.
         /// </summary>
         [TestMethod]
-        public void CanCreatePert()
+        public void Test_Construction()
         {
             var p = new Pert();
             Assert.AreEqual(p.Min, 0);
@@ -153,7 +161,7 @@ namespace Distributions.Univariate
         /// Testing distribution with bad parameters.
         /// </summary>
         [TestMethod]
-        public void PertFails()
+        public void Test_InvalidParameters()
         {
             var p = new Pert(double.NaN, double.NaN,double.NaN);
             Assert.IsFalse(p.ParametersValid);
@@ -172,7 +180,7 @@ namespace Distributions.Univariate
         /// Testing ParametersToString()
         /// </summary>
         [TestMethod]
-        public void ValidateParametersToString()
+        public void Test_ParametersToString()
         {
             var p = new Pert();
             Assert.AreEqual(p.ParametersToString[0, 0], "Min (a)");
@@ -184,10 +192,24 @@ namespace Distributions.Univariate
         }
 
         /// <summary>
+        /// Compare analytical moments against numerical integration.
+        /// </summary>
+        [TestMethod()]
+        public void Test_Moments()
+        {
+            var dist = new Pert(-2, 10, 35);
+            var mom = dist.CentralMoments(1E-8);
+            Assert.AreEqual(mom[0], dist.Mean, 1E-2);
+            Assert.AreEqual(mom[1], dist.StandardDeviation, 1E-2);
+            Assert.AreEqual(mom[2], dist.Skewness, 1E-2);
+            Assert.AreEqual(mom[3], dist.Kurtosis, 1E-2);
+        }
+
+        /// <summary>
         /// Testing mean.
         /// </summary>
         [TestMethod]
-        public void ValidateMean()
+        public void Test_Mean()
         {
             var p = new Pert();
             Assert.AreEqual(p.Mean, 0.5);
@@ -200,7 +222,7 @@ namespace Distributions.Univariate
         /// Testing median.
         /// </summary>
         [TestMethod]
-        public void ValidateMedian()
+        public void Test_Median()
         {
             var p = new Pert();
             Assert.AreEqual(p.Median, 0.5);
@@ -213,7 +235,7 @@ namespace Distributions.Univariate
         /// Testing mode.
         /// </summary>
         [TestMethod()]
-        public void ValidateMode()
+        public void Test_Mode()
         {
             var p = new Pert();
             Assert.AreEqual(p.Mode, 0.5);        
@@ -223,7 +245,7 @@ namespace Distributions.Univariate
         /// Testing Standard deviation.
         /// </summary>
         [TestMethod()]
-        public void ValidateStandardDeviation()
+        public void Test_StandardDeviation()
         {
             var p = new Pert();
             Assert.AreEqual(p.StandardDeviation, 0.1889, 1e-04);
@@ -233,7 +255,7 @@ namespace Distributions.Univariate
         /// Testing skew.
         /// </summary>
         [TestMethod()]
-        public void ValidateSkew()
+        public void Test_Skewness()
         {
             var p = new Pert();
             Assert.AreEqual(p.Skewness, 0);
@@ -243,7 +265,7 @@ namespace Distributions.Univariate
         /// Testing kurtosis.
         /// </summary>
         [TestMethod()]
-        public void ValidateKurtosis()
+        public void Test_Kurtosis()
         {
             var p = new Pert();
             Assert.AreEqual(p.Kurtosis, 2.3333,1e-04);
@@ -253,7 +275,7 @@ namespace Distributions.Univariate
         /// Testing minimum and maximum functions.
         /// </summary>
         [TestMethod()]
-        public void ValidateMinMax()
+        public void Test_MinMax()
         {
             var p = new Pert();
             Assert.AreEqual(p.Minimum, 0);

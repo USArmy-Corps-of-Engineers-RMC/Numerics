@@ -185,33 +185,9 @@ namespace Numerics.Distributions
         {
             get
             {
-                if (Noncentrality == 0d)
-                {
-                    double ratio = Gamma.Function((DegreesOfFreedom + 2) / 2d) / Gamma.Function((DegreesOfFreedom + 3) / 3d);
-                    return Math.Sqrt(DegreesOfFreedom / 2d) * ratio * Noncentrality;
-                }
-                else if (double.IsInfinity(Noncentrality))
-                {
-                    return Math.Sqrt(DegreesOfFreedom / (double)(DegreesOfFreedom + 1)) * Noncentrality;
-                }
-                else
-                {
-                    double upper = Math.Sqrt(DegreesOfFreedom / (DegreesOfFreedom + 5d / 2d)) * Noncentrality;
-                    double lower = Math.Sqrt(DegreesOfFreedom / (double)(DegreesOfFreedom + 1)) * Noncentrality;
-                    
-                    if (upper > lower)
-                    {
-                        var brent = new BrentSearch(PDF, lower, upper);
-                        brent.Maximize();
-                        return brent.BestParameterSet.Values[0];
-                    }
-                    else
-                    {
-                        var brent = new BrentSearch(PDF, upper, lower);
-                        brent.Maximize();
-                        return brent.BestParameterSet.Values[0];
-                    }
-                }
+                var brent = new BrentSearch(PDF, InverseCDF(0.001), InverseCDF(0.999));
+                brent.Maximize();
+                return brent.BestParameterSet.Values[0];
             }
         }
 
@@ -238,8 +214,8 @@ namespace Numerics.Distributions
         public override double Skewness
         {
             get
-            {
-                return double.NaN;
+            {                
+                return CentralMoments(1E-8)[2];
             }
         }
 
@@ -248,7 +224,7 @@ namespace Numerics.Distributions
         {
             get
             {
-                return double.NaN;
+                return CentralMoments(1E-8)[3];
             }
         }
 
@@ -352,7 +328,7 @@ namespace Numerics.Distributions
             // Validate parameters
             if (_parametersValid == false)
                 ValidateParameters(_degreesOfFreedom, Noncentrality, true);
-            return NCT_CDF(x, DegreesOfFreedom, Noncentrality);
+            return NCTDist(x, DegreesOfFreedom, Noncentrality);
         }
 
         /// <inheritdoc/>
@@ -498,8 +474,8 @@ namespace Numerics.Distributions
             a = half;
             b = half * df;
             RXB = Math.Pow(one - x, b);
-            ALBETA = alnrpi + Numerics.Mathematics.SpecialFunctions.Gamma.LogGamma(b) - Numerics.Mathematics.SpecialFunctions.Gamma.LogGamma(a + b);
-            XODD = Numerics.Mathematics.SpecialFunctions.Beta.IncompleteRatio(x, a, b, ALBETA);
+            ALBETA = alnrpi + Gamma.LogGamma(b) - Gamma.LogGamma(a + b);
+            XODD = Beta.IncompleteRatio(x, a, b, ALBETA);
             GODD = two * RXB * Math.Exp(a * Math.Log(x) - ALBETA);
             XEVEN = one - RXB;
             GEVEN = b * x * RXB;
@@ -534,11 +510,11 @@ namespace Numerics.Distributions
             if (NEGDEL)
             {
                 // TNC = one - TNC
-                TNC = Distributions.Normal.StandardCDF(DEL) - TNC;
+                TNC = Normal.StandardCDF(DEL) - TNC;
             }
             else
             {
-                TNC = TNC + (1.0d - Distributions.Normal.StandardCDF(DEL));
+                TNC = TNC + (1.0d - Normal.StandardCDF(DEL));
             } // Upper tail area of N(0,1)
             return TNC;
         }

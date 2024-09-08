@@ -246,17 +246,13 @@ namespace Numerics.Distributions
         /// <inheritdoc/>
         public void Estimate(IList<double> sample, ParameterEstimationMethod estimationMethod)
         {
-            if (estimationMethod == ParameterEstimationMethod.MethodOfMoments)
-            {
-                throw new NotImplementedException();
-            }
-            else if (estimationMethod == ParameterEstimationMethod.MethodOfLinearMoments)
-            {
-                throw new NotImplementedException();
-            }
-            else if (estimationMethod == ParameterEstimationMethod.MaximumLikelihood)
+            if (estimationMethod == ParameterEstimationMethod.MaximumLikelihood)
             {
                 SetParameters(MLE(sample));
+            }
+            else
+            {
+                throw new NotImplementedException();
             }
         }
 
@@ -374,8 +370,7 @@ namespace Numerics.Distributions
         /// </remarks>
         public double[] SolveMLE(IList<double> samples)
         {
-            var data = samples as double[] ?? samples.ToArray();
-            double n = data.Length;
+            double n = samples.Count;
             if (n <= 1d)
             {
                 throw new Exception("Observations not sufficient. There must be more than 1 data point.");
@@ -395,7 +390,7 @@ namespace Numerics.Distributions
                 s1 = 0d;
                 s2 = 0d;
                 s3 = 0d;
-                foreach (double x in data)
+                foreach (double x in samples)
                 {
                     if (x > 0d)
                     {
@@ -411,7 +406,7 @@ namespace Numerics.Distributions
             }
 
             // solve for scale
-            foreach (double x in data)
+            foreach (double x in samples)
             {
                 if (x > 0d)
                 {

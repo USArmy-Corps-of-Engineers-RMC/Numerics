@@ -178,7 +178,7 @@ namespace Distributions.Univariate
         /// Testing parameters are creating gamma distribution.
         /// </summary>
         [TestMethod()]
-        public void CanCreateGamma()
+        public void Test_Construction()
         {
             var G = new GammaDistribution(2, 10);
             Assert.AreEqual(G.Theta, 2);
@@ -194,7 +194,7 @@ namespace Distributions.Univariate
         /// Validating inverse scale parameter.
         /// </summary>
         [TestMethod()]
-        public void ValidateRate()
+        public void Test_Rate()
         {
             var G = new GammaDistribution(2, 2);
             Assert.AreEqual(G.Rate, 0.5);
@@ -207,7 +207,7 @@ namespace Distributions.Univariate
         /// Checking parameters to string function.
         /// </summary>
         [TestMethod()]
-        public void ValidateParametersToString()
+        public void Test_ParametersToString()
         {
             var G = new GammaDistribution();
             Assert.AreEqual(G.ParametersToString[0, 0], "Scale (θ)");
@@ -220,7 +220,7 @@ namespace Distributions.Univariate
         /// Checking bad parameters for Gamma distribution.
         /// </summary>
         [TestMethod()]
-        public void GammaFails()
+        public void Test_InvalidParameters()
         {
             var G = new GammaDistribution(-1, 0);
             Assert.IsFalse(G.ParametersValid);
@@ -236,10 +236,24 @@ namespace Distributions.Univariate
         }
 
         /// <summary>
+        /// Compare analytical moments against numerical integration.
+        /// </summary>
+        [TestMethod()]
+        public void Test_Moments()
+        {
+            var dist = new GammaDistribution();
+            var mom = dist.CentralMoments(1E-8);
+            Assert.AreEqual(mom[0], dist.Mean, 1E-2);
+            Assert.AreEqual(mom[1], dist.StandardDeviation, 1E-2);
+            Assert.AreEqual(mom[2], dist.Skewness, 1E-2);
+            Assert.AreEqual(mom[3], dist.Kurtosis, 1E-2);
+        }
+
+        /// <summary>
         /// Checking mean function.
         /// </summary>
         [TestMethod()]
-        public void ValidateMean()
+        public void Test_Mean()
         {
             var G = new GammaDistribution();
             Assert.AreEqual(G.Mean, 20);
@@ -249,17 +263,17 @@ namespace Distributions.Univariate
         /// Checking median function output. (There is no closed form solution)
         /// </summary>
         [TestMethod()]
-        public void ValidateMedian()
+        public void Test_Median()
         {
             var G = new GammaDistribution();
-            Assert.AreEqual(G.InverseCDF(0.5),G.Median);
+            Assert.AreEqual(G.InverseCDF(0.5), G.Median);
         }
 
         /// <summary>
         /// Checking Mode function with different scales.
         /// </summary>
         [TestMethod()]
-        public void ValidateMode()
+        public void Test_Mode()
         {
             var G = new GammaDistribution();
             Assert.AreEqual(10, G.Mode);
@@ -272,7 +286,7 @@ namespace Distributions.Univariate
         /// Checking standard deviation.
         /// </summary>
         [TestMethod()]
-        public void ValidateStandardDeviation()
+        public void Test_StandardDeviation()
         {
             var G = new GammaDistribution();
             Assert.AreEqual(14.142135, G.StandardDeviation,1e-04);
@@ -285,7 +299,7 @@ namespace Distributions.Univariate
         /// Checking skew function with different shapes.
         /// </summary>
         [TestMethod()]
-        public void ValidateSkew()
+        public void Test_Skewness()
         {
             var G = new GammaDistribution();
             Assert.AreEqual(G.Skewness, 1.4142135, 1e-04);
@@ -298,7 +312,7 @@ namespace Distributions.Univariate
         /// Checking Kurtosis function.
         /// </summary>
         [TestMethod()]
-        public void ValidateKurtosis()
+        public void Test_Kurtosis()
         {
             var G = new GammaDistribution();
             Assert.AreEqual(G.Kurtosis, 6);
@@ -314,7 +328,7 @@ namespace Distributions.Univariate
         /// Checking minimum is 0.
         /// </summary>
         [TestMethod()]
-        public void ValidateMinimum()
+        public void Test_Minimum()
         {
             var G = new GammaDistribution();
             Assert.AreEqual(G.Minimum, 0);
@@ -324,7 +338,7 @@ namespace Distributions.Univariate
         /// Checking maximum is infinity
         /// </summary>
         [TestMethod()]
-        public void ValidateMaximum()
+        public void Test_Maximum()
         {
             var G = new GammaDistribution();
             Assert.AreEqual(G.Maximum, double.PositiveInfinity);
@@ -382,7 +396,7 @@ namespace Distributions.Univariate
         /// Checking PDF with different locations and parameters.
         /// </summary>
         [TestMethod()]
-        public void ValidatePDF()
+        public void Test_PDF()
         {
             var G = new GammaDistribution(10,1);
             Assert.AreEqual(G.PDF(1), 0.090483, 1e-04);
@@ -397,7 +411,7 @@ namespace Distributions.Univariate
         /// Checking CDF function with different parameters at different locations.
         /// </summary>
         [TestMethod()]
-        public void ValidateCDF()
+        public void Test_CDF()
         {
             var G = new GammaDistribution(10, 1);
             Assert.AreEqual(G.CDF(1), 0.09516258, 1e-04);
@@ -415,7 +429,7 @@ namespace Distributions.Univariate
         /// Checking inverse CDF function with different parameters.
         /// </summary>
         [TestMethod()]
-        public void ValidateInverseCDF()
+        public void Test_InverseCDF()
         {
             var G = new GammaDistribution(10,1);
             Assert.AreEqual(G.InverseCDF(0), 0);

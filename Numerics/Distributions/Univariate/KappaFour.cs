@@ -340,17 +340,17 @@ namespace Numerics.Distributions
         /// <inheritdoc/>
         public void Estimate(IList<double> sample, ParameterEstimationMethod estimationMethod)
         {
-            if (estimationMethod == ParameterEstimationMethod.MethodOfMoments)
-            {
-                throw new NotImplementedException();
-            }
-            else if (estimationMethod == ParameterEstimationMethod.MethodOfLinearMoments)
+            if (estimationMethod == ParameterEstimationMethod.MethodOfLinearMoments)
             {
                 SetParameters(ParametersFromLinearMoments(Statistics.LinearMoments(sample)));
             }
             else if (estimationMethod == ParameterEstimationMethod.MaximumLikelihood)
             {
                 SetParameters(MLE(sample));
+            }
+            else
+            {
+                throw new NotImplementedException();
             }
         }
 

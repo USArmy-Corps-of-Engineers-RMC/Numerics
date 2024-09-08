@@ -81,7 +81,7 @@ namespace Distributions.Univariate
         /// Verified using MathNet-Numerics testing. See if chi squared is being created.
         /// </summary>
         [TestMethod()]
-        public void CanCreateChiSquared()
+        public void Test_Construction()
         {
             var x = new ChiSquared(1);
             Assert.AreEqual(1, x.DegreesOfFreedom);
@@ -94,7 +94,7 @@ namespace Distributions.Univariate
         /// Verifying where Chi Squared fails.
         /// </summary>
         [TestMethod()]
-        public void ChiSquaredFails()
+        public void Test_InvalidParameters()
         {
             var x = new ChiSquared(0);
             Assert.IsFalse(x.ParametersValid);
@@ -110,7 +110,7 @@ namespace Distributions.Univariate
         /// Verifying the parameters are being converted to string.
         /// </summary>
         [TestMethod()]
-        public void ValidateParameterToString()
+        public void Test_ParametersToString()
         {
             var x = new ChiSquared(1);
             Assert.AreEqual("Degrees of Freedom (ν)", x.ParametersToString[0,0]);
@@ -118,10 +118,24 @@ namespace Distributions.Univariate
         }
 
         /// <summary>
+        /// Compare analytical moments against numerical integration.
+        /// </summary>
+        [TestMethod()]
+        public void Test_Moments()
+        {
+            var dist = new ChiSquared(2);
+            var mom = dist.CentralMoments(1E-8);
+            Assert.AreEqual(mom[0], dist.Mean, 1E-2);
+            Assert.AreEqual(mom[1], dist.StandardDeviation, 1E-2);
+            Assert.AreEqual(mom[2], dist.Skewness, 1E-2);
+            Assert.AreEqual(mom[3], dist.Kurtosis, 1E-2);
+        }
+
+        /// <summary>
         /// Checking mean is equal to the degrees of freedom.
         /// </summary>
         [TestMethod()]
-        public void ValidateMean()
+        public void Test_Mean()
         {
             var x = new ChiSquared(1);
             Assert.AreEqual(1, x.Mean);
@@ -134,7 +148,7 @@ namespace Distributions.Univariate
         /// Validating the median function.
         /// </summary>
         [TestMethod()]
-        public void ValidateMedian()
+        public void Test_Median()
         {
             var x = new ChiSquared(2);
             var approx_median = x.DegreesOfFreedom * Math.Pow(1d - 2d / (9d * x.DegreesOfFreedom), 3d);
@@ -145,7 +159,7 @@ namespace Distributions.Univariate
         /// Validating the mode function.
         /// </summary>
         [TestMethod()]
-        public void ValidateMode()
+        public void Test_Mode()
         {
             var x = new ChiSquared(1);
             Assert.AreEqual(0, x.Mode);
@@ -158,7 +172,7 @@ namespace Distributions.Univariate
         /// Validating standard deviation function.
         /// </summary>
         [TestMethod()]
-        public void ValidateStandardDeviation()
+        public void Test_StandardDeviation()
         {
             var x = new ChiSquared(1);
             Assert.AreEqual(Math.Sqrt(2), x.StandardDeviation);
@@ -171,7 +185,7 @@ namespace Distributions.Univariate
         /// Validating the skew function.
         /// </summary>
         [TestMethod()]
-        public void ValidateSkew()
+        public void Test_Skewness()
         {
             var x = new ChiSquared(2);
             Assert.AreEqual(2, x.Skewness);
@@ -187,7 +201,7 @@ namespace Distributions.Univariate
         /// Validating Kurtosis function.
         /// </summary>
         [TestMethod()]
-        public void ValidateKurtosis()
+        public void Test_Kurtosis()
         {
             var x = new ChiSquared(1);
             Assert.AreEqual(15, x.Kurtosis);
@@ -200,7 +214,7 @@ namespace Distributions.Univariate
         /// Checking minimum of Chi-Squared Distribution.
         /// </summary>
         [TestMethod()]
-        public void ValidateMinimum()
+        public void Test_Minimum()
         {
             var x = new ChiSquared(1);
             Assert.AreEqual(0, x.Minimum);
@@ -210,7 +224,7 @@ namespace Distributions.Univariate
         /// Checking maximum of Chi-Squared Distribution.
         /// </summary>
         [TestMethod()]
-        public void ValidateMaximum()
+        public void Test_Maximum()
         {
             var x = new ChiSquared(1);
             Assert.AreEqual(double.PositiveInfinity, x.Maximum);
@@ -220,7 +234,7 @@ namespace Distributions.Univariate
         /// Checking PDF function.
         /// </summary>
         [TestMethod()]
-        public void ValidatePDF()
+        public void Test_PDF()
         {
             var x = new ChiSquared(1);
             Assert.AreEqual(1.2000389,x.PDF(0.1),1e-04);
@@ -239,7 +253,7 @@ namespace Distributions.Univariate
         /// Validating CDF function.
         /// </summary>
         [TestMethod()]
-        public void ValidateCDF()
+        public void Test_CDF()
         {
             var x = new ChiSquared(1);
             Assert.AreEqual(0.2481703, x.CDF(0.1), 1e-04);
@@ -258,7 +272,7 @@ namespace Distributions.Univariate
         /// Validating Inverse CDF function.
         /// </summary>
         [TestMethod()]
-        public void ValidateInverseCDF()
+        public void Test_InverseCDF()
         {
             var x = new ChiSquared(1);
             Assert.AreEqual(x.InverseCDF(0.24817036595415071751), 0.09999,1e-04);

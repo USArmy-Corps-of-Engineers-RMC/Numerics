@@ -102,7 +102,7 @@ namespace Distributions.Univariate
         /// Verifying input parameters can create distribution.
         /// </summary>
         [TestMethod]
-        public void CanCreateUniform()
+        public void Test_Construction()
         {
             var U = new Uniform();
             Assert.AreEqual(U.Min, 0);
@@ -117,7 +117,7 @@ namespace Distributions.Univariate
         /// Testing distribution with bad parameters.
         /// </summary>
         [TestMethod]
-        public void UniformFails()
+        public void Test_InvalidParameters()
         {
             var U = new Uniform(1, 0);
             Assert.IsFalse(U.ParametersValid);
@@ -139,7 +139,7 @@ namespace Distributions.Univariate
         /// Testing parameter to string.
         /// </summary>
         [TestMethod]
-        public void ValidateParametersToString()
+        public void Test_ParametersToString()
         {
             var U = new Uniform();
             Assert.AreEqual(U.ParametersToString[0, 0], "Min");
@@ -149,10 +149,24 @@ namespace Distributions.Univariate
         }
 
         /// <summary>
+        /// Compare analytical moments against numerical integration.
+        /// </summary>
+        [TestMethod()]
+        public void Test_Moments()
+        {
+            var dist = new Uniform(2, 10);
+            var mom = dist.CentralMoments(1E-8);
+            Assert.AreEqual(mom[0], dist.Mean, 1E-2);
+            Assert.AreEqual(mom[1], dist.StandardDeviation, 1E-2);
+            Assert.AreEqual(mom[2], dist.Skewness, 1E-2);
+            Assert.AreEqual(mom[3], dist.Kurtosis, 1E-2);
+        }
+
+        /// <summary>
         /// Testing mean.
         /// </summary>
         [TestMethod]
-        public void ValidateMean()
+        public void Test_Mean()
         {
             var U = new Uniform();
             Assert.AreEqual(U.Mean, 0.5);
@@ -165,7 +179,7 @@ namespace Distributions.Univariate
         /// Testing median.
         /// </summary>
         [TestMethod]
-        public void ValidateMedian()
+        public void Test_Median()
         {
             var U = new Uniform();
             Assert.AreEqual(U.Median, 0.5);
@@ -178,7 +192,7 @@ namespace Distributions.Univariate
         /// Testing mode.
         /// </summary>
         [TestMethod]
-        public void ValidateMode()
+        public void Test_Mode()
         {
             var U = new Uniform();
             Assert.AreEqual(U.Mode,double.NaN);
@@ -191,7 +205,7 @@ namespace Distributions.Univariate
         /// Testing Standard deviation.
         /// </summary>
         [TestMethod]
-        public void ValidateStandardDeviation()
+        public void Test_StandardDeviation()
         {
             var U = new Uniform();
             Assert.AreEqual(U.StandardDeviation, 0.288675, 1e-05);
@@ -204,7 +218,7 @@ namespace Distributions.Univariate
         /// Testing skew.
         /// </summary>
         [TestMethod]
-        public void ValidateSkew()
+        public void Test_Skewness()
         {
             var U = new Uniform();
             Assert.AreEqual(U.Skewness, 0);
@@ -217,7 +231,7 @@ namespace Distributions.Univariate
         /// Testing Kurtosis.
         /// </summary>
         [TestMethod]
-        public void ValidateKurtosis()
+        public void Test_Kurtosis()
         {
             var U = new Uniform();
             Assert.AreEqual(U.Kurtosis, 9d / 5d);
@@ -230,7 +244,7 @@ namespace Distributions.Univariate
         /// Testing minimum and maximum functions.
         /// </summary>
         [TestMethod]
-        public void ValidateMinMax()
+        public void Test_MinMax()
         {
             var U = new Uniform();
             Assert.AreEqual(U.Minimum, 0);
@@ -245,7 +259,7 @@ namespace Distributions.Univariate
         /// Testing PDF method.
         /// </summary>
         [TestMethod]
-        public void ValidatePDF()
+        public void Test_PDF()
         {
             var U = new Uniform();
             Assert.AreEqual(U.PDF(-1),0);
@@ -257,7 +271,7 @@ namespace Distributions.Univariate
         /// Testing CDF.
         /// </summary>
         [TestMethod]
-        public void ValidateCDF()
+        public void Test_CDF()
         {
             var U = new Uniform();
             Assert.AreEqual(U.CDF(0),0);
@@ -269,7 +283,7 @@ namespace Distributions.Univariate
         /// Testing inverse CDF.
         /// </summary>
         [TestMethod]
-        public void ValidateInverseCDF()
+        public void Test_InverseCDF()
         {
             var U = new Uniform();
             Assert.AreEqual(U.InverseCDF(0), 0);

@@ -156,7 +156,12 @@ namespace Numerics.Distributions
         /// <inheritdoc/>
         public override double Mean
         {
-            get { return Beta / (Alpha - 1d); }
+            get 
+            {
+                if (Alpha <= 1)
+                    return double.NaN;
+                return Beta / (Alpha - 1d); 
+            }
         }
 
         /// <inheritdoc/>

@@ -92,7 +92,7 @@ namespace Distributions.Univariate
         /// Verifying input parameters can create distribution.
         /// </summary>
         [TestMethod()]
-        public void CanCreatePareto()
+        public void Test_Construction()
         {
             var p = new Pareto();
             Assert.AreEqual(p.Xm, 1);
@@ -107,7 +107,7 @@ namespace Distributions.Univariate
         /// Testing distribution with bad parameters.
         /// </summary>
         [TestMethod()]
-        public void ParetoFails()
+        public void Test_InvalidParameters()
         {
             var p = new Pareto(double.NaN,double.PositiveInfinity);
             Assert.IsFalse(p.ParametersValid);
@@ -123,7 +123,7 @@ namespace Distributions.Univariate
         /// Testing parameters to string.
         /// </summary>
         [TestMethod()]
-        public void ValidateParametersToString()
+        public void Test_ParametersToString()
         {
             var p = new Pareto();
             Assert.AreEqual(p.ParametersToString[0, 0], "Scale (Xm)");
@@ -133,10 +133,24 @@ namespace Distributions.Univariate
         }
 
         /// <summary>
+        /// Compare analytical moments against numerical integration.
+        /// </summary>
+        [TestMethod()]
+        public void Test_Moments()
+        {
+            var dist = new Pareto();
+            var mom = dist.CentralMoments(1E-8);
+            Assert.AreEqual(mom[0], dist.Mean, 1E-2);
+            Assert.AreEqual(mom[1], dist.StandardDeviation, 1E-2);
+            Assert.AreEqual(mom[2], dist.Skewness, 1E-2);
+            Assert.AreEqual(mom[3], dist.Kurtosis, 1E-2);
+        }
+
+        /// <summary>
         /// Testing mean.
         /// </summary>
         [TestMethod()]
-        public void ValidateMean()
+        public void Test_Mean()
         {
             var p = new Pareto();
             Assert.AreEqual(p.Mean, 1.1111, 1e-04);
@@ -149,7 +163,7 @@ namespace Distributions.Univariate
         /// Testing median.
         /// </summary>
         [TestMethod()]
-        public void ValidateMedian()
+        public void Test_Median()
         {
             var p = new Pareto();
             Assert.AreEqual(p.Median, 1.07177, 1e-04);
@@ -162,7 +176,7 @@ namespace Distributions.Univariate
         /// Testing mode.
         /// </summary>
         [TestMethod()]
-        public void ValidateMode()
+        public void Test_Mode()
         {
             var p = new Pareto();
             Assert.AreEqual(p.Mode, 1);
@@ -175,7 +189,7 @@ namespace Distributions.Univariate
         /// Testing standard deviation.
         /// </summary>
         [TestMethod()]
-        public void ValidateStandardDeviation()
+        public void Test_StandardDeviation()
         {
             var p = new Pareto();
             Assert.AreEqual(p.StandardDeviation, 0.12422, 1e-04);
@@ -188,7 +202,7 @@ namespace Distributions.Univariate
         /// Testing skew.
         /// </summary>
         [TestMethod()]
-        public void ValidateSkew()
+        public void Test_Skewness()
         {
             var p = new Pareto();
             Assert.AreEqual(p.Skewness, 2.81105, 1e-04);
@@ -201,7 +215,7 @@ namespace Distributions.Univariate
         /// Testing Kurtosis.
         /// </summary>
         [TestMethod()]
-        public void ValidateKurtosis()
+        public void Test_Kurtosis()
         {
             var p = new Pareto();
             Assert.AreEqual(p.Kurtosis, 17.82857, 1e-04);
@@ -214,7 +228,7 @@ namespace Distributions.Univariate
         /// Testing minimum and maximum functions
         /// </summary>
         [TestMethod()]
-        public void ValidateMinMax()
+        public void Test_MinMax()
         {
             var p = new Pareto();
             Assert.AreEqual(p.Minimum, 1);
@@ -229,7 +243,7 @@ namespace Distributions.Univariate
         /// Testing PDF
         /// </summary>
         [TestMethod()]
-        public void ValidatePDF()
+        public void Test_PDF()
         {
             var p = new Pareto(1,1);
             Assert.AreEqual(p.PDF(1), 1);
@@ -244,7 +258,7 @@ namespace Distributions.Univariate
         /// Testing CDF.
         /// </summary>
         [TestMethod()]
-        public void ValidateCDF()
+        public void Test_CDF()
         {
             var p = new Pareto();
             Assert.AreEqual(p.CDF(0), 0);
@@ -255,7 +269,7 @@ namespace Distributions.Univariate
         /// Testing inverse CDF.
         /// </summary>
         [TestMethod()]
-        public void ValidateInverseCDF()
+        public void Test_InverseCDF()
         {
             var p = new Pareto();
             Assert.AreEqual(p.InverseCDF(0), 1);

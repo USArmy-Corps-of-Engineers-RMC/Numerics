@@ -170,7 +170,7 @@ namespace Numerics.Distributions
             {
                 if (DegreesOfFreedom <= 2)
                     return double.NaN;
-                return DegreesOfFreedom * Sigma / (DegreesOfFreedom - 2);
+                return DegreesOfFreedom  * Sigma / (DegreesOfFreedom - 2);
             }
         }
 

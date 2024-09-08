@@ -360,6 +360,10 @@ namespace Numerics.Distributions
             {
                 SetParameters(MLE(sample));
             }
+            else
+            {
+                throw new NotImplementedException();
+            }
         }
 
         /// <inheritdoc/>

@@ -279,7 +279,7 @@ namespace Numerics.Distributions
                     double U4 = Gamma.Function(1d + 4d * Kappa) * Gamma.Function(1d - 4d * Kappa);
                     double kNum = U4 - 4d * U3 * U1 - 3d * Math.Pow(U2, 2d) + 12d * U2 * Math.Pow(U1, 2d) - 6d * Math.Pow(U1, 4d);
                     double kDen = Math.Pow(U2 - Math.Pow(U1, 2d), 2d);
-                    return kNum / kDen;
+                    return 3 + kNum / kDen;
                 }
                 else
                 {
@@ -346,6 +346,10 @@ namespace Numerics.Distributions
             else if (estimationMethod == ParameterEstimationMethod.MaximumLikelihood)
             { 
                 SetParameters(MLE(sample));
+            }
+            else
+            {
+                throw new NotImplementedException();
             }
         }
 
@@ -424,7 +428,7 @@ namespace Numerics.Distributions
         public double[] DirectMethodOfMoments(IList<double> moments)
         {
             // Solve for kappa
-            double k = SolveforKappa(moments[2]);
+            double k = SolveForKappa(moments[2]);
             double a;
             double x;
             if (Math.Abs(k) <= NearZero)
@@ -462,7 +466,7 @@ namespace Numerics.Distributions
         /// <returns>
         /// Kappa
         /// </returns>
-        public double SolveforKappa(double skew)
+        public double SolveForKappa(double skew)
         {
             if (Math.Abs(skew) < 10d)
             {

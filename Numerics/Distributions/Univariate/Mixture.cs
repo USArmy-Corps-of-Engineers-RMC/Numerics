@@ -375,6 +375,10 @@ namespace Numerics.Distributions
             {
                 SetParameters(MLE(sample));
             }
+            else
+            {
+                throw new NotImplementedException();
+            }
         }
 
         /// <inheritdoc/>
@@ -495,7 +499,7 @@ namespace Numerics.Distributions
         }
 
         /// <summary>
-        /// Set the distribution parameters from a referenced array.
+        /// Set the distribution parameters from a referenced array. Weights are normalized to sum to 1.
         /// </summary>
         /// <param name="parameters">The array of parameters.</param>
         public void SetParameters(ref double[] parameters)

@@ -84,6 +84,9 @@ namespace Distributions.Univariate
             Assert.AreEqual((a - true_a) / true_a < 0.01d, true);
         }
 
+        /// <summary>
+        /// Test the fit against the R 'lmom' package.
+        /// </summary>
         [TestMethod()]
         public void Test_EXP_LMOM_Fit()
         {
@@ -197,7 +200,7 @@ namespace Distributions.Univariate
         /// Validating parameters can create exponential function
         /// </summary>
         [TestMethod()]
-        public void CanCreateExponential()
+        public void Test_Construction()
         {
             var EXP = new Exponential(-5, 100);
             Assert.AreEqual(EXP.Xi, -5);
@@ -212,7 +215,7 @@ namespace Distributions.Univariate
         /// Testing Exponential distribution with bad parameters.
         /// </summary>
         [TestMethod()]
-        public void ExponentialFails()
+        public void Test_InvalidParameters()
         {
             var EXP = new Exponential(double.NaN, 5);
             Assert.IsFalse(EXP.ParametersValid);
@@ -231,7 +234,7 @@ namespace Distributions.Univariate
         /// Checking parameters to string function.
         /// </summary>
         [TestMethod()]
-        public void ValidateParametersToString()
+        public void Test_ParametersToString()
         {
             var EXP = new Exponential(1, 1);
             Assert.AreEqual(EXP.ParametersToString[0, 0], "Location (ξ)");
@@ -241,10 +244,24 @@ namespace Distributions.Univariate
         }
 
         /// <summary>
+        /// Compare analytical moments against numerical integration.
+        /// </summary>
+        [TestMethod()]
+        public void Test_Moments()
+        {
+            var dist = new Exponential(1, 1);
+            var mom = dist.CentralMoments(1E-8);
+            Assert.AreEqual(mom[0], dist.Mean, 1E-2);
+            Assert.AreEqual(mom[1], dist.StandardDeviation, 1E-2);
+            Assert.AreEqual(mom[2], dist.Skewness, 1E-2);
+            Assert.AreEqual(mom[3], dist.Kurtosis, 1E-2);
+        }
+
+        /// <summary>
         /// Checking Mean of exponential distribution.
         /// </summary>
         [TestMethod()]
-        public void ValidateMean()
+        public void Test_Mean()
         {
             var EXP = new Exponential(1, 1);
             Assert.AreEqual(EXP.Mean, 2);
@@ -257,7 +274,7 @@ namespace Distributions.Univariate
         /// Checking median of distribution.
         /// </summary>
         [TestMethod()]
-        public void ValidateMedian()
+        public void Test_Median()
         {
             var EXP = new Exponential(0,1);
             Assert.AreEqual(EXP.Median, 0.693147, 1e-04);
@@ -270,7 +287,7 @@ namespace Distributions.Univariate
         /// Checking mode of Exponential is equal to the location parameter.
         /// </summary>
         [TestMethod()]
-        public void ValidateMode()
+        public void Test_Mode()
         {
             var EXP = new Exponential(0,1);
             Assert.AreEqual(EXP.Mode, 0);
@@ -283,7 +300,7 @@ namespace Distributions.Univariate
         /// Checking Standard deviation is equal to the scale parameter.
         /// </summary>
         [TestMethod()]
-        public void ValidateStandardDeviation()
+        public void Test_StandardDeviation()
         {
             var EXP = new Exponential(0,1);
             Assert.AreEqual(EXP.StandardDeviation, 1);
@@ -296,7 +313,7 @@ namespace Distributions.Univariate
         /// Checking skew is equal to 2 regardless of parameters.
         /// </summary>
         [TestMethod()]
-        public void ValidateSkew()
+        public void Test_Skewness()
         {
             var EXP = new Exponential(0, 1);
             Assert.AreEqual(EXP.Skewness, 2);
@@ -306,7 +323,7 @@ namespace Distributions.Univariate
         /// Checking Kurtosis is equal to 9 regardless of parameters.
         /// </summary>
         [TestMethod()]
-        public void ValidateKurtosis()
+        public void Test_Kurtosis()
         {
             var EXP = new Exponential(0, 1);
             Assert.AreEqual(EXP.Kurtosis, 9);
@@ -316,7 +333,7 @@ namespace Distributions.Univariate
         /// Checking minimum function.
         /// </summary>
         [TestMethod()]
-        public void ValidateMinimum()
+        public void Test_Minimum()
         {
             var EXP = new Exponential(0, 1);
             Assert.AreEqual(EXP.Minimum, 0);
@@ -329,7 +346,7 @@ namespace Distributions.Univariate
         /// Checking maximum function.
         /// </summary>
         [TestMethod()]
-        public void ValidateMaximum()
+        public void Test_Maximum()
         {
             var EXP = new Exponential(0, 1);
             Assert.AreEqual(EXP.Maximum, double.PositiveInfinity);
@@ -339,7 +356,7 @@ namespace Distributions.Univariate
         /// Checking PDF function with different points in the distribution range.
         /// </summary>
         [TestMethod()]
-        public void ValidatePDF()
+        public void Test_PDF()
         {
             var EXP = new Exponential(0, 3);
             Assert.AreEqual(0.33333, EXP.PDF(0),1e-04);
@@ -352,7 +369,7 @@ namespace Distributions.Univariate
         /// Checking CDF function with different points in the distribution range.
         /// </summary>
         [TestMethod()]
-        public void ValidateCDF()
+        public void Test_CDF()
         {
             var EXP = new Exponential(0, 3);
             Assert.AreEqual(0, EXP.CDF(0));
@@ -362,10 +379,10 @@ namespace Distributions.Univariate
         }
 
         /// <summary>
-        /// 
+        /// Test the inverse CDF.
         /// </summary>
         [TestMethod()]
-        public void ValidateInverseCDF()
+        public void Test_InverseCDF()
         {
             var EXP = new Exponential(0, 1);
             Assert.AreEqual(0,EXP.InverseCDF(0));

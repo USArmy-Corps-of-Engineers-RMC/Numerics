@@ -233,6 +233,10 @@ namespace Numerics.Distributions
 
                 SetParameters(biased * correction);
             }
+            else
+            {
+                throw new NotImplementedException();
+            }
         }
 
         /// <summary>

@@ -225,13 +225,13 @@ namespace Numerics.Distributions
             {
                 SetParameters(ParametersFromMoments(Statistics.ProductMoments(sample)));
             }
-            else if (estimationMethod == ParameterEstimationMethod.MethodOfLinearMoments)
-            {
-                throw new NotImplementedException();
-            }
             else if (estimationMethod == ParameterEstimationMethod.MaximumLikelihood)
             {
                 SetParameters(MLE(sample));
+            }
+            else
+            {
+                throw new NotImplementedException();
             }
         }
 

@@ -91,7 +91,7 @@ namespace Distributions.Univariate
         /// Verified using MathNet-Numerics testing. See if beta is being created.
         /// </summary>
         [TestMethod()]
-        public void CanCreateBeta()
+        public void Test_Construction()
         {
             var b = new BetaDistribution(0, 0);
             Assert.AreEqual(0, b.Alpha);
@@ -138,15 +138,15 @@ namespace Distributions.Univariate
         /// Checking failure with valid parameter variable.
         /// </summary>
         [TestMethod()]
-        public void BetaFailsWithBadParameters()
+        public void Test_InvalidParameters()
         {
-            var b  = new BetaDistribution(double.NaN,0);
+            var b = new BetaDistribution(double.NaN, 0);
             Assert.IsFalse(b.ParametersValid);
 
             var b2 = new BetaDistribution(-1, 1);
             Assert.IsFalse(b2.ParametersValid);
 
-            var b3 = new BetaDistribution(double.PositiveInfinity,0);
+            var b3 = new BetaDistribution(double.PositiveInfinity, 0);
             Assert.IsFalse(b3.ParametersValid);
         }
 
@@ -154,9 +154,8 @@ namespace Distributions.Univariate
         /// Verified using MathNet-Numerics testing. Checking string output.
         /// </summary>
         [TestMethod()]
-        public void ValidateToString()
+        public void Test_ParametersToString()
         {
-            //System.Threading.Thread.CurrentThread.CurrentCulture = System.Globalization.CultureInfo.InvariantCulture;
             var b = new BetaDistribution(1d, 1d);
             Assert.AreEqual("Shape (α)", b.ParametersToString[0, 0]);
             Assert.AreEqual("Shape (β)", b.ParametersToString[1, 0]);
@@ -165,10 +164,24 @@ namespace Distributions.Univariate
         }
 
         /// <summary>
+        /// Compare analytical moments against numerical integration.
+        /// </summary>
+        [TestMethod()]
+        public void Test_Moments()
+        {
+            var dist = new BetaDistribution(9, 1);
+            var mom = dist.CentralMoments(1E-8);
+            Assert.AreEqual(mom[0], dist.Mean, 1E-2);
+            Assert.AreEqual(mom[1], dist.StandardDeviation, 1E-2);
+            Assert.AreEqual(mom[2], dist.Skewness, 1E-2);
+            Assert.AreEqual(mom[3], dist.Kurtosis, 1E-2);
+        }
+
+        /// <summary>
         ///  Verified using MathNet-Numerics testing. Checking mean of distribution with different parameters.
         /// </summary>
         [TestMethod()]
-        public void ValidateMean()
+        public void Test_Mean()
         {
             var b = new BetaDistribution(1,2);
             Assert.AreEqual((double)1/3,b.Mean);
@@ -190,7 +203,7 @@ namespace Distributions.Univariate
         /// Verified using MathNet-Numerics testing. Checking median of distribution with different parameters.
         /// </summary>
         [TestMethod()]
-        public void ValidateMedian()
+        public void Test_Median()
         {
             var b = new BetaDistribution(2, 2);
             Assert.AreEqual(0.5, b.Median);
@@ -200,7 +213,7 @@ namespace Distributions.Univariate
         /// Verified using MathNet-Numerics testing. Checking mode of distribution with different parameters.
         /// </summary>
         [TestMethod()]
-        public void ValidateMode()
+        public void Test_Mode()
         {
             var b = new BetaDistribution(1, 1);
             Assert.AreEqual(0.5, b.Mode);
@@ -219,7 +232,7 @@ namespace Distributions.Univariate
         /// Verified using MathNet-Numerics testing. Checking standard deviation with different parameters.
         /// </summary>
         [TestMethod()]
-        public void ValidateStandardDeviation()
+        public void Test_StandardDeviation()
         {
             var b = new BetaDistribution(2, 3);
             Assert.AreEqual(0.2, b.StandardDeviation);
@@ -235,7 +248,7 @@ namespace Distributions.Univariate
         /// Verified using MathNet-Numerics testing. Checking skewness of distribution with different parameters.
         /// </summary>
         [TestMethod()]
-        public void ValidateSkew()
+        public void Test_Skewness()
         {
             var b = new BetaDistribution(0, 0);
             Assert.AreEqual(double.NaN, b.Skewness);
@@ -251,7 +264,7 @@ namespace Distributions.Univariate
         /// Checking Kurtosis of distribution with different parameters.
         /// </summary>
         [TestMethod()]
-        public void ValidateKurtosis()
+        public void Test_Kurtosis()
         {
             var b = new BetaDistribution(2, 2);
             Assert.AreEqual(2.14285,b.Kurtosis,1e-04);
@@ -267,7 +280,7 @@ namespace Distributions.Univariate
         /// Verified using MathNet-Numerics testing. Checking minimum function.
         /// </summary>
         [TestMethod()]
-        public void ValidateMinimum()
+        public void Test_Minimum()
         {
             var b = new BetaDistribution(1, 2);
             Assert.AreEqual(0,b.Minimum);
@@ -277,7 +290,7 @@ namespace Distributions.Univariate
         /// Verified using MathNet-Numerics testing. Checking maximum function.
         /// </summary>
         [TestMethod()]
-        public void ValidateMaximum()
+        public void Test_Maximum()
         {
             var b = new BetaDistribution(1, 2);
             Assert.AreEqual(1, b.Maximum);
@@ -287,7 +300,7 @@ namespace Distributions.Univariate
         /// Verified using MathNet-Numerics testing. Testing PDF function.
         /// </summary>
         [TestMethod()]
-        public void ValidatePDF()
+        public void Test_PDF()
         {
             var b = new BetaDistribution(1, 1);
             Assert.AreEqual(1, b.PDF(0));
@@ -310,7 +323,7 @@ namespace Distributions.Univariate
         /// Verified using MathNet-Numerics testing. Testing CDF function.
         /// </summary>
         [TestMethod()]
-        public void ValidateCDF()
+        public void Test_CDF()
         {
             var b = new BetaDistribution(1, 1);
             Assert.AreEqual(0, b.CDF(0));
@@ -331,7 +344,7 @@ namespace Distributions.Univariate
         /// Verified using MathNet-Numerics testing. Testing InverseCDF function.
         /// </summary>
         [TestMethod()]
-        public void ValidateInverseCDF()
+        public void Test_InverseCDF()
         {
             var b = new BetaDistribution(1,1);
             Assert.AreEqual(1, b.InverseCDF(1));

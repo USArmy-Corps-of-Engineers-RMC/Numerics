@@ -291,7 +291,7 @@ namespace Numerics.Distributions
                 double Z0 = Normal.StandardPDF(K0) / Z;
                 double Z1 = Normal.StandardPDF(K1) / Z;
                 double V = 1d - (K1 * Z1 - K0 * Z0) - Math.Pow(Z1 - Z0, 2d);
-                return -(1d / Math.Pow(V, 2d)) * (-3 * Math.Pow(Z1 - Z0, 4d) - 6d * (K1 * Z1 - K0 * Z0) * Math.Pow(Z1 - Z0, 2d) - 2d * Math.Pow(Z1 - Z0, 2d) - 4d * (Math.Pow(K1, 2d) * Z1 - Math.Pow(K0, 2d) * Z0) * (Z1 - Z0) - 3d * (K1 * Z1 - K0 * Z0) - (Math.Pow(K1, 3d) * Z1 - Math.Pow(K0, 3d) * Z0) + 3d);
+                return (1d / Math.Pow(V, 2d)) * (-3 * Math.Pow(Z1 - Z0, 4d) - 6d * (K1 * Z1 - K0 * Z0) * Math.Pow(Z1 - Z0, 2d) - 2d * Math.Pow(Z1 - Z0, 2d) - 4d * (Math.Pow(K1, 2d) * Z1 - Math.Pow(K0, 2d) * Z0) * (Z1 - Z0) - 3d * (K1 * Z1 - K0 * Z0) - (Math.Pow(K1, 3d) * Z1 - Math.Pow(K0, 3d) * Z0) + 3d);
             }
         }
 
@@ -329,7 +329,10 @@ namespace Numerics.Distributions
                 var max = Statistics.Maximum(sample);
                 SetParameters(mom[0], mom[1], min, max);
             }
-
+            else
+            {
+                throw new NotImplementedException();
+            }
         }
 
 
@@ -342,8 +345,6 @@ namespace Numerics.Distributions
         /// <param name="max">The maximum possible value of the distribution.</param>
         public void SetParameters(double mean, double standardDeviation, double min, double max)
         {
-            // validate truncation
-            //_parametersValid = ValidateParameters(mean, standardDeviation, min, max, false) is null;
             // Set parameters
             Mu = mean;
             Sigma = standardDeviation;

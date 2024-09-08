@@ -163,7 +163,7 @@ namespace Distributions.Univariate
         /// Verifying distribution is being created with inputs.
         /// </summary>
         [TestMethod()]
-        public void CanCreateLogistic()
+        public void Test_Construction()
         {
             var LO = new Logistic();
             Assert.AreEqual(LO.Xi, 0);
@@ -178,7 +178,7 @@ namespace Distributions.Univariate
         /// Testing distribution with bad parameters.
         /// </summary>
         [TestMethod()]
-        public void LogisticFails()
+        public void Test_InvalidParameters()
         {
             var LO = new Logistic(double.NaN,double.NaN);
             Assert.IsFalse(LO.ParametersValid);
@@ -194,7 +194,7 @@ namespace Distributions.Univariate
         /// Testing ParametersToString().
         /// </summary>
         [TestMethod()]
-        public void ValidateParametersToString()
+        public void Test_ParametersToString()
         {
             var LO = new Logistic();
             Assert.AreEqual(LO.ParametersToString[0, 0], "Location (ξ)");
@@ -204,10 +204,24 @@ namespace Distributions.Univariate
         }
 
         /// <summary>
+        /// Compare analytical moments against numerical integration.
+        /// </summary>
+        [TestMethod()]
+        public void Test_Moments()
+        {
+            var dist = new Logistic();
+            var mom = dist.CentralMoments(1E-8);
+            Assert.AreEqual(mom[0], dist.Mean, 1E-2);
+            Assert.AreEqual(mom[1], dist.StandardDeviation, 1E-2);
+            Assert.AreEqual(mom[2], dist.Skewness, 1E-2);
+            Assert.AreEqual(mom[3], dist.Kurtosis, 1E-2);
+        }
+
+        /// <summary>
         /// Testing mean function.
         /// </summary>
         [TestMethod()]
-        public void ValidateMean()
+        public void Test_Mean()
         {
             var LO = new Logistic();
             Assert.AreEqual(LO.Mean, 0);
@@ -220,7 +234,7 @@ namespace Distributions.Univariate
         /// Testing median function.
         /// </summary>
         [TestMethod()]
-        public void ValidateMedian()
+        public void Test_Median()
         {
             var LO = new Logistic();
             Assert.AreEqual(LO.Median,0);
@@ -233,7 +247,7 @@ namespace Distributions.Univariate
         /// Testing mode function.
         /// </summary>
         [TestMethod()]
-        public void ValidateMode()
+        public void Test_Mode()
         {
             var LO = new Logistic();
             Assert.AreEqual(LO.Mode, 0);
@@ -246,7 +260,7 @@ namespace Distributions.Univariate
         /// Testing Standard deviation.
         /// </summary>
         [TestMethod()]
-        public void ValidateStandardDeviation()
+        public void Test_StandardDeviation()
         {
             var LO = new Logistic();
             Assert.AreEqual(LO.StandardDeviation, 0.18137, 1E-04);
@@ -259,7 +273,7 @@ namespace Distributions.Univariate
         /// Testing skew function.
         /// </summary>
         [TestMethod()]
-        public void ValidateSkew()
+        public void Test_Skewness()
         {
             var LO = new Logistic();
             Assert.AreEqual(LO.Skewness, 0);
@@ -272,7 +286,7 @@ namespace Distributions.Univariate
         /// Testing Kurtosis function.
         /// </summary>
         [TestMethod()]
-        public void ValidateKurtosis()
+        public void Test_Kurtosis()
         {
             var LO = new Logistic();
             Assert.AreEqual(LO.Kurtosis, 4.2);
@@ -285,7 +299,7 @@ namespace Distributions.Univariate
         /// Testing range for distribution is negative infinity to positive infinity.
         /// </summary>
         [TestMethod()]
-        public void ValidateMinMax()
+        public void Test_MinMax()
         {
             var LO = new Logistic();
             Assert.AreEqual(LO.Minimum, double.NegativeInfinity);
@@ -300,7 +314,7 @@ namespace Distributions.Univariate
         /// Testing PDF method.
         /// </summary>
         [TestMethod()]
-        public void ValidatePDF()
+        public void Test_PDF()
         {
             var LO = new Logistic(5,2);
             Assert.AreEqual(LO.PDF(-5), 0.00332, 1e-04);
@@ -312,7 +326,7 @@ namespace Distributions.Univariate
         /// Testing CDF method.
         /// </summary>
         [TestMethod()]
-        public void ValidateCDF()
+        public void Test_CDF()
         {
             var LO = new Logistic(5,2);
             Assert.AreEqual(LO.CDF(-5), 0.00669, 1e-05);
@@ -324,7 +338,7 @@ namespace Distributions.Univariate
         /// Testing inverse cdf method.
         /// </summary>
         [TestMethod()]
-        public void ValidateInverseCDF()
+        public void Test_InverseCDF()
         {
             var LO = new Logistic(5, 2);
             Assert.AreEqual(LO.InverseCDF(0), double.NegativeInfinity);

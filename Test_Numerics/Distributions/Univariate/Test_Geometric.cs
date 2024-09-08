@@ -88,7 +88,7 @@ namespace Distributions.Univariate
         /// See if parameters can create geometric distribution.
         /// </summary>
         [TestMethod()]
-        public void CanCreateGeometric()
+        public void Test_Construction()
         {
             var G = new Geometric();
             Assert.AreEqual(G.ProbabilityOfSuccess, 0.5);
@@ -104,7 +104,7 @@ namespace Distributions.Univariate
         /// Testing geometric distribution with bad parameters.
         /// </summary>
         [TestMethod()]
-        public void GeometricFails()
+        public void Test_InvalidParameters()
         {
             var G = new Geometric(-1);
             Assert.IsFalse(G.ParametersValid);
@@ -123,7 +123,7 @@ namespace Distributions.Univariate
         /// Checking parameters to string function.
         /// </summary>
         [TestMethod()]
-        public void ValidateParametersToString()
+        public void Test_ParametersToString()
         {
             var G = new Geometric();
             Assert.AreEqual(G.ParametersToString[0, 0], "Probability (p)");
@@ -134,7 +134,7 @@ namespace Distributions.Univariate
         /// Testing mean function.
         /// </summary>
         [TestMethod()]
-        public void ValidateMean()
+        public void Test_Mean()
         {
             var G = new Geometric();
             Assert.AreEqual(G.Mean, 1);
@@ -147,7 +147,7 @@ namespace Distributions.Univariate
         /// Testing median function.
         /// </summary>
         [TestMethod()]
-        public void ValidateMedian()
+        public void Test_Median()
         {
             var G = new Geometric(0.0001);
             Assert.AreEqual(G.Median, 6931);
@@ -163,7 +163,7 @@ namespace Distributions.Univariate
         /// Testing mode function outputs 0.
         /// </summary>
         [TestMethod()]
-        public void ValidateMode()
+        public void Test_Mode()
         {
             var G = new Geometric();
             Assert.AreEqual(G.Mode,0);
@@ -176,7 +176,7 @@ namespace Distributions.Univariate
         /// Testing Standard deviation with different probabilities.
         /// </summary>
         [TestMethod()]
-        public void ValidateStandardDeviation()
+        public void Test_StandardDeviation()
         {
             var G = new Geometric();
             Assert.AreEqual(G.StandardDeviation, 1.41421,1e-04);
@@ -189,7 +189,7 @@ namespace Distributions.Univariate
         /// Testing skewness function.
         /// </summary>
         [TestMethod()]
-        public void ValidateSkew()
+        public void Test_Skewness()
         {
             var G = new Geometric();
             Assert.AreEqual(G.Skewness, 2.12132, 1e-04);
@@ -202,7 +202,7 @@ namespace Distributions.Univariate
         /// Testing Kurtosis function.
         /// </summary>
         [TestMethod()]
-        public void ValidateKurtosis()
+        public void Test_Kurtosis()
         {
             var G = new Geometric();
             Assert.AreEqual(G.Kurtosis, 9.5);
@@ -215,7 +215,7 @@ namespace Distributions.Univariate
         /// Testing minimum is 0 and maximum is positive infinity.
         /// </summary>
         [TestMethod()]
-        public void ValidateMinMax()
+        public void Test_MinMax()
         {
             var G = new Geometric();
             Assert.AreEqual(G.Minimum, 0);
@@ -230,7 +230,7 @@ namespace Distributions.Univariate
         /// Testing PDF method with different parameters and locations.
         /// </summary>
         [TestMethod()]
-        public void ValidatePDF()
+        public void Test_PDF()
         {
             var G = new Geometric();
             Assert.AreEqual(G.PDF(0), 0.5);
@@ -246,7 +246,7 @@ namespace Distributions.Univariate
         /// Testing CDF method with different parameters and locations.
         /// </summary>
         [TestMethod()]
-        public void ValidateCDF()
+        public void Test_CDF()
         {
             var G = new Geometric();
             Assert.AreEqual(G.CDF(0), 0.5);
@@ -263,7 +263,7 @@ namespace Distributions.Univariate
         /// Testing inverse CDF method.
         /// </summary>
         [TestMethod()]
-        public void ValidateInverseCDF()
+        public void Test_InverseCDF()
         {
             var G = new Geometric();
             Assert.AreEqual(G.InverseCDF(0.3), 0);

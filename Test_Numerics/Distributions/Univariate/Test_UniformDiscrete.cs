@@ -87,7 +87,7 @@ namespace Distributions.Univariate
         /// Verifying input parameters can create distribution.
         /// </summary>
         [TestMethod()]
-        public void CanCreateUniformDiscrete()
+        public void Test_Construction()
         {
             var U = new UniformDiscrete();
             Assert.AreEqual(U.Min, 0);
@@ -102,7 +102,7 @@ namespace Distributions.Univariate
         /// Testing distribution with bad parameters.
         /// </summary>
         [TestMethod()]
-        public void UniformDiscreteFails()
+        public void Test_InvalidParameters()
         {
             var U = new UniformDiscrete(1, 0);
             Assert.IsFalse(U.ParametersValid);
@@ -124,7 +124,7 @@ namespace Distributions.Univariate
         /// Testing parameter to string.
         /// </summary>
         [TestMethod()]
-        public void ValidateParameterToString()
+        public void Test_ParametersToString()
         {
             var U = new UniformDiscrete();
             Assert.AreEqual(U.ParametersToString[0, 0], "Min");
@@ -137,7 +137,7 @@ namespace Distributions.Univariate
         /// Testing mean function.
         /// </summary>
         [TestMethod()]
-        public void ValidateMean()
+        public void Test_Mean()
         {
             var U = new UniformDiscrete();
             Assert.AreEqual(U.Mean, 0.5);
@@ -150,7 +150,7 @@ namespace Distributions.Univariate
         /// Testing median.
         /// </summary>
         [TestMethod]
-        public void ValidateMedian()
+        public void Test_Median()
         {
             var U = new UniformDiscrete();
             Assert.AreEqual(U.Median, 0.5);
@@ -163,7 +163,7 @@ namespace Distributions.Univariate
         /// Testing mode.
         /// </summary>
         [TestMethod]
-        public void ValidateMode()
+        public void Test_Mode()
         {
             var U = new UniformDiscrete();
             Assert.AreEqual(U.Mode, double.NaN);
@@ -176,7 +176,7 @@ namespace Distributions.Univariate
         /// Testing Standard deviation.
         /// </summary>
         [TestMethod]
-        public void ValidateStandardDeviation()
+        public void Test_StandardDeviation()
         {
             var U = new UniformDiscrete();
             Assert.AreEqual(U.StandardDeviation, 0.288675, 1e-05);
@@ -189,7 +189,7 @@ namespace Distributions.Univariate
         /// Testing skew.
         /// </summary>
         [TestMethod]
-        public void ValidateSkew()
+        public void Test_Skewness()
         {
             var U = new UniformDiscrete();
             Assert.AreEqual(U.Skewness, 0);
@@ -202,7 +202,7 @@ namespace Distributions.Univariate
         /// Testing Kurtosis.
         /// </summary>
         [TestMethod]
-        public void ValidateKurtosis()
+        public void Test_Kurtosis()
         {
             var U = new UniformDiscrete();
             Assert.AreEqual(U.Kurtosis, 1);
@@ -215,7 +215,7 @@ namespace Distributions.Univariate
         /// Testing minimum and maximum functions.
         /// </summary>
         [TestMethod]
-        public void ValidateMinMax()
+        public void Test_MinMax()
         {
             var U = new UniformDiscrete();
             Assert.AreEqual(U.Minimum, 0);
@@ -230,7 +230,7 @@ namespace Distributions.Univariate
         /// Testing PDF method.
         /// </summary>
         [TestMethod]
-        public void ValidatePDF()
+        public void Test_PDF()
         {
             var U = new UniformDiscrete();
             Assert.AreEqual(U.PDF(-1), 0);
@@ -242,7 +242,7 @@ namespace Distributions.Univariate
         /// Testing CDF.
         /// </summary>
         [TestMethod]
-        public void ValidateCDF()
+        public void Test_CDF()
         {
             var U = new UniformDiscrete();
             Assert.AreEqual(U.CDF(0), 0.5);
@@ -254,7 +254,7 @@ namespace Distributions.Univariate
         /// Testing inverse CDF.
         /// </summary>
         [TestMethod]
-        public void ValidateInverseCDF()
+        public void Test_InverseCDF()
         {
             var U = new UniformDiscrete();
             Assert.AreEqual(U.InverseCDF(0), 0);

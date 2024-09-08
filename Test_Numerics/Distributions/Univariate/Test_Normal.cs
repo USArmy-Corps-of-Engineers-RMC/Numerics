@@ -87,7 +87,9 @@ namespace Distributions.Univariate
 
         }
 
-
+        /// <summary>
+        /// Verification of Normal Distribution fit with method of linear moments.
+        /// </summary>
         [TestMethod()]
         public void Test_Normal_LMOM_Fit()
         {
@@ -178,7 +180,7 @@ namespace Distributions.Univariate
         /// Verifying that input parameters can create distribution.
         /// </summary>
         [TestMethod()]
-        public void CanCreateNormal()
+        public void Test_Construction()
         {
             var N = new Normal();
             Assert.AreEqual(N.Mu, 0);
@@ -193,7 +195,7 @@ namespace Distributions.Univariate
         /// Testing distribution with bad parameters.
         /// </summary>
         [TestMethod()]
-        public void NormalFails()
+        public void Test_InvalidParameters()
         {
             var N = new Normal(double.NaN, 1);
             Assert.IsFalse(N.ParametersValid);
@@ -212,7 +214,7 @@ namespace Distributions.Univariate
         /// Testing parameters to string.
         /// </summary>
         [TestMethod()]
-        public void ValidateParametersToString()
+        public void Test_ParametersToString()
         {
             var N = new Normal();
             Assert.AreEqual(N.ParametersToString[0, 0], "Mean (µ)");
@@ -222,10 +224,24 @@ namespace Distributions.Univariate
         }
 
         /// <summary>
+        /// Compare analytical moments against numerical integration.
+        /// </summary>
+        [TestMethod()]
+        public void Test_Moments()
+        {
+            var dist = new Normal(5, 9);
+            var mom = dist.CentralMoments(1E-8);
+            Assert.AreEqual(mom[0], dist.Mean, 1E-2);
+            Assert.AreEqual(mom[1], dist.StandardDeviation, 1E-2);
+            Assert.AreEqual(mom[2], dist.Skewness, 1E-2);
+            Assert.AreEqual(mom[3], dist.Kurtosis, 1E-2);
+        }
+
+        /// <summary>
         /// Testing mean.
         /// </summary>
         [TestMethod()]
-        public void ValidateMean()
+        public void Test_Mean()
         {
             var N = new Normal();
             Assert.AreEqual(N.Mean, 0);
@@ -238,7 +254,7 @@ namespace Distributions.Univariate
         /// Testing median.
         /// </summary>
         [TestMethod()]
-        public void ValidateMedian()
+        public void Test_Median()
         {
             var N = new Normal();
             Assert.AreEqual(N.Median, 0);
@@ -251,7 +267,7 @@ namespace Distributions.Univariate
         /// Testing mode.
         /// </summary>
         [TestMethod()]
-        public void ValidateMode()
+        public void Test_Mode()
         {
             var N = new Normal();
             Assert.AreEqual(N.Mode, 0);
@@ -264,7 +280,7 @@ namespace Distributions.Univariate
         /// Testing standard deviation.
         /// </summary>
         [TestMethod()]
-        public void ValidateStandardDeviation()
+        public void Test_StandardDeviation()
         {
             var N = new Normal();
             Assert.AreEqual(N.StandardDeviation, 1);
@@ -277,7 +293,7 @@ namespace Distributions.Univariate
         /// Testing skew.
         /// </summary>
         [TestMethod()]
-        public void ValidateSkew()
+        public void Test_Skewness()
         {
             var N = new Normal();
             Assert.AreEqual(N.Skewness, 0);
@@ -290,7 +306,7 @@ namespace Distributions.Univariate
         /// Testing Kurtosis.
         /// </summary>
         [TestMethod()]
-        public void ValidateKurtosis()
+        public void Test_Kurtosis()
         {
             var N = new Normal();
             Assert.AreEqual(N.Kurtosis, 3);
@@ -303,7 +319,7 @@ namespace Distributions.Univariate
         /// Testing minimum and maximum functions.
         /// </summary>
         [TestMethod()]
-        public void ValidateMinMax()
+        public void Test_MinMax()
         {
             var N = new Normal();
             Assert.AreEqual(N.Minimum, double.NegativeInfinity);
@@ -318,7 +334,7 @@ namespace Distributions.Univariate
         /// Testing PDF method.
         /// </summary>
         [TestMethod()]
-        public void ValidatePDF()
+        public void Test_PDF()
         {
             var N = new Normal();
             Assert.AreEqual(N.PDF(0), 0.39894, 1e-04);
@@ -332,7 +348,7 @@ namespace Distributions.Univariate
         /// Testing CDF method.
         /// </summary>
         [TestMethod()]
-        public void ValidateCDF()
+        public void Test_CDF()
         {
             var N = new Normal(5,2);
             Assert.AreEqual(N.CDF(0), 0.006209, 1e-04);

@@ -94,7 +94,7 @@ namespace Distributions.Univariate
         /// Verifying input parameters can create distribution.
         /// </summary>
         [TestMethod()]
-        public void CanCreateTruncatedNormal()
+        public void Test_Construction()
         {
             var tn = new TruncatedNormal();
             Assert.AreEqual(tn.Mu, 0.5);
@@ -113,7 +113,7 @@ namespace Distributions.Univariate
         /// Testing distribution with bad parameters.
         /// </summary>
         [TestMethod()]
-        public void TruncatedNormalFails()
+        public void Test_InvalidParameters()
         {
             var tn = new TruncatedNormal(double.NaN, double.NaN, double.NaN, double.NaN);
             Assert.IsFalse(tn.ParametersValid);
@@ -132,7 +132,7 @@ namespace Distributions.Univariate
         /// Testing parameters to string.
         /// </summary>
         [TestMethod()]
-        public void ValidateParametersToString()
+        public void Test_ParametersToString()
         {
             var tn = new TruncatedNormal();
             Assert.AreEqual(tn.ParametersToString[0, 0], "Mean (µ)");
@@ -146,10 +146,24 @@ namespace Distributions.Univariate
         }
 
         /// <summary>
+        /// Compare analytical moments against numerical integration.
+        /// </summary>
+        [TestMethod()]
+        public void Test_Moments()
+        {
+            var dist = new TruncatedNormal(10, 3, 8, 25);
+            var mom = dist.CentralMoments(1E-8);
+            Assert.AreEqual(mom[0], dist.Mean, 1E-2);
+            Assert.AreEqual(mom[1], dist.StandardDeviation, 1E-2);
+            Assert.AreEqual(mom[2], dist.Skewness, 1E-2);
+            Assert.AreEqual(mom[3], dist.Kurtosis, 1E-2);
+        }
+
+        /// <summary>
         /// Testing mean.
         /// </summary>
         [TestMethod()]
-        public void ValidateMean()
+        public void Test_Mean()
         {
             var tn = new TruncatedNormal();
             Assert.AreEqual(tn.Mean, 0.5);
@@ -159,7 +173,7 @@ namespace Distributions.Univariate
         /// Testing median.
         /// </summary>
         [TestMethod()]
-        public void ValidateMedian()
+        public void Test_Median()
         {
             var tn = new TruncatedNormal();
             Assert.AreEqual(tn.Median, 0.5);
@@ -169,7 +183,7 @@ namespace Distributions.Univariate
         /// Testing mode
         /// </summary>
         [TestMethod()]
-        public void ValidateMode()
+        public void Test_Mode()
         {
             var tn = new TruncatedNormal();
             Assert.AreEqual(tn.Mode, 0.5);
@@ -179,7 +193,7 @@ namespace Distributions.Univariate
         /// Testing standard deviation.
         /// </summary>
         [TestMethod()]
-        public void ValidateStandardDeviation()
+        public void Test_StandardDeviation()
         {
             var tn = new TruncatedNormal();
             Assert.AreEqual(tn.StandardDeviation, 0.19091,1e-05);
@@ -189,7 +203,7 @@ namespace Distributions.Univariate
         /// Testing skew.
         /// </summary>
         [TestMethod()]
-        public void ValidateSkew()
+        public void Test_Skewness()
         {
             var tn = new TruncatedNormal();
             Assert.AreEqual(tn.Skewness, 0);
@@ -199,17 +213,17 @@ namespace Distributions.Univariate
         /// Testing Kurtosis.
         /// </summary>
         [TestMethod()]
-        public void ValidateKurtosis()
+        public void Test_Kurtosis()
         {
             var tn = new TruncatedNormal();
-            Assert.AreEqual(tn.Kurtosis, -2.62422,1e-04);
+            Assert.AreEqual(tn.Kurtosis, 2.62422, 1e-04);
         }
 
         /// <summary>
         /// Testing minimum and maximum functions.
         /// </summary>
         [TestMethod()]
-        public void ValidateMinMax()
+        public void Test_MinMax()
         {
             var tn = new TruncatedNormal();
             Assert.AreEqual(tn.Minimum, 0);

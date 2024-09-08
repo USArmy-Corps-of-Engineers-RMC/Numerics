@@ -82,10 +82,10 @@ namespace Distributions.Univariate
         }
 
         /// <summary>
-        /// Verified using MathNet-Numerics testing. See if cauchy is being created.
+        /// Verified using MathNet-Numerics testing. See if Cauchy is being created.
         /// </summary>
         [TestMethod()]
-        public void CanCreateCauchy()
+        public void Test_Construction()
         {
             var c = new Cauchy(0, 0.1);
             Assert.AreEqual(0, c.X0);
@@ -112,7 +112,7 @@ namespace Distributions.Univariate
         /// Verified using MathNet-Numerics testing. See what parameters fail.
         /// </summary>
         [TestMethod()]
-        public void CauchyFails()
+        public void Test_InvalidParameters()
         {
             var c = new Cauchy(double.NaN, 1);
             Assert.IsFalse(c.ParametersValid);
@@ -131,7 +131,7 @@ namespace Distributions.Univariate
         /// Checking parameters to string.
         /// </summary>
         [TestMethod()]
-        public void ValidateParameterToString()
+        public void Test_ParametersToString()
         {
             var c = new Cauchy(0, 1);
             Assert.AreEqual("Location (X0)", c.ParametersToString[0,0]);
@@ -144,7 +144,7 @@ namespace Distributions.Univariate
         /// Checking mean is NaN.
         /// </summary>
         [TestMethod()]
-        public void ValidateMean()
+        public void Test_Mean()
         {
             var c = new Cauchy(0, 1);
             Assert.AreEqual(double.NaN, c.Mean);
@@ -154,7 +154,7 @@ namespace Distributions.Univariate
         /// Checking median matches location parameter.
         /// </summary>
         [TestMethod()]
-        public void ValidateMedian()
+        public void Test_Median()
         {
             var c = new Cauchy(0, 1);
             Assert.AreEqual(0, c.Median);
@@ -164,7 +164,7 @@ namespace Distributions.Univariate
         /// Checking mode matches location parameter. 
         /// </summary>
         [TestMethod()]
-        public void ValidateMode()
+        public void Test_Mode()
         {
             var c = new Cauchy(0, 1);
             Assert.AreEqual(0, c.Mode);
@@ -174,7 +174,7 @@ namespace Distributions.Univariate
         /// Checking that standard deviation is NaN.
         /// </summary>
         [TestMethod()]
-        public void ValidateStandardDeviation()
+        public void Test_StandardDeviation()
         {
             var c = new Cauchy(0, 1);
             Assert.AreEqual(double.NaN,c.StandardDeviation);
@@ -184,7 +184,7 @@ namespace Distributions.Univariate
         /// Checking that skew is NaN.
         /// </summary>
         [TestMethod()]
-        public void ValidateSkew()
+        public void Test_Skewness()
         {
             var c = new Cauchy(0, 1);
             Assert.AreEqual(double.NaN, c.Skewness);
@@ -194,7 +194,7 @@ namespace Distributions.Univariate
         /// Checking that Kurtosis is NaN.
         /// </summary>
         [TestMethod()]
-        public void ValidateKurtosis()
+        public void Test_Kurtosis()
         {
             var c = new Cauchy(0,1);
             Assert.AreEqual(double.NaN , c.Kurtosis);
@@ -204,7 +204,7 @@ namespace Distributions.Univariate
         /// Checking minimum.
         /// </summary>
         [TestMethod()]
-        public void ValidateMinimum()
+        public void Test_Minimum()
         {
             var c = new Cauchy(0, 1);
             Assert.AreEqual(double.NegativeInfinity, c.Minimum);
@@ -214,7 +214,7 @@ namespace Distributions.Univariate
         /// Checking maximum.
         /// </summary>
         [TestMethod()]
-        public void ValidateMaximum()
+        public void Test_Maximum()
         {
             var c = new Cauchy(0, 1);
             Assert.AreEqual(double.PositiveInfinity, c.Maximum);
@@ -224,7 +224,7 @@ namespace Distributions.Univariate
         /// Checking PDF function with different inputs.
         /// </summary>
         [TestMethod()]
-        public void ValidatePDF()
+        public void Test_PDF()
         {
             var c = new Cauchy(0, 0.1);
             Assert.AreEqual(0.0012727, c.PDF(-5), 1e-04);
@@ -241,7 +241,7 @@ namespace Distributions.Univariate
         /// Checking CDF function with different inputs.
         /// </summary>
         [TestMethod()]
-        public void ValidateCDF()
+        public void Test_CDF()
         {
             var c = new Cauchy(0, 0.1);
             Assert.AreEqual(0.0063653, c.CDF(-5),1e-04);
@@ -259,7 +259,7 @@ namespace Distributions.Univariate
         /// InverseCDF will be undefined if probability is either 0 or 1.
         /// </summary>
         [TestMethod()]
-        public void ValidateInverseCDF()
+        public void Test_InverseCDF()
         {
             var c = new Cauchy(0, 0.1);
             Assert.AreEqual(-0.307768, c.InverseCDF(0.1), 1e-04);

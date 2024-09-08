@@ -420,7 +420,6 @@ namespace Numerics.Distributions
         /// </summary>
         /// <param name="xl">Lower x value.</param>
         /// <param name="xu">Upper x value</param>
-        /// <returns></returns>
         public double PDF(double xl, double xu)
         {
             if (xu == xl) return PDF(xu);

@@ -80,7 +80,7 @@ namespace Distributions.Univariate
         /// Checking Inverse Chi-Squared can be created with inputs.
         /// </summary>
         [TestMethod()]
-        public void CanCreateInvChiSquared()
+        public void Test_Construction()
         {
             var IX = new InverseChiSquared();
             Assert.AreEqual(IX.DegreesOfFreedom, 10);
@@ -95,7 +95,7 @@ namespace Distributions.Univariate
         /// Testing distribution with bad parameters.
         /// </summary>
         [TestMethod()]
-        public void InverseChiSquaredFails()
+        public void Test_InvalidParameters()
         {
             var IX = new InverseChiSquared(0, 0);
             Assert.IsFalse(IX.ParametersValid);
@@ -111,7 +111,7 @@ namespace Distributions.Univariate
         /// Testing Parameters to string.
         /// </summary>
         [TestMethod()]
-        public void ValidateParametersToString()
+        public void Test_ParametersToString()
         {
             var IX = new InverseChiSquared();
             Assert.AreEqual(IX.ParametersToString[0, 0], "Degrees of Freedom (ν)");
@@ -124,7 +124,7 @@ namespace Distributions.Univariate
         /// Testing mean function.
         /// </summary>
         [TestMethod()]
-        public void ValidateMean()
+        public void Test_Mean()
         {
             var IX = new InverseChiSquared();
             Assert.AreEqual(IX.Mean, 1.25);
@@ -137,7 +137,7 @@ namespace Distributions.Univariate
         /// Testing median function.
         /// </summary>
         [TestMethod()]
-        public void ValidateMedian()
+        public void Test_Median()
         {
             var IX = new InverseChiSquared();
             Assert.AreEqual(IX.Median, 0.93418,1e-04);
@@ -150,7 +150,7 @@ namespace Distributions.Univariate
         /// Testing mode function.
         /// </summary>
         [TestMethod()]
-        public void ValidateMode()
+        public void Test_Mode()
         {
             var IX = new InverseChiSquared();
             Assert.AreEqual(IX.Mode, 0.8333, 1e-04);
@@ -163,7 +163,7 @@ namespace Distributions.Univariate
         /// Testing standard deviation.
         /// </summary>
         [TestMethod()]
-        public void ValidateStandardDeviation()
+        public void Test_StandardDeviation()
         {
             var IX = new InverseChiSquared();
             Assert.AreEqual(IX.StandardDeviation, 0.72168, 1e-04);
@@ -176,7 +176,7 @@ namespace Distributions.Univariate
         /// Testing skew function.
         /// </summary>
         [TestMethod()]
-        public void ValidateSkew()
+        public void Test_Skewness()
         {
             var IX = new InverseChiSquared();
             Assert.AreEqual(IX.Skewness, 3.46410, 1e-04);
@@ -189,7 +189,7 @@ namespace Distributions.Univariate
         /// Testing kurtosis function.
         /// </summary>
         [TestMethod()]
-        public void ValidateKurtosis()
+        public void Test_Kurtosis()
         {
             var IX = new InverseChiSquared();
             Assert.AreEqual(IX.Kurtosis, 45);
@@ -202,7 +202,7 @@ namespace Distributions.Univariate
         /// Testing Minimum and Maximum functions are 0 and positive infinity respectively.
         /// </summary>
         [TestMethod()]
-        public void ValidateMinMax()
+        public void Test_MinMax()
         {
             var IX = new InverseChiSquared();
             Assert.AreEqual(IX.Minimum, 0);
@@ -213,7 +213,7 @@ namespace Distributions.Univariate
         /// Testing PDF method.
         /// </summary>
         [TestMethod()]
-        public void ValidatePDF()
+        public void Test_PDF()
         {
             var IX = new InverseChiSquared(1, 1);
             Assert.AreEqual(IX.PDF(1), 0.2419,1e-04);
@@ -229,7 +229,7 @@ namespace Distributions.Univariate
         /// Testing CDF method.
         /// </summary>
         [TestMethod()]
-        public void ValidateCDF()
+        public void Test_CDF()
         {
             var IX = new InverseChiSquared(7,1);
             Assert.AreEqual(IX.CDF(5), 1.1184e-05, 1e-09);
@@ -239,7 +239,7 @@ namespace Distributions.Univariate
         /// Testing the Inverse CDF method.
         /// </summary>
         [TestMethod()]
-        public void ValidateInverseCDF()
+        public void Test_InverseCDF()
         {
             var IX = new InverseChiSquared();
             Assert.AreEqual(IX.InverseCDF(0), 0);

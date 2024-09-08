@@ -279,7 +279,7 @@ namespace Numerics.Distributions
             {
                 if (Math.Abs(Kappa) <= NearZero)
                 {
-                    return 12d / 5d;
+                    return 3 + 12d / 5d;
                 }
                 else if (Math.Abs(Kappa) < 0.25d)
                 {
@@ -289,7 +289,7 @@ namespace Numerics.Distributions
                     double U4 = Gamma.Function(1d + 4d * Kappa);
                     double kNum = U4 - 4d * U3 * U1 - 3d * Math.Pow(U2, 2d) + 12d * U2 * Math.Pow(U1, 2d) - 6d * Math.Pow(U1, 4d);
                     double kDen = Math.Pow(U2 - Math.Pow(U1, 2d), 2d);
-                    return kNum / kDen;
+                    return 3 + kNum / kDen;
                 }
                 else
                 {
@@ -356,6 +356,10 @@ namespace Numerics.Distributions
             else if (estimationMethod == ParameterEstimationMethod.MaximumLikelihood)
             {
                 SetParameters(MLE(sample));
+            }
+            else
+            {
+                throw new NotImplementedException();
             }
         }
 
@@ -432,7 +436,7 @@ namespace Numerics.Distributions
         public double[] DirectMethodOfMoments(IList<double> moments)
         {
             // Solve for kappa
-            double k = SolveforKappa(moments[2]);
+            double k = SolveForKappa(moments[2]);
             double a;
             double x;
             if (Math.Abs(k) <= NearZero)
@@ -456,7 +460,7 @@ namespace Numerics.Distributions
         public double[] ParametersFromMoments(IList<double> moments)
         {
             // Solve for kappa
-            double k = SolveforKappa(moments[2]);
+            double k = SolveForKappa(moments[2]);
             double a;
             double x;
             if (Math.Abs(k) <= NearZero)
@@ -495,7 +499,7 @@ namespace Numerics.Distributions
         /// <returns>
         /// Kappa
         /// </returns>
-        public double SolveforKappa(double skew)
+        public double SolveForKappa(double skew)
         {
             if (skew > 1.14d && skew < 10d)
             {
@@ -715,18 +719,6 @@ namespace Numerics.Distributions
             return new Matrix(_matrix);
         }
 
-        /// <summary>
-        /// Inverts the expected information matrix.
-        /// </summary>
-        /// <param name="sampleSize">The sample size.</param>
-        public Matrix InverseExpectedInformationMatrix(int sampleSize)
-        {
-            var matrix = ExpectedInformationMatrix(sampleSize);
-            Matrix argB = null;
-            GaussJordanElimination.Solve(ref matrix, B: ref argB);
-            return matrix;
-        }
-
         /// <inheritdoc/>
         public override UnivariateDistributionBase Clone()
         {
@@ -744,8 +736,8 @@ namespace Numerics.Distributions
             if (_parametersValid == false)
                 ValidateParameters(Xi, _alpha, Kappa, true);
             // Compute covariance
-            var matrix = InverseExpectedInformationMatrix(sampleSize);
-            return matrix.ToArray();
+            var matrix = ExpectedInformationMatrix(sampleSize);
+            return matrix.Inverse().ToArray();
         }
 
         /// <inheritdoc/>

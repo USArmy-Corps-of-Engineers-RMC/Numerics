@@ -207,6 +207,10 @@ namespace Numerics.Distributions
             {
                 SetParameters(Statistics.Mean(sample));
             }
+            else
+            {
+                throw new NotImplementedException();
+            }
         }
 
         /// <summary>

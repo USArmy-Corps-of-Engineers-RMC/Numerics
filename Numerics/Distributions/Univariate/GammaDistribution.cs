@@ -127,13 +127,14 @@ namespace Numerics.Distributions
     [Serializable]
     public sealed class GammaDistribution : UnivariateDistributionBase, IEstimation, IMaximumLikelihoodEstimation, IMomentEstimation, ILinearMomentEstimation, IStandardError, IBootstrappable
     {
-
-        // There are three different parameterizations in common use:
-        // 1. With a shape parameter κ and a scale parameter θ.
-        // 2. With a shape parameter α = κ and an inverse scale parameter β = 1/θ, called a rate parameter.
-        // 3. With a shape parameter κ and a mean parameter μ = kθ = α/β.
-        // 
-        // This class only uses the parameterization described in #1.
+        /*
+        * There are three different parameterizations in common use:
+        * 1. With a shape parameter κ and a scale parameter θ.
+        * 2. With a shape parameter α = κ and an inverse scale parameter β = 1/θ, called a rate parameter.
+        * 3. With a shape parameter κ and a mean parameter μ = kθ = α/β.
+        * 
+        * This class only uses the parameterization described in #1.
+        */
 
         /// <summary>
         /// Constructs a Gamma distribution with scale θ = 10 and shape κ = 2.
@@ -332,6 +333,10 @@ namespace Numerics.Distributions
             {
                 SetParameters(MLE(sample));
             }
+            else
+            {
+                throw new NotImplementedException();
+            }
         }
 
         /// <inheritdoc/>
@@ -448,7 +453,7 @@ namespace Numerics.Distributions
             double alpha = parameters[1];
             double beta = parameters[0];
             double L1 = alpha * beta;
-            double L2 = Math.Abs(Math.Pow(Math.PI, -0.5d) * beta * Mathematics.SpecialFunctions.Gamma.Function(alpha + 0.5d) / Mathematics.SpecialFunctions.Gamma.Function(alpha));
+            double L2 = Math.Abs(Math.Pow(Math.PI, -0.5d) * beta * Gamma.Function(alpha + 0.5d) / Gamma.Function(alpha));
             // The following approximations are accurate to 10-6. 
             double A0 = 0.32573501d;
             double A1 = 0.1686915d;

@@ -105,6 +105,9 @@ namespace Distributions.Univariate
             Assert.AreEqual((skew - true_skew) / true_skew < 0.01d, true);
         }
 
+        /// <summary>
+        /// Verification of PIII fit with method of linear moments.
+        /// </summary>
         [TestMethod()]
         public void Test_P3_LMOM_Fit()
         {
@@ -126,7 +129,6 @@ namespace Distributions.Univariate
             Assert.AreEqual(lmom[2], 0.1033889d, 0.001d);
             Assert.AreEqual(lmom[3], 0.1258521d, 0.001d);
         }
-
 
         /// <summary>
         /// Verification of PIII fit with maximum likelihood.
@@ -193,8 +195,6 @@ namespace Distributions.Univariate
             Assert.AreEqual((q999 - true_q999) / true_q999 < 0.01d, true);
         }
 
-
-
         /// <summary>
         /// Test the standard error for the Pearson Type III Distribution.
         /// </summary>
@@ -227,7 +227,7 @@ namespace Distributions.Univariate
         /// Verifying input parameters can create distribution.
         /// </summary>
         [TestMethod()]
-        public void CanCreateP3()
+        public void Test_Construction()
         {
             var P3 = new PearsonTypeIII();
             Assert.AreEqual(P3.Mu, 100);
@@ -244,7 +244,7 @@ namespace Distributions.Univariate
         /// Testing distribution with bad parameters.
         /// </summary>
         [TestMethod()]
-        public void P3Fails()
+        public void Test_InvalidParameters()
         {
             var P3 = new PearsonTypeIII(double.PositiveInfinity, double.PositiveInfinity,double.PositiveInfinity);
             Assert.IsFalse(P3.ParametersValid);
@@ -260,7 +260,7 @@ namespace Distributions.Univariate
         /// Testing parameter to string.
         /// </summary>
         [TestMethod()]
-        public void ValidateParameterToString()
+        public void Test_ParametersToString()
         {
             var P3 = new PearsonTypeIII();
             Assert.AreEqual(P3.ParametersToString[0, 0], "Mean (µ)");
@@ -272,10 +272,24 @@ namespace Distributions.Univariate
         }
 
         /// <summary>
+        /// Compare analytical moments against numerical integration.
+        /// </summary>
+        [TestMethod()]
+        public void Test_Moments()
+        {
+            var dist = new PearsonTypeIII();
+            var mom = dist.CentralMoments(1E-8);
+            Assert.AreEqual(mom[0], dist.Mean, 1E-2);
+            Assert.AreEqual(mom[1], dist.StandardDeviation, 1E-2);
+            Assert.AreEqual(mom[2], dist.Skewness, 1E-2);
+            Assert.AreEqual(mom[3], dist.Kurtosis, 1E-2);
+        }
+
+        /// <summary>
         /// Testing mean.
         /// </summary>
         [TestMethod()]
-        public void ValidateMean()
+        public void Test_Mean()
         {
             var P3 = new PearsonTypeIII();
             Assert.AreEqual(P3.Mean, 100);
@@ -288,7 +302,7 @@ namespace Distributions.Univariate
         /// Testing median.
         /// </summary>
         [TestMethod()]
-        public void ValidateMedian()
+        public void Test_Median()
         {
             var P3 = new PearsonTypeIII();
             Assert.AreEqual(P3.Median, 100);
@@ -298,7 +312,7 @@ namespace Distributions.Univariate
         /// Testing mode.
         /// </summary>
         [TestMethod()]
-        public void ValidateMode()
+        public void Test_Mode()
         {
             var P3 = new PearsonTypeIII();
             Assert.AreEqual(P3.Mode, 100);
@@ -311,7 +325,7 @@ namespace Distributions.Univariate
         /// Testing standard deviation.
         /// </summary>
         [TestMethod()]
-        public void ValidateStandardDeviation()
+        public void Test_StandardDeviation()
         {
             var P3 = new PearsonTypeIII();
             Assert.AreEqual(P3.StandardDeviation, 10);
@@ -324,7 +338,7 @@ namespace Distributions.Univariate
         /// Testing skew function.
         /// </summary>
         [TestMethod()]
-        public void ValidateSkew()
+        public void Test_Skewness()
         {
             var P3 = new PearsonTypeIII();
             Assert.AreEqual(P3.Skewness, 0);
@@ -337,7 +351,7 @@ namespace Distributions.Univariate
         /// Testing Kurtosis.
         /// </summary>
         [TestMethod()]
-        public void ValidateKurtosis()
+        public void Test_Kurtosis()
         {
             var P3 = new PearsonTypeIII();
             Assert.AreEqual(P3.Kurtosis, 3);
@@ -350,7 +364,7 @@ namespace Distributions.Univariate
         /// Testing minimum function.
         /// </summary>
         [TestMethod()]
-        public void ValidateMinimum()
+        public void Test_Minimum()
         {
             var P3 = new PearsonTypeIII();
             Assert.AreEqual(P3.Minimum,double.NegativeInfinity);
@@ -363,7 +377,7 @@ namespace Distributions.Univariate
         /// Testing maximum function.
         /// </summary>
         [TestMethod()]
-        public void ValidateMaximum() 
+        public void Test_Maximum() 
         {
             var P3 = new PearsonTypeIII();
             Assert.AreEqual(P3.Maximum,double.PositiveInfinity);

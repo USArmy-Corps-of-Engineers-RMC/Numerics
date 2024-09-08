@@ -87,6 +87,9 @@ namespace Distributions.Univariate
             Assert.AreEqual((k - true_k) / true_k < 0.01d, true);
         }
 
+        /// <summary>
+        /// Verification of GPA Distribution fit with method of linear moments.
+        /// </summary>
         [TestMethod()]
         public void Test_GPA_LMOM_Fit()
         {
@@ -236,7 +239,7 @@ namespace Distributions.Univariate
         /// Checking if parameters can construct Generalized Pareto.
         /// </summary>
         [TestMethod()]
-        public void CanCreateGeneralizedPareto()
+        public void Test_Construction()
         {
             var GPA = new GeneralizedPareto();
             Assert.AreEqual(GPA.Xi, 100);
@@ -253,7 +256,7 @@ namespace Distributions.Univariate
         /// Testing distribution with bad parameters.
         /// </summary>
         [TestMethod()]
-        public void GeneralizedParetoFails()
+        public void Test_InvalidParameters()
         {
             var GPA = new GeneralizedPareto(double.NaN, double.NaN, double.NaN);
             Assert.IsFalse(GPA.ParametersValid);
@@ -269,7 +272,7 @@ namespace Distributions.Univariate
         /// Checking ParametersToString().
         /// </summary>
         [TestMethod()]
-        public void ValidateParametersToString()
+        public void Test_ParametersToString()
         {
             var GPA = new GeneralizedPareto();
             Assert.AreEqual(GPA.ParametersToString[0, 0], "Location (ξ)");
@@ -281,10 +284,24 @@ namespace Distributions.Univariate
         }
 
         /// <summary>
+        /// Compare analytical moments against numerical integration.
+        /// </summary>
+        [TestMethod()]
+        public void Test_Moments()
+        {
+            var dist = new GeneralizedPareto(100, 10, -0.1);
+            var mom = dist.CentralMoments(1E-8);
+            Assert.AreEqual(mom[0], dist.Mean, 1E-2);
+            Assert.AreEqual(mom[1], dist.StandardDeviation, 1E-2);
+            Assert.AreEqual(mom[2], dist.Skewness, 1E-2);
+            Assert.AreEqual(mom[3], dist.Kurtosis, 1E-2);
+        }
+
+        /// <summary>
         /// Testing mean function.
         /// </summary>
         [TestMethod()]
-        public void ValidateMean()
+        public void Test_Mean()
         {
             var GPA = new GeneralizedPareto();
             Assert.AreEqual(GPA.Mean, 110);
@@ -300,7 +317,7 @@ namespace Distributions.Univariate
         /// Testing median function.
         /// </summary>
         [TestMethod()]
-        public void ValidateMedian()
+        public void Test_Median()
         {
             var GPA = new GeneralizedPareto();
             Assert.AreEqual(GPA.Median, 106.93147, 1e-04);
@@ -313,7 +330,7 @@ namespace Distributions.Univariate
         /// Testing mode function.
         /// </summary>
         [TestMethod()]
-        public void ValidateMode()
+        public void Test_Mode()
         {
             var GPA = new GeneralizedPareto();
             Assert.AreEqual(GPA.Mode, 100);
@@ -326,7 +343,7 @@ namespace Distributions.Univariate
         /// Testing standard deviation function.
         /// </summary>
         [TestMethod()]
-        public void ValidateStandardDeviation()
+        public void Test_StandardDeviation()
         {
             var GPA = new GeneralizedPareto();
             Assert.AreEqual(GPA.StandardDeviation, 10);
@@ -342,7 +359,7 @@ namespace Distributions.Univariate
         /// Testing the skew function.
         /// </summary>
         [TestMethod()]
-        public void ValidateSkew()
+        public void Test_Skewness()
         {
             var GPA = new GeneralizedPareto();
             Assert.AreEqual(GPA.Skewness, 2);
@@ -358,7 +375,7 @@ namespace Distributions.Univariate
         /// Testing Kurtosis function.
         /// </summary>
         [TestMethod()]
-        public void ValidateKurtosis()
+        public void Test_Kurtosis()
         {
             var GPA = new GeneralizedPareto();
             Assert.AreEqual(GPA.Kurtosis, 9);
@@ -374,7 +391,7 @@ namespace Distributions.Univariate
         /// Checking minimum function.
         /// </summary>
         [TestMethod()]
-        public void ValidateMinimum()
+        public void Test_Minimum()
         {
             var GPA = new GeneralizedPareto();
             Assert.AreEqual(GPA.Minimum, 100);
@@ -384,7 +401,7 @@ namespace Distributions.Univariate
         /// Testing maximum function.
         /// </summary>
         [TestMethod()]
-        public void ValidateMaximum() 
+        public void Test_Maximum() 
         {
             var GPA = new GeneralizedPareto();
             Assert.AreEqual(GPA.Maximum, double.PositiveInfinity);
@@ -397,7 +414,7 @@ namespace Distributions.Univariate
         /// Testing PDF method at different locations and parameters.
         /// </summary>
         [TestMethod()]
-        public void ValidatePDF()
+        public void Test_PDF()
         {
             var GPA = new GeneralizedPareto();
             Assert.AreEqual(GPA.PDF(100), 0.1);
@@ -412,7 +429,7 @@ namespace Distributions.Univariate
         /// Testing CDF method at different locations and parameters.
         /// </summary>
         [TestMethod()]
-        public void ValidateCDF()
+        public void Test_CDF()
         {
             var GPA = new GeneralizedPareto();
             Assert.AreEqual(GPA.CDF(100), 0);
@@ -429,7 +446,7 @@ namespace Distributions.Univariate
         /// Testing InverseCDF method at different probabilities.
         /// </summary>
         [TestMethod()]
-        public void ValidateInverseCDF()
+        public void Test_InverseCDF()
         {
             var GPA = new GeneralizedPareto();
             Assert.AreEqual(GPA.InverseCDF(0), 100);

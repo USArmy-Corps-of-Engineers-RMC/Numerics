@@ -57,7 +57,7 @@ namespace Distributions.Univariate
     {
 
         /// <summary>
-        /// Verified using  Accord.Net
+        /// Verified using Accord.Net
         /// </summary>
         [TestMethod()]
         public void Test_RayleighDist()
@@ -81,7 +81,7 @@ namespace Distributions.Univariate
         /// Verifying input parameters can create distribution.
         /// </summary>
         [TestMethod()]
-        public void CanCreateRayleigh()
+        public void Test_Construction()
         {
             var R = new Rayleigh();
             Assert.AreEqual(R.Sigma, 10);
@@ -94,7 +94,7 @@ namespace Distributions.Univariate
         /// Testing distribution with bad parameters.
         /// </summary>
         [TestMethod()]
-        public void RayleighFails()
+        public void Test_InvalidParameters()
         {
             var R = new Rayleigh(double.NaN);
             Assert.IsFalse(R.ParametersValid);
@@ -110,7 +110,7 @@ namespace Distributions.Univariate
         /// Testing Parameter to string.
         /// </summary>
         [TestMethod()]
-        public void ValidateParameterToString()
+        public void Test_ParametersToString()
         {
             var R = new Rayleigh();
             Assert.AreEqual(R.ParametersToString[0, 0], "Scale (σ)");
@@ -118,10 +118,24 @@ namespace Distributions.Univariate
         }
 
         /// <summary>
+        /// Compare analytical moments against numerical integration.
+        /// </summary>
+        [TestMethod()]
+        public void Test_Moments()
+        {
+            var dist = new Rayleigh(1);
+            var mom = dist.CentralMoments(1E-8);
+            Assert.AreEqual(mom[0], dist.Mean, 1E-2);
+            Assert.AreEqual(mom[1], dist.StandardDeviation, 1E-2);
+            Assert.AreEqual(mom[2], dist.Skewness, 1E-2);
+            Assert.AreEqual(mom[3], dist.Kurtosis, 1E-2);
+        }
+
+        /// <summary>
         /// Testing mean function.
         /// </summary>
         [TestMethod()]
-        public void ValidateMean()
+        public void Test_Mean()
         {
             var R = new Rayleigh();
             Assert.AreEqual(R.Mean, 12.53314, 1e-04);
@@ -134,7 +148,7 @@ namespace Distributions.Univariate
         /// Testing median.
         /// </summary>
         [TestMethod()]
-        public void ValidateMedian()
+        public void Test_Median()
         {
             var R = new Rayleigh();
             Assert.AreEqual(R.Median, 11.7741, 1e-04);
@@ -147,7 +161,7 @@ namespace Distributions.Univariate
         /// Testing mode.
         /// </summary>
         [TestMethod()]
-        public void ValidateMode()
+        public void Test_Mode()
         {
             var R = new Rayleigh();
             Assert.AreEqual(R.Mode, 10);
@@ -160,7 +174,7 @@ namespace Distributions.Univariate
         /// Testing standard deviation.
         /// </summary>
         [TestMethod()]
-        public void ValidateStandardDeviation()
+        public void Test_StandardDeviation()
         {
             var R = new Rayleigh();
             Assert.AreEqual(R.StandardDeviation, 6.55136, 1e-05);
@@ -173,7 +187,7 @@ namespace Distributions.Univariate
         /// Testing skew.
         /// </summary>
         [TestMethod()]
-        public void ValidateSkew()
+        public void Test_Skewness()
         {
             var R = new Rayleigh();
             Assert.AreEqual(R.Skewness, 0.63111, 1e-04);
@@ -186,7 +200,7 @@ namespace Distributions.Univariate
         /// Testing kurtosis.
         /// </summary>
         [TestMethod()]
-        public void ValidateKurtosis()
+        public void Test_Kurtosis()
         {
             var R = new Rayleigh();
             Assert.AreEqual(R.Kurtosis, 3.24508,1e-05);
@@ -199,7 +213,7 @@ namespace Distributions.Univariate
         /// Testing minimum and maximum functions.
         /// </summary>
         [TestMethod()]
-        public void ValidateMinMax()
+        public void Test_MinMax()
         {
             var R = new Rayleigh();
             Assert.AreEqual(R.Minimum, 0);
@@ -210,7 +224,7 @@ namespace Distributions.Univariate
         /// Testing PDF method.
         /// </summary>
         [TestMethod()]
-        public void ValidatePDF()
+        public void Test_PDF()
         {
             var R = new Rayleigh();
             Assert.AreEqual(R.PDF(-1), 0);
@@ -224,7 +238,7 @@ namespace Distributions.Univariate
         /// Testing CDF method.
         /// </summary>
         [TestMethod()]
-        public void ValidateCDF()
+        public void Test_CDF()
         {
             var R = new Rayleigh();
             Assert.AreEqual(R.CDF(-1), 0);
@@ -235,7 +249,7 @@ namespace Distributions.Univariate
         /// Testing inverse CDF method.
         /// </summary>
         [TestMethod()]
-        public void ValidateInverseCDF()
+        public void Test_InverseCDF()
         {
             var R = new Rayleigh();
             Assert.AreEqual(R.InverseCDF(0), 0);

@@ -117,7 +117,7 @@ namespace Numerics.Distributions
         }
 
         /// <summary>
-        /// Gets and sets the average number of peak per year.
+        /// Gets and sets the average number of peaks per block.
         /// </summary>
         public double Lambda
         {
@@ -349,6 +349,10 @@ namespace Numerics.Distributions
             {
                 SetParameters(MLE(sample));
             }
+            else
+            {
+                throw new NotImplementedException();
+            }
         }
 
         /// <inheritdoc/>
@@ -426,7 +430,7 @@ namespace Numerics.Distributions
         {
 
             // Solve for kappa
-            double k = SolveforKappa(moments[2]);
+            double k = SolveForKappa(moments[2]);
             double a;
             double x;
             if (Math.Abs(k) <= NearZero)
@@ -493,7 +497,7 @@ namespace Numerics.Distributions
         /// <returns>
         /// Kappa
         /// </returns>
-        public double SolveforKappa(double skew)
+        public double SolveForKappa(double skew)
         {
             if (Math.Abs(skew) < 10d)
             {

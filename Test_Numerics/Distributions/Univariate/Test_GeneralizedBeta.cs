@@ -110,7 +110,7 @@ namespace Distributions.Univariate
         /// See if Generalized beta is being created.
         /// </summary>
         [TestMethod]
-        public void CanCreateGeneralizedBeta()
+        public void Test_Construction()
         {
             var b = new GeneralizedBeta(0, 0,0,1);
             Assert.AreEqual(0, b.Alpha);
@@ -147,7 +147,7 @@ namespace Distributions.Univariate
         /// Check Generalized beta function with bad parameters.
         /// </summary>
         [TestMethod()]
-        public void GeneralizedBetaFails()
+        public void Test_InvalidParameters()
         {
             var b = new GeneralizedBeta(double.NaN, 0);
             Assert.IsFalse(b.ParametersValid);
@@ -166,7 +166,7 @@ namespace Distributions.Univariate
         /// Testing ParameterToString function.
         /// </summary>
         [TestMethod()]
-        public void ValidateParameterToString()
+        public void Test_ParametersToString()
         {
             var b = new GeneralizedBeta(1d, 1d,0,1);
             Assert.AreEqual("Shape (α)", b.ParametersToString[0, 0]);
@@ -181,10 +181,24 @@ namespace Distributions.Univariate
         }
 
         /// <summary>
+        /// Compare analytical moments against numerical integration.
+        /// </summary>
+        [TestMethod()]
+        public void Test_Moments()
+        {
+            var dist = new GeneralizedBeta(2, 2, 0, 1);
+            var mom = dist.CentralMoments(1E-8);
+            Assert.AreEqual(mom[0], dist.Mean, 1E-2);
+            Assert.AreEqual(mom[1], dist.StandardDeviation, 1E-2);
+            Assert.AreEqual(mom[2], dist.Skewness, 1E-2);
+            Assert.AreEqual(mom[3], dist.Kurtosis, 1E-2);
+        }
+
+        /// <summary>
         /// Validating the mean of this distribution with different parameters.
         /// </summary>
         [TestMethod()]
-        public void ValidateMean()
+        public void Test_Mean()
         {
             var b = new GeneralizedBeta(2, 2, 0, 1);
             Assert.AreEqual(b.Mean, 0.5);
@@ -197,7 +211,7 @@ namespace Distributions.Univariate
         /// Verified using MathNet-Numerics testing. Checking median of distribution with different parameters.
         /// </summary>
         [TestMethod()]
-        public void ValidateMedian()
+        public void Test_Median()
         {
             var b = new GeneralizedBeta(2, 2);
             Assert.AreEqual(0.5, b.Median);
@@ -207,7 +221,7 @@ namespace Distributions.Univariate
         /// Verifies the mode of the distribution.
         /// </summary>
         [TestMethod()]
-        public void ValidateMode()
+        public void Test_Mode()
         {
             var b = new GeneralizedBeta();
             Assert.AreEqual(b.Mode, 0.5);
@@ -220,7 +234,7 @@ namespace Distributions.Univariate
         /// Testing Standard Deviation with different Max and min values
         /// </summary>
         [TestMethod()]
-        public void ValidateStandardDeviation()
+        public void Test_StandardDeviation()
         {
             var b = new GeneralizedBeta();
             Assert.AreEqual(b.StandardDeviation, 0.223606, 1e-04);
@@ -233,7 +247,7 @@ namespace Distributions.Univariate
         /// Verifying skew function.
         /// </summary>
         [TestMethod()]
-        public void ValidateSkew()
+        public void Test_Skewness()
         {
             var b = new GeneralizedBeta();
             Assert.AreEqual(b.Skewness, 0);
@@ -246,7 +260,7 @@ namespace Distributions.Univariate
         /// Checking Kurtosis of distribution with different parameters.
         /// </summary>
         [TestMethod()]
-        public void ValidateKurtosis()
+        public void Test_Kurtosis()
         {
             var b = new GeneralizedBeta(2, 2);
             Assert.AreEqual(2.14285, b.Kurtosis, 1e-04);
@@ -262,7 +276,7 @@ namespace Distributions.Univariate
         /// Testing minimum and maximum functions of this distribution.
         /// </summary>
         [TestMethod()]
-        public void ValidateMinimumMaximum()
+        public void Test_MinimumMaximum()
         {
             var b = new GeneralizedBeta();
             Assert.AreEqual(b.Minimum, 0);
@@ -277,7 +291,7 @@ namespace Distributions.Univariate
         /// Verifying the PDF for Generalized Beta with known inputs from Test_Beta.cs.
         /// </summary>
         [TestMethod()]
-        public void ValidatePDF()
+        public void Test_PDF()
         {
             var b = new GeneralizedBeta(1, 1,0,2);
             Assert.AreEqual(0.5, b.PDF(0));
@@ -296,7 +310,7 @@ namespace Distributions.Univariate
         /// Verifying CDF function.
         /// </summary>
         [TestMethod()]
-        public void ValidateCDF()
+        public void Test_CDF()
         {
             var b = new GeneralizedBeta(2,2,-10,10);
             Assert.AreEqual(b.CDF(-11), 0);
@@ -312,7 +326,7 @@ namespace Distributions.Univariate
         /// Verifying inverse CDF function.
         /// </summary>
         [TestMethod()]
-        public void ValidateInverseCDF()
+        public void Test_InverseCDF()
         {
             var b = new GeneralizedBeta(1, 1);
             Assert.AreEqual(1, b.InverseCDF(1));

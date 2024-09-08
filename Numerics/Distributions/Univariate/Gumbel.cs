@@ -233,6 +233,10 @@ namespace Numerics.Distributions
             { 
                 SetParameters(MLE(sample));
             }
+            else
+            {
+                throw new NotImplementedException();
+            }
         }
 
         /// <inheritdoc/>
@@ -389,23 +393,23 @@ namespace Numerics.Distributions
         /// <references>
         /// Handbook of Statistical Distributions with Application
         /// </references>
-        public void SetParametersfromMLE(IList<double> sample)
+        public void SetParametersFromMLE(IList<double> sample)
         {
             // compute moments from sample
-            var Moments = Statistics.ProductMoments(sample);
+            var moments = Statistics.ProductMoments(sample);
             try
             {
 
                 // get lower and upper bounds
-                double LB = 1.0d / (Math.Sqrt(6d) / Math.PI * Moments[1]) / 4d;
-                double UB = 1.0d / (Math.Sqrt(6d) / Math.PI * Moments[1]) * 4d;
+                double LB = 1.0d / (Math.Sqrt(6d) / Math.PI * moments[1]) / 4d;
+                double UB = 1.0d / (Math.Sqrt(6d) / Math.PI * moments[1]) * 4d;
                 // get first guess
-                double theta_hat = 1.0d / (Math.Sqrt(6d) / Math.PI * Moments[1]);
+                double theta_hat = 1.0d / (Math.Sqrt(6d) / Math.PI * moments[1]);
 
                 // solve using robust newton-raphson
                 double thetan = NewtonRaphson.RobustSolve((t) =>
                 {
-                    double xb = Moments[0];
+                    double xb = moments[0];
                     double SumXY = 0d;
                     double SumYY = 0d;
                     for (int i = 0; i < sample.Count; i++)
@@ -442,7 +446,7 @@ namespace Numerics.Distributions
             catch (ArgumentException)
             {
                 // If the newton method fails to converge, fall back to sample moments
-                SetParameters(ParametersFromMoments(Moments));
+                SetParameters(ParametersFromMoments(moments));
             }
             catch (Exception ex)
             {
