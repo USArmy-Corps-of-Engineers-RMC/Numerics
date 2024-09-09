@@ -30,10 +30,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Data;
-using System.Linq;
 using System.Threading.Tasks;
-using Numerics.Data;
 using Numerics.Data.Statistics;
 using Numerics.Mathematics.Optimization;
 using Numerics.Mathematics.SpecialFunctions;

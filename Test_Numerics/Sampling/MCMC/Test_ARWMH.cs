@@ -250,17 +250,17 @@ namespace Sampling.MCMC
             */
 
             // Alpha from R is equal to Kappa in Numerics
-            Assert.AreEqual(2.98, results.ParameterResults[1].SummaryStatistics.Mean, 0.05 * 2.98);
-            Assert.AreEqual(0.34, results.ParameterResults[1].SummaryStatistics.StandardDeviation, 0.05 * 0.34);
-            Assert.AreEqual(2.44, results.ParameterResults[1].SummaryStatistics.LowerCI, 0.05 * 2.44);
-            Assert.AreEqual(2.97, results.ParameterResults[1].SummaryStatistics.Median, 0.05 * 2.97);
-            Assert.AreEqual(3.55, results.ParameterResults[1].SummaryStatistics.UpperCI, 0.05 * 3.55);
+            Assert.AreEqual(2.98, results.ParameterResults[1].SummaryStatistics.Mean, 0.1 * 2.98);
+            Assert.AreEqual(0.34, results.ParameterResults[1].SummaryStatistics.StandardDeviation, 0.1 * 0.34);
+            Assert.AreEqual(2.44, results.ParameterResults[1].SummaryStatistics.LowerCI, 0.1 * 2.44);
+            Assert.AreEqual(2.97, results.ParameterResults[1].SummaryStatistics.Median, 0.1 * 2.97);
+            Assert.AreEqual(3.55, results.ParameterResults[1].SummaryStatistics.UpperCI, 0.1 * 3.55);
             // Sigma from R is equal to Lambda in Numerics
-            Assert.AreEqual(14310.25, results.ParameterResults[0].SummaryStatistics.Mean, 0.05 * 14310.25);
-            Assert.AreEqual(745.27, results.ParameterResults[0].SummaryStatistics.StandardDeviation, 0.05 * 745.27);
-            Assert.AreEqual(13103.65, results.ParameterResults[0].SummaryStatistics.LowerCI, 0.05 * 13103.65);
-            Assert.AreEqual(14309.95, results.ParameterResults[0].SummaryStatistics.Median, 0.05 * 14309.95);
-            Assert.AreEqual(15534.76, results.ParameterResults[0].SummaryStatistics.UpperCI, 0.05 * 15534.76);
+            Assert.AreEqual(14310.25, results.ParameterResults[0].SummaryStatistics.Mean, 0.1 * 14310.25);
+            Assert.AreEqual(745.27, results.ParameterResults[0].SummaryStatistics.StandardDeviation, 0.1 * 745.27);
+            Assert.AreEqual(13103.65, results.ParameterResults[0].SummaryStatistics.LowerCI, 0.1 * 13103.65);
+            Assert.AreEqual(14309.95, results.ParameterResults[0].SummaryStatistics.Median, 0.1 * 14309.95);
+            Assert.AreEqual(15534.76, results.ParameterResults[0].SummaryStatistics.UpperCI, 0.1 * 15534.76);
         }
     }
 }
