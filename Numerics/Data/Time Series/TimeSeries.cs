@@ -34,6 +34,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 
@@ -823,79 +824,66 @@ namespace Numerics.Data
         /// <param name="minStepsBetweenEvents">Minimum time steps between events.</param>
         private bool CheckIfMinStepsExceeded(DateTime startTime, DateTime endTime, int minStepsBetweenEvents)
         {
-            DateTime _endTime;
             switch (TimeInterval)
             {
                 case TimeInterval.OneMinute:
                     {
-                        _endTime = startTime.AddMinutes(1 * minStepsBetweenEvents);
-                        return endTime > _endTime;
+                        return endTime > startTime.AddMinutes(1 * minStepsBetweenEvents);
                     }
 
                 case TimeInterval.FiveMinute:
                     {
-                        _endTime = startTime.AddMinutes(5 * minStepsBetweenEvents);
-                        return endTime > _endTime;
+                        return endTime > startTime.AddMinutes(5 * minStepsBetweenEvents);
                     }
 
                 case TimeInterval.FifteenMinute:
                     {
-                        _endTime = startTime.AddMinutes(15 * minStepsBetweenEvents);
-                        return endTime > _endTime;
+                        return endTime > startTime.AddMinutes(15 * minStepsBetweenEvents);
                     }
 
                 case TimeInterval.ThirtyMinute:
                     {
-                        _endTime = startTime.AddMinutes(30 * minStepsBetweenEvents);
-                        return endTime > _endTime;
+                        return endTime > startTime.AddMinutes(30 * minStepsBetweenEvents);
                     }
 
                 case TimeInterval.OneHour:
                     {
-                        _endTime = startTime.AddHours(1 * minStepsBetweenEvents);
-                        return endTime > _endTime;
+                        return endTime > startTime.AddHours(1 * minStepsBetweenEvents);
                     }
 
                 case TimeInterval.SixHour:
                     {
-                        _endTime = startTime.AddHours(6 * minStepsBetweenEvents);
-                        return endTime <= _endTime;
+                        return endTime > startTime.AddHours(6 * minStepsBetweenEvents);
                     }
 
                 case TimeInterval.TwelveHour:
                     {
-                        _endTime = startTime.AddHours(12 * minStepsBetweenEvents);
-                        return endTime > _endTime;
+                        return endTime > startTime.AddHours(12 * minStepsBetweenEvents);
                     }
 
                 case TimeInterval.OneDay:
                     {
-                        _endTime = startTime.AddDays(minStepsBetweenEvents);
-                        return endTime > _endTime;
+                        return endTime > startTime.AddDays(minStepsBetweenEvents);
                     }
 
                 case TimeInterval.SevenDay:
                     {
-                        _endTime = startTime.AddDays(7 * minStepsBetweenEvents);
-                        return endTime > _endTime;
+                        return endTime > startTime.AddDays(7 * minStepsBetweenEvents);
                     }
 
                 case TimeInterval.OneMonth:
                     {
-                        _endTime = startTime.AddMonths(1 * minStepsBetweenEvents);
-                        return endTime > _endTime;
+                        return endTime > startTime.AddMonths(1 * minStepsBetweenEvents);
                     }
 
                 case TimeInterval.OneQuarter:
                     {
-                        _endTime = startTime.AddMonths(3 * minStepsBetweenEvents);
-                        return endTime > _endTime;
+                        return endTime > startTime.AddYears(1 * minStepsBetweenEvents);
                     }
 
                 case TimeInterval.OneYear:
                     {
-                        _endTime = startTime.AddYears(1 * minStepsBetweenEvents);
-                        return endTime > _endTime;
+                        return endTime > startTime.AddYears(1 * minStepsBetweenEvents);
                     }
             }
 
@@ -1942,29 +1930,62 @@ namespace Numerics.Data
                 smoothedSeries = Difference(period);
             }
 
-            // Get peaks
-            var result = new TimeSeries(TimeInterval.Irregular);
-            for (int i = 0; i < smoothedSeries.Count; i++)
+            // First, create the cluster indexes. 
+            int i = 0, idx, idxMax;
+            var clusters = new List<int[]>();
+
+            while (i < smoothedSeries.Count)
             {
                 if (!double.IsNaN(smoothedSeries[i].Value) && smoothedSeries[i].Value > threshold)
                 {
-                    result.Add(smoothedSeries[i].Clone());
+                    // Set the start of the cluster
+                    clusters.Add(new int[2]);
+                    clusters.Last()[0] = i;
+                    idx = i + 1;
+                    idxMax = idx;
 
-                    for (int j = i + 1; j < smoothedSeries.Count; j++)
+                    while ((!double.IsNaN(smoothedSeries[idx].Value) && smoothedSeries[idx].Value > threshold) ||
+                        CheckIfMinStepsExceeded(smoothedSeries[idxMax].Index, smoothedSeries[idx].Index, minStepsBetweenEvents) == false)
                     {
-                        if (!double.IsNaN(smoothedSeries[i].Value) && smoothedSeries[j].Value <= threshold && CheckIfMinStepsExceeded(result.Last().Index, smoothedSeries[j].Index, minStepsBetweenEvents))
+                        if (!double.IsNaN(smoothedSeries[idx].Value) && smoothedSeries[idx].Value >= smoothedSeries[idxMax].Value)
                         {
-                            i = j;
+                            idxMax = idx;
+                        }
+
+                        // Increment inner loop
+                        idx++;
+                        if (idx >= smoothedSeries.Count)
+                        {
+                            idx--;
                             break;
                         }
-                        if (!double.IsNaN(smoothedSeries[i].Value) && smoothedSeries[j].Value >= result.Last().Value)
-                        {
-                            result[result.Count - 1] = smoothedSeries[j].Clone();
-                        }
                     }
+
+                    // Set the end of the cluster
+                    clusters.Last()[1] = idx - 1;
+                    // Increment outer loop
+                    i = idx + 1;
+                }
+                else
+                {
+                    i++;
                 }
             }
 
+            // Next get the max values within each cluster
+            var result = new TimeSeries(TimeInterval.Irregular);
+            for (i = 0; i < clusters.Count; i++)
+            {
+                var max = smoothedSeries[clusters[i][0]].Clone();
+                for (int j = clusters[i][0] + 1; j <= clusters[i][1]; j++)
+                {
+                    if (smoothedSeries[j].Value >= max.Value)
+                    {
+                        max = smoothedSeries[j].Clone();
+                    }
+                }
+                result.Add(max);
+            }
             return result;
         }
 

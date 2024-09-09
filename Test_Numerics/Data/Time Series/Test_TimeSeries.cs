@@ -932,19 +932,47 @@ namespace Data.TimeSeriesAnalysis
             }
         }
 
-        // test peaks over threshold series - COME BACK
+        /// <summary>
+        /// Test using the 'clust' method included in the POT R package (https://cran.r-project.org/web/packages/POT/index.html)
+        /// </summary>
         [TestMethod]
         public void Test_PeaksOverThreshold()
         {
-            var values = new double[] { 122d, 244d, 214d, 173d, 229d, 156d, 212d, 263d, 146d, 183d, 161d, 205d, 135d, 331d, 225d, 174d, 98.8d, 149d, 238d, 262d, 132d, 235d, 216d, 240d, 230d, 192d, 195d, 172d, 173d, 172d, 153d, 142d, 317d, 161d, 201d, 204d, 194d, 164d, 183d, 161d, 167d, 179d, 185d, 117d, 192d, 337d, 125d, 166d, 99.1d, 202d, 230d, 158d, 262d, 154d, 164d, 182d, 164d, 183d, 171d, 250d, 184d, 205d, 237d, 177d, 239d, 187d, 180d, 173d, 174d };
+            var values = new double[] { 122, 244, 214, 173, 229, 156, 212, 263, 146, 183, 161, 205, 135, 331, 225, 174, 98.8, 149, 238, 262, 132, 235, 216, 240, 230, 192, 195, 172, 173, 172, 153, 142, 317, 161, 201, 204, 194, 164, 183, 161, 167, 179, 185, 117, 192, 337, 125, 166, 99.1, 202, 230, 158, 262, 154, 164, 182, 164, 183, 171, 250, 184, 205, 237, 177, 239, 187, 180, 173, 174 };
             var ts = new TimeSeries(TimeInterval.OneMonth, new DateTime(2023, 01, 01), values);
 
+            // Threshold of 100, 2 min steps between
+            var truePOT = new double[] { 331, 337, 262 };
             var POT = ts.PeaksOverThresholdSeries(100, 2);
-
-            for(int i = 0; i < POT.Count; i++)
+            for (int i = 0; i < POT.Count; i++)
             {
-                Debug.Write(POT[i].Value+", ");
+                Assert.AreEqual(truePOT[i], POT[i].Value);
             }
+
+            // Threshold of 90, 1 min steps between
+            truePOT = new double[] { 337 };
+            POT = ts.PeaksOverThresholdSeries(90, 1);
+            for (int i = 0; i < POT.Count; i++)
+            {
+                Assert.AreEqual(truePOT[i], POT[i].Value);
+            }
+
+            // Threshold of 150, 5 min steps between
+            truePOT = new double[] { 331, 240, 317, 337 };
+            POT = ts.PeaksOverThresholdSeries(150, 5);
+            for (int i = 0; i < POT.Count; i++)
+            {
+                Assert.AreEqual(truePOT[i], POT[i].Value);
+            }
+
+            // Threshold of 200, 2 min steps between
+            truePOT = new double[] { 263, 331, 262, 317, 337, 250 };
+            POT = ts.PeaksOverThresholdSeries(200, 2);
+            for (int i = 0; i < POT.Count; i++)
+            {
+                Assert.AreEqual(truePOT[i], POT[i].Value);
+            }
+
         }
 
     }
