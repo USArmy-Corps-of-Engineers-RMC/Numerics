@@ -1,0 +1,19 @@
+var searchData=
+[
+  ['x_0',['X',['../struct_numerics_1_1_data_1_1_ordinate.html#a75980d677f31902c7529e5e72a4cf436',1,'Numerics.Data.Ordinate.X'],['../struct_numerics_1_1_data_1_1_uncertain_ordinate.html#a4ff1c8657cff8aec950ec4518dc4482b',1,'Numerics.Data.UncertainOrdinate.X'],['../class_numerics_1_1_distributions_1_1_multivariate_normal.html#a427f48373a61ac68867f4f63d640ea9b',1,'Numerics.Distributions.MultivariateNormal.X']]],
+  ['x_1',['x',['../class_numerics_1_1_mathematics_1_1_integration_1_1_adaptive_gauss_lobatto.html#a0933cbe1149b4427eb2d396742daf49f',1,'Numerics.Mathematics.Integration.AdaptiveGaussLobatto.x'],['../class_numerics_1_1_mathematics_1_1_integration_1_1_vegas.html#a19b97ac4e5724ee123bc8ff6eef6b28d',1,'Numerics.Mathematics.Integration.Vegas.x'],['../class_numerics_1_1_sampling_1_1_sobol_sequence.html#ad631569ca23a3a0cba87aabc12f458d5',1,'Numerics.Sampling.SobolSequence.x']]],
+  ['x1_2',['x1',['../class_numerics_1_1_mathematics_1_1_integration_1_1_adaptive_gauss_lobatto.html#ae3249ec485cc8e5d7fd4aab5b7e1aca7',1,'Numerics::Mathematics::Integration::AdaptiveGaussLobatto']]],
+  ['x1li_3',['X1LI',['../class_numerics_1_1_data_1_1_bilinear.html#a24e823709c1d4b4caaf143e3e73d13d4',1,'Numerics::Data::Bilinear']]],
+  ['x2_4',['x2',['../class_numerics_1_1_mathematics_1_1_integration_1_1_adaptive_gauss_lobatto.html#a5d1b65f4e5e5532c1c4157eed2ac236b',1,'Numerics::Mathematics::Integration::AdaptiveGaussLobatto']]],
+  ['x2li_5',['X2LI',['../class_numerics_1_1_data_1_1_bilinear.html#a2fbc4d89c92940b5b97bbc95eb09562b',1,'Numerics::Data::Bilinear']]],
+  ['x3_6',['x3',['../class_numerics_1_1_mathematics_1_1_integration_1_1_adaptive_gauss_lobatto.html#ac584647a930f685c2672564bf7597d71',1,'Numerics::Mathematics::Integration::AdaptiveGaussLobatto']]],
+  ['xcorrelated_7',['Xcorrelated',['../class_numerics_1_1_data_1_1_ordered_paired_data.html#aac0c4dd3bf5e6800ef1f3f3a40220670',1,'Numerics::Data::OrderedPairedData']]],
+  ['xdeltastart_8',['XdeltaStart',['../class_numerics_1_1_data_1_1_ordered_paired_data.html#a2d388e286b976b77199c4b7e11e8e003',1,'Numerics::Data::OrderedPairedData']]],
+  ['xi_9',['Xi',['../class_numerics_1_1_distributions_1_1_truncated_normal.html#a3a888c28f8e5d180246ac494833ddc1b',1,'Numerics::Distributions::TruncatedNormal']]],
+  ['xi_10',['xi',['../class_numerics_1_1_mathematics_1_1_integration_1_1_vegas.html#adca13a9b5f704f92c5e402991a240cc5',1,'Numerics::Mathematics::Integration::Vegas']]],
+  ['xin_11',['xin',['../class_numerics_1_1_mathematics_1_1_integration_1_1_vegas.html#ad6d682dbb712fd79b0640de8967110dd',1,'Numerics::Mathematics::Integration::Vegas']]],
+  ['xjac_12',['xjac',['../class_numerics_1_1_mathematics_1_1_integration_1_1_vegas.html#a987a8f9280d40c2a467256b2d84bce32',1,'Numerics::Mathematics::Integration::Vegas']]],
+  ['xn_13',['xn',['../class_numerics_1_1_mathematics_1_1_integration_1_1_vegas.html#aa9e699caf08643f6703fc3841085b7dc',1,'Numerics::Mathematics::Integration::Vegas']]],
+  ['xnd_14',['xnd',['../class_numerics_1_1_mathematics_1_1_integration_1_1_vegas.html#aa3c2cb9d8fe9c5e0c5166599cbbc8847',1,'Numerics::Mathematics::Integration::Vegas']]],
+  ['xo_15',['xo',['../class_numerics_1_1_mathematics_1_1_integration_1_1_vegas.html#afd4f21f9703b7b243655c837449101ce',1,'Numerics::Mathematics::Integration::Vegas']]]
+];

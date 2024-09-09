@@ -1,0 +1,9 @@
+digraph "Graphical Class Hierarchy"
+{
+ // LATEX_PDF_SIZE
+  bgcolor="transparent";
+  edge [fontname=Helvetica,fontsize=10,labelfontname=Helvetica,labelfontsize=10];
+  node [fontname=Helvetica,fontsize=10,shape=box,height=0.2,width=0.4];
+  rankdir="LR";
+  Node0 [id="Node000000",label="Numerics.Sampling.MCMC.MCMCDiagnostics",height=0.2,width=0.4,color="grey40", fillcolor="white", style="filled",URL="$class_numerics_1_1_sampling_1_1_m_c_m_c_1_1_m_c_m_c_diagnostics.html",tooltip="A class for assessing Bayesian MCMC convergence diagnostics."];
+}

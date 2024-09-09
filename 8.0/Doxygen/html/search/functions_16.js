@@ -1,0 +1,6 @@
+var searchData=
+[
+  ['waldwolfowitztest_0',['WaldWolfowitzTest',['../class_numerics_1_1_data_1_1_statistics_1_1_hypothesis_tests.html#afc52e7602b964b7b1ab4566cb76f3a24',1,'Numerics::Data::Statistics::HypothesisTests']]],
+  ['weibull_1',['Weibull',['../class_numerics_1_1_data_1_1_statistics_1_1_plotting_positions.html#ac6ee154414e63b4c9564ddd91a39e5a0',1,'Numerics.Data.Statistics.PlottingPositions.Weibull()'],['../class_numerics_1_1_distributions_1_1_weibull.html#af7bdd5bde2f6a130a4782a0a7b13166a',1,'Numerics.Distributions.Weibull.Weibull()'],['../class_numerics_1_1_distributions_1_1_weibull.html#a2a86b9a633e09b0de53a2b3a79cc94e0',1,'Numerics.Distributions.Weibull.Weibull(double scale, double shape)']]],
+  ['wilsonhilfertyinversecdf_2',['WilsonHilfertyInverseCDF',['../class_numerics_1_1_distributions_1_1_gamma_distribution.html#adf28c08a5529156a06c504e7f6abb768',1,'Numerics.Distributions.GammaDistribution.WilsonHilfertyInverseCDF()'],['../class_numerics_1_1_distributions_1_1_log_pearson_type_i_i_i.html#aa72198ecac65e5da29345d7a97c8cf82',1,'Numerics.Distributions.LogPearsonTypeIII.WilsonHilfertyInverseCDF()'],['../class_numerics_1_1_distributions_1_1_pearson_type_i_i_i.html#a5f6c8d50afff44cd433714d963cea149',1,'Numerics.Distributions.PearsonTypeIII.WilsonHilfertyInverseCDF()']]]
+];

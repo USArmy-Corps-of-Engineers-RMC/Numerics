@@ -1,0 +1,21 @@
+var searchData=
+[
+  ['numerics_0',['Numerics',['../namespace_numerics.html',1,'']]],
+  ['numerics_3a_3adata_1',['Data',['../namespace_numerics_1_1_data.html',1,'Numerics']]],
+  ['numerics_3a_3adata_3a_3astatistics_2',['Statistics',['../namespace_numerics_1_1_data_1_1_statistics.html',1,'Numerics::Data']]],
+  ['numerics_3a_3adistributions_3',['Distributions',['../namespace_numerics_1_1_distributions.html',1,'Numerics']]],
+  ['numerics_3a_3adistributions_3a_3acopulas_4',['Copulas',['../namespace_numerics_1_1_distributions_1_1_copulas.html',1,'Numerics::Distributions']]],
+  ['numerics_3a_3afunctions_5',['Functions',['../namespace_numerics_1_1_functions.html',1,'Numerics']]],
+  ['numerics_3a_3amachinelearning_6',['MachineLearning',['../namespace_numerics_1_1_machine_learning.html',1,'Numerics']]],
+  ['numerics_3a_3amathematics_7',['Mathematics',['../namespace_numerics_1_1_mathematics.html',1,'Numerics']]],
+  ['numerics_3a_3amathematics_3a_3aintegration_8',['Integration',['../namespace_numerics_1_1_mathematics_1_1_integration.html',1,'Numerics::Mathematics']]],
+  ['numerics_3a_3amathematics_3a_3alinearalgebra_9',['LinearAlgebra',['../namespace_numerics_1_1_mathematics_1_1_linear_algebra.html',1,'Numerics::Mathematics']]],
+  ['numerics_3a_3amathematics_3a_3aodesolvers_10',['ODESolvers',['../namespace_numerics_1_1_mathematics_1_1_o_d_e_solvers.html',1,'Numerics::Mathematics']]],
+  ['numerics_3a_3amathematics_3a_3aoptimization_11',['Optimization',['../namespace_numerics_1_1_mathematics_1_1_optimization.html',1,'Numerics::Mathematics']]],
+  ['numerics_3a_3amathematics_3a_3arootfinding_12',['RootFinding',['../namespace_numerics_1_1_mathematics_1_1_root_finding.html',1,'Numerics::Mathematics']]],
+  ['numerics_3a_3amathematics_3a_3aspecialfunctions_13',['SpecialFunctions',['../namespace_numerics_1_1_mathematics_1_1_special_functions.html',1,'Numerics::Mathematics']]],
+  ['numerics_3a_3aproperties_14',['Properties',['../namespace_numerics_1_1_properties.html',1,'Numerics']]],
+  ['numerics_3a_3asampling_15',['Sampling',['../namespace_numerics_1_1_sampling.html',1,'Numerics']]],
+  ['numerics_3a_3asampling_3a_3amcmc_16',['MCMC',['../namespace_numerics_1_1_sampling_1_1_m_c_m_c.html',1,'Numerics::Sampling']]],
+  ['numerics_3a_3autilities_17',['Utilities',['../namespace_numerics_1_1_utilities.html',1,'Numerics']]]
+];

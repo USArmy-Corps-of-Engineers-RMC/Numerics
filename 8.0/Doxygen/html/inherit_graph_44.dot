@@ -1,0 +1,23 @@
+digraph "Graphical Class Hierarchy"
+{
+ // LATEX_PDF_SIZE
+  bgcolor="transparent";
+  edge [fontname=Helvetica,fontsize=10,labelfontname=Helvetica,labelfontsize=10];
+  node [fontname=Helvetica,fontsize=10,shape=box,height=0.2,width=0.4];
+  rankdir="LR";
+  Node0 [id="Node000000",label="Numerics.Mathematics.Integration.\lIntegrator",height=0.2,width=0.4,color="grey40", fillcolor="white", style="filled",URL="$class_numerics_1_1_mathematics_1_1_integration_1_1_integrator.html",tooltip="A base class for all integration methods."];
+  Node0 -> Node1 [id="edge180_Node000000_Node000001",dir="back",color="steelblue1",style="solid",tooltip=" "];
+  Node1 [id="Node000001",label="Numerics.Mathematics.Integration.\lAdaptiveGaussLobatto",height=0.2,width=0.4,color="grey40", fillcolor="white", style="filled",URL="$class_numerics_1_1_mathematics_1_1_integration_1_1_adaptive_gauss_lobatto.html",tooltip="A class that performs adaptive integration by the Gauss-Lobatto method with a Kronrod extension."];
+  Node0 -> Node2 [id="edge181_Node000000_Node000002",dir="back",color="steelblue1",style="solid",tooltip=" "];
+  Node2 [id="Node000002",label="Numerics.Mathematics.Integration.\lAdaptiveSimpsonsRule",height=0.2,width=0.4,color="grey40", fillcolor="white", style="filled",URL="$class_numerics_1_1_mathematics_1_1_integration_1_1_adaptive_simpsons_rule.html",tooltip="A class that performs adaptive Simpson's integration."];
+  Node0 -> Node3 [id="edge182_Node000000_Node000003",dir="back",color="steelblue1",style="solid",tooltip=" "];
+  Node3 [id="Node000003",label="Numerics.Mathematics.Integration.\lMiser",height=0.2,width=0.4,color="grey40", fillcolor="white", style="filled",URL="$class_numerics_1_1_mathematics_1_1_integration_1_1_miser.html",tooltip="A class for Miser, the recursive stratified sampling algorithm for multidimensional integration."];
+  Node0 -> Node4 [id="edge183_Node000000_Node000004",dir="back",color="steelblue1",style="solid",tooltip=" "];
+  Node4 [id="Node000004",label="Numerics.Mathematics.Integration.\lMonteCarloIntegration",height=0.2,width=0.4,color="grey40", fillcolor="white", style="filled",URL="$class_numerics_1_1_mathematics_1_1_integration_1_1_monte_carlo_integration.html",tooltip="A class for Monte Carlo integration for multidimensional integration."];
+  Node0 -> Node5 [id="edge184_Node000000_Node000005",dir="back",color="steelblue1",style="solid",tooltip=" "];
+  Node5 [id="Node000005",label="Numerics.Mathematics.Integration.\lSimpsonsRule",height=0.2,width=0.4,color="grey40", fillcolor="white", style="filled",URL="$class_numerics_1_1_mathematics_1_1_integration_1_1_simpsons_rule.html",tooltip="A class for Simpson's rule integration. Integration steps are refined until convergence."];
+  Node0 -> Node6 [id="edge185_Node000000_Node000006",dir="back",color="steelblue1",style="solid",tooltip=" "];
+  Node6 [id="Node000006",label="Numerics.Mathematics.Integration.\lTrapezoidalRule",height=0.2,width=0.4,color="grey40", fillcolor="white", style="filled",URL="$class_numerics_1_1_mathematics_1_1_integration_1_1_trapezoidal_rule.html",tooltip="A class for Trapezoidal rule integration. Integration steps are refined until convergence."];
+  Node0 -> Node7 [id="edge186_Node000000_Node000007",dir="back",color="steelblue1",style="solid",tooltip=" "];
+  Node7 [id="Node000007",label="Numerics.Mathematics.Integration.\lVegas",height=0.2,width=0.4,color="grey40", fillcolor="white", style="filled",URL="$class_numerics_1_1_mathematics_1_1_integration_1_1_vegas.html",tooltip="A class for adaptive Monte Carlo integration for multidimensional integration."];
+}

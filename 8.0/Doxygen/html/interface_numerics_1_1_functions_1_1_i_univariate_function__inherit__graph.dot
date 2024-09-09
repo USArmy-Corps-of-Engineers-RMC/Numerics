@@ -1,0 +1,15 @@
+digraph "Numerics.Functions.IUnivariateFunction"
+{
+ // LATEX_PDF_SIZE
+  bgcolor="transparent";
+  edge [fontname=Helvetica,fontsize=10,labelfontname=Helvetica,labelfontsize=10];
+  node [fontname=Helvetica,fontsize=10,shape=box,height=0.2,width=0.4];
+  rankdir="LR";
+  Node1 [id="Node000001",label="Numerics.Functions.IUnivariate\lFunction",height=0.2,width=0.4,color="gray40", fillcolor="grey60", style="filled", fontcolor="black",tooltip="Interface for Univariate Functions."];
+  Node1 -> Node2 [id="edge1_Node000001_Node000002",dir="back",color="steelblue1",style="solid",tooltip=" "];
+  Node2 [id="Node000002",label="Numerics.Functions.Linear\lFunction",height=0.2,width=0.4,color="gray40", fillcolor="white", style="filled",URL="$class_numerics_1_1_functions_1_1_linear_function.html",tooltip="A class for a simple linear function, with a single predictor and a slope and intercept coefficient,..."];
+  Node1 -> Node3 [id="edge2_Node000001_Node000003",dir="back",color="steelblue1",style="solid",tooltip=" "];
+  Node3 [id="Node000003",label="Numerics.Functions.Power\lFunction",height=0.2,width=0.4,color="gray40", fillcolor="white", style="filled",URL="$class_numerics_1_1_functions_1_1_power_function.html",tooltip="A class for a power function with normally distributed noise. Y = [α * (X - ξ)^β] * ϵ,..."];
+  Node1 -> Node4 [id="edge3_Node000001_Node000004",dir="back",color="steelblue1",style="solid",tooltip=" "];
+  Node4 [id="Node000004",label="Numerics.Functions.Tabular\lFunction",height=0.2,width=0.4,color="gray40", fillcolor="white", style="filled",URL="$class_numerics_1_1_functions_1_1_tabular_function.html",tooltip="A class for a tabular, or nonparametric, function."];
+}

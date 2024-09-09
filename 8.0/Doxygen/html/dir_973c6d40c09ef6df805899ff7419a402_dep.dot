@@ -1,0 +1,16 @@
+digraph "C:/GIT 2/numerics/.NET 8.0/Numerics/Mathematics/Optimization/Constrained"
+{
+ // LATEX_PDF_SIZE
+  bgcolor="transparent";
+  edge [fontname=Helvetica,fontsize=10,labelfontname=Helvetica,labelfontsize=10];
+  node [fontname=Helvetica,fontsize=10,shape=box,height=0.2,width=0.4];
+  compound=true
+  subgraph clusterdir_4fb306b7b960b3fa26fc204cafd4a1db {
+    graph [ bgcolor="#edf0f7", pencolor="grey50", label="Optimization", fontname=Helvetica,fontsize=10 style="filled,dashed", URL="dir_4fb306b7b960b3fa26fc204cafd4a1db.html",tooltip=""]
+  subgraph clusterdir_973c6d40c09ef6df805899ff7419a402 {
+    graph [ bgcolor="#edf0f7", pencolor="grey25", label="", fontname=Helvetica,fontsize=10 style="filled,bold", URL="dir_973c6d40c09ef6df805899ff7419a402.html",tooltip=""]
+    dir_973c6d40c09ef6df805899ff7419a402 [shape=plaintext, label="Constrained"];
+  dir_ccf569a20012ff077b1d38c9add641ab [label="Constraint", fillcolor="#a2b4d6", color="grey25", style="filled", URL="dir_ccf569a20012ff077b1d38c9add641ab.html",tooltip=""];
+  }
+  }
+}
