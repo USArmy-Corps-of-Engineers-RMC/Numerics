@@ -16,4 +16,3 @@ jobs:
           branch: gh-pages
           folder: docs/Doxygen/html
           config_file: Doxyfile
-          doxygen_version: 1.9.6
