@@ -5,7 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
-    <Description>Numerics is an open source library for .NET developed by USACE-RMC, providing a comprehensive set of methods and algorithms for numerical computations and statistical analysis.</Description>
+    <Description>Numerics is a free and open-source library for .NET developed by USACE-RMC, providing a comprehensive set of methods and algorithms for numerical computations and statistical analysis.</Description>
     <PackageProjectUrl>https://github.com/USArmy-Corps-of-Engineers-RMC/Numerics</PackageProjectUrl>
     <RepositoryUrl>https://github.com/USArmy-Corps-of-Engineers-RMC/Numerics</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
@@ -13,6 +13,9 @@
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Company>USACE-RMC</Company>
     <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageTags>interpolation; regression; statistics; machine-learning; probability-distributions; bootstrap-analysis; MCMC-sampling; global-optimization; local-optimization;</PackageTags>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -34,6 +37,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="..\..\LICENSE">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
     <None Include="..\..\README.md">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
