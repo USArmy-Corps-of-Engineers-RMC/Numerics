@@ -1,9 +1,0 @@
-digraph "Graphical Class Hierarchy"
-{
- // LATEX_PDF_SIZE
-  bgcolor="transparent";
-  edge [fontname=Helvetica,fontsize=10,labelfontname=Helvetica,labelfontsize=10];
-  node [fontname=Helvetica,fontsize=10,shape=box,height=0.2,width=0.4];
-  rankdir="LR";
-  Node0 [id="Node000000",label="Numerics.Data.Statistics.\lHistogram",height=0.2,width=0.4,color="grey40", fillcolor="white", style="filled",URL="$class_numerics_1_1_data_1_1_statistics_1_1_histogram.html",tooltip="Create a histogram from a sample of data, which is a visual representation of the distribution of the..."];
-}
