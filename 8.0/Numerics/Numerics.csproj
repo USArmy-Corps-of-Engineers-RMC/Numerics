@@ -13,9 +13,10 @@
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Company>USACE-RMC</Company>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageTags>interpolation; regression; statistics; machine-learning; probability-distributions; bootstrap-analysis; MCMC-sampling; global-optimization; local-optimization;</PackageTags>
+    <PackageTags>interpolation; regression; statistics; machine learning; probability distributions; bootstrap analysis; distribution fitting; MCMC sampling; optimization;</PackageTags>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+    <PackageId>RMC.Numerics</PackageId>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -41,7 +42,7 @@
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
-    <None Include="..\..\README.md">
+    <None Include="bin\Release\README.md">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
