@@ -167,7 +167,6 @@ namespace Numerics
         /// </summary>
         /// <param name="x">First point.</param>
         /// <param name="y">Second point.</param>
-        /// <returns></returns>
         public static double Distance(IList<double> x, IList<double> y)
         {
             double d = 0;
@@ -175,6 +174,24 @@ namespace Numerics
             {
                 double dx = x[i] - y[i];
                 d += dx * dx;
+            }
+            return Math.Sqrt(d);
+        }
+
+
+        /// <summary>
+        /// Returns the weighted Euclidean distance between two points ||x - y||.
+        /// </summary>
+        /// <param name="x">First point.</param>
+        /// <param name="y">Second point.</param>
+        /// <param name="weights">List of weights.</param>
+        public static double WeightedDistance(IList<double> x, IList<double> y, IList<double> weights)
+        {
+            double d = 0;
+            for (int i = 0; i < x.Count; i++)
+            {
+                double dx = x[i] - y[i];
+                d += (dx * dx) * weights[i];
             }
             return Math.Sqrt(d);
         }

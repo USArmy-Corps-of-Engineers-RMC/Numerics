@@ -184,6 +184,24 @@ namespace Numerics
         }
 
         /// <summary>
+        /// Returns the Euclidean distance between two points ||x - y||.
+        /// </summary>
+        /// <param name="x">First point.</param>
+        /// <param name="y">Second point.</param>
+        /// <param name="weights">Weights.</param>
+        /// <returns></returns>
+        public static double Distance(IList<double> x, IList<double> y, IList<double> weights)
+        {
+            double d = 0;
+            for (int i = 0; i < x.Count; i++)
+            {
+                double dx = x[i] - y[i];
+                d += (dx * dx) * weights[i];
+            }
+            return Math.Sqrt(d);
+        }
+
+        /// <summary>
         /// Returns the normalized values ranging between 0 and 1.
         /// <para> 
         /// <see href="https://www.codecademy.com/article/normalization"/>

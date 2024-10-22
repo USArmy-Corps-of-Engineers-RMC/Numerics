@@ -82,6 +82,7 @@ namespace Distributions.Univariate
         public void Test_KernelDensity_CDF()
         {
             var KDE = new KernelDensity(sample);
+            KDE.BoundedByData = false;
 
             // To replicate this, set the bandwidth in R to be the same
             // Results from R 

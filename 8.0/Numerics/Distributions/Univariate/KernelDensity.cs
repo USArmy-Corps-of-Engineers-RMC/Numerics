@@ -28,11 +28,7 @@
 * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Threading.Tasks;
 using Numerics.Data;
 using Numerics.Data.Statistics;
 using Numerics.Mathematics.Optimization;
@@ -211,6 +207,11 @@ namespace Numerics.Distributions
         /// </summary>
         public Transform ProbabilityTransform { get; set; } = Transform.NormalZ;
 
+        /// <summary>
+        /// Determines whether to use the data to set the minimum or maximum limits. If false, the limits are the data min and max +- 3 * Bandwidth, respectively. 
+        /// </summary>
+        public bool BoundedByData { get; set; } = true;
+
         /// <inheritdoc/>
         public override int NumberOfParameters
         {
@@ -341,7 +342,7 @@ namespace Numerics.Distributions
             {
                 if (_sampleData is null) return double.NaN;
                 if (_sampleData.Count() == 0) return double.NaN;
-                return Tools.Min(SampleData) - 3 * Bandwidth;
+                return BoundedByData ? Tools.Min(SampleData) : Tools.Min(SampleData) - 3 * Bandwidth;
             }
         }
 
@@ -353,6 +354,7 @@ namespace Numerics.Distributions
                 if (_sampleData is null) return double.NaN;
                 if (_sampleData.Count() == 0) return double.NaN;
                 return Tools.Max(SampleData) + 3 * Bandwidth;
+                return BoundedByData ? Tools.Max(SampleData) : Tools.Max(SampleData) + 3 * Bandwidth;
             }
         }
 
@@ -529,7 +531,7 @@ namespace Numerics.Distributions
         /// <inheritdoc/>
         public override UnivariateDistributionBase Clone()
         {
-            return new KernelDensity(SampleData, KernelDistribution, Bandwidth);
+            return new KernelDensity(SampleData, KernelDistribution, Bandwidth) { XTransform = XTransform, ProbabilityTransform = ProbabilityTransform, BoundedByData = BoundedByData };
         }
  
         /// <summary>

@@ -30,9 +30,6 @@
 
 using Numerics.Data.Statistics;
 using Numerics.Mathematics.LinearAlgebra;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Numerics.MachineLearning
 {
@@ -130,6 +127,11 @@ namespace Numerics.MachineLearning
         public Matrix X { get; private set; }
 
         /// <summary>
+        /// Gets the number of features in the training matrix of predictor values.
+        /// </summary>
+        public int NumberOfFeatures => X.NumberOfColumns;
+
+        /// <summary>
         /// Determines whether this is for regression or classification. Default = regression.
         /// </summary>
         public bool IsRegression { get; set; } = true;
@@ -137,6 +139,33 @@ namespace Numerics.MachineLearning
         #endregion
 
         #region Methods
+
+        /// <summary>
+        /// Returns the indexes of the k-Nearest Neighbors. 
+        /// </summary>
+        /// <param name="X">The 1D array of predictors.</param>
+        public int[] GetNeighbors(double[] X)
+        {
+            return kNN(this.X, this.Y, new Matrix(X));
+        }
+
+        /// <summary>
+        /// Returns the indexes of the k-Nearest Neighbors. 
+        /// </summary>
+        /// <param name="X">The 2D array of predictors.</param>
+        public int[] GetNeighbors(double[,] X)
+        {
+            return kNN(this.X, this.Y, new Matrix(X));
+        }
+
+        /// <summary>
+        /// Returns the indexes of the k-Nearest Neighbors. 
+        /// </summary>
+        /// <param name="X">The matrix of predictors.</param>
+        public int[] GetNeighbors(Matrix X)
+        {
+            return kNN(this.X, this.Y, X);
+        }
 
         /// <summary>
         /// Returns the prediction from k-Nearest neighbors.
@@ -229,6 +258,41 @@ namespace Numerics.MachineLearning
         public double[,] PredictionIntervals(Matrix X, int seed = -1, int realizations = 1000, double alpha = 0.1)
         {
             return kNNPredictionIntervals(this.X, this.Y, X, seed, realizations, alpha);
+        }
+
+        /// <summary>
+        /// Returns the indexes of the k-Nearest neighbors.
+        /// </summary>
+        /// <param name="xTrain">The training matrix of predictors.</param>
+        /// <param name="yTrain">The training response vector.</param>
+        /// <param name="xTest">The test matrix of predictors</param>
+        private int[] kNN(Matrix xTrain, Vector yTrain, Matrix xTest)
+        {
+            if (NumberOfFeatures != xTrain.NumberOfColumns) return null;
+            int R = xTest.NumberOfRows;
+            var result = new int[K];
+            for (int i = 0; i < R; i++)
+            {
+                var point = xTest.Row(i);
+
+                // Get distances
+                var items = new kNNItem[xTrain.NumberOfRows];
+                Parallel.For(0, xTrain.NumberOfRows, idx =>
+                {
+                    items[idx].Index = idx;
+                    items[idx].Distance = Tools.Distance(point, xTrain.Row(idx));
+                });
+
+                // Sort items and find the k-nearest neighbors
+                Array.Sort(items, (a, b) => a.Distance.CompareTo(b.Distance));
+                var knn = new double[K];
+                for (int j = 0; j < K; j++)
+                {
+                    result[j] = items[j].Index;
+                }
+            }
+
+            return result;
         }
 
         /// <summary>

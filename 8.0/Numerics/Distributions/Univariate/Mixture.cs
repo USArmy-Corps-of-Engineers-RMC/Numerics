@@ -34,6 +34,7 @@ using Numerics.Mathematics.RootFinding;
 using Numerics.Sampling;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Xml.Linq;
 
@@ -1046,12 +1047,26 @@ namespace Numerics.Distributions
             var result = new XElement("Distribution");
             result.SetAttributeValue(nameof(Type), Type.ToString());
             result.SetAttributeValue(nameof(IsZeroInflated), IsZeroInflated.ToString());
-            result.SetAttributeValue(nameof(ZeroWeight), ZeroWeight.ToString());
+            result.SetAttributeValue(nameof(ZeroWeight), ZeroWeight.ToString("G17", CultureInfo.InvariantCulture));
             result.SetAttributeValue(nameof(XTransform), XTransform.ToString());
             result.SetAttributeValue(nameof(ProbabilityTransform), ProbabilityTransform.ToString());
-            result.SetAttributeValue(nameof(Weights), String.Join("|", Weights));
             result.SetAttributeValue(nameof(Distributions), String.Join("|", Distributions.Select(x => x.Type)));
-            result.SetAttributeValue("Parameters", String.Join("|", GetParameters));
+            // Weights
+            var weights = Weights;
+            var weightStrings = new string[NumberOfParameters];
+            for (int i = 0; i < NumberOfParameters; i++)
+            {
+                weightStrings[i] = weights[i].ToString("G17", CultureInfo.InvariantCulture);
+            }
+            result.SetAttributeValue(nameof(Weights), String.Join("|", weightStrings));
+            // Parameters
+            var parms = GetParameters;
+            var parmStrings = new string[NumberOfParameters];
+            for (int i = 0; i < NumberOfParameters; i++)
+            {
+                parmStrings[i] = parms[i].ToString("G17", CultureInfo.InvariantCulture);
+            }
+            result.SetAttributeValue("Parameters", String.Join("|", parmStrings));
             return result;
         }
 
@@ -1077,7 +1092,7 @@ namespace Numerics.Distributions
                     var w = xElement.Attribute(nameof(Weights)).Value.Split('|');
                     for (int i = 0; i < w.Length; i++)
                     {
-                        double.TryParse(w[i], out var weight);
+                        double.TryParse(w[i], NumberStyles.Any, CultureInfo.InvariantCulture, out var weight);
                         weights.Add(weight);
                     }
                 }
@@ -1099,7 +1114,7 @@ namespace Numerics.Distributions
                 }
                 if (xElement.Attribute(nameof(ZeroWeight)) != null)
                 {
-                    double.TryParse(xElement.Attribute(nameof(ZeroWeight)).Value, out var zeroWeight);
+                    double.TryParse(xElement.Attribute(nameof(ZeroWeight)).Value, NumberStyles.Any, CultureInfo.InvariantCulture, out var zeroWeight);
                     mixture.ZeroWeight = zeroWeight;
                 }
                 if (xElement.Attribute(nameof(XTransform)) != null)
@@ -1118,7 +1133,7 @@ namespace Numerics.Distributions
                     var parameters = new List<double>();
                     for (int i = 0; i < vals.Length; i++)
                     {
-                        double.TryParse(vals[i], out var parm);
+                        double.TryParse(vals[i], NumberStyles.Any, CultureInfo.InvariantCulture, out var parm);
                         parameters.Add(parm);
                     }
                     mixture.SetParameters(parameters);
@@ -1131,6 +1146,6 @@ namespace Numerics.Distributions
                 return null;
             }
         }
-
+    
     }
 }
