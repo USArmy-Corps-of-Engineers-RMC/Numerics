@@ -33,6 +33,7 @@ using Numerics.Data;
 using Numerics.Distributions;
 using System.Collections.Generic;
 using System.Linq;
+using System.Xml.Linq;
 
 namespace Data.PairedData
 {
@@ -95,6 +96,18 @@ namespace Data.PairedData
             Assert.IsTrue(_dataset4 == newDataset4);
         }
 
+        [TestMethod]
+        public void Test_ReadWriteXElement2()
+        {
+
+            string testEl = "<IntervalDistributions X_Strict=\"True\" Y_Strict=\"True\" X_Order=\"Ascending\" Y_Order=\"None\" Distribution=\"PertPercentile\" AllowDifferentDistributionTypes=\"False\">\r\n      <Ordinates>\r\n        <UncertainOrdinate X=\"4000\">\r\n          <Distribution Type=\"PertPercentile\" Percentile5th=\"0\" Percentile50th=\"0.10000000000000001\" Percentile95th=\"0.5\" />\r\n        </UncertainOrdinate>\r\n        <UncertainOrdinate X=\"8500\">\r\n          <Distribution Type=\"PertPercentile\" Percentile5th=\"0.0050000000000000001\" Percentile50th=\"0.5\" Percentile95th=\"0.75\" />\r\n        </UncertainOrdinate>\r\n        <UncertainOrdinate X=\"16000\">\r\n          <Distribution Type=\"PertPercentile\" Percentile5th=\"0.01\" Percentile50th=\"0.69999999999999996\" Percentile95th=\"0.98999999999999999\" />\r\n        </UncertainOrdinate>\r\n        <UncertainOrdinate X=\"30000\">\r\n          <Distribution Type=\"PertPercentile\" Percentile5th=\"0.90000000000000002\" Percentile50th=\"0.90000000000000002\" Percentile95th=\"0.90000000000000002\" />\r\n        </UncertainOrdinate>\r\n        <UncertainOrdinate X=\"40000\">\r\n          <Distribution Type=\"PertPercentile\" Percentile5th=\"0.94999999999999996\" Percentile50th=\"0.94999999999999996\" Percentile95th=\"0.94999999999999996\" />\r\n        </UncertainOrdinate>\r\n      </Ordinates>\r\n    </IntervalDistributions>";
+            for (int i = 0; i < 10; i++)
+            {
+                var distEl = XElement.Parse(testEl);
+                UncertainOrderedPairedData newSet1 = new UncertainOrderedPairedData(distEl);
+            }
+        }
+
         /// <summary>
         /// Test the CurveSample() method
         /// </summary>
@@ -105,7 +118,7 @@ namespace Data.PairedData
             OrderedPairedData data2 = _dataset2.CurveSample();
             OrderedPairedData data3 = _dataset3.CurveSample();
             OrderedPairedData data4 = _dataset4.CurveSample();
-            
+
             double[] xVals = new double[] { 1, 2, 3, 5 };
             // mean = (min + max + mode) / 3
             double[] yMeanVals = new double[] { 2, 3.66667, 8.66667, 17.33333 };
@@ -226,17 +239,17 @@ namespace Data.PairedData
             // Test InsertRange
             var toInsert = new List<UncertainOrdinate>() { new UncertainOrdinate(1, new Triangular(1, 2, 3)), new UncertainOrdinate(2, new Triangular(2, 4, 5)) };
             pairedData.InsertRange(0, toInsert);
-            for(int j = 0; j < toInsert.Count; j++)
+            for (int j = 0; j < toInsert.Count; j++)
             {
                 Assert.IsTrue(pairedData.Contains(toInsert[j]));
             }
 
             // Test AddRange
-            var toAdd = new List<UncertainOrdinate>() { new UncertainOrdinate(3, new Triangular(6, 8, 12)), new UncertainOrdinate(5,  new Triangular(13, 19, 20)), new UncertainOrdinate(7, new Triangular(16, 22, 28)) };
+            var toAdd = new List<UncertainOrdinate>() { new UncertainOrdinate(3, new Triangular(6, 8, 12)), new UncertainOrdinate(5, new Triangular(13, 19, 20)), new UncertainOrdinate(7, new Triangular(16, 22, 28)) };
             pairedData.AddRange(toAdd);
             var test7 = pairedData.Count();
             Assert.AreEqual(7, test7);
-            for(int k  = 0; k < toAdd.Count(); k++)
+            for (int k = 0; k < toAdd.Count(); k++)
             {
                 Assert.IsTrue(pairedData.Contains(toAdd[k]));
             }

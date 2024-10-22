@@ -20,10 +20,8 @@
 4.8.1/Numerics/packages
 /.vs
 /Numerics/bin
-/Numerics/obj/Debug
-/Numerics/obj/Release
+/Numerics/obj
 /packages
 /Test_Numerics/.vs
 /Test_Numerics/bin
-/Test_Numerics/obj/Debug
-/Test_Numerics/obj/Release
+/Test_Numerics/obj
