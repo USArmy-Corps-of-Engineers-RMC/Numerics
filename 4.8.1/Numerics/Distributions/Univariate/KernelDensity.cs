@@ -211,6 +211,11 @@ namespace Numerics.Distributions
         /// </summary>
         public Transform ProbabilityTransform { get; set; } = Transform.NormalZ;
 
+        /// <summary>
+        /// Determines whether to use the data to set the minimum or maximum limits. If false, the limits are the data min and max +- 3 * Bandwidth, respectively. 
+        /// </summary>
+        public bool BoundedByData { get; set; } = true;
+
         /// <inheritdoc/>
         public override int NumberOfParameters
         {
@@ -341,7 +346,7 @@ namespace Numerics.Distributions
             {
                 if (_sampleData is null) return double.NaN;
                 if (_sampleData.Count() == 0) return double.NaN;
-                return Tools.Min(SampleData) - 3 * Bandwidth;
+                return BoundedByData ? Tools.Min(SampleData) : Tools.Min(SampleData) - 3 * Bandwidth;
             }
         }
 
@@ -352,7 +357,7 @@ namespace Numerics.Distributions
             {
                 if (_sampleData is null) return double.NaN;
                 if (_sampleData.Count() == 0) return double.NaN;
-                return Tools.Max(SampleData) + 3 * Bandwidth;
+                return BoundedByData ? Tools.Max(SampleData) : Tools.Max(SampleData) + 3 * Bandwidth;
             }
         }
 
@@ -510,6 +515,7 @@ namespace Numerics.Distributions
         {
             if (x < Minimum) return 0.0;
             if (x > Maximum) return 1.0;
+            if (Minimum == Maximum) return double.NaN;
             if (!_cdfCreated) CreateCDF();
             return opd.GetYFromX(x, XTransform, ProbabilityTransform);
         }
@@ -522,6 +528,7 @@ namespace Numerics.Distributions
                 throw new ArgumentOutOfRangeException("probability", "Probability must be between 0 and 1.");
             if (probability == 0.0) return Minimum;
             if (probability == 1.0) return Maximum;
+            if (Minimum == Maximum) return double.NaN;
             if (!_cdfCreated) CreateCDF();
             return opd.GetXFromY(probability, XTransform, ProbabilityTransform);
         }
@@ -529,7 +536,7 @@ namespace Numerics.Distributions
         /// <inheritdoc/>
         public override UnivariateDistributionBase Clone()
         {
-            return new KernelDensity(SampleData, KernelDistribution, Bandwidth);
+            return new KernelDensity(SampleData, KernelDistribution, Bandwidth) { XTransform = XTransform, ProbabilityTransform = ProbabilityTransform, BoundedByData = BoundedByData };
         }
  
         /// <summary>
@@ -537,6 +544,7 @@ namespace Numerics.Distributions
         /// </summary>
         private void CreateCDF()
         {
+
             // Create wide bins
             int n = 1000; 
             var bins = Stratify.XValues(new StratificationOptions(Minimum, Maximum, n));

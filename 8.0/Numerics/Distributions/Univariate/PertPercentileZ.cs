@@ -30,6 +30,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.Xml.Linq;
 using Numerics.Mathematics.Optimization;
 
 namespace Numerics.Distributions
@@ -389,9 +391,12 @@ namespace Numerics.Distributions
                     return double.MaxValue;
                 }
             }
+
             var solver = new NelderMead(sse, 3, Initials, Lowers, Uppers);
-            solver.RelativeTolerance = 1E-4;
+            solver.MaxFunctionEvaluations = 200;
+            solver.RelativeTolerance = 1E-8;
             solver.AbsoluteTolerance = 1E-8;
+            solver.ComputeHessian = false;
             solver.ReportFailure = false;
             solver.Minimize();
             var solution = solver.BestParameterSet.Values;
@@ -464,6 +469,108 @@ namespace Numerics.Distributions
         public Pert ToPert()
         {
             return new Pert(_beta.Min, _beta.Mode, _beta.Max);
+        }
+
+        /// <inheritdoc/>
+        public override XElement ToXElement()
+        {
+            var result = new XElement("Distribution");
+            result.SetAttributeValue(nameof(Type), Type.ToString());
+            result.SetAttributeValue("ParametersSolved", _parametersSolved.ToString());
+            // Parameters
+            var parms = GetParameters;
+            var parmStrings = new string[NumberOfParameters];
+            for (int i = 0; i < NumberOfParameters; i++)
+            {
+                parmStrings[i] = parms[i].ToString("G17", CultureInfo.InvariantCulture);
+            }
+            result.SetAttributeValue("Parameters", String.Join("|", parmStrings));
+            // Beta Distribution parameters
+            parms = _beta.GetParameters;
+            parmStrings = new string[_beta.NumberOfParameters];
+            for (int i = 0; i < _beta.NumberOfParameters; i++)
+            {
+                parmStrings[i] = parms[i].ToString("G17", CultureInfo.InvariantCulture);
+            }
+            result.SetAttributeValue("BetaParameters", String.Join("|", parmStrings));
+            return result;
+        }
+
+        /// <summary>
+        /// Create a Pert-Percentile distribution from XElement.
+        /// </summary>
+        /// <param name="xElement">The XElement to deserialize.</param>
+        /// <returns>A new mixture distribution.</returns>
+        public static PertPercentileZ FromXElement(XElement xElement)
+        {
+            UnivariateDistributionType type = UnivariateDistributionType.Deterministic;
+            if (xElement.Attribute(nameof(UnivariateDistributionBase.Type)) != null)
+            {
+                Enum.TryParse(xElement.Attribute(nameof(UnivariateDistributionBase.Type)).Value, out type);
+
+            }
+            if (type == UnivariateDistributionType.PertPercentileZ)
+            {
+                bool parametersSolved = false;
+                if (xElement.Attribute("ParametersSolved") != null)
+                {
+                    bool.TryParse(xElement.Attribute("ParametersSolved").Value, out parametersSolved);
+                }
+                else
+                {
+                    // This was saved from Base method
+                    var dist = new PertPercentileZ();
+                    var names = dist.GetParameterPropertyNames;
+                    var parms = dist.GetParameters;
+                    var vals = new double[dist.NumberOfParameters];
+                    for (int i = 0; i < dist.NumberOfParameters; i++)
+                    {
+                        if (xElement.Attribute(names[i]) != null)
+                        {
+                            double.TryParse(xElement.Attribute(names[i]).Value, NumberStyles.Any, CultureInfo.InvariantCulture, out vals[i]);
+                        }
+                    }
+                    dist.SetParameters(vals);
+                    return dist;
+
+                }
+
+                var beta = new GeneralizedBeta();
+                if (xElement.Attribute("BetaParameters") != null)
+                {
+                    var vals = xElement.Attribute("BetaParameters").Value.Split('|');
+                    var parameters = new List<double>();
+                    for (int i = 0; i < vals.Length; i++)
+                    {
+                        double.TryParse(vals[i], NumberStyles.Any, CultureInfo.InvariantCulture, out var parm);
+                        parameters.Add(parm);
+                    }
+                    beta.SetParameters(parameters);
+                }
+                double _5th = 0, _50th = 0, _95th = 0;
+                if (xElement.Attribute("Parameters") != null)
+                {
+                    var vals = xElement.Attribute("Parameters").Value.Split('|');
+                    double.TryParse(vals[0], NumberStyles.Any, CultureInfo.InvariantCulture, out _5th);
+                    double.TryParse(vals[1], NumberStyles.Any, CultureInfo.InvariantCulture, out _50th);
+                    double.TryParse(vals[2], NumberStyles.Any, CultureInfo.InvariantCulture, out _95th);
+                }
+
+                var pert = new PertPercentileZ()
+                {
+                    _parametersSolved = parametersSolved,
+                    _beta = beta,
+                    _5th = _5th,
+                    _50th = _50th,
+                    _95th = _95th
+                };
+
+                return pert;
+            }
+            else
+            {
+                return null;
+            }
         }
 
     }

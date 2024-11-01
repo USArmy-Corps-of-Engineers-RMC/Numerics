@@ -30,9 +30,13 @@
 
 using Numerics.Data.Statistics;
 using System;
+using System.Collections;
 using System.Collections.Generic; 
 using System.IO;
 using System.IO.Compression;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.Security.Cryptography;
+using System.Text.Json;
 using System.Threading;
 
 namespace Numerics
@@ -179,6 +183,24 @@ namespace Numerics
             {
                 double dx = x[i] - y[i];
                 d += dx * dx;
+            }
+            return Math.Sqrt(d);
+        }
+
+        /// <summary>
+        /// Returns the Euclidean distance between two points ||x - y||.
+        /// </summary>
+        /// <param name="x">First point.</param>
+        /// <param name="y">Second point.</param>
+        /// <param name="weights">Weights.</param>
+        /// <returns></returns>
+        public static double Distance(IList<double> x, IList<double> y, IList<double> weights)
+        {
+            double d = 0;
+            for (int i = 0; i < x.Count; i++)
+            {
+                double dx = x[i] - y[i];
+                d += (dx * dx) * weights[i];
             }
             return Math.Sqrt(d);
         }
@@ -614,7 +636,23 @@ namespace Numerics
             return output.ToArray();
         }
 
+        /// <summary>
+        /// Returns the object as a byte array. 
+        /// </summary>
+        /// <param name="obj">The object to convert.</param>
+        public static byte[] ToByteArray(object obj)
+        {
+            return JsonSerializer.SerializeToUtf8Bytes(obj);
+        }
 
+        /// <summary>
+        /// Returns the object from a byte array. 
+        /// </summary>
+        /// <param name="bytes">Byte array.</param>
+        public static T FromByteArray<T>(byte[] bytes)
+        {
+            return JsonSerializer.Deserialize<T>(bytes);
+        }
 
     }
 }

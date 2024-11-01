@@ -172,10 +172,10 @@ namespace Numerics.Distributions
             {
                 distribution = new PertPercentileZ();
             }
-            //else if (distributionType == UnivariateDistributionType.Poisson)
-            //{
-            //    distribution = new Poisson();
-            //}
+            else if (distributionType == UnivariateDistributionType.Poisson)
+            {
+                distribution = new Poisson();
+            }
             else if (distributionType == UnivariateDistributionType.Rayleigh)
             {
                 distribution = new Rayleigh();
@@ -226,6 +226,16 @@ namespace Numerics.Distributions
                 if (type == UnivariateDistributionType.Mixture)
                 {
                     dist = Mixture.FromXElement(xElement);
+                    return dist;
+                }
+                else if (type == UnivariateDistributionType.PertPercentile)
+                {
+                    dist = PertPercentile.FromXElement(xElement);
+                    return dist;
+                }
+                else if (type == UnivariateDistributionType.PertPercentileZ)
+                {
+                    dist = PertPercentileZ.FromXElement(xElement);
                     return dist;
                 }
                 else
