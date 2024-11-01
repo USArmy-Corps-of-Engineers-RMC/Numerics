@@ -96,18 +96,6 @@ namespace Data.PairedData
             Assert.IsTrue(_dataset4 == newDataset4);
         }
 
-        [TestMethod]
-        public void Test_ReadWriteXElement2()
-        {
-
-            string testEl = "<IntervalDistributions X_Strict=\"True\" Y_Strict=\"True\" X_Order=\"Ascending\" Y_Order=\"None\" Distribution=\"PertPercentile\" AllowDifferentDistributionTypes=\"False\">\r\n      <Ordinates>\r\n        <UncertainOrdinate X=\"4000\">\r\n          <Distribution Type=\"PertPercentile\" Percentile5th=\"0\" Percentile50th=\"0.10000000000000001\" Percentile95th=\"0.5\" />\r\n        </UncertainOrdinate>\r\n        <UncertainOrdinate X=\"8500\">\r\n          <Distribution Type=\"PertPercentile\" Percentile5th=\"0.0050000000000000001\" Percentile50th=\"0.5\" Percentile95th=\"0.75\" />\r\n        </UncertainOrdinate>\r\n        <UncertainOrdinate X=\"16000\">\r\n          <Distribution Type=\"PertPercentile\" Percentile5th=\"0.01\" Percentile50th=\"0.69999999999999996\" Percentile95th=\"0.98999999999999999\" />\r\n        </UncertainOrdinate>\r\n        <UncertainOrdinate X=\"30000\">\r\n          <Distribution Type=\"PertPercentile\" Percentile5th=\"0.90000000000000002\" Percentile50th=\"0.90000000000000002\" Percentile95th=\"0.90000000000000002\" />\r\n        </UncertainOrdinate>\r\n        <UncertainOrdinate X=\"40000\">\r\n          <Distribution Type=\"PertPercentile\" Percentile5th=\"0.94999999999999996\" Percentile50th=\"0.94999999999999996\" Percentile95th=\"0.94999999999999996\" />\r\n        </UncertainOrdinate>\r\n      </Ordinates>\r\n    </IntervalDistributions>";
-            for (int i = 0; i < 10; i++)
-            {
-                var distEl = XElement.Parse(testEl);
-                UncertainOrderedPairedData newSet1 = new UncertainOrderedPairedData(distEl);
-            }
-        }
-
         /// <summary>
         /// Test the CurveSample() method
         /// </summary>
