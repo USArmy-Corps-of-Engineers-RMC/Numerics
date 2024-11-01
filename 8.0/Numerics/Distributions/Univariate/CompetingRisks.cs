@@ -78,10 +78,10 @@ namespace Numerics.Distributions
         }
 
         private UnivariateDistributionBase[] _distributions;
-        private EmpiricalDistribution _inverseCDF;
+        private EmpiricalDistribution _empiricalCDF;
         private bool _momentsComputed = false;
         private double u1, u2, u3, u4;
-        private bool _inverseCDFCreated = false;
+        private bool _empiricalCDFCreated = false;
         private double[,] _correlationMatrix;
         private bool _mvnCreated = false;
         private MultivariateNormal _mvn;
@@ -364,7 +364,7 @@ namespace Numerics.Distributions
             if (distributions == null) throw new ArgumentNullException(nameof(Distributions));
             _distributions = distributions;
             _momentsComputed = false;
-            _inverseCDFCreated = false;
+            _empiricalCDFCreated = false;
             _mvnCreated = false;
         }
 
@@ -381,7 +381,7 @@ namespace Numerics.Distributions
                 _distributions[i] = (UnivariateDistributionBase)distributions[i];
             }
             _momentsComputed = false;
-            _inverseCDFCreated = false;
+            _empiricalCDFCreated = false;
             _mvnCreated = false;
         }
 
@@ -403,7 +403,7 @@ namespace Numerics.Distributions
             }
 
             _momentsComputed = false;
-            _inverseCDFCreated = false;
+            _empiricalCDFCreated = false;
             _mvnCreated = false;
         }
 
@@ -566,22 +566,29 @@ namespace Numerics.Distributions
                 return Distributions[0].InverseCDF(probability);
             }
 
-            // Otherwise use a root finder to solve the inverse CDF
-            var xVals = Distributions.Select(d => d.InverseCDF(probability));
-            double minX = xVals.Min();
-            double maxX = xVals.Max();
             double x = 0;
-            try
+            if (_empiricalCDFCreated == true)
             {
-                Brent.Bracket((y) => { return probability - CDF(y); }, ref minX, ref maxX, out var f1, out var f2);
-                x = Brent.Solve((y) => { return probability - CDF(y); }, minX, maxX, 1E-6, 100, true);
+                x = _empiricalCDF.InverseCDF(probability);
             }
-            catch (Exception)
+            else
             {
-                // If the root finder fails, create an empirical inverse CDF
-                if (_inverseCDFCreated == false)
-                    CreateInverseCDF();
-                x = _inverseCDF.InverseCDF(probability);
+                // use a root finder to solve the inverse CDF
+                var xVals = Distributions.Select(d => d.InverseCDF(probability));
+                double minX = xVals.Min();
+                double maxX = xVals.Max();
+                try
+                {
+                    Brent.Bracket((y) => { return probability - CDF(y); }, ref minX, ref maxX, out var f1, out var f2);
+                    x = Brent.Solve((y) => { return probability - CDF(y); }, minX, maxX, 1E-6, 100, true);
+                }
+                catch (Exception)
+                {
+                    // If the root finder fails, create an empirical CDF
+                    if (_empiricalCDFCreated == false)
+                        CreateEmpiricalCDF();
+                    x = _empiricalCDF.InverseCDF(probability);
+                }
             }
             double min = Minimum;
             double max = Maximum;
@@ -817,9 +824,9 @@ namespace Numerics.Distributions
 
 
         /// <summary>
-        /// Create empirical distribution for the inverse CDF.
+        /// Create empirical distribution for the CDF.
         /// </summary>
-        private void CreateInverseCDF()
+        public void CreateEmpiricalCDF()
         {
             // Get min & max
             double minP = 1E-16;
@@ -858,8 +865,8 @@ namespace Numerics.Distributions
                 xValues.Add(x);
                 pValues.Add(p);
             }
-            _inverseCDF = new EmpiricalDistribution(xValues, pValues) { XTransform = XTransform, ProbabilityTransform = ProbabilityTransform };
-            _inverseCDFCreated = true;
+            _empiricalCDF = new EmpiricalDistribution(xValues, pValues) { XTransform = XTransform, ProbabilityTransform = ProbabilityTransform };
+            _empiricalCDFCreated = true;
         }
 
         /// <inheritdoc/>

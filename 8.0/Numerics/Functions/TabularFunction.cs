@@ -167,7 +167,7 @@ namespace Numerics.Functions
             // Validate parameters
             if (ParametersValid == false) ValidateParameters(new double[] {0}, true);
             double y = opd.GetYFromX(x, XTransform, YTransform);
-            y = AllowNegativeYValues == false && y < 0 ? 0 : y;
+            y = AllowNegativeYValues == false && (double.IsNaN(y) || y < 0) ? 0 : y;
             return y;
         }
 
@@ -176,7 +176,7 @@ namespace Numerics.Functions
         {
             // Validate parameters
             if (ParametersValid == false) ValidateParameters(new double[] { 0 }, true);
-            y = AllowNegativeYValues == false && y < 0 ? 0 : y;          
+            y = AllowNegativeYValues == false && (double.IsNaN(y) || y < 0) ? 0 : y;
             return opd.GetXFromY(y, XTransform, YTransform);
         }
     }
