@@ -11,4 +11,4 @@ The repository contains builds for:
 Each build has a unit testing library with more than 1,000 tests. These tests also provide examples for using the classes and methods in the library.
 
 ## Installation Instructions
-We recommend using NuGet for convenient installation of Numerics.
+We recommend using [NuGet](https://www.nuget.org/) for convenient installation of the [RMC.Numerics](https://www.nuget.org/packages/RMC.Numerics/) package.
