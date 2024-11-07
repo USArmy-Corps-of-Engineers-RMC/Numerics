@@ -28,6 +28,8 @@
 * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+using System;
+
 namespace Numerics.Mathematics.Optimization
 {
     /// <summary>
@@ -39,6 +41,7 @@ namespace Numerics.Mathematics.Optimization
     ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
     /// </para>
     /// </remarks>
+    [Serializable]
     public enum OptimizationStatus
     {
         /// <summary>

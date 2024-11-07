@@ -56,6 +56,7 @@ namespace Numerics.Data
     /// <see href="https://en.wikipedia.org/wiki/Bilinear_interpolation"/>
     /// </para>
     /// </remarks>
+    [Serializable]
     public class Bilinear
     {
 

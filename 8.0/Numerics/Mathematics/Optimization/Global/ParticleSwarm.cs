@@ -63,6 +63,7 @@ namespace Numerics.Mathematics.Optimization
     /// </list>
     /// </para>
     /// </remarks>
+    [Serializable]
     public class ParticleSwarm : Optimizer
     {
         /// <summary>

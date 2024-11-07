@@ -44,6 +44,7 @@ namespace Numerics.Functions
     ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
     /// </para>
     /// </remarks>
+    [Serializable]
     public class PowerFunction : IUnivariateFunction
     {
 

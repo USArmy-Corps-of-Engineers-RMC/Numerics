@@ -62,6 +62,7 @@ namespace Numerics.Mathematics.Optimization
     /// </list>
     /// </para>
     /// </remarks>
+    [Serializable]
     public class GoldenSection : Optimizer
     {
 

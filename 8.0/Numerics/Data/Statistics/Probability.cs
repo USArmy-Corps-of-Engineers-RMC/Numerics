@@ -247,7 +247,7 @@ namespace Numerics.Data.Statistics
         /// <param name="probabilities">List of probabilities.</param>
         public static double NegativeJointProbability(IList<double> probabilities)
         {
-            return Math.Max(0, Tools.Sum(probabilities) - 1);
+            return Math.Max(0, Math.Min(1, Tools.Sum(probabilities)) - 1);
         }
 
         /// <summary>
@@ -257,7 +257,7 @@ namespace Numerics.Data.Statistics
         /// <param name="indicators">An array of indicators, 0 means the event did not occur, 1 means the event did occur.</param>
         public static double NegativeJointProbability(IList<double> probabilities, int[] indicators)
         {
-            return Math.Max(0, Tools.Sum(probabilities, indicators) - 1);
+            return Math.Max(0, Math.Min(1, Tools.Sum(probabilities, indicators)) - 1);
         }
 
         /// <summary>

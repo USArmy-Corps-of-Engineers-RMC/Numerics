@@ -35,6 +35,7 @@ using System.Xml.Linq;
 using System.Linq;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 
 namespace Data.TimeSeriesAnalysis
 {
@@ -71,9 +72,9 @@ namespace Data.TimeSeriesAnalysis
 
             var xElement = new XElement("xElement",
                 new XAttribute("TimeInterval", TimeInterval.OneYear),
-                new XElement("SeriesOrdinate", new XAttribute("Index", new DateTime(2023, 01, 01)), new XAttribute("Value", 5)),
-                new XElement("SeriesOrdinate", new XAttribute("Index", new DateTime(2023, 12, 31)), new XAttribute("Value", 5)),
-                new XElement("SeriesOrdinate", new XAttribute("Index", new DateTime(2024, 01, 01)), new XAttribute("Value", 5)));
+                new XElement("SeriesOrdinate", new XAttribute("Index", new DateTime(2023, 01, 01).ToString("o", CultureInfo.InvariantCulture)), new XAttribute("Value", 5.0.ToString("G17", CultureInfo.InvariantCulture))),
+                new XElement("SeriesOrdinate", new XAttribute("Index", new DateTime(2023, 12, 31).ToString("o", CultureInfo.InvariantCulture)), new XAttribute("Value", 5.0.ToString("G17", CultureInfo.InvariantCulture))),
+                new XElement("SeriesOrdinate", new XAttribute("Index", new DateTime(2024, 01, 01).ToString("o", CultureInfo.InvariantCulture)), new XAttribute("Value", 5.0.ToString("G17", CultureInfo.InvariantCulture))));
 
             var ts6 = new TimeSeries(xElement);
         }
@@ -119,10 +120,8 @@ namespace Data.TimeSeriesAnalysis
 
             foreach (XElement ordinate in xElement.Elements("SeriesOrdinate"))
             {
-                DateTime index = DateTime.Now;
-                DateTime.TryParse(ordinate.Attribute("Index").Value, out index);
-                double value = 0;
-                double.TryParse(ordinate.Attribute("Value").Value, out value);
+                var index = DateTime.ParseExact(ordinate.Attribute("Index").Value, "o", CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind);
+                double.TryParse(ordinate.Attribute("Value").Value, NumberStyles.Any, CultureInfo.InvariantCulture, out var value);
                 ordinates.Add(new SeriesOrdinate<DateTime, double>(index, value));
             }
 

@@ -133,7 +133,7 @@ namespace Numerics.Data
             // Get Ordinates
             foreach (XElement ordinate in xElement.Elements("SeriesOrdinate"))
             {
-                DateTime.TryParse(ordinate.Attribute("Index").Value, out var index);
+                var index = DateTime.ParseExact(ordinate.Attribute("Index").Value, "o", CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind);
                 double.TryParse(ordinate.Attribute("Value").Value, NumberStyles.Any, CultureInfo.InvariantCulture, out var value);
                 Add(new SeriesOrdinate<DateTime, double>(index, value));
             }
@@ -2000,7 +2000,7 @@ namespace Numerics.Data
             for (int i = 0; i < Count; i++)
             {
                 var ordinate = new XElement("SeriesOrdinate");
-                ordinate.SetAttributeValue("Index", this[i].Index.ToUniversalTime().ToString());
+                ordinate.SetAttributeValue("Index", this[i].Index.ToString("o", CultureInfo.InvariantCulture));
                 ordinate.SetAttributeValue("Value", this[i].Value.ToString("G17", CultureInfo.InvariantCulture));
                 result.Add(ordinate);
             }

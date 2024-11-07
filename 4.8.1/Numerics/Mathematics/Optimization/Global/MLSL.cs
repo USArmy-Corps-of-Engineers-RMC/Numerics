@@ -80,6 +80,7 @@ namespace Numerics.Mathematics.Optimization
     ///     vol 15. Springer, Berlin, Heidelberg. <see href="https://doi.org/10.1007/978-3-642-82450-0_10"/>
     /// </para>
     /// </remarks>
+    [Serializable]
     public class MLSL : Optimizer
     {
         /// <summary>

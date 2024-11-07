@@ -52,6 +52,7 @@ namespace Numerics.Data
     /// </list>
     /// </para>
     /// </remarks>
+    [Serializable]
     public struct UncertainOrdinate
     {
 

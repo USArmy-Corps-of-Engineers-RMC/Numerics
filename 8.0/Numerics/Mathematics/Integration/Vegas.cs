@@ -61,6 +61,7 @@ namespace Numerics.Mathematics.Integration
     /// </description></item>
     /// </list>
     /// </remarks>
+    [Serializable]
     public class Vegas : Integrator
     {
         /// <summary>

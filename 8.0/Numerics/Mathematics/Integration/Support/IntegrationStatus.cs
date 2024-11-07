@@ -33,6 +33,7 @@ namespace Numerics.Mathematics
     /// <summary>
     /// Enumeration of integration statuses.
     /// </summary>
+    [Serializable]
     public enum IntegrationStatus
     {
         /// <summary>

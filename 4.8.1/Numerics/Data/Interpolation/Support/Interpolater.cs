@@ -48,6 +48,7 @@ namespace Numerics.Data
     /// <b> References: </b>
     /// <see href="https://en.wikipedia.org/wiki/Interpolation"/>
     /// </remarks>
+    [Serializable]
     public abstract class Interpolater
     {
 

@@ -54,6 +54,7 @@ namespace Numerics.Mathematics.Integration
     /// <b> References: </b>
     /// <see href="https://en.wikipedia.org/wiki/Trapezoidal_rule"/>
     /// </remarks>
+    [Serializable]
     public class TrapezoidalRule : Integrator
     {
         /// <summary>

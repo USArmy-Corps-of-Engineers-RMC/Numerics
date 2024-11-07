@@ -75,6 +75,7 @@ namespace Numerics.Data.Statistics
     /// This class is copied from the Math.NET Numerics library, <see href="http://numerics.mathdotnet.com"/>
     /// </para>
     /// </remarks>
+    [Serializable]
     public class RunningStatistics
     {
 

@@ -47,6 +47,7 @@ namespace Numerics.Data
     ///     <b> Authors:</b>
     ///     Woodrow Fields, USACE Risk Management Center, woodrow.l.fields@usace.army.mil
     /// </remarks> 
+    [Serializable]
     public class UncertainOrderedPairedData : IList<UncertainOrdinate>, INotifyCollectionChanged
     {
         #region Members
