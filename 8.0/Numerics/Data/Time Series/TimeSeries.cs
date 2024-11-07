@@ -133,7 +133,13 @@ namespace Numerics.Data
             // Get Ordinates
             foreach (XElement ordinate in xElement.Elements("SeriesOrdinate"))
             {
-                var index = DateTime.ParseExact(ordinate.Attribute("Index").Value, "o", CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind);
+                // Try to parse the invariant date string using TryParseExact
+                // If it fails, do a regular try parse.
+                DateTime index;
+                if (!DateTime.TryParseExact(ordinate.Attribute("Index").Value, "o", CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out index))
+                {
+                    DateTime.TryParse(ordinate.Attribute("Index").Value, out index);
+                }
                 double.TryParse(ordinate.Attribute("Value").Value, NumberStyles.Any, CultureInfo.InvariantCulture, out var value);
                 Add(new SeriesOrdinate<DateTime, double>(index, value));
             }
