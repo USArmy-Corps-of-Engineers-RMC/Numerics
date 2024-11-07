@@ -33,6 +33,7 @@ using Numerics.Data;
 using Numerics.Distributions;
 using System.Collections.Generic;
 using System.Linq;
+using System.Xml.Linq;
 
 namespace Data.PairedData
 {
@@ -105,7 +106,7 @@ namespace Data.PairedData
             OrderedPairedData data2 = _dataset2.CurveSample();
             OrderedPairedData data3 = _dataset3.CurveSample();
             OrderedPairedData data4 = _dataset4.CurveSample();
-            
+
             double[] xVals = new double[] { 1, 2, 3, 5 };
             // mean = (min + max + mode) / 3
             double[] yMeanVals = new double[] { 2, 3.66667, 8.66667, 17.33333 };
@@ -226,17 +227,17 @@ namespace Data.PairedData
             // Test InsertRange
             var toInsert = new List<UncertainOrdinate>() { new UncertainOrdinate(1, new Triangular(1, 2, 3)), new UncertainOrdinate(2, new Triangular(2, 4, 5)) };
             pairedData.InsertRange(0, toInsert);
-            for(int j = 0; j < toInsert.Count; j++)
+            for (int j = 0; j < toInsert.Count; j++)
             {
                 Assert.IsTrue(pairedData.Contains(toInsert[j]));
             }
 
             // Test AddRange
-            var toAdd = new List<UncertainOrdinate>() { new UncertainOrdinate(3, new Triangular(6, 8, 12)), new UncertainOrdinate(5,  new Triangular(13, 19, 20)), new UncertainOrdinate(7, new Triangular(16, 22, 28)) };
+            var toAdd = new List<UncertainOrdinate>() { new UncertainOrdinate(3, new Triangular(6, 8, 12)), new UncertainOrdinate(5, new Triangular(13, 19, 20)), new UncertainOrdinate(7, new Triangular(16, 22, 28)) };
             pairedData.AddRange(toAdd);
             var test7 = pairedData.Count();
             Assert.AreEqual(7, test7);
-            for(int k  = 0; k < toAdd.Count(); k++)
+            for (int k = 0; k < toAdd.Count(); k++)
             {
                 Assert.IsTrue(pairedData.Contains(toAdd[k]));
             }
