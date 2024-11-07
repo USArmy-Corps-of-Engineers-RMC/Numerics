@@ -33,6 +33,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -132,10 +133,8 @@ namespace Numerics.Data
             // Get Ordinates
             foreach (XElement ordinate in xElement.Elements("SeriesOrdinate"))
             {
-                DateTime index = DateTime.Now;
-                DateTime.TryParse(ordinate.Attribute("Index").Value, out index);
-                double value = 0;
-                double.TryParse(ordinate.Attribute("Value").Value, out value);
+                DateTime.TryParse(ordinate.Attribute("Index").Value, out var index);
+                double.TryParse(ordinate.Attribute("Value").Value, NumberStyles.Any, CultureInfo.InvariantCulture, out var value);
                 Add(new SeriesOrdinate<DateTime, double>(index, value));
             }
         }
@@ -2001,8 +2000,8 @@ namespace Numerics.Data
             for (int i = 0; i < Count; i++)
             {
                 var ordinate = new XElement("SeriesOrdinate");
-                ordinate.SetAttributeValue("Index", this[i].Index.ToString());
-                ordinate.SetAttributeValue("Value", this[i].Value.ToString());
+                ordinate.SetAttributeValue("Index", this[i].Index.ToUniversalTime().ToString());
+                ordinate.SetAttributeValue("Value", this[i].Value.ToString("G17", CultureInfo.InvariantCulture));
                 result.Add(ordinate);
             }
             return result;

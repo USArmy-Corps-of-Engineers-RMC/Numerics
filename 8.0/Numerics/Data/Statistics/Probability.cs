@@ -247,7 +247,7 @@ namespace Numerics.Data.Statistics
         /// <param name="probabilities">List of probabilities.</param>
         public static double NegativeJointProbability(IList<double> probabilities)
         {
-            return Math.Max(0, Math.Min(1, Tools.Sum(probabilities)) - 1);
+            return Math.Max(0, Tools.Sum(probabilities) - 1);
         }
 
         /// <summary>

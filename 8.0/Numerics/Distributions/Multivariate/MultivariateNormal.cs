@@ -53,6 +53,7 @@ namespace Numerics.Distributions
     /// <see href = "https://en.wikipedia.org/wiki/Multivariate_normal_distribution" />
     /// </para>
     /// </remarks>
+    [Serializable]
     public class MultivariateNormal : MultivariateDistribution
     {
         private MultivariateNormal() { }

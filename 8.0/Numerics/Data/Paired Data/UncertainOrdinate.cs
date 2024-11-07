@@ -97,7 +97,7 @@ namespace Numerics.Data
         public UncertainOrdinate(XElement xElement, UnivariateDistributionType distributionType)
         {
             double x = 0;
-            if (xElement.Attribute(nameof(X)) != null) double.TryParse(xElement.Attribute(nameof(X)).Value, out x);
+            if (xElement.Attribute(nameof(X)) != null) double.TryParse(xElement.Attribute(nameof(X)).Value, NumberStyles.Any, CultureInfo.InvariantCulture, out x);
             // backwards compatibility
             var dist = UnivariateDistributionFactory.CreateDistribution(distributionType);
             var props = dist.GetParameterPropertyNames;
@@ -105,7 +105,7 @@ namespace Numerics.Data
             for (int i = 0; i < props.Count(); i++)
             {
                 double p = 0;
-                if (xElement.Attribute(props[i]) != null) double.TryParse(xElement.Attribute(props[i]).Value, out p);
+                if (xElement.Attribute(props[i]) != null) double.TryParse(xElement.Attribute(props[i]).Value, NumberStyles.Any, CultureInfo.InvariantCulture, out p);
                 paramVals[i] = p;
             }
             dist.SetParameters(paramVals);

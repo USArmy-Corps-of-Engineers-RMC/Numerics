@@ -311,40 +311,47 @@ namespace Numerics.Data
                     var lines = textDownload.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
                     foreach (string line in lines)
                     {
-                        var segments = line.Split(delimiters, StringSplitOptions.RemoveEmptyEntries);
-                        if (segments.Count() >= 4 && segments.First() == "USGS")
+                        var segments = line.Split(delimiters);
+                        if (segments.First() == "USGS" && segments.Count() >= 5)
                         {
                             // Get date
                             DateTime index = DateTime.Now;
+                            int year = 2000;
+                            int month = 1;
+                            int day = 1;
                             var dateString = segments[2].Split('-');
-                            if (dateString[1] == "00")
-                            {
-                                int year = 2000;
-                                int.TryParse(dateString[0], out year);
-                                index = new DateTime(year, 1, 1, 0, 0, 0);
-                            }
-                            else
-                            {
-                                DateTime.TryParse(segments[2], out index);
-                            }
+                            DateTime.TryParse(segments[2], out index);
 
+                            if (index == DateTime.MinValue)
+                            {
+                                // The date parsing failed, so try to manually parse it
+                                if (dateString[1] == "00" && dateString[2] != "00")
+                                {
+                                    int.TryParse(dateString[0], out year);
+                                    int.TryParse(dateString[2], out day);
+                                    index = new DateTime(year, month, day, 0, 0, 0);
+                                }
+                                else if (dateString[1] != "00" && dateString[2] == "00")
+                                {
+                                    int.TryParse(dateString[0], out year);
+                                    int.TryParse(dateString[1], out month);
+                                    index = new DateTime(year, month, day, 0, 0, 0);
+                                }
+                                else if (dateString[1] == "00" && dateString[2] == "00")
+                                {
+                                    int.TryParse(dateString[0], out year);
+                                    index = new DateTime(year, month, day, 0, 0, 0);
+                                }
+                            }
                             // Get value
                             double value = 0;
-
-                            // see if the 4th column has a time
-                            int offset = 0;
-                            var timeString = segments[3].Split(':');
-                            if (timeString.Length == 2)
-                                offset = 1;
-
-                            int idx = timeSeriesType == USGSTimeSeriesType.PeakDischarge ? 3 + offset : 4 + offset;
-                            if (segments[idx] == "" || segments[idx] == " " || segments[idx] == "  " || string.IsNullOrEmpty(segments[idx]))
-                                value = double.NaN;
-                            else
+                            int idx = timeSeriesType == USGSTimeSeriesType.PeakDischarge ? 4 : 6;
+                            if (segments[idx] != "" && segments[idx] != " " && segments[idx] != "  " && !string.IsNullOrEmpty(segments[idx]))
                             {
                                 double.TryParse(segments[idx], out value);
+                                timeSeries.Add(new SeriesOrdinate<DateTime, double>(index, value));
                             }
-                            timeSeries.Add(new SeriesOrdinate<DateTime, double>(index, value));
+
                         }
                     }
                 }
