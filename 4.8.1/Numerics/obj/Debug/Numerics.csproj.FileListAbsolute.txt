@@ -1,0 +1,9 @@
+C:\Git\numerics\4.8.1\Numerics\bin\Debug\Numerics.xml
+C:\Git\numerics\4.8.1\Numerics\bin\Debug\Numerics.dll
+C:\Git\numerics\4.8.1\Numerics\bin\Debug\Numerics.pdb
+C:\Git\numerics\4.8.1\Numerics\obj\Debug\Numerics.csproj.AssemblyReference.cache
+C:\Git\numerics\4.8.1\Numerics\obj\Debug\Numerics.Resources.resources
+C:\Git\numerics\4.8.1\Numerics\obj\Debug\Numerics.csproj.GenerateResource.cache
+C:\Git\numerics\4.8.1\Numerics\obj\Debug\Numerics.csproj.CoreCompileInputs.cache
+C:\Git\numerics\4.8.1\Numerics\obj\Debug\Numerics.dll
+C:\Git\numerics\4.8.1\Numerics\obj\Debug\Numerics.pdb
