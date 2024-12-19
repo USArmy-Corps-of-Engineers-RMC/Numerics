@@ -166,6 +166,8 @@
     <Compile Include="Mathematics\Linear Algebra\Test_SingularValueDecomp.cs" />
     <Compile Include="Mathematics\Linear Algebra\Test_Vector.cs" />
     <Compile Include="Mathematics\ODE Solvers\Test_RungeKutta.cs" />
+    <Compile Include="Mathematics\Optimization\Dynamic\BinaryHeapTesting.cs" />
+    <Compile Include="Mathematics\Optimization\Dynamic\DijkstraTesting.cs" />
     <Compile Include="Mathematics\Optimization\TestFunctions.cs" />
     <Compile Include="Mathematics\Optimization\Local\Test_GoldenSection.cs" />
     <Compile Include="Mathematics\Optimization\Local\Test_BrentSearch.cs" />
