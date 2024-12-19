@@ -56,6 +56,7 @@ namespace Numerics.Mathematics.Integration
     /// <b> References: </b>
     /// <see href="https://en.wikipedia.org/wiki/Adaptive_Simpson%27s_method"/>
     /// </remarks>
+    [Serializable]
     public class AdaptiveSimpsonsRule : Integrator
     {
 

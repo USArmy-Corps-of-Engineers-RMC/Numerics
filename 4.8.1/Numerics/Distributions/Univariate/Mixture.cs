@@ -1060,8 +1060,8 @@ namespace Numerics.Distributions
             result.SetAttributeValue(nameof(Distributions), String.Join("|", Distributions.Select(x => x.Type)));
             // Weights
             var weights = Weights;
-            var weightStrings = new string[NumberOfParameters];
-            for (int i = 0; i < NumberOfParameters; i++)
+            var weightStrings = new string[Weights.Length];
+            for (int i = 0; i < Weights.Length; i++)
             {
                 weightStrings[i] = weights[i].ToString("G17", CultureInfo.InvariantCulture);
             }

@@ -56,6 +56,7 @@ namespace Numerics.Mathematics.Optimization
     /// <see href="https://en.wikipedia.org/wiki/Augmented_Lagrangian_method#cite_note-Nocedal_2006-6"/>
     /// </para>
     /// </remarks>
+    [Serializable]
     public class AugmentedLagrange : Optimizer
     {
 

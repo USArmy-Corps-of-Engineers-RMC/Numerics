@@ -105,30 +105,26 @@ namespace Numerics.Sampling
             // Get required data
             if (element.Attribute(nameof(LowerBound)) != null)
             {
-                double argresult = LowerBound;
-                double.TryParse(element.Attribute(nameof(LowerBound)).Value, NumberStyles.Any, CultureInfo.InvariantCulture, out argresult);
-                LowerBound = argresult;
+                double.TryParse(element.Attribute(nameof(LowerBound)).Value, NumberStyles.Any, CultureInfo.InvariantCulture, out var lower);
+                LowerBound = lower;
             }
 
             if (element.Attribute(nameof(UpperBound)) != null)
             {
-                double argresult1 = UpperBound;
-                double.TryParse(element.Attribute(nameof(UpperBound)).Value, NumberStyles.Any, CultureInfo.InvariantCulture, out argresult1);
-                UpperBound = argresult1;
+                double.TryParse(element.Attribute(nameof(UpperBound)).Value, NumberStyles.Any, CultureInfo.InvariantCulture, out var upper);
+                UpperBound = upper;
             }
 
             if (element.Attribute(nameof(NumberOfBins)) != null)
             {
-                int argresult2 = NumberOfBins;
-                int.TryParse(element.Attribute(nameof(NumberOfBins)).Value, NumberStyles.Any, CultureInfo.InvariantCulture, out argresult2);
-                NumberOfBins = argresult2;
+                int.TryParse(element.Attribute(nameof(NumberOfBins)).Value, NumberStyles.Any, CultureInfo.InvariantCulture, out var nBins);
+                NumberOfBins = nBins;
             }
 
             if (element.Attribute(nameof(IsProbability)) != null)
             {
-                bool argresult3 = IsProbability;
-                bool.TryParse(element.Attribute(nameof(IsProbability)).Value, out argresult3);
-                IsProbability = argresult3;
+                bool.TryParse(element.Attribute(nameof(IsProbability)).Value, out var isProbability);
+                IsProbability = isProbability;
             }
             // Determine if the options are valid
             IsValid = true;

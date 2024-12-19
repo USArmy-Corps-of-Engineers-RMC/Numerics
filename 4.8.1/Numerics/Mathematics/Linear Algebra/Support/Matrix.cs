@@ -52,6 +52,7 @@ namespace Numerics.Mathematics.LinearAlgebra
     /// This class is contains the basis for all Matrix operations used by Numerics.
     /// </para>
     /// </remarks>
+    [Serializable]
     public class Matrix
     {
 

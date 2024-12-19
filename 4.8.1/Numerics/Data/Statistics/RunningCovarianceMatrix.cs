@@ -29,6 +29,7 @@
 */
 
 using Numerics.Mathematics.LinearAlgebra;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -43,6 +44,7 @@ namespace Numerics.Data.Statistics
     ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
     /// </para>
     /// </remarks>
+    [Serializable]
     public class RunningCovarianceMatrix
     {
         /// <summary>

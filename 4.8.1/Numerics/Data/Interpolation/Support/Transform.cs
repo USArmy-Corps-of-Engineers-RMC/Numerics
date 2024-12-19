@@ -28,6 +28,7 @@
 * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace Numerics.Data
@@ -41,6 +42,7 @@ namespace Numerics.Data
     ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
     /// </para>
     /// </remarks>
+    [Serializable]
     public enum Transform
     {
         /// <summary>

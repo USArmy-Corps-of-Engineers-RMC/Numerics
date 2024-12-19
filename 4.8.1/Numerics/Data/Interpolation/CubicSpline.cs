@@ -28,6 +28,7 @@
 * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+using System;
 using System.Collections.Generic;
 
 namespace Numerics.Data
@@ -59,6 +60,7 @@ namespace Numerics.Data
     /// </description></item>
     /// </list>
     /// </remarks>
+    [Serializable]
     public class CubicSpline : Interpolater
     {
 

@@ -82,6 +82,7 @@ namespace Numerics.Mathematics.Optimization
     /// </list>
     /// </para>
     /// </remarks>
+    [Serializable]
     public class ShuffledComplexEvolution : Optimizer
     {
 

@@ -60,6 +60,7 @@ namespace Numerics.Data
     /// </description></item>
     /// </list>
     /// </remarks>
+    [Serializable]
     public class Polynomial : Interpolater
     {
         /// <summary>

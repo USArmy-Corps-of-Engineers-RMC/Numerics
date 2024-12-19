@@ -42,6 +42,7 @@ namespace Numerics.Distributions
     ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
     /// </para>
     /// </remarks>
+    [Serializable]
     public abstract class MultivariateDistribution : IMultivariateDistribution
     {
 

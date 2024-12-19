@@ -32,6 +32,7 @@ using Numerics.Mathematics.Optimization;
 using Numerics.Sampling.MCMC;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading.Tasks;
@@ -143,14 +144,14 @@ namespace Numerics.Distributions
         /// </summary>
         public XElement ToXElement()
         {
-            var result = new XElement(nameof(UncertaintyAnalysisResults));         
+            var result = new XElement(nameof(UncertaintyAnalysisResults));
             if (ParentDistribution != null) result.Add(ParentDistribution.ToXElement());
-            result.SetAttributeValue(nameof(AIC), AIC.ToString());
-            result.SetAttributeValue(nameof(BIC), BIC.ToString());
-            result.SetAttributeValue(nameof(RMSE), RMSE.ToString());
-            result.SetAttributeValue(nameof(ERL), ERL.ToString());
-            if (ModeCurve != null) result.SetAttributeValue(nameof(ModeCurve), String.Join("|", ModeCurve));
-            if (MeanCurve != null) result.SetAttributeValue(nameof(MeanCurve), String.Join("|", MeanCurve));
+            result.SetAttributeValue(nameof(AIC), AIC.ToString("G17", CultureInfo.InvariantCulture));
+            result.SetAttributeValue(nameof(BIC), BIC.ToString("G17", CultureInfo.InvariantCulture));
+            result.SetAttributeValue(nameof(RMSE), RMSE.ToString("G17", CultureInfo.InvariantCulture));
+            result.SetAttributeValue(nameof(ERL), ERL.ToString("G17", CultureInfo.InvariantCulture));
+            if (ModeCurve != null) result.SetAttributeValue(nameof(ModeCurve), String.Join("|", ModeCurve.Select(d => d.ToString("G17", CultureInfo.InvariantCulture))));
+            if (MeanCurve != null) result.SetAttributeValue(nameof(MeanCurve), String.Join("|", MeanCurve.Select(d => d.ToString("G17", CultureInfo.InvariantCulture))));
             // CIs
             if (ConfidenceIntervals != null)
             {
@@ -159,7 +160,7 @@ namespace Numerics.Distributions
                 {
                     for (int j = 0; j < ConfidenceIntervals.GetLength(1); j++)
                     {
-                        CIstring += ConfidenceIntervals[i, j].ToString() + (j < ConfidenceIntervals.GetLength(1) - 1 ? "," : "");
+                        CIstring += ConfidenceIntervals[i, j].ToString("G17", CultureInfo.InvariantCulture) + (j < ConfidenceIntervals.GetLength(1) - 1 ? "," : "");
                     }
                     CIstring += (i < ConfidenceIntervals.GetLength(0) - 1 ? "|" : "");
                 }
@@ -174,35 +175,34 @@ namespace Numerics.Distributions
         /// <param name="xElement">XElement to deserialize.</param>
         public static UncertaintyAnalysisResults FromXElement(XElement xElement)
         {
-            var ua = new UncertaintyAnalysisResults();    
+            var ua = new UncertaintyAnalysisResults();
             // Parent distribution
             if (xElement.Element("Distribution") != null)
                 ua.ParentDistribution = UnivariateDistributionFactory.CreateDistribution(xElement.Element("Distribution"));
 
-            double outDbl = 0;
             // AIC
             if (xElement.Attribute(nameof(AIC)) != null)
             {
-                double.TryParse(xElement.Attribute(nameof(AIC)).Value, out outDbl);
-                ua.AIC = outDbl;
+                double.TryParse(xElement.Attribute(nameof(AIC)).Value, NumberStyles.Any, CultureInfo.InvariantCulture, out var aic);
+                ua.AIC = aic;
             }
             // BIC
             if (xElement.Attribute(nameof(BIC)) != null)
             {
-                double.TryParse(xElement.Attribute(nameof(BIC)).Value, out outDbl);
-                ua.BIC = outDbl;
+                double.TryParse(xElement.Attribute(nameof(BIC)).Value, NumberStyles.Any, CultureInfo.InvariantCulture, out var bic);
+                ua.BIC = bic;
             }
             // RMSE
             if (xElement.Attribute(nameof(RMSE)) != null)
             {
-                double.TryParse(xElement.Attribute(nameof(RMSE)).Value, out outDbl);
-                ua.RMSE = outDbl;
+                double.TryParse(xElement.Attribute(nameof(RMSE)).Value, NumberStyles.Any, CultureInfo.InvariantCulture, out var rmse);
+                ua.RMSE = rmse;
             }
             // ERL
             if (xElement.Attribute(nameof(ERL)) != null)
             {
-                double.TryParse(xElement.Attribute(nameof(ERL)).Value, out outDbl);
-                ua.ERL = outDbl;
+                double.TryParse(xElement.Attribute(nameof(ERL)).Value, NumberStyles.Any, CultureInfo.InvariantCulture, out var erl);
+                ua.ERL = erl;
             }
 
             // Mode Curve
@@ -214,7 +214,7 @@ namespace Numerics.Distributions
                     ua.ModeCurve = new double[vals.Length];
                     for (int i = 0; i < vals.Length; i++)
                     {
-                        double.TryParse(vals[i], out ua.ModeCurve[i]);
+                        double.TryParse(vals[i], NumberStyles.Any, CultureInfo.InvariantCulture, out ua.ModeCurve[i]);
                     }
                 }
             }
@@ -227,7 +227,7 @@ namespace Numerics.Distributions
                     ua.MeanCurve = new double[vals.Length];
                     for (int i = 0; i < vals.Length; i++)
                     {
-                        double.TryParse(vals[i], out ua.MeanCurve[i]);
+                        double.TryParse(vals[i], NumberStyles.Any, CultureInfo.InvariantCulture, out ua.MeanCurve[i]);
                     }
                 }
             }
@@ -243,14 +243,13 @@ namespace Numerics.Distributions
                         var jVals = vals[i].Split(',');
                         for (int j = 0; j < jVals.Length; j++)
                         {
-                            double.TryParse(jVals[j], out ua.ConfidenceIntervals[i, j]);
+                            double.TryParse(jVals[j], NumberStyles.Any, CultureInfo.InvariantCulture, out ua.ConfidenceIntervals[i, j]);
                         }
                     }
                 }
             }
             return ua;
         }
-
 
         /// <summary>
         /// Returns uncertainty analysis results for the distribution estimated from MCMC.

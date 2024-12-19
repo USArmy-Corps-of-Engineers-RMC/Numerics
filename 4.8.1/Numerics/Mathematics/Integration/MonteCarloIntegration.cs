@@ -50,6 +50,7 @@ namespace Numerics.Mathematics.Integration
     /// <b> References: </b>
     /// <see href="https://en.wikipedia.org/wiki/Monte_Carlo_integration"/>
     /// </remarks>
+    [Serializable]
     public class MonteCarloIntegration : Integrator
     {
         /// <summary>

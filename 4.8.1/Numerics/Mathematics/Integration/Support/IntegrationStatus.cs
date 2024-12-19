@@ -28,11 +28,14 @@
 * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+using System;
+
 namespace Numerics.Mathematics
 {
     /// <summary>
     /// Enumeration of integration statuses.
     /// </summary>
+    [Serializable]
     public enum IntegrationStatus
     {
         /// <summary>

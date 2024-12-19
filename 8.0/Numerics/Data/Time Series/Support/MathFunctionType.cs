@@ -39,6 +39,7 @@ namespace Numerics.Data
     ///     Haden Smith, USACE Risk Management Center, cole.h.smith@usace.army.mil
     /// </para>
     /// </remarks>
+    [Serializable]
     public enum MathFunctionType
     {
         /// <summary>

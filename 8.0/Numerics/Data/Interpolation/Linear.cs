@@ -53,6 +53,7 @@ namespace Numerics.Data
     /// <b> References: </b>
     /// <see href="https://en.wikipedia.org/wiki/Linear_interpolation"/>
     /// </remarks>
+    [Serializable]
     public class Linear : Interpolater
     {
         /// <summary>

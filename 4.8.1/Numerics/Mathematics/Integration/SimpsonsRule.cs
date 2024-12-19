@@ -54,6 +54,7 @@ namespace Numerics.Mathematics.Integration
     /// <b> References: </b>
     /// <see href="https://en.wikipedia.org/wiki/Simpson%27s_rule"/>
     /// </remarks>
+    [Serializable]
     public class SimpsonsRule : Integrator
     {
         /// <summary>

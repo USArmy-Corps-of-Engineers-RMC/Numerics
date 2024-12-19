@@ -62,6 +62,7 @@ namespace Numerics.Mathematics.LinearAlgebra
     /// </list>
     /// </para>
     /// </remarks>
+    [Serializable]
     public class LUDecomposition
     {
       

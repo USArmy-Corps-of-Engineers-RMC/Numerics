@@ -32,6 +32,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Globalization;
 using System.Linq;
 using System.Xml.Linq;
 using Numerics.Distributions;
@@ -46,6 +47,7 @@ namespace Numerics.Data
     ///     <b> Authors:</b>
     ///     Woodrow Fields, USACE Risk Management Center, woodrow.l.fields@usace.army.mil
     /// </remarks> 
+    [Serializable]
     public class UncertainOrderedPairedData : IList<UncertainOrdinate>, INotifyCollectionChanged
     {
         #region Members
@@ -174,26 +176,6 @@ namespace Numerics.Data
         #endregion
 
         #region Construction
-
-        /*public UncertainOrderedPairedData(bool strictOnX, SortOrder xOrder, bool strictOnY, SortOrder yOrder, UnivariateDistributionType distributionType)
-        {
-            Distribution = distributionType;
-            _uncertainOrdinates = new List<UncertainOrdinate>();
-            _strictX = strictOnX;
-            _strictY = strictOnY;
-            _orderX = xOrder;
-            _orderY = yOrder;
-        }
-
-        public UncertainOrderedPairedData(int capacity, bool strictOnX, SortOrder xOrder, bool strictOnY, SortOrder yOrder, UnivariateDistributionType distributionType)
-        {
-            Distribution = distributionType;
-            _uncertainOrdinates = new List<UncertainOrdinate>(capacity);
-            _strictX = strictOnX;
-            _strictY = strictOnY;
-            _orderX = xOrder;
-            _orderY = yOrder;
-        }*/
 
         /// <summary>
         /// Create empty instance of the uncertain ordered paired data class.
@@ -333,14 +315,14 @@ namespace Numerics.Data
                 {
                     foreach (XElement o in curveEl.Elements("Ordinate"))
                     {
-                        double.TryParse(o.Attribute("X").Value, out var xout);
+                        double.TryParse(o.Attribute("X").Value, NumberStyles.Any, CultureInfo.InvariantCulture, out var xout);
                         xData.Add(xout);
                         var dist = UnivariateDistributionFactory.CreateDistribution(Distribution);
                         var props = dist.GetParameterPropertyNames;
                         var paramVals = new double[(props.Count())];
                         for (int i = 0; i < props.Count(); i++)
                         {
-                            double.TryParse(o.Attribute(props[i]).Value, out var result);
+                            double.TryParse(o.Attribute(props[i]).Value, NumberStyles.Any, CultureInfo.InvariantCulture, out var result);
                             paramVals[i] = result;
                         }
 

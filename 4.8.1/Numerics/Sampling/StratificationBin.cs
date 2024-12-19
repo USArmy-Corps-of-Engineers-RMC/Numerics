@@ -30,6 +30,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Xml.Linq;
 
 namespace Numerics.Sampling
@@ -91,23 +92,20 @@ namespace Numerics.Sampling
             // Get required data
             if (element.Attribute(nameof(LowerBound)) != null)
             {
-                double argresult = LowerBound;
-                double.TryParse(element.Attribute(nameof(LowerBound)).Value, out argresult);
-                LowerBound = argresult;
+                double.TryParse(element.Attribute(nameof(LowerBound)).Value, NumberStyles.Any, CultureInfo.InvariantCulture, out var lower);
+                LowerBound = lower;
             }
 
             if (element.Attribute(nameof(UpperBound)) != null)
             {
-                double argresult1 = UpperBound;
-                double.TryParse(element.Attribute(nameof(UpperBound)).Value, out argresult1);
-                UpperBound = argresult1;
+                double.TryParse(element.Attribute(nameof(UpperBound)).Value, NumberStyles.Any, CultureInfo.InvariantCulture, out var upper);
+                UpperBound = upper;
             }
 
             if (element.Attribute(nameof(Weight)) != null)
             {
-                double argresult2 = Weight;
-                double.TryParse(element.Attribute(nameof(Weight)).Value, out argresult2);
-                Weight = argresult2;
+                double.TryParse(element.Attribute(nameof(Weight)).Value, NumberStyles.Any, CultureInfo.InvariantCulture, out var weight);
+                Weight = weight;
             }
         }
     
@@ -187,9 +185,9 @@ namespace Numerics.Sampling
         public XElement SaveToXElement()
         {
             var result = new XElement("StratificationBin");
-            result.SetAttributeValue(nameof(LowerBound), LowerBound.ToString());
-            result.SetAttributeValue(nameof(UpperBound), UpperBound.ToString());
-            result.SetAttributeValue(nameof(Weight), Weight.ToString());
+            result.SetAttributeValue(nameof(LowerBound), LowerBound.ToString("G17", CultureInfo.InvariantCulture));
+            result.SetAttributeValue(nameof(UpperBound), UpperBound.ToString("G17", CultureInfo.InvariantCulture));
+            result.SetAttributeValue(nameof(Weight), Weight.ToString("G17", CultureInfo.InvariantCulture));
             return result;
         }
 

@@ -62,6 +62,7 @@ namespace Numerics.Sampling
     /// <item> "Numerical Recipes: The art of Scientific Computing, Third Edition. Press et al. 2017. </item>
     /// </list>
     /// </remarks>
+    [Serializable]
     public class SobolSequence
     {
         /// <summary>

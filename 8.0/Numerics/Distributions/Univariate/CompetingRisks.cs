@@ -519,12 +519,12 @@ namespace Numerics.Distributions
 
             if (MinimumOfRandomVariables == true)
             {
-                
+
                 if (Dependency == Probability.DependencyType.PerfectlyNegative || Dependency == Probability.DependencyType.CorrelationMatrix)
                 {
                     if (_mvnCreated == false)
                         CreateMultivariateNormal();
-                    p = Probability.Union(cdf, _mvn);
+                    p = Probability.UnionPCM(cdf, _mvn.Covariance);
                 }
                 else
                 {
@@ -533,17 +533,17 @@ namespace Numerics.Distributions
             }
             else
             {
-                if (Dependency == Probability.DependencyType.CorrelationMatrix)
+                if (Dependency == Probability.DependencyType.PerfectlyNegative || Dependency == Probability.DependencyType.CorrelationMatrix)
                 {
                     if (_mvnCreated == false)
                         CreateMultivariateNormal();
-                    p = Probability.JointProbability(cdf, ind, _mvn);
+                    p = Probability.JointProbability(cdf, ind, _mvn.Covariance);
                 }
                 else
                 {
                     p = Probability.JointProbability(cdf, Dependency);
                 }
-                
+
             }
             return p < 0d ? 0d : p > 1d ? 1d : p;
         }

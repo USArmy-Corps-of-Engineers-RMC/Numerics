@@ -63,6 +63,7 @@ namespace Numerics.Mathematics.Optimization
     /// </description></item>
     /// </list>
     /// </remarks>
+    [Serializable]
     public class BFGS : Optimizer
     {
 
