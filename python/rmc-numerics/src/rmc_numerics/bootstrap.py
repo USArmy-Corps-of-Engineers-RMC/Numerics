@@ -213,6 +213,38 @@ class BootstrapAnalysis:
             self._distributions = self.net.Distributions()
         return self._distributions
 
+    def members(self) -> Any:
+        """Run (once) and return the replicates as a ``UnivariateDistributionBase[]`` with nulls for failures.
+
+        The array stays on the .NET side, ready for the members that take one (for example
+        ``UncertaintyAnalysisResults.from_ensemble``), so a large ensemble is never wrapped
+        replicate by replicate in Python.
+
+        Returns
+        -------
+        System.Array[Numerics.Distributions.UnivariateDistributionBase]
+            One fitted replicate per replication; null where the refit failed.
+        """
+        nd = _nd()
+        import System  # noqa: PLC0415
+
+        replicates = self._net_distributions()
+        members = System.Array.CreateInstance(nd.UnivariateDistributionBase, len(replicates))
+        for index, replicate in enumerate(replicates):
+            if replicate is not None:
+                members[index] = getattr(replicate, "__implementation__", replicate)
+        return members
+
+    def parameters(self) -> np.ndarray:
+        """Run (once) and return the replicates' parameters (``Parameters``), NaN rows for failures.
+
+        Returns
+        -------
+        numpy.ndarray
+            Array of shape ``(replications, number_of_parameters)``.
+        """
+        return to_numpy_matrix(self.net.Parameters(self._net_distributions()))
+
     def distributions(self) -> list[UnivariateDistribution | None]:
         """Run (once) and return the bootstrap replicate distributions (``Distributions``).
 

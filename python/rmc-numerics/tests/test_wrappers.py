@@ -392,3 +392,37 @@ def test_uncertainty_results_accept_a_net_member_array() -> None:
     # Assert
     np.testing.assert_array_equal(from_array.mean_curve, from_list.mean_curve)
     np.testing.assert_array_equal(from_array.confidence_intervals, from_list.confidence_intervals)
+
+
+def test_net_errors_translate_the_numerics_exception_families() -> None:
+    # Arrange
+    from rmc_numerics.errors import net_errors
+
+    # Act / Assert
+    with pytest.raises(ValueError, match="between 0 and 1"):
+        with net_errors():
+            distributions.Normal().inverse_cdf(1.5)
+    with pytest.raises(KeyError):
+        with net_errors():
+            raise KeyError("python errors pass through")
+
+
+def test_bootstrap_members_and_parameters_stay_aligned() -> None:
+    # Arrange
+    analysis = bootstrap.BootstrapAnalysis(distributions.Gumbel(100.0, 10.0), "MethodOfMoments", 50, 200, 7)
+    # Act
+    members = analysis.members()
+    rows = analysis.parameters()
+    # Assert
+    assert len(members) == 200 and rows.shape == (200, 2)
+    assert [float(v) for v in members[3].GetParameters] == rows[3].tolist()
+
+
+def test_ln_normal_log_parameter_construction() -> None:
+    # Act
+    ln = distributions.LnNormal.from_log_parameters(2.0, 0.1)
+    mu, sigma = distributions.LnNormal.direct_method_of_moments(*ln.parameters)
+    # Assert
+    assert (float(ln.net.Mu), float(ln.net.Sigma)) == (2.0, 0.1)
+    assert mu == pytest.approx(2.0, abs=1e-12) and sigma == pytest.approx(0.1, abs=1e-12)
+    assert distributions.GeneralizedExtremeValue(4.0, 1.0, 0.0).has_parameter_covariance

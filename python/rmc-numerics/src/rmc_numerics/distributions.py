@@ -269,6 +269,14 @@ class UnivariateDistribution:
         error = self.net.ValidateParameters(to_net_doubles(parameters), False)
         return None if error is None else str(error.Message)
 
+    @property
+    def has_parameter_covariance(self) -> bool:
+        """Whether the family implements ``IStandardError`` (an asymptotic parameter covariance)."""
+        nd = _nd()
+        import clr  # noqa: PLC0415
+
+        return bool(clr.GetClrType(nd.IStandardError).IsInstanceOfType(self.net))
+
     def parameter_covariance(self, sample_size: int,
                              method: EstimationMethod | str = EstimationMethod.MAXIMUM_LIKELIHOOD) -> np.ndarray:
         """Return the asymptotic parameter covariance through ``IStandardError.ParameterCovariance``.
@@ -291,9 +299,7 @@ class UnivariateDistribution:
             If the distribution does not implement ``IStandardError``.
         """
         nd = _nd()
-        import clr  # noqa: PLC0415
-
-        if not clr.GetClrType(nd.IStandardError).IsInstanceOfType(self.net):
+        if not self.has_parameter_covariance:
             raise TypeError(f"{self.display_name} exposes no parameter covariance.")
         covariance = nd.IStandardError(self.net).ParameterCovariance(int(sample_size),
                                                                      net_enum(nd.ParameterEstimationMethod, method))
@@ -648,6 +654,48 @@ class LnNormal(UnivariateDistribution):
 
     def __init__(self, mean: float, standard_deviation: float) -> None:
         super().__init__(_nd().LnNormal(float(mean), float(standard_deviation)))
+
+    @staticmethod
+    def direct_method_of_moments(mean: float, standard_deviation: float) -> tuple[float, float]:
+        """Return (mu, sigma) of ln X for real-space moments (``LnNormal.DirectMethodOfMoments``).
+
+        Parameters
+        ----------
+        mean : float
+            The mean of X.
+        standard_deviation : float
+            The standard deviation of X.
+
+        Returns
+        -------
+        tuple of float
+            ``(mu, sigma)`` as Numerics computes them, before the ``Sigma`` setter's clamp.
+        """
+        values = _nd().LnNormal.DirectMethodOfMoments(float(mean), float(standard_deviation))
+        return float(values[0]), float(values[1])
+
+    @classmethod
+    def from_log_parameters(cls, mu: float, sigma: float) -> LnNormal:
+        """Create the distribution from mu and sigma of ln X (the ``Mu`` and ``Sigma`` setters).
+
+        Parameters
+        ----------
+        mu : float
+            The mean of ln X.
+        sigma : float
+            The standard deviation of ln X.
+
+        Returns
+        -------
+        LnNormal
+            The distribution; Numerics derives the real-space moments from mu and sigma.
+        """
+        net = _nd().LnNormal()
+        net.Mu = float(mu)
+        net.Sigma = float(sigma)
+        instance = cls.__new__(cls)
+        UnivariateDistribution.__init__(instance, net)
+        return instance
 
 
 @_register("PearsonTypeIII")

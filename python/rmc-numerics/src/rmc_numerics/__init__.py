@@ -15,6 +15,8 @@ call :func:`initialize` explicitly. Submodules:
 ``data``, ``statistics``, ``sampling``, ``mathematics``, ``bootstrap``
     Paired data and interpolation, statistics, sampling designs, root finding and
     elementary functions, and uncertainty analysis.
+``errors``
+    ``net_errors``: the Numerics argument and arithmetic exceptions as Python exceptions.
 """
 
 from rmc_numerics._version import (

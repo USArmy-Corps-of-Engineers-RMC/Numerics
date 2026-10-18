@@ -22,6 +22,7 @@ PUBLIC_MODULES = (
     "rmc_numerics.sampling",
     "rmc_numerics.mathematics",
     "rmc_numerics.bootstrap",
+    "rmc_numerics.errors",
 )
 
 ENFORCED_CHECKS = frozenset({
