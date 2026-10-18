@@ -38,6 +38,32 @@ def _clr() -> tuple[Any, Any]:
     return System, Marshal
 
 
+_BOUND: dict[str, Any] = {}
+
+
+def _bound() -> dict[str, Any]:
+    """Return the ``Marshal.Copy`` overloads and array constructors, resolved once per process.
+
+    pythonnet resolves an overloaded method group on every call; ``Marshal.Copy`` has more than a
+    dozen overloads, and resolving them costs about twenty times the copy of a short array. Binding
+    the exact overloads once keeps a small transfer in the microseconds; the copies are unchanged.
+    """
+    if not _BOUND:
+        System, Marshal = _clr()
+        pointer, length = System.IntPtr, System.Int32
+        doubles, ints, singles = System.Array[System.Double], System.Array[System.Int32], System.Array[System.Single]
+        _BOUND.update({
+            "doubles": doubles, "ints": ints, "singles": singles, "pointer": pointer,
+            "doubles_in": Marshal.Copy.Overloads[pointer, doubles, length, length],
+            "doubles_out": Marshal.Copy.Overloads[doubles, length, pointer, length],
+            "ints_in": Marshal.Copy.Overloads[pointer, ints, length, length],
+            "ints_out": Marshal.Copy.Overloads[ints, length, pointer, length],
+            "singles_in": Marshal.Copy.Overloads[pointer, singles, length, length],
+            "singles_out": Marshal.Copy.Overloads[singles, length, pointer, length],
+        })
+    return _BOUND
+
+
 def to_net_doubles(values: Any) -> Any:
     """Copy a one-dimensional array into a new ``System.Double[]``, preserving every bit.
 
@@ -61,15 +87,15 @@ def to_net_doubles(values: Any) -> Any:
     ValueError
         If ``values`` is not one-dimensional after conversion.
     """
-    System, Marshal = _clr()
+    bound = _bound()
     array = np.ascontiguousarray(values, dtype=np.float64)
     if array.ndim == 0:
         array = array.reshape(1)
     if array.ndim != 1:
         raise ValueError(f"Expected a 1-D array; got shape {array.shape}.")
-    target = System.Array.CreateInstance(System.Double, array.size)
+    target = bound["doubles"](array.size)
     if array.size:
-        Marshal.Copy(System.IntPtr(array.ctypes.data), target, 0, array.size)
+        bound["doubles_in"](bound["pointer"](array.ctypes.data), target, 0, array.size)
     return target
 
 
@@ -88,11 +114,11 @@ def to_numpy_doubles(values: Any) -> np.ndarray:
     numpy.ndarray
         A new one-dimensional float64 array with ``values.Length`` elements.
     """
-    System, Marshal = _clr()
+    bound = _bound()
     length = int(values.Length)
     out = np.empty(length, dtype=np.float64)
     if length:
-        Marshal.Copy(values, 0, System.IntPtr(out.ctypes.data), length)
+        bound["doubles_out"](values, 0, bound["pointer"](out.ctypes.data), length)
     return out
 
 
@@ -220,12 +246,12 @@ def to_net_ints(values: Any) -> Any:
         If ``values`` is not one-dimensional after conversion.
     """
     array = _int32_array(values)
-    System, Marshal = _clr()
+    bound = _bound()
     if array.ndim != 1:
         raise ValueError(f"Expected a 1-D array; got shape {array.shape}.")
-    target = System.Array.CreateInstance(System.Int32, array.size)
+    target = bound["ints"](array.size)
     if array.size:
-        Marshal.Copy(System.IntPtr(array.ctypes.data), target, 0, array.size)
+        bound["ints_in"](bound["pointer"](array.ctypes.data), target, 0, array.size)
     return target
 
 
@@ -242,11 +268,11 @@ def to_numpy_ints(values: Any) -> np.ndarray:
     numpy.ndarray
         A new one-dimensional int32 array with ``values.Length`` elements.
     """
-    System, Marshal = _clr()
+    bound = _bound()
     length = int(values.Length)
     out = np.empty(length, dtype=np.int32)
     if length:
-        Marshal.Copy(values, 0, System.IntPtr(out.ctypes.data), length)
+        bound["ints_out"](values, 0, bound["pointer"](out.ctypes.data), length)
     return out
 
 
@@ -279,9 +305,10 @@ def to_net_singles(block: Any) -> tuple[Any, tuple[int, int, int]]:
     if array.ndim != 3:
         raise ValueError(f"Expected a (steps, rows, cols) block; got shape {array.shape}.")
     steps, rows, cols = (int(dimension) for dimension in array.shape)
-    target = System.Array.CreateInstance(System.Single, array.size)
+    bound = _bound()
+    target = bound["singles"](array.size)
     if array.size:
-        Marshal.Copy(System.IntPtr(array.ctypes.data), target, 0, array.size)
+        bound["singles_in"](bound["pointer"](array.ctypes.data), target, 0, array.size)
     return target, (steps, rows, cols)
 
 
@@ -312,5 +339,5 @@ def to_numpy_singles(values: Any, dims: tuple[int, int, int]) -> np.ndarray:
         raise ValueError(f"Flat length {length} does not match dims {dims}.")
     out = np.empty(length, dtype=np.float32)
     if length:
-        Marshal.Copy(values, 0, System.IntPtr(out.ctypes.data), length)
+        _bound()["singles_out"](values, 0, System.IntPtr(out.ctypes.data), length)
     return out.reshape((steps, rows, cols))
