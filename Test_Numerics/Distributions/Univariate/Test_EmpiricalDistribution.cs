@@ -660,5 +660,77 @@ namespace Distributions.Univariate
             invalid.SetAttributeValue(nameof(EmpiricalDistribution.Extrapolation), "Sideways");
             Assert.Throws<ArgumentException>(() => EmpiricalDistribution.FromXElement(invalid));
         }
+
+        /// <summary>
+        /// A survival table (strictly descending probabilities) keeps its orientation through
+        /// Clone and XML: CDF = 1 − S and InverseCDF reads the exceedance axis on every copy.
+        /// </summary>
+        [TestMethod]
+        public void Test_Empirical_SurvivalTable_CloneAndSerialization()
+        {
+            var dist = new EmpiricalDistribution(new[] { 100d, 200d, 300d }, new[] { 0.5d, 0.1d, 0.01d }, SortOrder.Ascending, SortOrder.Descending);
+            Assert.IsTrue(dist.ParametersValid);
+
+            var clone = (EmpiricalDistribution)dist.Clone();
+            var restored = EmpiricalDistribution.FromXElement(dist.ToXElement());
+            foreach (var copy in new[] { clone, restored })
+            {
+                Assert.AreEqual(SortOrder.Descending, copy.ProbabilityOrder);
+                Assert.IsTrue(copy.StrictProbabilities);
+                Assert.IsFalse(copy.StrictXValues);
+                Assert.IsTrue(copy.ParametersValid);
+                Assert.AreEqual(1d - 0.1d, copy.CDF(200d), 0d);
+                Assert.AreEqual(dist.CDF(250d), copy.CDF(250d), 0d);
+                Assert.AreEqual(200d, copy.InverseCDF(1d - 0.1d), 1E-10);
+                Assert.AreEqual(dist.InverseCDF(0.7d), copy.InverseCDF(0.7d), 0d);
+            }
+        }
+
+        /// <summary>
+        /// A tied-probability (non-strict) table and a strict-X table built from ordered paired
+        /// data keep their strictness through Clone and XML. The XML writes strictness only when
+        /// it departs from the default, so a default distribution serializes exactly as before.
+        /// </summary>
+        [TestMethod]
+        public void Test_Empirical_Strictness_CloneAndSerialization()
+        {
+            // Default: no strictness attributes; the serialized form is unchanged.
+            var standard = new EmpiricalDistribution(new[] { 100d, 200d, 300d }, new[] { 0.1d, 0.5d, 0.9d });
+            var standardXml = standard.ToXElement();
+            Assert.IsNull(standardXml.Attribute(nameof(EmpiricalDistribution.StrictXValues)));
+            Assert.IsNull(standardXml.Attribute(nameof(EmpiricalDistribution.StrictProbabilities)));
+            Assert.AreEqual(
+                "<Distribution Type=\"Empirical\" XTransform=\"None\" ProbabilityTransform=\"NormalZ\" XValues=\"100|200|300\" ProbabilityValues=\"0.10000000000000001|0.5|0.90000000000000002\" ProbabilityOrder=\"Ascending\" />",
+                standardXml.ToString());
+
+            // Tied probabilities: valid only with non-strict probabilities.
+            var tied = new EmpiricalDistribution(new OrderedPairedData(new[] { 100d, 200d, 300d, 400d }, new[] { 0.1d, 0.5d, 0.5d, 0.9d }, false, SortOrder.Ascending, false, SortOrder.Ascending));
+            Assert.IsTrue(tied.ParametersValid);
+            Assert.IsFalse(tied.StrictProbabilities);
+            var tiedClone = (EmpiricalDistribution)tied.Clone();
+            Assert.IsFalse(tiedClone.StrictProbabilities);
+            Assert.IsTrue(tiedClone.ParametersValid);
+            Assert.AreEqual(tied.CDF(350d), tiedClone.CDF(350d), 0d);
+            var tiedXml = tied.ToXElement();
+            Assert.AreEqual(bool.FalseString, tiedXml.Attribute(nameof(EmpiricalDistribution.StrictProbabilities))?.Value);
+            Assert.IsNull(tiedXml.Attribute(nameof(EmpiricalDistribution.StrictXValues)));
+            var tiedRestored = EmpiricalDistribution.FromXElement(tiedXml);
+            Assert.IsFalse(tiedRestored.StrictProbabilities);
+            Assert.IsTrue(tiedRestored.ParametersValid);
+            Assert.AreEqual(tied.CDF(350d), tiedRestored.CDF(350d), 0d);
+            Assert.AreEqual(tiedXml.ToString(), tiedRestored.ToXElement().ToString());
+
+            // Strict X values round-trip as well.
+            var strictX = new EmpiricalDistribution(new OrderedPairedData(new[] { 100d, 200d, 300d }, new[] { 0.1d, 0.5d, 0.9d }, true, SortOrder.Ascending, true, SortOrder.Ascending));
+            Assert.IsTrue(strictX.StrictXValues);
+            Assert.IsTrue(((EmpiricalDistribution)strictX.Clone()).StrictXValues);
+            var strictXml = strictX.ToXElement();
+            Assert.AreEqual(bool.TrueString, strictXml.Attribute(nameof(EmpiricalDistribution.StrictXValues))?.Value);
+            Assert.IsTrue(EmpiricalDistribution.FromXElement(strictXml).StrictXValues);
+
+            // An unparseable strictness value is rejected.
+            tiedXml.SetAttributeValue(nameof(EmpiricalDistribution.StrictProbabilities), "sometimes");
+            Assert.Throws<ArgumentException>(() => EmpiricalDistribution.FromXElement(tiedXml));
+        }
     }
 }

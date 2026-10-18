@@ -140,6 +140,31 @@ namespace Numerics.Distributions
             _momentsComputed = false;
         }
 
+        /// <summary>
+        /// Constructs a Univariate Empirical CDF that takes ownership of the given tables with an
+        /// explicit ordering and strictness configuration.
+        /// </summary>
+        /// <param name="xValues">The X values; the array is owned by the new instance.</param>
+        /// <param name="pValues">The probability values; the array is owned by the new instance.</param>
+        /// <param name="strictX">Whether the X values must be strictly monotonic.</param>
+        /// <param name="xOrder">The sort order of the X values.</param>
+        /// <param name="strictProbabilities">Whether the probability values must be strictly monotonic.</param>
+        /// <param name="probabilityOrder">The sort order of the probability values.</param>
+        /// <param name="useSmartSearch">Whether the paired-data lookups use smart search.</param>
+        /// <remarks>
+        /// Used by <see cref="Clone"/> and <see cref="FromXElement(XElement)"/> so that a survival
+        /// (descending) or tied-probability (non-strict) table keeps its configuration instead of
+        /// being rebuilt as an ascending, strictly increasing table.
+        /// </remarks>
+        private EmpiricalDistribution(double[] xValues, double[] pValues, bool strictX, SortOrder xOrder, bool strictProbabilities, SortOrder probabilityOrder, bool useSmartSearch)
+        {
+            _xValues = xValues;
+            _pValues = pValues;
+            opd = new OrderedPairedData(_xValues, _pValues, strictX, xOrder, strictProbabilities, probabilityOrder) { UseSmartSearch = useSmartSearch };
+            _parametersValid = ValidateData(opd, _pValues, false) is null;
+            _momentsComputed = false;
+        }
+
         private double[] _xValues = null!;
         private double[] _pValues = null!;
         private OrderedPairedData opd = null!;
@@ -167,6 +192,19 @@ namespace Numerics.Distributions
         /// Returns the sort order of the Probability-values.
         /// </summary>
         public SortOrder ProbabilityOrder => opd.OrderY;
+
+        /// <summary>
+        /// Returns whether the X-values must be strictly monotonic. False unless the distribution
+        /// was constructed from <see cref="OrderedPairedData"/> configured with strict X values.
+        /// </summary>
+        public bool StrictXValues => opd.StrictX;
+
+        /// <summary>
+        /// Returns whether the probability values must be strictly monotonic. True unless the
+        /// distribution was constructed from <see cref="OrderedPairedData"/> configured with
+        /// non-strict (tied) probabilities.
+        /// </summary>
+        public bool StrictProbabilities => opd.StrictY;
 
         /// <summary>
         /// Determines the interpolation transform for the X-values.
@@ -578,9 +616,19 @@ namespace Numerics.Distributions
         }
 
         /// <inheritdoc/>
+        /// <remarks>
+        /// The clone keeps the X and probability sort orders, their strictness and the
+        /// smart-search setting, so a survival (descending) or tied-probability table clones into
+        /// an equivalent distribution rather than an ascending, strictly increasing one.
+        /// </remarks>
         public override UnivariateDistributionBase Clone()
         {
-            return new EmpiricalDistribution(XValues, ProbabilityValues) { XTransform = XTransform, ProbabilityTransform = ProbabilityTransform, Extrapolation = Extrapolation };
+            return new EmpiricalDistribution((double[])_xValues.Clone(), (double[])_pValues.Clone(), opd.StrictX, opd.OrderX, opd.StrictY, opd.OrderY, opd.UseSmartSearch)
+            {
+                XTransform = XTransform,
+                ProbabilityTransform = ProbabilityTransform,
+                Extrapolation = Extrapolation
+            };
         }
 
         /// <summary>
@@ -864,6 +912,17 @@ namespace Numerics.Distributions
             // Preserve the configured order, including None for ladders that intentionally use
             // linear search rather than a monotonic smart-search contract.
             result.SetAttributeValue(nameof(ProbabilityOrder), ProbabilityOrder.ToString());
+
+            // Strictness is written only when it departs from the default (non-strict X, strict
+            // probabilities), so every pre-existing serialized form remains byte-identical.
+            if (StrictXValues)
+            {
+                result.SetAttributeValue(nameof(StrictXValues), bool.TrueString);
+            }
+            if (!StrictProbabilities)
+            {
+                result.SetAttributeValue(nameof(StrictProbabilities), bool.FalseString);
+            }
             return result;
         }
 
@@ -905,7 +964,12 @@ namespace Numerics.Distributions
                 || !Enum.IsDefined(typeof(SortOrder), order))
                 throw new ArgumentException("The serialized empirical distribution has an invalid probability order.", nameof(xElement));
 
-            var distribution = new EmpiricalDistribution(xValues, pValues, SortOrder.Ascending, order);
+            // Optional strictness (conditional presence): absent reads as the historical default.
+            bool strictX = ReadOptionalBoolean(xElement, nameof(StrictXValues), false);
+            bool strictProbabilities = ReadOptionalBoolean(xElement, nameof(StrictProbabilities), true);
+            var distribution = !strictX && strictProbabilities
+                ? new EmpiricalDistribution(xValues, pValues, SortOrder.Ascending, order)
+                : new EmpiricalDistribution(xValues, pValues, strictX, SortOrder.Ascending, strictProbabilities, order, true);
             if (!distribution.ParametersValid)
                 throw new ArgumentException("The serialized empirical tables do not define a valid distribution.", nameof(xElement));
 
@@ -937,6 +1001,23 @@ namespace Numerics.Distributions
                 distribution.Extrapolation = extrapolation;
             }
             return distribution;
+        }
+
+        /// <summary>
+        /// Reads an optional Boolean attribute, returning the default when it is absent.
+        /// </summary>
+        /// <param name="xElement">The element holding the attribute.</param>
+        /// <param name="name">The attribute name.</param>
+        /// <param name="defaultValue">The value used when the attribute is absent.</param>
+        /// <returns>The parsed attribute value, or <paramref name="defaultValue"/> when absent.</returns>
+        /// <exception cref="ArgumentException">Thrown when the attribute is present but is not a Boolean.</exception>
+        private static bool ReadOptionalBoolean(XElement xElement, string name, bool defaultValue)
+        {
+            var attribute = xElement.Attribute(name);
+            if (attribute == null) return defaultValue;
+            if (!bool.TryParse(attribute.Value, out bool value))
+                throw new ArgumentException($"The serialized empirical distribution has an invalid {name} value.", nameof(xElement));
+            return value;
         }
 
         /// <summary>
