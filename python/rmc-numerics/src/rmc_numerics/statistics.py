@@ -126,6 +126,23 @@ def percentile(data: Any, k: Any, weights: Any = None, data_is_sorted: bool = Fa
     return to_numpy_doubles(result).reshape(karr.shape)
 
 
+def linear_moments(data: Any) -> np.ndarray:
+    """Return the sample L-moments through ``Statistics.LinearMoments``.
+
+    Parameters
+    ----------
+    data : array_like
+        Values (sorted by Numerics).
+
+    Returns
+    -------
+    numpy.ndarray
+        ``[l1, l2, t3, t4]``: the first two L-moments and the L-skewness and L-kurtosis
+        ratios, as Numerics returns them.
+    """
+    return to_numpy_doubles(_stats().Statistics.LinearMoments(to_net_doubles(data)))
+
+
 def plotting_positions(n: int, kind: PlottingPosition | str | float = PlottingPosition.WEIBULL) -> np.ndarray:
     """Return plotting-position probabilities through ``PlottingPositions.Function``.
 
@@ -238,4 +255,7 @@ class RunningStatistics:
         return float(self.net.Kurtosis)
 
 
-__all__ = ["RunningStatistics", "mean", "percentile", "plotting_positions", "standard_deviation", "variance"]
+__all__ = [
+    "RunningStatistics", "linear_moments", "mean", "percentile", "plotting_positions", "standard_deviation",
+    "variance",
+]

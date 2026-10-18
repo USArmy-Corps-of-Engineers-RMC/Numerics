@@ -23,11 +23,19 @@ def _nd() -> Any:
     return namespace("Numerics.Distributions")
 
 
-def _members(distributions: Sequence[UnivariateDistribution | None]) -> Any:
-    """Build a ``UnivariateDistributionBase[]``; None entries stay null (Numerics treats them as missing)."""
+def _members(distributions: Any) -> Any:
+    """Build a ``UnivariateDistributionBase[]``; None entries stay null (Numerics treats them as missing).
+
+    A .NET array (for example from ``UnivariateDistribution.parameter_set_distributions``) is passed
+    through unchanged.
+    """
     nd = _nd()
+    import clr  # noqa: PLC0415
     import System  # noqa: PLC0415
 
+    if isinstance(distributions, System.Array) and clr.GetClrType(nd.UnivariateDistributionBase).IsAssignableFrom(
+            distributions.GetType().GetElementType()):
+        return distributions
     return System.Array[nd.UnivariateDistributionBase]([None if d is None else d.net for d in distributions])
 
 
@@ -62,8 +70,8 @@ class UncertaintyAnalysisResults:
         ----------
         parent : UnivariateDistribution
             The point-estimate distribution (mode curve).
-        sampled : sequence of UnivariateDistribution
-            Ensemble members; None members are missing.
+        sampled : sequence of UnivariateDistribution or System.Array
+            Ensemble members; None (null) members are missing.
         probabilities : array_like
             Non-exceedance probabilities at which to summarize.
         alpha : float, optional
@@ -109,8 +117,8 @@ class UncertaintyAnalysisResults:
 
         Parameters
         ----------
-        sampled : sequence of UnivariateDistribution
-            Ensemble members; None members are missing.
+        sampled : sequence of UnivariateDistribution or System.Array
+            Ensemble members; None (null) members are missing.
         probabilities : array_like
             Non-exceedance probabilities.
         alpha : float, optional
@@ -130,8 +138,8 @@ class UncertaintyAnalysisResults:
 
         Parameters
         ----------
-        sampled : sequence of UnivariateDistribution
-            Ensemble members; None members are missing.
+        sampled : sequence of UnivariateDistribution or System.Array
+            Ensemble members; None (null) members are missing.
         probabilities : array_like
             Non-exceedance probabilities at which the curve is read.
         min_probability, max_probability : float, optional

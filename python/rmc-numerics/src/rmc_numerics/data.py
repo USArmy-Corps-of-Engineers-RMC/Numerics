@@ -13,7 +13,7 @@ from typing import Any
 
 import numpy as np
 
-from rmc_numerics._util import evaluate, namespace, net_enum
+from rmc_numerics._util import bind, evaluate, loop, namespace, net_enum
 from rmc_numerics.enums import Extrapolation, SortOrder, Transform
 from rmc_numerics.marshal import to_net_doubles
 
@@ -152,6 +152,8 @@ class Linear:
         self.net = data.Linear(to_net_doubles(x), to_net_doubles(y), net_enum(data.SortOrder, sort_order))
         self.net.XTransform = net_enum(data.Transform, x_transform)
         self.net.YTransform = net_enum(data.Transform, y_transform)
+        self._interpolate = bind(self.net.Interpolate)
+        self._extrapolate = bind(self.net.Extrapolate)
 
     def interpolate(self, x: Any) -> Any:
         """Interpolate at x (``Interpolate``), holding the end values outside the knots.
@@ -166,7 +168,26 @@ class Linear:
         float or numpy.ndarray
             Interpolated values, shaped like ``x``.
         """
-        return evaluate(x, self.net.Interpolate, self.net.Interpolate)
+        return evaluate(x, self._interpolate, self.net.Interpolate)
+
+    def extrapolate(self, x: Any) -> Any:
+        """Evaluate the end segments' straight lines beyond the knots (``Extrapolate``).
+
+        Inside the knots this equals :meth:`interpolate`; outside it extends the first or
+        last segment in the transformed spaces instead of holding the end values. Numerics
+        has no array overload of ``Extrapolate``, so arrays are evaluated element by element.
+
+        Parameters
+        ----------
+        x : float or array_like
+            Lookup values.
+
+        Returns
+        -------
+        float or numpy.ndarray
+            Values, shaped like ``x``.
+        """
+        return loop(x, self._extrapolate)
 
     __call__ = interpolate
 

@@ -13,9 +13,15 @@ RMC.Numerics for Python. The wheel ships the `Numerics.dll` assembly from the pu
   base-10 `LogNormal`, `LnNormal`, Pearson III, log-Pearson III, Kappa-4, Mixture, Beta,
   Poisson, Empirical incl. survival orientation), the multivariate normal, bivariate
   copulas, `OrderedPairedData` and `Linear`, `Statistics` and `RunningStatistics`,
-  plotting positions, stratification and Latin hypercube designs, the Mersenne Twister,
-  Brent root finding, `Tools.Expm1`/`Log1p`, `UncertaintyAnalysisResults` and
-  `BootstrapAnalysis`.
+  plotting positions and L-moments, stratification and Latin hypercube designs, the Mersenne
+  Twister, Brent root finding and `BrentSearch`, `Tools.Expm1`/`Log1p`, the incomplete beta
+  function, `Matrix` products, `MatrixRegularization` and the Cholesky factor, link
+  functions, `UncertaintyAnalysisResults` and `BootstrapAnalysis`;
+- per-parameter-set members for ensembles held as parameter rows: one quantile per row
+  (`parameter_set_quantiles`), one validity flag per row (`parameter_set_validity`) and one
+  distribution per row as a .NET array the ensemble summaries take directly
+  (`parameter_set_distributions`). Numerics has no member that takes a parameter matrix,
+  so the rows cross one at a time with the scalar overloads bound once.
 
 The wrappers do no numerical work in Python: array inputs cross once into the Numerics
 array overloads (for example `UnivariateDistributionBase.InverseCDF(IList<double>)`), and

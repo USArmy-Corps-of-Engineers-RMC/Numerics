@@ -275,3 +275,120 @@ def test_mersenne_twister_streams_agree() -> None:
     # Assert
     np.testing.assert_array_equal(bulk, single)
     assert np.all((bulk >= 0.0) & (bulk < 1.0))
+
+
+def test_scalar_members_are_bound_and_agree_with_the_array_overloads() -> None:
+    # Arrange
+    gev = distributions.GeneralizedExtremeValue(4.0, 1.0, -0.1)
+    p = np.array([0.01, 0.5, 0.99])
+    # Act
+    vector = gev.inverse_cdf(p)
+    scalar = [gev.inverse_cdf(float(v)) for v in p]
+    # Assert
+    np.testing.assert_array_equal(vector, scalar)
+    assert gev.log_cdf(5.0) == pytest.approx(math.log(gev.cdf(5.0)), rel=1e-14)
+    assert gev.log_ccdf(5.0) == pytest.approx(math.log(gev.ccdf(5.0)), rel=1e-14)
+    assert gev.log_pdf(5.0) == pytest.approx(math.log(gev.pdf(5.0)), rel=1e-14)
+
+
+def test_parameter_names_validation_and_covariance() -> None:
+    # Arrange
+    gev = distributions.GeneralizedExtremeValue(4.0, 1.0, -0.1)
+    # Act / Assert
+    assert gev.type_name == "GeneralizedExtremeValue"
+    assert gev.parameter_names == ("Xi", "Alpha", "Kappa")
+    assert gev.number_of_parameters == 3
+    assert gev.validate_parameters([4.0, 1.0, -0.1]) is None
+    assert "positive" in gev.validate_parameters([4.0, -1.0, 0.0])
+    unit = gev.parameter_covariance(1)
+    np.testing.assert_allclose(gev.parameter_covariance(10), unit / 10.0, rtol=1e-12)
+    assert unit.shape == (3, 3) and np.allclose(unit, unit.T)
+    with pytest.raises(TypeError):
+        distributions.Uniform(0.0, 1.0).parameter_covariance(1)
+
+
+def test_parameter_set_members_equal_one_distribution_per_row() -> None:
+    # Arrange
+    gev = distributions.GeneralizedExtremeValue(4.0, 1.0, -0.1)
+    rows = np.array([[4.0, 1.0, -0.1], [5.0, 2.0, 0.1], [4.0, -1.0, 0.0]])
+    # Act
+    valid = gev.parameter_set_validity(rows)
+    quantiles = gev.parameter_set_quantiles(rows[valid], 0.99)
+    members = gev.parameter_set_distributions(rows, valid)
+    # Assert
+    np.testing.assert_array_equal(valid, [True, True, False])
+    expected = [distributions.GeneralizedExtremeValue(*row).inverse_cdf(0.99) for row in rows[:2]]
+    np.testing.assert_array_equal(quantiles, expected)
+    assert members[2] is None
+    assert [float(members[i].InverseCDF(0.99)) for i in range(2)] == expected
+
+
+def test_create_distribution_uniform_and_mixture_members() -> None:
+    # Act
+    gumbel = distributions.create_distribution("gumbel", [10.0, 2.0])
+    uniform = distributions.Uniform(2.0, 4.0)
+    mixture = distributions.Mixture([0.25, 0.75], [distributions.Normal(), distributions.Normal(1.0, 2.0)])
+    # Assert
+    assert isinstance(gumbel, distributions.Gumbel)
+    np.testing.assert_array_equal(gumbel.parameters, [10.0, 2.0])
+    assert uniform.inverse_cdf(0.5) == 3.0
+    np.testing.assert_array_equal(mixture.weights, [0.25, 0.75])
+    assert [type(c).__name__ for c in mixture.components] == ["Normal", "Normal"]
+    assert gumbel.to_xml().startswith("<Distribution")
+
+
+def test_linear_extrapolation_and_linear_moments() -> None:
+    # Arrange
+    linear = data.Linear([1.0, 2.0, 3.0], [1.0, 4.0, 9.0])
+    # Act / Assert
+    np.testing.assert_array_equal(linear.interpolate([0.0, 1.5, 4.0]), [1.0, 2.5, 9.0])
+    np.testing.assert_array_equal(linear.extrapolate([0.0, 1.5, 4.0]), [-2.0, 2.5, 14.0])
+    moments = statistics.linear_moments([1.0, 2.0, 3.0, 4.0])
+    np.testing.assert_allclose(moments[:2], [2.5, 0.8333333333333334], rtol=1e-14)
+    assert np.all(np.isnan(statistics.linear_moments([1.0, 2.0])))
+
+
+def test_stratification_bin_records_and_value_bins_of_several_ranges() -> None:
+    # Act
+    bins = sampling.stratify_probabilities(0.01, 0.99, 4, "normal").bins
+    many = sampling.stratify_x_values_many([(0.0, 10.0, 2), (10.0, 100.0, 3)])
+    # Assert
+    assert len(bins) == 4 and sum(b.weight for b in bins) == pytest.approx(1.0, abs=1e-12)
+    assert bins[0].midpoint == pytest.approx((bins[0].lower_bound + bins[0].upper_bound) / 2.0)
+    assert bins[1].contains(bins[1].lower_bound) and not bins[1].contains(bins[1].upper_bound)
+    np.testing.assert_allclose(many.lower, [0.0, 5.0, 10.0, 40.0, 70.0])
+
+
+def test_brent_search_special_functions_matrices_and_links() -> None:
+    # Act
+    result = mathematics.brent_search(lambda x: (x - 1.3) ** 2, 0.0, 3.0, relative_tolerance=1e-12)
+    maximum = mathematics.brent_search(lambda x: -(x - 0.5) ** 2, 0.0, 2.0, maximize=True)
+    links = mathematics.LinkController(["identity", "log", "identity"])
+    # Assert
+    assert result.x == pytest.approx(1.3, abs=1e-9) and result.status == "Success"
+    assert maximum.x == pytest.approx(0.5, abs=1e-6)
+    p = mathematics.beta_incomplete(2.0, 3.0, 0.4)
+    assert mathematics.beta_incomplete_inverse(2.0, 3.0, p) == pytest.approx(0.4, abs=1e-12)
+    np.testing.assert_array_equal(mathematics.matrix_product(np.eye(2) * 2.0, [[1.0, 2.0], [3.0, 4.0]]),
+                                  [[2.0, 4.0], [6.0, 8.0]])
+    np.testing.assert_allclose(mathematics.make_symmetric_positive_definite([[1.0, 0.5], [0.4, 1.0]]),
+                               [[1.0, 0.45], [0.45, 1.0]])
+    factor = mathematics.cholesky([[4.0, 2.0], [2.0, 3.0]])
+    np.testing.assert_allclose(factor @ factor.T, [[4.0, 2.0], [2.0, 3.0]], rtol=1e-14)
+    np.testing.assert_allclose(links.link([4.0, 2.0, 0.1]), [4.0, math.log(2.0), 0.1])
+    np.testing.assert_allclose(np.diag(links.link_jacobian([4.0, 2.0, 0.1])), [1.0, 0.5, 1.0])
+    np.testing.assert_allclose(links.inverse_link([4.0, 0.0, 0.1]), [4.0, 1.0, 0.1])
+
+
+def test_uncertainty_results_accept_a_net_member_array() -> None:
+    # Arrange
+    gev = distributions.GeneralizedExtremeValue(4.0, 1.0, -0.1)
+    rows = np.array([[4.0 + 0.01 * i, 1.0, -0.1] for i in range(50)])
+    members = gev.parameter_set_distributions(rows)
+    wrapped = [distributions.GeneralizedExtremeValue(*row) for row in rows]
+    # Act
+    from_array = bootstrap.UncertaintyAnalysisResults.from_ensemble(gev, members, [0.5, 0.99])
+    from_list = bootstrap.UncertaintyAnalysisResults.from_ensemble(gev, wrapped, [0.5, 0.99])
+    # Assert
+    np.testing.assert_array_equal(from_array.mean_curve, from_list.mean_curve)
+    np.testing.assert_array_equal(from_array.confidence_intervals, from_list.confidence_intervals)

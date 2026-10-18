@@ -17,7 +17,7 @@ from typing import Any
 
 import numpy as np
 
-from rmc_numerics._util import evaluate, loop, namespace, net_enum, unwrap
+from rmc_numerics._util import bind, evaluate, loop, namespace, net_enum, unwrap
 from rmc_numerics.enums import (
     EstimationMethod,
     Extrapolation,
@@ -25,7 +25,7 @@ from rmc_numerics.enums import (
     SortOrder,
     Transform,
 )
-from rmc_numerics.marshal import to_net_doubles, to_numpy_doubles
+from rmc_numerics.marshal import to_net_doubles, to_numpy_doubles, to_numpy_matrix
 
 
 def _nd() -> Any:
@@ -50,6 +50,14 @@ class UnivariateDistribution:
 
     def __init__(self, net: Any) -> None:
         self.net = unwrap(net)
+
+    def _scalar(self, name: str) -> Any:
+        """Return the ``double`` overload of a scalar member, bound once per instance (see ``_util.bind``)."""
+        cache = self.__dict__.setdefault("_bound", {})
+        member = cache.get(name)
+        if member is None:
+            member = cache[name] = bind(getattr(self.net, name))
+        return member
 
     def __repr__(self) -> str:
         return f"{type(self).__name__}({', '.join(repr(float(p)) for p in self.parameters)})"
@@ -112,7 +120,7 @@ class UnivariateDistribution:
         float or numpy.ndarray
             Densities, shaped like ``x``.
         """
-        return evaluate(x, self.net.PDF, self.net.PDF)
+        return evaluate(x, self._scalar("PDF"), self.net.PDF)
 
     def cdf(self, x: Any) -> Any:
         """Evaluate the cumulative distribution function (non-exceedance probability).
@@ -127,7 +135,7 @@ class UnivariateDistribution:
         float or numpy.ndarray
             Non-exceedance probabilities, shaped like ``x``.
         """
-        return evaluate(x, self.net.CDF, self.net.CDF)
+        return evaluate(x, self._scalar("CDF"), self.net.CDF)
 
     def ccdf(self, x: Any) -> Any:
         """Evaluate the complementary CDF (exceedance probability) through ``CCDF``.
@@ -145,7 +153,7 @@ class UnivariateDistribution:
         float or numpy.ndarray
             Exceedance probabilities, shaped like ``x``.
         """
-        return loop(x, self.net.CCDF)
+        return loop(x, self._scalar("CCDF"))
 
     def inverse_cdf(self, probability: Any) -> Any:
         """Evaluate the quantile function at non-exceedance probabilities.
@@ -160,7 +168,272 @@ class UnivariateDistribution:
         float or numpy.ndarray
             Quantiles, shaped like ``probability``.
         """
-        return evaluate(probability, self.net.InverseCDF, self.net.InverseCDF)
+        return evaluate(probability, self._scalar("InverseCDF"), self.net.InverseCDF)
+
+    def log_pdf(self, x: Any) -> Any:
+        """Evaluate the natural logarithm of the density through ``LogPDF``.
+
+        Numerics has no array overload of ``LogPDF``, so arrays are evaluated element by
+        element; the arithmetic is the distribution's own ``LogPDF``.
+
+        Parameters
+        ----------
+        x : float or array_like
+            Values at which to evaluate.
+
+        Returns
+        -------
+        float or numpy.ndarray
+            Log densities, shaped like ``x``.
+        """
+        return loop(x, self._scalar("LogPDF"))
+
+    def log_cdf(self, x: Any) -> Any:
+        """Evaluate the natural logarithm of the CDF through ``LogCDF``.
+
+        Evaluated element by element (Numerics has no array overload of ``LogCDF``).
+
+        Parameters
+        ----------
+        x : float or array_like
+            Values at which to evaluate.
+
+        Returns
+        -------
+        float or numpy.ndarray
+            Log non-exceedance probabilities, shaped like ``x``.
+        """
+        return loop(x, self._scalar("LogCDF"))
+
+    def log_ccdf(self, x: Any) -> Any:
+        """Evaluate the natural logarithm of the complementary CDF through ``LogCCDF``.
+
+        Evaluated element by element (Numerics has no array overload of ``LogCCDF``).
+
+        Parameters
+        ----------
+        x : float or array_like
+            Values at which to evaluate.
+
+        Returns
+        -------
+        float or numpy.ndarray
+            Log exceedance probabilities, shaped like ``x``.
+        """
+        return loop(x, self._scalar("LogCCDF"))
+
+    @property
+    def type_name(self) -> str:
+        """The ``UnivariateDistributionType`` member name, for example ``"GeneralizedExtremeValue"``."""
+        return str(self.net.Type)
+
+    @property
+    def parameter_names(self) -> tuple[str, ...]:
+        """The parameter property names in ``GetParameters`` order (``GetParameterPropertyNames``)."""
+        return tuple(str(name) for name in self.net.GetParameterPropertyNames)
+
+    @property
+    def number_of_parameters(self) -> int:
+        """The number of parameters (``NumberOfParameters``)."""
+        return int(self.net.NumberOfParameters)
+
+    def set_parameters(self, parameters: Any) -> None:
+        """Set the parameters in place through ``SetParameters(IList<double>)``.
+
+        Invalid values are accepted and recorded, as in Numerics: ``parameters_valid``
+        becomes False and the evaluation members raise.
+
+        Parameters
+        ----------
+        parameters : array_like
+            The parameters in Numerics order.
+        """
+        self.net.SetParameters(to_net_doubles(parameters))
+
+    def validate_parameters(self, parameters: Any) -> str | None:
+        """Return why a parameter vector is invalid for this family, or None when it is valid.
+
+        Calls ``ValidateParameters(IList<double>, false)`` and returns the message of the
+        exception Numerics builds without throwing it.
+
+        Parameters
+        ----------
+        parameters : array_like
+            A parameter vector in Numerics order.
+
+        Returns
+        -------
+        str or None
+            The Numerics message, or None for a valid vector.
+        """
+        error = self.net.ValidateParameters(to_net_doubles(parameters), False)
+        return None if error is None else str(error.Message)
+
+    def parameter_covariance(self, sample_size: int,
+                             method: EstimationMethod | str = EstimationMethod.MAXIMUM_LIKELIHOOD) -> np.ndarray:
+        """Return the asymptotic parameter covariance through ``IStandardError.ParameterCovariance``.
+
+        Parameters
+        ----------
+        sample_size : int
+            The sample size n; the covariance scales as 1/n.
+        method : EstimationMethod or str, optional
+            The estimation method whose covariance is returned; default maximum likelihood.
+
+        Returns
+        -------
+        numpy.ndarray
+            Array of shape ``(number_of_parameters, number_of_parameters)``.
+
+        Raises
+        ------
+        TypeError
+            If the distribution does not implement ``IStandardError``.
+        """
+        nd = _nd()
+        import clr  # noqa: PLC0415
+
+        if not clr.GetClrType(nd.IStandardError).IsInstanceOfType(self.net):
+            raise TypeError(f"{self.display_name} exposes no parameter covariance.")
+        covariance = nd.IStandardError(self.net).ParameterCovariance(int(sample_size),
+                                                                     net_enum(nd.ParameterEstimationMethod, method))
+        return to_numpy_matrix(covariance)
+
+    def parameter_set_quantiles(self, parameter_sets: Any, probability: float) -> np.ndarray:
+        """Return one quantile per parameter set, each from this family at that set.
+
+        A clone of this distribution receives every row through ``SetParameters`` and
+        returns ``InverseCDF(probability)``: the probe pattern a .NET caller uses for many
+        parameter sets, with the scalar overloads bound once. Numerics has no member that
+        takes a parameter matrix, so the rows cross one at a time.
+
+        Parameters
+        ----------
+        parameter_sets : array_like
+            Array of shape ``(count, number_of_parameters)``.
+        probability : float
+            The non-exceedance probability.
+
+        Returns
+        -------
+        numpy.ndarray
+            ``count`` quantiles.
+
+        Raises
+        ------
+        ValueError
+            If the rows do not have ``number_of_parameters`` columns.
+        """
+        rows = np.atleast_2d(np.asarray(parameter_sets, dtype=np.float64))
+        arity = self.number_of_parameters
+        if rows.shape[1] != arity:
+            raise ValueError(f"Expected {arity} parameters per row; got {rows.shape[1]}.")
+        probe = self.net.Clone()
+        quantile = bind(probe.InverseCDF)
+        p = float(probability)
+        out = np.empty(rows.shape[0], dtype=np.float64)
+        setter = _typed_member(probe, "SetParameters", arity) if arity > 1 else None
+        for index, row in enumerate(rows.tolist()):
+            if setter is not None:
+                setter(probe, *row)
+            else:
+                probe.SetParameters(to_net_doubles(row))
+            out[index] = quantile(p)
+        return out
+
+    def parameter_set_validity(self, parameter_sets: Any) -> np.ndarray:
+        """Return which parameter sets this family accepts (``ValidateParameters(row, false)`` is null).
+
+        The rows cross one at a time; a family with a ``ValidateParameters(double, ..., bool)``
+        overload takes each row without an array copy.
+
+        Parameters
+        ----------
+        parameter_sets : array_like
+            Array of shape ``(count, number_of_parameters)``.
+
+        Returns
+        -------
+        numpy.ndarray
+            Boolean array of length ``count``, True where the row is valid.
+
+        Raises
+        ------
+        ValueError
+            If the rows do not have ``number_of_parameters`` columns.
+        """
+        rows = np.atleast_2d(np.asarray(parameter_sets, dtype=np.float64))
+        arity = self.number_of_parameters
+        if rows.shape[1] != arity:
+            raise ValueError(f"Expected {arity} parameters per row; got {rows.shape[1]}.")
+        out = np.empty(rows.shape[0], dtype=bool)
+        typed = _typed_member(self.net, "ValidateParameters", arity, flag=True)
+        for index, row in enumerate(rows.tolist()):
+            if typed is not None:
+                out[index] = typed(self.net, *row, False) is None
+            else:
+                out[index] = self.net.ValidateParameters(to_net_doubles(row), False) is None
+        return out
+
+    def parameter_set_distributions(self, parameter_sets: Any, valid: Any = None) -> Any:
+        """Build one distribution of this family per parameter set, as a .NET array.
+
+        Each member is a ``Clone`` of this distribution with ``SetParameters(row)``, so fixed
+        settings that are not parameters (a ``LogNormal`` base) carry over. The result stays
+        on the .NET side for the members that take ``UnivariateDistributionBase[]``
+        (``UncertaintyAnalysisResults``, ``BootstrapAnalysis.Quantiles``); rows marked False
+        in ``valid`` are null entries, which those members treat as missing.
+
+        Parameters
+        ----------
+        parameter_sets : array_like
+            Array of shape ``(count, number_of_parameters)``.
+        valid : array_like of bool, optional
+            Which rows to build; None builds every row.
+
+        Returns
+        -------
+        System.Array[Numerics.Distributions.UnivariateDistributionBase]
+            ``count`` members, null where ``valid`` is False.
+
+        Raises
+        ------
+        ValueError
+            If the rows do not have ``number_of_parameters`` columns or ``valid`` has another length.
+        """
+        rows = np.atleast_2d(np.asarray(parameter_sets, dtype=np.float64))
+        arity = self.number_of_parameters
+        if rows.shape[1] != arity:
+            raise ValueError(f"Expected {arity} parameters per row; got {rows.shape[1]}.")
+        keep = np.ones(rows.shape[0], dtype=bool) if valid is None else np.asarray(valid, dtype=bool)
+        if keep.shape != (rows.shape[0],):
+            raise ValueError("valid must hold one flag per row.")
+        nd = _nd()
+        import System  # noqa: PLC0415 - the runtime is running (self.net exists)
+
+        members = System.Array.CreateInstance(nd.UnivariateDistributionBase, rows.shape[0])
+        clone = self.net.Clone
+        setter = _typed_member(self.net, "SetParameters", arity) if arity > 1 else None
+        for index, row in enumerate(rows.tolist()):
+            if not keep[index]:
+                continue
+            member = clone()
+            if setter is not None:
+                setter(member, *row)
+            else:
+                member.SetParameters(to_net_doubles(row))
+            members[index] = member
+        return members
+
+    def to_xml(self) -> str:
+        """Return the distribution's ``ToXElement()`` as XML text.
+
+        Returns
+        -------
+        str
+            The element as .NET writes it (``XElement.ToString``).
+        """
+        return str(self.net.ToXElement().ToString())
 
     def generate_random_values(self, sample_size: int, seed: int = -1) -> np.ndarray:
         """Draw a Monte Carlo sample through ``GenerateRandomValues``.
@@ -226,6 +499,22 @@ class UnivariateDistribution:
             A wrapper of the cloned .NET object, of the same Python class when possible.
         """
         return wrap(self.net.Clone())
+
+
+def _typed_member(net: Any, name: str, arity: int, flag: bool = False) -> Any:
+    """Return the unbound ``name(double x arity[, bool])`` overload of ``net``'s concrete type, or None.
+
+    Called as ``member(instance, *values)``. Binding the overload once on the type, rather than
+    resolving the method group on every call, is what makes the per-row loops of
+    ``parameter_set_*`` cheap; families without such an overload use the ``IList<double>`` one.
+    """
+    import System  # noqa: PLC0415 - the runtime is running (net exists)
+
+    types = (System.Double,) * arity + ((System.Boolean,) if flag else ())
+    try:
+        return getattr(type(net), name).Overloads[types if len(types) > 1 else types[0]]
+    except (AttributeError, KeyError, TypeError):
+        return None
 
 
 _CLASS_BY_NET_NAME: dict[str, type[UnivariateDistribution]] = {}
@@ -418,6 +707,22 @@ class KappaFour(UnivariateDistribution):
         super().__init__(_nd().KappaFour(float(location), float(scale), float(shape), float(shape2)))
 
 
+@_register("Uniform")
+class Uniform(UnivariateDistribution):
+    """Continuous uniform distribution on [minimum, maximum] (``Uniform``).
+
+    Parameters
+    ----------
+    minimum : float, optional
+        Lower end; default 0.
+    maximum : float, optional
+        Upper end; default 1.
+    """
+
+    def __init__(self, minimum: float = 0.0, maximum: float = 1.0) -> None:
+        super().__init__(_nd().Uniform(float(minimum), float(maximum)))
+
+
 @_register("BetaDistribution")
 class Beta(UnivariateDistribution):
     """Beta distribution on [0, 1] (``BetaDistribution``).
@@ -466,6 +771,16 @@ class Mixture(UnivariateDistribution):
 
         components = System.Array[nd.UnivariateDistributionBase]([d.net for d in distributions])
         super().__init__(nd.Mixture(to_net_doubles(weights), components))
+
+    @property
+    def weights(self) -> np.ndarray:
+        """The component weights (``Weights``)."""
+        return to_numpy_doubles(self.net.Weights)
+
+    @property
+    def components(self) -> list[UnivariateDistribution]:
+        """The component distributions, wrapped (``Distributions``)."""
+        return [wrap(component) for component in self.net.Distributions]
 
 
 def _data() -> Any:
@@ -612,6 +927,38 @@ class Empirical(UnivariateDistribution):
         self.net.Extrapolation = net_enum(_data().ExtrapolationSides, value)
 
 
+def create_distribution(type_name: str, parameters: Any = None) -> UnivariateDistribution:
+    """Create a distribution by type name through ``UnivariateDistributionFactory``.
+
+    ``CreateDistribution(UnivariateDistributionType)`` builds the family at its default
+    parameters; ``parameters``, when given, are then set through ``SetParameters``.
+    Invalid parameters are recorded, not refused (``parameters_valid`` is False).
+
+    Parameters
+    ----------
+    type_name : str
+        A ``UnivariateDistributionType`` member name, for example ``"Gumbel"``; matched
+        case-insensitively with underscores ignored.
+    parameters : array_like, optional
+        The parameters in Numerics order.
+
+    Returns
+    -------
+    UnivariateDistribution
+        The wrapped distribution (its specific wrapper class when one exists).
+
+    Raises
+    ------
+    ValueError
+        If ``type_name`` is not a member of ``UnivariateDistributionType``.
+    """
+    nd = _nd()
+    net = nd.UnivariateDistributionFactory.CreateDistribution(net_enum(nd.UnivariateDistributionType, type_name))
+    if parameters is not None:
+        unwrap(net).SetParameters(to_net_doubles(parameters))
+    return wrap(net)
+
+
 def standard_z(probability: Any) -> Any:
     """Return standard normal quantiles through ``Normal.StandardZ``.
 
@@ -627,7 +974,7 @@ def standard_z(probability: Any) -> Any:
         Standard normal deviates, shaped like ``probability``.
     """
     n = _nd().Normal
-    return evaluate(probability, n.StandardZ, n.StandardZ)
+    return evaluate(probability, _static("StandardZ", n), n.StandardZ)
 
 
 def standard_cdf(z: Any) -> Any:
@@ -644,7 +991,18 @@ def standard_cdf(z: Any) -> Any:
         Non-exceedance probabilities, shaped like ``z``.
     """
     n = _nd().Normal
-    return evaluate(z, n.StandardCDF, n.StandardCDF)
+    return evaluate(z, _static("StandardCDF", n), n.StandardCDF)
+
+
+_STATIC_BOUND: dict[str, Any] = {}
+
+
+def _static(name: str, owner: Any) -> Any:
+    """Return a static member's ``double`` overload, bound once per process (see ``_util.bind``)."""
+    member = _STATIC_BOUND.get(name)
+    if member is None:
+        member = _STATIC_BOUND[name] = bind(getattr(owner, name))
+    return member
 
 
 def standard_pdf(z: Any) -> Any:
@@ -669,4 +1027,5 @@ __all__ = [
     "Gumbel", "KappaFour", "LnNormal", "LogNormal", "LogPearsonTypeIII", "Mixture", "Normal", "PearsonTypeIII",
     "PlottingPosition", "Poisson", "SortOrder", "Transform", "UnivariateDistribution", "standard_cdf",
     "standard_pdf", "standard_z", "wrap",
+    "Uniform", "create_distribution",
 ]

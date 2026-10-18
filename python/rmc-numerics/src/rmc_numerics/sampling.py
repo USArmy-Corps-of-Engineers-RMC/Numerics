@@ -23,6 +23,44 @@ def _sampling() -> Any:
 
 
 @dataclass(frozen=True)
+class StratificationBin:
+    """One stratification bin as Numerics holds it (``StratificationBin``).
+
+    Parameters
+    ----------
+    lower_bound : float
+        Lower edge.
+    upper_bound : float
+        Upper edge.
+    weight : float
+        Weight (probability mass); Numerics sets the bin width for value bins built
+        without one.
+    midpoint : float
+        ``Midpoint`` as Numerics computes it, (lower + upper) / 2.
+    """
+
+    lower_bound: float
+    upper_bound: float
+    weight: float
+    midpoint: float
+
+    def contains(self, x: float) -> bool:
+        """Return whether ``lower_bound <= x < upper_bound``.
+
+        Parameters
+        ----------
+        x : float
+            The value.
+
+        Returns
+        -------
+        bool
+            True when the value lies in the half-open bin.
+        """
+        return self.lower_bound <= x < self.upper_bound
+
+
+@dataclass(frozen=True)
 class StratificationBins:
     """Stratification bins as arrays.
 
@@ -50,6 +88,12 @@ class StratificationBins:
 
     def __len__(self) -> int:
         return int(self.lower.size)
+
+    @property
+    def bins(self) -> tuple[StratificationBin, ...]:
+        """The bins as :class:`StratificationBin` records, in Numerics order."""
+        return tuple(StratificationBin(float(b.LowerBound), float(b.UpperBound), float(b.Weight), float(b.Midpoint))
+                     for b in self.net)
 
     @classmethod
     def from_net(cls, bins: Any) -> StratificationBins:
@@ -97,6 +141,30 @@ def stratify_x_values(lower: float, upper: float, number_of_bins: int,
     s = _sampling()
     return StratificationBins.from_net(s.Stratify.XValues(_options(lower, upper, number_of_bins, False),
                                                           bool(is_logarithmic)))
+
+
+def stratify_x_values_many(options: Any, is_logarithmic: bool = False) -> StratificationBins:
+    """Stratify several value ranges into one bin list (``Stratify.XValues(List<StratificationOptions>)``).
+
+    Parameters
+    ----------
+    options : sequence of (float, float, int)
+        One ``(lower, upper, number_of_bins)`` triple per range.
+    is_logarithmic : bool, optional
+        Equal widths in log10 space; default False.
+
+    Returns
+    -------
+    StratificationBins
+        The bins of every range, in the order Numerics returns them.
+    """
+    s = _sampling()
+    from System.Collections.Generic import List  # noqa: PLC0415 - the runtime is started by _sampling
+
+    items = List[s.StratificationOptions]()
+    for lower, upper, number_of_bins in options:
+        items.Add(_options(lower, upper, number_of_bins, False))
+    return StratificationBins.from_net(s.Stratify.XValues(items, bool(is_logarithmic)))
 
 
 def stratify_probabilities(lower: float, upper: float, number_of_bins: int,
@@ -250,6 +318,6 @@ class MersenneTwister:
 
 
 __all__ = [
-    "MersenneTwister", "StratificationBins", "latin_hypercube", "stratify_exceedance_probabilities",
-    "stratify_probabilities", "stratify_x_values",
+    "MersenneTwister", "StratificationBin", "StratificationBins", "latin_hypercube",
+    "stratify_exceedance_probabilities", "stratify_probabilities", "stratify_x_values", "stratify_x_values_many",
 ]
