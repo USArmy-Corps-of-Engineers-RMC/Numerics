@@ -51,6 +51,10 @@ class UnivariateDistribution:
     def __init__(self, net: Any) -> None:
         self.net = unwrap(net)
 
+    def __deepcopy__(self, memo: dict) -> UnivariateDistribution:
+        """Return a wrapper of the distribution's ``Clone``, so a deep copy owns its own .NET object."""
+        return wrap(self.net.Clone())
+
     def _scalar(self, name: str) -> Any:
         """Return the ``double`` overload of a scalar member, bound once per instance (see ``_util.bind``)."""
         cache = self.__dict__.setdefault("_bound", {})

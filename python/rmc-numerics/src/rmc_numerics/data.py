@@ -149,6 +149,8 @@ class Linear:
     def __init__(self, x: Any, y: Any, sort_order: SortOrder | str = SortOrder.ASCENDING,
                  x_transform: Transform | str = Transform.NONE, y_transform: Transform | str = Transform.NONE) -> None:
         data = _data()
+        self._arguments = (np.array(x, dtype=np.float64), np.array(y, dtype=np.float64), sort_order, x_transform,
+                           y_transform)
         self.net = data.Linear(to_net_doubles(x), to_net_doubles(y), net_enum(data.SortOrder, sort_order))
         self.net.XTransform = net_enum(data.Transform, x_transform)
         self.net.YTransform = net_enum(data.Transform, y_transform)
@@ -190,6 +192,10 @@ class Linear:
         return loop(x, self._extrapolate)
 
     __call__ = interpolate
+
+    def __deepcopy__(self, memo: dict) -> Linear:
+        """Return an independent interpolator over the same knots (its own .NET object and search cursor)."""
+        return Linear(*self._arguments)
 
 
 __all__ = ["Linear", "OrderedPairedData"]
