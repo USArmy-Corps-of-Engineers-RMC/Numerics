@@ -302,6 +302,66 @@ namespace Numerics.Distributions
         }
 
         /// <summary>
+        /// The Inverse CDF evaluated over a list of probabilities under each of many parameter sets of this distribution's family.
+        /// </summary>
+        /// <param name="parameterSets">The parameter sets, one row per set and one column per parameter, in the order of <see cref="GetParameters"/>.</param>
+        /// <param name="probabilities">List of non-exceedance probabilities.</param>
+        /// <param name="valid">On return, one flag per row: true when <see cref="ValidateParameters(IList{double}, bool)"/> accepts the row.</param>
+        /// <returns>
+        /// A 2-D array of quantiles with one row per parameter set and one column per probability; the rows of
+        /// invalid parameter sets are <see cref="double.NaN"/>.
+        /// </returns>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="parameterSets"/> or <paramref name="probabilities"/> is null.</exception>
+        /// <exception cref="ArgumentException">Thrown when the number of columns differs from <see cref="NumberOfParameters"/>.</exception>
+        /// <remarks>
+        /// <para>
+        /// Each row is evaluated on one private <see cref="Clone"/> of this distribution, so this instance is never
+        /// modified and settings that are not parameters (for example, the logarithm base of a log-Pearson Type III)
+        /// carry over to every row. A row is valid when <c>ValidateParameters(row, false)</c> returns null; a valid
+        /// row is applied with <c>SetParameters(row)</c> and evaluated with <see cref="InverseCDF(double)"/> at each
+        /// probability. The arithmetic is therefore exactly that of the per-row loop
+        /// <c>ValidateParameters</c> → <c>SetParameters</c> → <c>InverseCDF</c> on a clone, and the results are
+        /// bitwise identical to it. Invalid rows are not applied and their quantiles are <see cref="double.NaN"/>,
+        /// matching the convention of <see cref="BootstrapAnalysis.Quantiles(IList{double}, IUnivariateDistribution[])"/>.
+        /// </para>
+        /// <para>
+        /// The rows are evaluated serially in order, so the result does not depend on the machine or the thread
+        /// count. This member lets a caller evaluate a sampled parameter ensemble in one call rather than one call
+        /// per row.
+        /// </para>
+        /// </remarks>
+        public double[,] ParameterSetQuantiles(double[,] parameterSets, IList<double> probabilities, out bool[] valid)
+        {
+            if (parameterSets == null) throw new ArgumentNullException(nameof(parameterSets));
+            if (probabilities == null) throw new ArgumentNullException(nameof(probabilities));
+            int count = parameterSets.GetLength(0);
+            int arity = NumberOfParameters;
+            if (parameterSets.GetLength(1) != arity)
+                throw new ArgumentException("Each parameter set must have exactly " + arity + " parameters.", nameof(parameterSets));
+
+            var result = new double[count, probabilities.Count];
+            valid = new bool[count];
+            var probe = Clone();
+            var row = new double[arity];
+            for (int i = 0; i < count; i++)
+            {
+                for (int j = 0; j < arity; j++)
+                    row[j] = parameterSets[i, j];
+                valid[i] = probe.ValidateParameters(row, false) is null;
+                if (!valid[i])
+                {
+                    for (int k = 0; k < probabilities.Count; k++)
+                        result[i, k] = double.NaN;
+                    continue;
+                }
+                probe.SetParameters(row);
+                for (int k = 0; k < probabilities.Count; k++)
+                    result[i, k] = probe.InverseCDF(probabilities[k]);
+            }
+            return result;
+        }
+
+        /// <summary>
         /// Returns the central moments {Mean, Standard Deviation, Skew, and Kurtosis} of the distribution using adaptive numerical integration with the Gauss-Kronrod rule.
         /// </summary>
         /// <param name="tolerance">The desired relative tolerance for the solution. Default = ~Sqrt(Machine Epsilon), or 1E-8.</param>

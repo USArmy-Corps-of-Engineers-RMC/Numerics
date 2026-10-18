@@ -1,0 +1,168 @@
+using System;
+using System.Collections.Generic;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Numerics.Distributions;
+
+namespace Distributions.Univariate
+{
+    /// <summary>
+    /// Tests for <see cref="UnivariateDistributionBase.ParameterSetQuantiles(double[,], IList{double}, out bool[])"/>:
+    /// the quantile matrix must be bitwise identical to the per-row loop it replaces.
+    /// </summary>
+    [TestClass]
+    public class Test_ParameterSetQuantiles
+    {
+        /// <summary>The probabilities evaluated in every case, including both ends of the support.</summary>
+        private static readonly double[] Probabilities = { 0.0, 1E-8, 0.001, 0.05, 0.5, 0.95, 0.99, 1.0 - 1E-9, 1.0 };
+
+        /// <summary>
+        /// Compares the batched member against the per-row loop ValidateParameters → SetParameters →
+        /// ParametersValid → InverseCDF on a clone, bit for bit, and checks the instance is unchanged.
+        /// </summary>
+        /// <param name="distribution">The distribution whose family is evaluated.</param>
+        /// <param name="parameterSets">The parameter rows, valid and invalid.</param>
+        /// <param name="expectedInvalid">The number of rows expected to be invalid.</param>
+        private static void AssertMatchesPerRowLoop(UnivariateDistributionBase distribution, double[,] parameterSets, int expectedInvalid)
+        {
+            var before = distribution.GetParameters;
+
+            var quantiles = distribution.ParameterSetQuantiles(parameterSets, Probabilities, out bool[] valid);
+
+            int rows = parameterSets.GetLength(0), arity = parameterSets.GetLength(1);
+            Assert.AreEqual(rows, quantiles.GetLength(0));
+            Assert.AreEqual(Probabilities.Length, quantiles.GetLength(1));
+            Assert.HasCount(rows, valid);
+            var probe = distribution.Clone();
+            int invalid = 0;
+            for (int i = 0; i < rows; i++)
+            {
+                var row = new double[arity];
+                for (int j = 0; j < arity; j++) row[j] = parameterSets[i, j];
+                bool expectedValid = probe.ValidateParameters(row, false) is null;
+                Assert.AreEqual(expectedValid, valid[i], $"row {i}");
+                probe.SetParameters(row);
+                Assert.AreEqual(probe.ParametersValid, valid[i], $"row {i}: SetParameters validity");
+                if (!expectedValid)
+                {
+                    invalid++;
+                    for (int k = 0; k < Probabilities.Length; k++)
+                        Assert.IsTrue(double.IsNaN(quantiles[i, k]), $"row {i}, p {Probabilities[k]}");
+                    continue;
+                }
+                for (int k = 0; k < Probabilities.Length; k++)
+                {
+                    double expected = probe.InverseCDF(Probabilities[k]);
+                    Assert.AreEqual(BitConverter.DoubleToInt64Bits(expected), BitConverter.DoubleToInt64Bits(quantiles[i, k]),
+                        $"row {i}, p {Probabilities[k]}: expected {expected:R}, actual {quantiles[i, k]:R}");
+                }
+            }
+            Assert.AreEqual(expectedInvalid, invalid);
+            CollectionAssert.AreEqual(before, distribution.GetParameters);
+        }
+
+        /// <summary>GEV rows on both sides of κ = 0, at κ = 0, and invalid scales.</summary>
+        [TestMethod]
+        public void GeneralizedExtremeValueMatchesPerRowLoop()
+        {
+            var parameterSets = new double[,]
+            {
+                { 4.8294, 1.2409, -0.1136 },
+                { 4.5, 1.0, 0.25 },
+                { 5.1, 1.4, 0.0 },
+                { 4.9, 1.3, -0.45 },
+                { 4.9, -1.3, -0.1 },
+                { double.NaN, 1.3, -0.1 },
+            };
+            AssertMatchesPerRowLoop(new GeneralizedExtremeValue(4.8294, 1.2409, -0.1136), parameterSets, 2);
+        }
+
+        /// <summary>Log-Pearson Type III rows with the clone's non-default base carried to every row.</summary>
+        [TestMethod]
+        public void LogPearsonTypeIIIMatchesPerRowLoopAndCarriesBase()
+        {
+            var parameterSets = new double[,]
+            {
+                { 3.0, 0.25, 0.4 },
+                { 3.1, 0.3, -0.6 },
+                { 2.9, 0.2, 0.0 },
+                { 3.0, 0.0, 0.4 },
+            };
+            var distribution = new LogPearsonTypeIII(3.0, 0.25, 0.4) { Base = Math.E };
+            AssertMatchesPerRowLoop(distribution, parameterSets, 1);
+
+            // The base is not a parameter: a base-e row differs from the base-10 row.
+            var baseTen = new LogPearsonTypeIII(3.0, 0.25, 0.4);
+            var natural = distribution.ParameterSetQuantiles(parameterSets, new[] { 0.5 }, out _);
+            var common = baseTen.ParameterSetQuantiles(parameterSets, new[] { 0.5 }, out _);
+            Assert.AreNotEqual(common[0, 0], natural[0, 0]);
+            Assert.AreEqual(distribution.InverseCDF(0.5), natural[0, 0]);
+        }
+
+        /// <summary>Normal rows, including a zero standard deviation.</summary>
+        [TestMethod]
+        public void NormalMatchesPerRowLoop()
+        {
+            var parameterSets = new double[,]
+            {
+                { 100.0, 15.0 },
+                { -3.0, 0.5 },
+                { 0.0, 1.0 },
+                { 1.0, -2.0 },
+            };
+            AssertMatchesPerRowLoop(new Normal(100.0, 15.0), parameterSets, 1);
+        }
+
+        /// <summary>Gumbel rows, including an invalid scale.</summary>
+        [TestMethod]
+        public void GumbelMatchesPerRowLoop()
+        {
+            var parameterSets = new double[,]
+            {
+                { 10.0, 2.0 },
+                { 12.5, 3.25 },
+                { 10.0, 0.0 },
+            };
+            AssertMatchesPerRowLoop(new Gumbel(10.0, 2.0), parameterSets, 1);
+        }
+
+        /// <summary>Kappa-four rows across both shape signs, and an invalid scale.</summary>
+        [TestMethod]
+        public void KappaFourMatchesPerRowLoop()
+        {
+            var parameterSets = new double[,]
+            {
+                { 100.0, 10.0, 0.1, -0.2 },
+                { 100.0, 10.0, -0.1, 0.3 },
+                { 90.0, 12.0, 0.05, 0.0 },
+                { 100.0, -10.0, 0.1, 0.2 },
+            };
+            AssertMatchesPerRowLoop(new KappaFour(100.0, 10.0, 0.1, -0.2), parameterSets, 1);
+        }
+
+        /// <summary>Zero rows return empty results; zero probabilities still report validity.</summary>
+        [TestMethod]
+        public void EmptyInputsReturnEmptyResults()
+        {
+            var distribution = new Normal(0.0, 1.0);
+
+            var none = distribution.ParameterSetQuantiles(new double[0, 2], Probabilities, out bool[] noneValid);
+            var noProbabilities = distribution.ParameterSetQuantiles(new double[,] { { 0.0, 1.0 }, { 0.0, -1.0 } }, new double[0], out bool[] valid);
+
+            Assert.AreEqual(0, none.GetLength(0));
+            Assert.IsEmpty(noneValid);
+            Assert.AreEqual(0, noProbabilities.GetLength(1));
+            CollectionAssert.AreEqual(new[] { true, false }, valid);
+        }
+
+        /// <summary>Null arguments and a wrong column count are rejected.</summary>
+        [TestMethod]
+        public void InvalidArgumentsThrow()
+        {
+            var distribution = new GeneralizedExtremeValue(4.0, 1.0, -0.1);
+
+            Assert.ThrowsExactly<ArgumentNullException>(() => distribution.ParameterSetQuantiles(null!, Probabilities, out _));
+            Assert.ThrowsExactly<ArgumentNullException>(() => distribution.ParameterSetQuantiles(new double[1, 3], null!, out _));
+            Assert.ThrowsExactly<ArgumentException>(() => distribution.ParameterSetQuantiles(new double[1, 2], Probabilities, out _));
+        }
+    }
+}
