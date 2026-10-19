@@ -176,6 +176,25 @@ def test_statistics_mean_and_percentiles() -> None:
     assert merged.count == 3 and merged.mean == pytest.approx(2.0)
 
 
+def test_statistics_autocorrelation_kinds() -> None:
+    # Arrange
+    values = np.array([1.0, 3.0, 2.0, 5.0, 4.0, 6.0])
+    d = values - values.mean()
+    covariance = np.array([np.dot(d[k:], d[:values.size - k]) / values.size for k in range(4)])
+    # Act
+    lags, acvf = statistics.autocorrelation(values, 3, "covariance")
+    _, acf = statistics.autocorrelation(values, 3)
+    partial_lags, pacf = statistics.autocorrelation(values, 3, statistics.AutocorrelationType.PARTIAL)
+    # Assert
+    np.testing.assert_array_equal(lags, [0, 1, 2, 3])
+    np.testing.assert_allclose(acvf, covariance, rtol=1e-14)
+    np.testing.assert_allclose(acf, covariance / covariance[0], rtol=1e-14)
+    np.testing.assert_array_equal(partial_lags, [1, 2, 3])
+    assert pacf[0] == pytest.approx(acf[1], rel=1e-14)
+    with pytest.raises(ValueError):
+        statistics.autocorrelation(np.zeros(5), 2)
+
+
 def test_paired_data_and_linear_interpolation() -> None:
     # Arrange
     opd = data.OrderedPairedData([0.0, 1.0, 2.0], [0.0, 10.0, 40.0])

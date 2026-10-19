@@ -69,3 +69,11 @@ class WeightType(enum.Enum):
 
     FREQUENCY = "Frequency"
     RELIABILITY = "Reliability"
+
+
+class AutocorrelationType(enum.Enum):
+    """Autocorrelation function kinds (``Numerics.Data.Statistics.Autocorrelation.Type``)."""
+
+    CORRELATION = "Correlation"
+    COVARIANCE = "Covariance"
+    PARTIAL = "Partial"

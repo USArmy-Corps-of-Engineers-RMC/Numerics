@@ -1,7 +1,7 @@
 """Descriptive statistics from ``Numerics.Data.Statistics``.
 
 Thin calls into ``Statistics`` (sequential sums, Type-7 and weighted percentiles),
-``RunningStatistics`` (streaming moments) and ``PlottingPositions``.
+``RunningStatistics`` (streaming moments), ``PlottingPositions`` and ``Autocorrelation``.
 """
 
 from __future__ import annotations
@@ -11,8 +11,8 @@ from typing import Any
 import numpy as np
 
 from rmc_numerics._util import namespace, net_enum
-from rmc_numerics.enums import PlottingPosition, WeightType
-from rmc_numerics.marshal import to_net_doubles, to_numpy_doubles
+from rmc_numerics.enums import AutocorrelationType, PlottingPosition, WeightType
+from rmc_numerics.marshal import to_net_doubles, to_numpy_doubles, to_numpy_matrix
 
 
 def _stats() -> Any:
@@ -255,7 +255,48 @@ class RunningStatistics:
         return float(self.net.Kurtosis)
 
 
+def autocorrelation(data: Any, max_lag: int | None = None,
+                    kind: AutocorrelationType | str = AutocorrelationType.CORRELATION) -> tuple[np.ndarray, np.ndarray]:
+    """Return a sample autocorrelation function through ``Autocorrelation.Function``.
+
+    ``COVARIANCE`` is ``R(k) = n^-1 sum_{t=k}^{n-1} (x_t - xbar)(x_{t-k} - xbar)`` (divisor ``n`` at
+    every lag, the mean by ``Statistics.Mean``), ``CORRELATION`` is ``R(k) / R(0)`` and ``PARTIAL``
+    is the Durbin-Levinson partial autocorrelation from lag 1.
+
+    Parameters
+    ----------
+    data : array_like
+        The series, in time order.
+    max_lag : int, optional
+        The largest lag; default Numerics' ``floor(min(10 log10(n), n - 1))``.
+    kind : AutocorrelationType or str, optional
+        ``CORRELATION`` (default), ``COVARIANCE`` or ``PARTIAL``.
+
+    Returns
+    -------
+    lags : numpy.ndarray
+        The lags (``0..max_lag``; ``1..max_lag`` for ``PARTIAL``), as integers.
+    values : numpy.ndarray
+        The function at those lags.
+
+    Raises
+    ------
+    ValueError
+        If Numerics returns no function: fewer than two values, a maximum lag below 1, or a
+        zero-variance series for ``CORRELATION``.
+    """
+    stats = _stats()
+    lag = -1 if max_lag is None else int(max_lag)
+    table = stats.Autocorrelation.Function(to_net_doubles(data), lag, net_enum(stats.Autocorrelation.Type, kind))
+    if table is None:
+        raise ValueError("Autocorrelation.Function returned no function: the series needs at least two values, "
+                         "a maximum lag of at least 1 and, for the correlation, a nonzero variance.")
+    result = to_numpy_matrix(table)
+    return result[:, 0].astype(np.int64), np.ascontiguousarray(result[:, 1])
+
+
 __all__ = [
-    "RunningStatistics", "linear_moments", "mean", "percentile", "plotting_positions", "standard_deviation",
+    "RunningStatistics", "autocorrelation", "linear_moments", "mean", "percentile", "plotting_positions",
+    "standard_deviation",
     "variance",
 ]
