@@ -27,3 +27,7 @@ NUMERICS_SHA256 = "0820a509cac000dc62671825a4c4ae54081f5e328e5e6daad2d3f6d37705f
 
 NUMERICS_SOURCE_COMMIT = "279a5a42bba3c890f8d90a84b4a9a9ae8ff11e06"
 """The Numerics commit a locally built ``Numerics.dll`` was built from; empty for a NuGet package assembly."""
+
+NUMERICS_BUILD_COMMAND = ("dotnet build Numerics/Numerics.csproj -c Release -f net10.0 -p:Version=2.3.0-dev.1 "
+                          "-p:ContinuousIntegrationBuild=true (Windows, .NET SDK 10.0.400)")
+"""How a locally built ``Numerics.dll`` was built (receipts record it); empty for a NuGet package assembly."""

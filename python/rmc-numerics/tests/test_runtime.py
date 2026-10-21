@@ -143,6 +143,7 @@ def test_distribution_version_equals_numerics_version() -> None:
         # The interim local build keeps the 2.2.0.0 assembly version and names its source commit.
         assert rmc_numerics.NUMERICS_ASSEMBLY_VERSION == "2.2.0.0"
         assert len(rmc_numerics.NUMERICS_SOURCE_COMMIT) == 40
+        assert numerics in rmc_numerics.NUMERICS_BUILD_COMMAND
     else:
         assert rmc_numerics.NUMERICS_ASSEMBLY_VERSION.startswith(numerics)
-        assert rmc_numerics.NUMERICS_SOURCE_COMMIT == ""
+        assert rmc_numerics.NUMERICS_SOURCE_COMMIT == rmc_numerics.NUMERICS_BUILD_COMMAND == ""

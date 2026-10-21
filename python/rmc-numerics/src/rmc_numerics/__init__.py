@@ -21,6 +21,7 @@ call :func:`initialize` explicitly. Submodules:
 
 from rmc_numerics._version import (
     NUMERICS_ASSEMBLY_VERSION,
+    NUMERICS_BUILD_COMMAND,
     NUMERICS_SHA256,
     NUMERICS_SOURCE_COMMIT,
     NUMERICS_VERSION,
@@ -42,8 +43,8 @@ from rmc_numerics.runtime import (
 )
 
 __all__ = [
-    "NUMERICS_ASSEMBLY_VERSION", "NUMERICS_SHA256", "NUMERICS_SOURCE_COMMIT", "NUMERICS_VERSION", "NumericsIdentity",
-    "RuntimeLoadError",
+    "NUMERICS_ASSEMBLY_VERSION", "NUMERICS_BUILD_COMMAND", "NUMERICS_SHA256", "NUMERICS_SOURCE_COMMIT",
+    "NUMERICS_VERSION", "NumericsIdentity", "RuntimeLoadError",
     "__version__", "add_assembly", "assert_numerics_identity", "get_runtime_info", "initialize", "is_initialized",
     "loaded_assemblies", "numerics_identity", "runtime_dir",
 ]
