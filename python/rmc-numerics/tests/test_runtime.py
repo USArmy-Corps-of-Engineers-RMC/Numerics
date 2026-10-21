@@ -136,5 +136,13 @@ def test_packaged_assembly_is_the_pinned_nuget_bytes() -> None:
 
 def test_distribution_version_equals_numerics_version() -> None:
     # Assert
-    assert rmc_numerics.__version__.split(".post")[0] == rmc_numerics.NUMERICS_VERSION
-    assert rmc_numerics.NUMERICS_ASSEMBLY_VERSION.startswith(rmc_numerics.NUMERICS_VERSION)
+    numerics = rmc_numerics.NUMERICS_VERSION
+    base, _, dev = numerics.partition("-dev.")
+    assert rmc_numerics.__version__.split(".post")[0] == (f"{base}.dev{dev}" if dev else numerics)
+    if dev:
+        # The interim local build keeps the 2.2.0.0 assembly version and names its source commit.
+        assert rmc_numerics.NUMERICS_ASSEMBLY_VERSION == "2.2.0.0"
+        assert len(rmc_numerics.NUMERICS_SOURCE_COMMIT) == 40
+    else:
+        assert rmc_numerics.NUMERICS_ASSEMBLY_VERSION.startswith(numerics)
+        assert rmc_numerics.NUMERICS_SOURCE_COMMIT == ""

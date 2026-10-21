@@ -4,18 +4,19 @@ The wheel is pure Python plus ``Numerics.dll`` and ``rmc_numerics.runtimeconfig.
 under ``rmc_numerics/_bin``, so one ``py3-none-any`` wheel serves Linux and Windows; the
 .NET 10 runtime is its only platform requirement. ``Numerics.dll`` is taken byte for byte
 from ``lib/net10.0`` of the published ``RMC.Numerics`` NuGet package whose version equals
-the distribution version, and its SHA-256 must equal ``NUMERICS_SHA256`` in
-``src/rmc_numerics/_version.py``.
+the distribution version (or, with ``--dll``, from a locally built assembly), and its SHA-256
+must equal ``NUMERICS_SHA256`` in ``src/rmc_numerics/_version.py``.
 
 The package is found, in order: ``--nupkg PATH``; the NuGet global packages folder
 (``NUGET_PACKAGES`` or ``~/.nuget/packages``), where ``dotnet restore`` of any project
 referencing ``RMC.Numerics`` leaves it; with ``--download``, the nuget.org flat
-container. The staged assembly stays in ``_bin`` (gitignored) so a source checkout can
-run the tests against it.
+container; with ``--dll PATH``, that file (the interim locally built assembly named by
+``NUMERICS_SOURCE_COMMIT``). The staged assembly stays in ``_bin`` (gitignored) so a source
+checkout can run the tests against it.
 
 Usage, from ``python/rmc-numerics``::
 
-    python scripts/build_wheel.py [--nupkg PATH] [--download] [--stage-only] [--out DIR]
+    python scripts/build_wheel.py [--nupkg PATH | --dll PATH] [--download] [--stage-only] [--out DIR]
 
 Needs the ``build`` package (``pip install build``) unless ``--stage-only``. Prints the
 wheel's path and SHA-256 on its last lines.
@@ -55,6 +56,14 @@ def _pins() -> tuple[str, str, str]:
     return value("__version__"), value("NUMERICS_VERSION"), value("NUMERICS_SHA256")
 
 
+def pep440(numerics_version: str) -> str:
+    """Return the PEP 440 form of an RMC.Numerics version: ``2.3.0`` stays, ``2.3.0-dev.1`` is ``2.3.0.dev1``."""
+    match = re.fullmatch(r"(\d+\.\d+\.\d+)(?:-dev\.(\d+))?", numerics_version)
+    if match is None:
+        raise SystemExit(f"Unsupported RMC.Numerics version {numerics_version!r} (expected X.Y.Z or X.Y.Z-dev.N).")
+    return match.group(1) + (f".dev{match.group(2)}" if match.group(2) else "")
+
+
 def _package_bytes(version: str, nupkg: pathlib.Path | None, download: bool) -> tuple[bytes, str]:
     """Return the .nupkg bytes and a description of where they came from."""
     if nupkg is not None:
@@ -71,17 +80,20 @@ def _package_bytes(version: str, nupkg: pathlib.Path | None, download: bool) -> 
         return response.read(), url
 
 
-def stage(nupkg: pathlib.Path | None, download: bool) -> str:
-    """Extract Numerics.dll into _bin, verify its SHA-256, and return the digest."""
+def stage(nupkg: pathlib.Path | None, download: bool, dll: pathlib.Path | None = None) -> str:
+    """Stage Numerics.dll into _bin from a package (or a local build with ``dll``), verify its SHA-256, return it."""
     dist_version, nuget_version, pinned = _pins()
-    if dist_version.split("+")[0].split(".post")[0] != nuget_version:
-        raise SystemExit(f"Distribution version {dist_version} does not match the NuGet version {nuget_version}.")
-    payload, source = _package_bytes(nuget_version, nupkg, download)
-    with zipfile.ZipFile(io.BytesIO(payload)) as archive:
-        assembly = archive.read(ASSEMBLY_ENTRY)
+    if dist_version.split("+")[0].split(".post")[0] != pep440(nuget_version):
+        raise SystemExit(f"Distribution version {dist_version} does not match the Numerics version {nuget_version}.")
+    if dll is not None:
+        assembly, source = dll.read_bytes(), str(dll)
+    else:
+        payload, source = _package_bytes(nuget_version, nupkg, download)
+        with zipfile.ZipFile(io.BytesIO(payload)) as archive:
+            assembly = archive.read(ASSEMBLY_ENTRY)
     digest = hashlib.sha256(assembly).hexdigest()
     if digest != pinned:
-        raise SystemExit(f"{ASSEMBLY_ENTRY} from {source} has SHA-256 {digest}; _version.py pins {pinned}.")
+        raise SystemExit(f"Numerics.dll from {source} has SHA-256 {digest}; _version.py pins {pinned}.")
     if not (BIN / RUNTIME_CONFIG).is_file():
         raise SystemExit(f"{BIN / RUNTIME_CONFIG} is missing; it is tracked in the repository.")
     (BIN / "Numerics.dll").write_bytes(assembly)
@@ -115,11 +127,14 @@ def main(argv: list[str]) -> int:
     """Stage the assembly, optionally build the wheel, and print its path and digest."""
     parser = argparse.ArgumentParser(description=__doc__.split("\n", 1)[0])
     parser.add_argument("--nupkg", type=pathlib.Path, help="the RMC.Numerics .nupkg to take Numerics.dll from")
+    parser.add_argument("--dll", type=pathlib.Path, help="a locally built Numerics.dll to stage instead of a package's")
     parser.add_argument("--download", action="store_true", help="download the package from nuget.org if not cached")
     parser.add_argument("--stage-only", action="store_true", help="stage _bin/Numerics.dll and stop")
     parser.add_argument("--out", type=pathlib.Path, default=PACKAGE / "dist", help="where the wheel is written")
     args = parser.parse_args(argv)
-    stage(args.nupkg, args.download)
+    if args.dll is not None and args.nupkg is not None:
+        parser.error("--dll and --nupkg are exclusive")
+    stage(args.nupkg, args.download, args.dll)
     if args.stage_only:
         return 0
     wheel = build(args.out.resolve())

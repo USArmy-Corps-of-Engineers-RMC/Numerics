@@ -57,6 +57,24 @@ process; the loader refuses to continue in that state.
 The assembly directory is, in order: `rmc_numerics.initialize(dll_dir)`, the
 `RMC_NUMERICS_DLL_DIR` environment variable, then the packaged `_bin`.
 
+## Interim: a locally built Numerics.dll (until RMC.Numerics 2.3.0 ships)
+
+This branch pins one locally built `Numerics.dll` instead of a NuGet package assembly:
+`_version.py` names its source commit (`NUMERICS_SOURCE_COMMIT`), its SHA-256, the
+informational version `2.3.0-dev.1` and the assembly version `2.2.0.0`, which stays at the
+2.2.0 value so consumer pins do not move. Build it once, on Windows, from a clean committed tree:
+
+```bash
+dotnet build Numerics/Numerics.csproj -c Release -f net10.0 -p:Version=2.3.0-dev.1 -p:ContinuousIntegrationBuild=true
+python scripts/build_wheel.py --stage-only --dll ../../Numerics/bin/Release/net10.0/Numerics.dll
+```
+
+`ContinuousIntegrationBuild` maps source paths, so any checkout of that commit builds the same
+bytes on Windows; a Linux build differs (the embedded PDB), so Linux and Docker use the
+Windows-built file. `--download` and the `PythonWheel.yml` CI job cannot find a `2.3.0-dev.1`
+package: a branch carrying these pins (including a local `main` it is merged into) must not be
+pushed until the pins move to the published 2.3.0 package.
+
 ## Build and test
 
 From `python/rmc-numerics`:
