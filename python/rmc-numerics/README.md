@@ -20,8 +20,10 @@ RMC.Numerics for Python. The wheel ships the `Numerics.dll` assembly from the pu
 - per-parameter-set members for ensembles held as parameter rows: one quantile per row
   (`parameter_set_quantiles`), one validity flag per row (`parameter_set_validity`) and one
   distribution per row as a .NET array the ensemble summaries take directly
-  (`parameter_set_distributions`). Numerics has no member that takes a parameter matrix,
-  so the rows cross one at a time with the scalar overloads bound once.
+  (`parameter_set_distributions`), with the scalar overloads bound once per row; and the
+  quantile matrix of many probabilities under many rows with their validity flags in one
+  call into `UnivariateDistributionBase.ParameterSetQuantiles` (`parameter_set_quantile_table`,
+  RMC.Numerics 2.3 and later).
 
 The wrappers do no numerical work in Python: array inputs cross once into the Numerics
 array overloads (for example `UnivariateDistributionBase.InverseCDF(IList<double>)`), and

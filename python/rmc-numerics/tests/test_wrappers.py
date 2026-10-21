@@ -342,6 +342,33 @@ def test_parameter_set_members_equal_one_distribution_per_row() -> None:
     assert [float(members[i].InverseCDF(0.99)) for i in range(2)] == expected
 
 
+def test_parameter_set_quantile_table_equals_the_per_row_loop_bitwise() -> None:
+    # Arrange
+    gev = distributions.GeneralizedExtremeValue(4.0, 1.0, -0.1)
+    rng = np.random.default_rng(20261021)
+    rows = np.column_stack([rng.normal(4.0, 0.3, 200), rng.lognormal(0.0, 0.2, 200), rng.normal(-0.1, 0.2, 200)])
+    rows[7, 1] = -1.0  # an invalid scale
+    probabilities = np.array([1e-8, 0.05, 0.5, 0.95, 0.99, 1.0 - 1e-9])
+    if not hasattr(gev.net, "ParameterSetQuantiles"):
+        # RMC.Numerics 2.2.0 has no ParameterSetQuantiles; the pin flips when the bundled assembly moves.
+        with pytest.raises(NotImplementedError, match="2.3"):
+            gev.parameter_set_quantile_table(rows, probabilities)
+        return
+    # Act
+    quantiles, valid = gev.parameter_set_quantile_table(rows, probabilities)
+    # Assert
+    np.testing.assert_array_equal(valid, gev.parameter_set_validity(rows))
+    assert not valid[7] and np.isnan(quantiles[7]).all()
+    assert quantiles.shape == (rows.shape[0], probabilities.size)
+    for k, p in enumerate(probabilities):
+        expected = gev.parameter_set_quantiles(rows[valid], p)
+        np.testing.assert_array_equal(quantiles[valid, k].view(np.int64), expected.view(np.int64))
+    with pytest.raises(ValueError, match="parameters per row"):
+        gev.parameter_set_quantile_table(rows[:, :2], probabilities)
+    with pytest.raises(ValueError, match="one-dimensional"):
+        gev.parameter_set_quantile_table(rows, probabilities.reshape(2, 3))
+
+
 def test_create_distribution_uniform_and_mixture_members() -> None:
     # Act
     gumbel = distributions.create_distribution("gumbel", [10.0, 2.0])

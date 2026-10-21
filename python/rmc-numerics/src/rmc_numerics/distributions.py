@@ -25,7 +25,7 @@ from rmc_numerics.enums import (
     SortOrder,
     Transform,
 )
-from rmc_numerics.marshal import to_net_doubles, to_numpy_doubles, to_numpy_matrix
+from rmc_numerics.marshal import to_net_doubles, to_net_matrix, to_numpy_doubles, to_numpy_matrix
 
 
 def _nd() -> Any:
@@ -314,8 +314,9 @@ class UnivariateDistribution:
 
         A clone of this distribution receives every row through ``SetParameters`` and
         returns ``InverseCDF(probability)``: the probe pattern a .NET caller uses for many
-        parameter sets, with the scalar overloads bound once. Numerics has no member that
-        takes a parameter matrix, so the rows cross one at a time.
+        parameter sets, with the scalar overloads bound once. The rows cross one at a time
+        and are not validated; :meth:`parameter_set_quantile_table` passes the whole matrix
+        to ``ParameterSetQuantiles`` in one call (RMC.Numerics 2.3 and later).
 
         Parameters
         ----------
@@ -350,6 +351,53 @@ class UnivariateDistribution:
                 probe.SetParameters(to_net_doubles(row))
             out[index] = quantile(p)
         return out
+
+    def parameter_set_quantile_table(self, parameter_sets: Any, probabilities: Any) -> tuple[np.ndarray, np.ndarray]:
+        """Return the quantiles of many probabilities under many parameter sets, in one call into Numerics.
+
+        Calls ``UnivariateDistributionBase.ParameterSetQuantiles(double[,], IList<double>, out bool[])``:
+        the parameter matrix crosses into .NET once, every row is validated with
+        ``ValidateParameters(row, false)``, a valid row is applied to one private clone with
+        ``SetParameters(row)`` and evaluated with ``InverseCDF`` at each probability, and the
+        quantile matrix and the validity flags cross back once. The values are bitwise those
+        of the per-row loop; the rows of invalid parameter sets are NaN.
+
+        Parameters
+        ----------
+        parameter_sets : array_like
+            Array of shape ``(count, number_of_parameters)``.
+        probabilities : array_like
+            The non-exceedance probabilities, one-dimensional.
+
+        Returns
+        -------
+        quantiles : numpy.ndarray
+            Array of shape ``(count, len(probabilities))``; NaN rows where the set is invalid.
+        valid : numpy.ndarray
+            Boolean array of length ``count``, True where ``ValidateParameters(row, false)`` is null.
+
+        Raises
+        ------
+        ValueError
+            If the rows do not have ``number_of_parameters`` columns or ``probabilities`` is
+            not one-dimensional.
+        NotImplementedError
+            If the loaded ``Numerics`` assembly predates ``ParameterSetQuantiles`` (RMC.Numerics 2.2.0).
+        """
+        rows = np.atleast_2d(np.asarray(parameter_sets, dtype=np.float64))
+        arity = self.number_of_parameters
+        if rows.shape[1] != arity:
+            raise ValueError(f"Expected {arity} parameters per row; got {rows.shape[1]}.")
+        p = np.asarray(probabilities, dtype=np.float64)
+        if p.ndim != 1:
+            raise ValueError(f"Expected one-dimensional probabilities; got shape {p.shape}.")
+        member = getattr(self.net, "ParameterSetQuantiles", None)
+        if member is None:
+            raise NotImplementedError("The loaded Numerics assembly has no UnivariateDistributionBase."
+                                      "ParameterSetQuantiles; it needs RMC.Numerics 2.3 or later.")
+        quantiles, valid = member(to_net_matrix(rows), to_net_doubles(p), None)
+        flags = np.fromiter((bool(flag) for flag in valid), dtype=bool, count=rows.shape[0])
+        return to_numpy_matrix(quantiles), flags
 
     def parameter_set_validity(self, parameter_sets: Any) -> np.ndarray:
         """Return which parameter sets this family accepts (``ValidateParameters(row, false)`` is null).
