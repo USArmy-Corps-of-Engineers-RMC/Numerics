@@ -11,8 +11,8 @@ RMC.Numerics for Python. The wheel ships the `Numerics.dll` assembly from the pu
   file SHA-256;
 - thin typed wrappers over Numerics: univariate distributions (GEV, GPD, Gumbel, Normal,
   base-10 `LogNormal`, `LnNormal`, Pearson III, log-Pearson III, Kappa-4, Mixture, Beta,
-  Poisson, Empirical incl. survival orientation), the multivariate normal, bivariate
-  copulas, `OrderedPairedData` and `Linear`, `Statistics` and `RunningStatistics`,
+  Poisson, Empirical incl. survival orientation), the multivariate normal, the Dirichlet
+  (moments, density and `GenerateRandomValues` draws), bivariate copulas, `OrderedPairedData` and `Linear`, `Statistics` and `RunningStatistics`,
   plotting positions and L-moments, stratification and Latin hypercube designs, the Mersenne
   Twister, Brent root finding and `BrentSearch`, `Tools.Expm1`/`Log1p`, the incomplete beta
   function, `Matrix` products, `MatrixRegularization` and the Cholesky factor, link

@@ -472,3 +472,112 @@ def test_ln_normal_log_parameter_construction() -> None:
     assert (float(ln.net.Mu), float(ln.net.Sigma)) == (2.0, 0.1)
     assert mu == pytest.approx(2.0, abs=1e-12) and sigma == pytest.approx(0.1, abs=1e-12)
     assert distributions.GeneralizedExtremeValue(4.0, 1.0, 0.0).has_parameter_covariance
+
+
+HYDROLOGICS_MONTHLY_ALPHA = [3.0, 5.0, 9.0, 14.0, 11.0, 6.0, 2.5, 1.5, 4.0, 7.0, 3.5, 2.0]
+"""Twelve monthly concentrations shaped like a flood-seasonality count table (sum 68.5)."""
+
+
+def test_dirichlet_draws_are_bit_identical_to_the_net_call() -> None:
+    # Arrange
+    from rmc_numerics._util import namespace
+
+    nd = namespace("Numerics.Distributions")
+    System = namespace("System")
+    alpha = System.Array.CreateInstance(System.Double, len(HYDROLOGICS_MONTHLY_ALPHA))
+    for index, value in enumerate(HYDROLOGICS_MONTHLY_ALPHA):
+        alpha[index] = value
+    for count, seed in ((1, 1), (257, 12345), (1000, 2147483647)):
+        reference = nd.Dirichlet(alpha).GenerateRandomValues(count, seed)
+        expected = np.array([[float(reference[i, j]) for j in range(12)] for i in range(count)])
+        # Act
+        sample = multivariate.Dirichlet(HYDROLOGICS_MONTHLY_ALPHA).generate_random_values(count, seed)
+        # Assert
+        assert sample.shape == (count, 12) and sample.dtype == np.float64 and sample.flags.c_contiguous
+        np.testing.assert_array_equal(sample.view(np.int64), expected.view(np.int64))
+    wrapped = multivariate.Dirichlet.from_net(nd.Dirichlet(alpha))
+    np.testing.assert_array_equal(wrapped.generate_random_values(50, 9).view(np.int64),
+                                  multivariate.Dirichlet(HYDROLOGICS_MONTHLY_ALPHA)
+                                  .generate_random_values(50, 9).view(np.int64))
+
+
+def test_dirichlet_seeds_reproduce_and_rows_lie_on_the_simplex() -> None:
+    # Arrange
+    dirichlet = multivariate.Dirichlet([0.5, 2.0, 3.0])
+    # Act
+    first = dirichlet.generate_random_values(500, seed=42)
+    again = dirichlet.generate_random_values(500, seed=42)
+    other = dirichlet.generate_random_values(500, seed=43)
+    # Assert
+    np.testing.assert_array_equal(first, again)
+    assert not np.array_equal(first, other)
+    assert np.all(first >= 0.0) and np.all(first <= 1.0)
+    np.testing.assert_allclose(first.sum(axis=1), 1.0, atol=1e-14)
+    assert dirichlet.generate_random_values(0, seed=42).shape == (0, 3)
+
+
+def test_dirichlet_moments_and_density_against_closed_forms() -> None:
+    # Arrange
+    alpha = np.array([2.0, 3.0, 5.0])
+    a0 = alpha.sum()
+    dirichlet = multivariate.Dirichlet(alpha)
+    x = np.array([0.2, 0.3, 0.5])
+    log_beta = sum(math.lgamma(a) for a in alpha) - math.lgamma(a0)
+    # Act / Assert
+    assert dirichlet.dimension == 3 and dirichlet.alpha_sum == 10.0 and dirichlet.parameters_valid
+    np.testing.assert_array_equal(dirichlet.alpha, alpha)
+    np.testing.assert_allclose(dirichlet.mean, alpha / a0, rtol=1e-15)
+    np.testing.assert_allclose(dirichlet.variance, alpha * (a0 - alpha) / (a0 ** 2 * (a0 + 1.0)), rtol=1e-14)
+    np.testing.assert_allclose(dirichlet.mode, (alpha - 1.0) / (a0 - 3.0), rtol=1e-14)
+    expected_cov = (np.diag(alpha / a0) - np.outer(alpha, alpha) / a0 ** 2) / (a0 + 1.0)
+    np.testing.assert_allclose(dirichlet.covariance_matrix(), expected_cov, rtol=1e-13, atol=1e-16)
+    assert dirichlet.covariance(0, 1) == pytest.approx(expected_cov[0, 1], rel=1e-13)
+    assert multivariate.Dirichlet.log_multivariate_beta(alpha) == pytest.approx(log_beta, rel=1e-12)
+    expected_log_pdf = float(np.sum((alpha - 1.0) * np.log(x))) - log_beta
+    assert dirichlet.log_pdf(x) == pytest.approx(expected_log_pdf, rel=1e-12)
+    assert dirichlet.pdf(x) == pytest.approx(math.exp(expected_log_pdf), rel=1e-12)
+    assert dirichlet.log_pdf([0.5, 0.5, 0.5]) == -math.inf
+    symmetric = multivariate.Dirichlet.symmetric(4, 2.5)
+    np.testing.assert_array_equal(symmetric.alpha, [2.5, 2.5, 2.5, 2.5])
+
+
+def test_dirichlet_sample_mean_recovers_alpha_over_alpha_sum() -> None:
+    # Arrange
+    alpha = np.array(HYDROLOGICS_MONTHLY_ALPHA)
+    dirichlet = multivariate.Dirichlet(alpha)
+    count = 20000
+    # Act
+    sample = dirichlet.generate_random_values(count, seed=20261021)
+    # Assert
+    standard_error = np.sqrt(dirichlet.variance / count)
+    assert np.all(np.abs(sample.mean(axis=0) - alpha / alpha.sum()) < 5.0 * standard_error)
+    np.testing.assert_allclose(sample.var(axis=0, ddof=1), dirichlet.variance, rtol=0.05)
+
+
+def test_dirichlet_argument_errors_map_to_python_exceptions() -> None:
+    # Arrange
+    from rmc_numerics._util import namespace
+    from rmc_numerics.errors import net_errors
+
+    System = namespace("System")
+
+    # Act / Assert
+    with pytest.raises(System.ArgumentOutOfRangeException):
+        multivariate.Dirichlet([1.0, 0.0])
+    for alpha in ([1.0], [1.0, 0.0], [2.0, -1.0], [1.0, math.nan], [1.0, math.inf]):
+        with pytest.raises(ValueError, match="alpha"):
+            with net_errors():
+                multivariate.Dirichlet(alpha)
+    with pytest.raises(ValueError, match="dimension"):
+        with net_errors():
+            multivariate.Dirichlet.symmetric(1, 2.0)
+    dirichlet = multivariate.Dirichlet([0.5, 2.0, 3.0])
+    with pytest.raises(RuntimeError, match="mode"):
+        with net_errors():
+            _ = dirichlet.mode
+    with pytest.raises(ValueError):
+        with net_errors():
+            dirichlet.covariance(0, 3)
+    with pytest.raises(ArithmeticError):
+        with net_errors():
+            dirichlet.generate_random_values(-1, seed=1)
