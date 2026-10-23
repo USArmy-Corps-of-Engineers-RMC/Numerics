@@ -55,6 +55,39 @@ namespace Data.Statistics
             }
         }
 
+        /// <summary>
+        /// Analytic properties: the interval of n − s mirrors that of s, it contains p̂, it narrows as the trials
+        /// grow at a fixed proportion (half-width → z √(p̂(1 − p̂)/n)), and it widens with the level.
+        /// </summary>
+        [TestMethod]
+        public void AnalyticProperties()
+        {
+            foreach (var (s, n) in new[] { (3.0, 17.0), (0.0, 5.0), (250.0, 1000.0), (0.5, 2.0) })
+            {
+                var (lower, upper) = Stats.WilsonScoreInterval(s, n, 0.9);
+                var (mirrorLower, mirrorUpper) = Stats.WilsonScoreInterval(n - s, n, 0.9);
+                Assert.AreEqual(1.0 - upper, mirrorLower, 1E-14);
+                Assert.AreEqual(1.0 - lower, mirrorUpper, 1E-14);
+                Assert.IsLessThanOrEqualTo(s / n + 1E-15, lower);
+                Assert.IsGreaterThanOrEqualTo(s / n - 1E-15, upper);
+            }
+
+            double previous = double.PositiveInfinity;
+            foreach (double n in new[] { 10.0, 100.0, 1E4, 1E6, 1E9 })
+            {
+                var (lower, upper) = Stats.WilsonScoreInterval(0.3 * n, n, 0.95);
+                Assert.IsLessThan(previous, upper - lower);
+                previous = upper - lower;
+            }
+            double z = new Normal(0, 1).InverseCDF(0.975);
+            Assert.AreEqual(2 * z * Math.Sqrt(0.3 * 0.7 / 1E9), previous, 1E-6 * previous);
+
+            var (narrowLower, narrowUpper) = Stats.WilsonScoreInterval(30, 100, 0.5);
+            var (wideLower, wideUpper) = Stats.WilsonScoreInterval(30, 100, 0.999999);
+            Assert.IsLessThan(narrowLower, wideLower);
+            Assert.IsGreaterThan(narrowUpper, wideUpper);
+        }
+
         /// <summary>Counts and levels outside their domains are refused.</summary>
         [TestMethod]
         public void InvalidArgumentsThrow()
