@@ -265,7 +265,8 @@ def weighted_plotting_positions(weights: Any, alpha: float) -> np.ndarray:
     weights : array_like
         Non-negative weights of the observations in ascending order of their values.
     alpha : float
-        The plotting-position parameter in [0, 1] (0 Weibull, 0.44 Gringorten, 0.5 Hazen).
+        The plotting-position parameter in [0, 0.5] (0 Weibull, 0.44 Gringorten, 0.5 Hazen); above
+        one half a small last weight would give a position above one.
 
     Returns
     -------

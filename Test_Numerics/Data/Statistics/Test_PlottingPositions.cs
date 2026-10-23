@@ -166,7 +166,7 @@ namespace Data.Statistics
         [TestMethod]
         public void Test_WeightedFunction()
         {
-            foreach (double alpha in new[] { 0.0, 0.3175, 0.375, 0.4, 0.44, 0.5, 1.0 })
+            foreach (double alpha in new[] { 0.0, 0.3175, 0.375, 0.4, 0.44, 0.5 })
             {
                 foreach (int n in new[] { 3, 10, 30, 1001 })
                 {
@@ -200,6 +200,40 @@ namespace Data.Statistics
             Assert.ThrowsExactly<System.ArgumentOutOfRangeException>(() => PlottingPositions.Function(new[] { 1.0, -1.0 }, 0.5));
             Assert.ThrowsExactly<System.ArgumentOutOfRangeException>(() => PlottingPositions.Function(new[] { 1.0, double.NaN }, 0.5));
             Assert.ThrowsExactly<System.ArgumentOutOfRangeException>(() => PlottingPositions.Function(new[] { 1.0, 1.0 }, 1.5));
+            Assert.ThrowsExactly<System.ArgumentOutOfRangeException>(() => PlottingPositions.Function(new[] { 1.0, 1.0 }, -0.1));
+            Assert.ThrowsExactly<System.ArgumentOutOfRangeException>(() => PlottingPositions.Function(new[] { 1.0, 1.0 }, double.NaN));
+            Assert.ThrowsExactly<System.ArgumentOutOfRangeException>(() => PlottingPositions.Function(new[] { 1.0, double.PositiveInfinity }, 0.5));
+            Assert.ThrowsExactly<System.ArgumentOutOfRangeException>(() => PlottingPositions.Function(new[] { double.MaxValue, double.MaxValue }, 0.5));
+            Assert.ThrowsExactly<System.ArgumentOutOfRangeException>(() => PlottingPositions.Function(new[] { 1.0, 1.0 }, 0.5000001));
+            Assert.ThrowsExactly<System.ArgumentOutOfRangeException>(() => PlottingPositions.Function(new[] { 2.0 }, 1.0));
+        }
+
+        /// <summary>
+        /// Test the weighted plotting positions at their boundaries: a single weight, alpha = 0.5 with a zero last
+        /// weight (the largest position the formula allows), and monotonicity within [0, 1) for random weights.
+        /// </summary>
+        [TestMethod]
+        public void Test_WeightedFunction_Boundaries()
+        {
+            // One weight w: (w − α w) / (w + w − 2α w) = 1/2 for every α.
+            foreach (double alpha in new[] { 0.0, 0.44, 0.5 })
+                Assert.AreEqual(0.5, PlottingPositions.Function(new[] { 3.0 }, alpha)[0], 1E-15);
+
+            // α = 0.5, weights {2, 2, 0}: W = 4, denominator 4; F = (2 − 1)/4, (4 − 1)/4, (4 − 0)/4. The last
+            // position reaches one only in this limit (a zero last weight at α = 1/2).
+            CollectionAssert.AreEqual(new[] { 0.25, 0.75, 1.0 }, PlottingPositions.Function(new[] { 2.0, 2.0, 0.0 }, 0.5));
+
+            var random = new System.Random(20261023);
+            var weights = new double[500];
+            for (int i = 0; i < weights.Length; i++) weights[i] = random.NextDouble() < 0.1 ? 0.0 : random.NextDouble() * 10;
+            foreach (double alpha in new[] { 0.0, 0.3175, 0.44, 0.5 })
+            {
+                var positions = PlottingPositions.Function(weights, alpha);
+                Assert.IsGreaterThanOrEqualTo(0.0, positions[0]);
+                Assert.IsLessThanOrEqualTo(1.0, positions[positions.Length - 1]);
+                for (int i = 1; i < positions.Length; i++)
+                    Assert.IsGreaterThanOrEqualTo(positions[i - 1], positions[i], $"alpha {alpha}, i {i}");
+            }
         }
     }
 }

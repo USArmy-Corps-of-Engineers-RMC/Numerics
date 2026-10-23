@@ -53,12 +53,13 @@ namespace Numerics.Data.Statistics
         /// </summary>
         /// <param name="weights">The non-negative, finite weight of each observation, in the ascending order of the
         /// observations' values.</param>
-        /// <param name="alpha">The alpha coefficient. Range [0,1].</param>
-        /// <returns>An array of non-decreasing plotting positions, one per weight.</returns>
+        /// <param name="alpha">The alpha coefficient. Range [0,0.5], which holds every named formula from Weibull (0)
+        /// to Hazen (0.5).</param>
+        /// <returns>An array of non-decreasing plotting positions in [0,1], one per weight.</returns>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="weights"/> is null.</exception>
         /// <exception cref="ArgumentException">Thrown when <paramref name="weights"/> is empty or every weight is zero.</exception>
-        /// <exception cref="ArgumentOutOfRangeException">Thrown when a weight is negative or not finite, or
-        /// <paramref name="alpha"/> is outside [0,1].</exception>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when a weight is negative or not finite, the total
+        /// weight overflows, or <paramref name="alpha"/> is outside [0,0.5].</exception>
         /// <remarks>
         /// <para>
         /// With c_i the cumulative weight through observation i, W the total weight and w̄ = W / n the mean
@@ -71,13 +72,20 @@ namespace Numerics.Data.Statistics
         /// The cumulative and total weights are sequential sums in the order given, the total being the last
         /// cumulative weight.
         /// </para>
+        /// <para>
+        /// Successive positions differ by ((1 − α) w_i + α w_(i−1)) / denominator ≥ 0, and the first is ≥ 0. The
+        /// last is at most one exactly when α w_n + (1 − 2α) w̄ ≥ 0, which holds for every weight vector exactly
+        /// when α ≤ 1/2 (it equals one only at α = 1/2 with a zero last weight); above one half a small last weight
+        /// gives a position above one, so alpha is limited to [0, 0.5] here. The unweighted formula accepts [0, 1]
+        /// because its weights are equal.
+        /// </para>
         /// </remarks>
         public static double[] Function(IList<double> weights, double alpha)
         {
             if (weights == null) throw new ArgumentNullException(nameof(weights));
             if (weights.Count == 0) throw new ArgumentException("At least one weight is required.", nameof(weights));
-            if (double.IsNaN(alpha) || alpha < 0d || alpha > 1d)
-                throw new ArgumentOutOfRangeException(nameof(alpha), "The alpha coefficient must be between 0 and 1.");
+            if (double.IsNaN(alpha) || alpha < 0d || alpha > 0.5d)
+                throw new ArgumentOutOfRangeException(nameof(alpha), "The alpha coefficient must be between 0 and 0.5.");
 
             int n = weights.Count;
             var cumulative = new double[n];
@@ -91,6 +99,8 @@ namespace Numerics.Data.Statistics
                 cumulative[i] = run;
             }
             double total = run;
+            if (double.IsInfinity(total))
+                throw new ArgumentOutOfRangeException(nameof(weights), "The total weight must be finite.");
             if (total <= 0d) throw new ArgumentException("The weights must not all be zero.", nameof(weights));
 
             double mean = total / n;
