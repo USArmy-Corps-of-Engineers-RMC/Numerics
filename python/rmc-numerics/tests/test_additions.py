@@ -113,3 +113,22 @@ def test_wilson_score_interval_known_values_and_operation_order() -> None:
     half = z * math.sqrt(p_hat * (1.0 - p_hat) / 37.25 + z2n / (4.0 * 37.25)) / denominator
     assert statistics.wilson_score_interval(12.5, 37.25, 0.8) == (max(0.0, center - half), min(1.0, center + half))
     assert statistics.wilson_score_interval(0, 10, 0.95)[0] == pytest.approx(0.0, abs=1e-15)
+
+
+def test_weibull_plotting_position_percentile_agrees_with_numpy_type_6() -> None:
+    # Arrange
+    _require("Numerics.Data.Statistics", "Statistics", "Percentile",
+             "System.Collections.Generic.IList`1[System.Double]", "System.Double",
+             "Numerics.Data.Statistics.PlottingPositions+PlottingPostionType, Numerics", "System.Boolean")
+    rng = np.random.default_rng(11)
+    data = rng.gamma(2.0, 30.0, 47)
+    k = np.linspace(1 / 48, 47 / 48, 200)
+    # Act
+    weibull = statistics.plotting_position_percentile(data, k, "weibull")
+    scalar = statistics.plotting_position_percentile(data, 0.9, "weibull")
+    hazen = statistics.plotting_position_percentile([3, 1, 4, 1, 5, 9, 2, 6], 0.9, "hazen")
+    # Assert: NumPy forms the rank as n q + q - 1, Numerics as (n + 1) q, so the two agree to rounding.
+    np.testing.assert_allclose(weibull, np.quantile(data, k, method="weibull"), rtol=1e-13, atol=0.0)
+    assert scalar == statistics.plotting_position_percentile(data, [0.9], "weibull")[0]
+    assert scalar == pytest.approx(np.quantile(data, 0.9, method="weibull"), rel=1e-13)
+    assert hazen == pytest.approx(8.1, abs=1e-12)

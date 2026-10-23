@@ -126,6 +126,42 @@ def percentile(data: Any, k: Any, weights: Any = None, data_is_sorted: bool = Fa
     return to_numpy_doubles(result).reshape(karr.shape)
 
 
+def plotting_position_percentile(data: Any, k: Any,
+                                 kind: PlottingPosition | str = PlottingPosition.WEIBULL,
+                                 data_is_sorted: bool = False) -> Any:
+    """Return percentiles interpolated between order statistics at plotting positions.
+
+    Calls ``Statistics.Percentile(IList, k, PlottingPostionType, bool)``: the i-th order
+    statistic sits at its plotting position and the percentile interpolates linearly between
+    them, held at the sample extremes outside the first and last positions. Weibull is
+    Hyndman-Fan type 6 (NumPy ``method="weibull"``), Hazen type 5 and Kaplan-Meier type 4.
+
+    Parameters
+    ----------
+    data : array_like
+        Values.
+    k : float or array_like
+        Percentiles as fractions in [0, 1].
+    kind : PlottingPosition or str, optional
+        The plotting-position formula; default Weibull.
+    data_is_sorted : bool, optional
+        Whether ``data`` is already ascending; default False.
+
+    Returns
+    -------
+    float or numpy.ndarray
+        Percentile values, shaped like ``k``.
+    """
+    stats = _stats()
+    s, kind_net = stats.Statistics, net_enum(stats.PlottingPositions.PlottingPostionType, kind)
+    values = to_net_doubles(data)
+    karr = np.asarray(k, dtype=np.float64)
+    if karr.ndim == 0:
+        return float(s.Percentile(values, float(karr), kind_net, bool(data_is_sorted)))
+    result = s.Percentile(values, to_net_doubles(karr.ravel()), kind_net, bool(data_is_sorted))
+    return to_numpy_doubles(result).reshape(karr.shape)
+
+
 def column_percentiles(data: Any, k: Any) -> tuple[np.ndarray, np.ndarray]:
     """Return the Type 7 percentiles of each column over its finite entries (``Statistics.ColumnPercentiles``).
 
@@ -372,7 +408,7 @@ def autocorrelation(data: Any, max_lag: int | None = None,
 
 __all__ = [
     "RunningStatistics", "autocorrelation", "column_percentiles", "linear_moments", "mean", "percentile",
-    "plotting_positions", "weighted_plotting_positions", "wilson_score_interval",
+    "plotting_position_percentile", "plotting_positions", "weighted_plotting_positions", "wilson_score_interval",
     "standard_deviation",
     "variance",
 ]

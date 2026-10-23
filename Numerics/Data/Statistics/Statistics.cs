@@ -693,6 +693,117 @@ namespace Numerics.Data.Statistics
         }
 
         /// <summary>
+        /// Returns the k-th percentile of a sample by linear interpolation between the order statistics placed at
+        /// the given plotting positions, for example the Weibull positions i / (n + 1) (Hyndman and Fan type 6).
+        /// </summary>
+        /// <param name="data">Sample of data.</param>
+        /// <param name="k">The k-th percentile to find, in [0,1].</param>
+        /// <param name="plottingPositionType">The plotting positions of the order statistics.</param>
+        /// <param name="dataIsSorted">Boolean value indicating if the data is sorted or not. Assumed false, not sorted, by default.</param>
+        /// <returns>The k-th percentile.</returns>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="data"/> is null.</exception>
+        /// <exception cref="ArgumentException">Thrown when <paramref name="data"/> is empty.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="k"/> is not a finite value in
+        /// [0,1], or <paramref name="plottingPositionType"/> is not a defined value.</exception>
+        /// <remarks>
+        /// <para>
+        /// The i-th order statistic x(i), i = 1..n, sits at the position p_i of
+        /// <see cref="PlottingPositions.Function(int, PlottingPositions.PlottingPostionType)"/>: (i − α)/(n + 1 − 2α)
+        /// for the alpha formulas and i / n for Kaplan-Meier. Inverting the piecewise-linear interpolation gives the
+        /// one-based rank h = (n + 1 − 2α) k + α, or h = n k for Kaplan-Meier; with j = floor(h) and w = h − j the
+        /// percentile is x(j) + w (x(j+1) − x(j)), the same interpolation form as
+        /// <see cref="Percentile(IList{double}, double, bool)"/>, and it is held at x(1) for h ≤ 1 and at x(n) for
+        /// h ≥ n. Weibull is Hyndman and Fan type 6, Hazen type 5 and Kaplan-Meier type 4; the zero-based Type 7
+        /// of <see cref="Percentile(IList{double}, double, bool)"/> is not a plotting-position formula.
+        /// </para>
+        /// <para>
+        /// <b> References: </b>
+        /// Hyndman, R. J. and Fan, Y. (1996). Sample quantiles in statistical packages. The American
+        /// Statistician, 50(4), 361-365.
+        /// </para>
+        /// </remarks>
+        public static double Percentile(IList<double> data, double k, PlottingPositions.PlottingPostionType plottingPositionType, bool dataIsSorted = false)
+        {
+            if (data == null) throw new ArgumentNullException(nameof(data));
+            int n = data.Count;
+            if (n == 0) throw new ArgumentException("Sequence contains no elements.", nameof(data));
+            if (double.IsNaN(k) || k < 0.0 || k > 1.0) throw new ArgumentOutOfRangeException(nameof(k), "k must be in [0,1].");
+            double h = PlottingPositionRank(n, k, plottingPositionType);
+            var sortedData = dataIsSorted ? data : data.OrderBy(x => x).ToArray();
+            return InterpolateRank(sortedData, h);
+        }
+
+        /// <summary>
+        /// Returns an array of percentiles of a sample by linear interpolation between the order statistics placed
+        /// at the given plotting positions.
+        /// </summary>
+        /// <param name="data">Sample of data.</param>
+        /// <param name="k">The list of k-th percentiles to find, each in [0,1].</param>
+        /// <param name="plottingPositionType">The plotting positions of the order statistics.</param>
+        /// <param name="dataIsSorted">Boolean value indicating if the data is sorted or not. Assumed false, not sorted, by default.</param>
+        /// <returns>The k-th percentiles.</returns>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="data"/> or <paramref name="k"/> is null.</exception>
+        /// <exception cref="ArgumentException">Thrown when <paramref name="k"/> has entries and <paramref name="data"/> is empty.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when any entry of <paramref name="k"/> is not a finite
+        /// value in [0,1], or <paramref name="plottingPositionType"/> is not a defined value.</exception>
+        /// <remarks>
+        /// Each value equals <see cref="Percentile(IList{double}, double, PlottingPositions.PlottingPostionType, bool)"/>;
+        /// the data are sorted once.
+        /// </remarks>
+        public static double[] Percentile(IList<double> data, IList<double> k, PlottingPositions.PlottingPostionType plottingPositionType, bool dataIsSorted = false)
+        {
+            if (data == null) throw new ArgumentNullException(nameof(data));
+            if (k == null) throw new ArgumentNullException(nameof(k));
+            var result = new double[k.Count];
+            if (k.Count == 0) return result;
+            var sortedData = dataIsSorted ? data : data.OrderBy(x => x).ToArray();
+            for (int i = 0; i < k.Count; i++)
+                result[i] = Percentile(sortedData, k[i], plottingPositionType, true);
+            return result;
+        }
+
+        /// <summary>
+        /// Returns the one-based rank h at which the plotting-position interpolation reaches probability k.
+        /// </summary>
+        /// <param name="n">The sample size.</param>
+        /// <param name="k">The probability, in [0,1].</param>
+        /// <param name="plottingPositionType">The plotting positions of the order statistics.</param>
+        /// <returns>(n + 1 − 2α) k + α for the alpha formulas; n k for Kaplan-Meier.</returns>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="plottingPositionType"/> is not a defined value.</exception>
+        private static double PlottingPositionRank(int n, double k, PlottingPositions.PlottingPostionType plottingPositionType)
+        {
+            double alpha;
+            switch (plottingPositionType)
+            {
+                case PlottingPositions.PlottingPostionType.Weibull: alpha = 0d; break;
+                case PlottingPositions.PlottingPostionType.Median: alpha = 0.3175d; break;
+                case PlottingPositions.PlottingPostionType.Blom: alpha = 0.375d; break;
+                case PlottingPositions.PlottingPostionType.Cunnane: alpha = 0.4d; break;
+                case PlottingPositions.PlottingPostionType.Gringorten: alpha = 0.44d; break;
+                case PlottingPositions.PlottingPostionType.Hazen: alpha = 0.5d; break;
+                case PlottingPositions.PlottingPostionType.KaplanMeier: return n * k;
+                default: throw new ArgumentOutOfRangeException(nameof(plottingPositionType), "Unknown plotting position type.");
+            }
+            return (n + 1 - 2d * alpha) * k + alpha;
+        }
+
+        /// <summary>
+        /// Interpolates sorted data at a one-based rank, holding the end values outside [1, n].
+        /// </summary>
+        /// <param name="sortedData">The ascending data.</param>
+        /// <param name="h">The one-based rank.</param>
+        /// <returns>x(j) + w (x(j+1) − x(j)) with j = floor(h) and w = h − j.</returns>
+        private static double InterpolateRank(IList<double> sortedData, double h)
+        {
+            int n = sortedData.Count;
+            if (h <= 1d) return sortedData[0];
+            if (h >= n) return sortedData[n - 1];
+            int lower = (int)Math.Floor(h);
+            double w = h - lower;
+            return sortedData[lower - 1] + w * (sortedData[lower] - sortedData[lower - 1]);
+        }
+
+        /// <summary>
         /// Returns the percentiles of each column of a matrix over its finite entries.
         /// </summary>
         /// <param name="data">The samples, one row per member and one column per variable, for example one row
