@@ -329,8 +329,13 @@ namespace Numerics.Distributions
         /// count. This member lets a caller evaluate a sampled parameter ensemble in one call rather than one call
         /// per row.
         /// </para>
+        /// <para>
+        /// A family may override this member with a faster evaluation (for example, computing each probability's
+        /// transform once for all rows) only when its results stay bitwise identical to this per-row loop;
+        /// <see cref="GeneralizedExtremeValue"/> does.
+        /// </para>
         /// </remarks>
-        public double[,] ParameterSetQuantiles(double[,] parameterSets, IList<double> probabilities, out bool[] valid)
+        public virtual double[,] ParameterSetQuantiles(double[,] parameterSets, IList<double> probabilities, out bool[] valid)
         {
             if (parameterSets == null) throw new ArgumentNullException(nameof(parameterSets));
             if (probabilities == null) throw new ArgumentNullException(nameof(probabilities));

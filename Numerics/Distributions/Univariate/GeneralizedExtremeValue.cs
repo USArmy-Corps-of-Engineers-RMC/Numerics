@@ -699,12 +699,96 @@ namespace Numerics.Distributions
             // Validate parameters
             if (_parametersValid == false)
                 ValidateParameters(Xi, Alpha, Kappa, true);
-            double logarithm = Math.Log(-Math.Log(probability));
-            double product = Kappa * logarithm;
-            double unitQuantile = double.IsNegativeInfinity(product) ? 1 / Kappa : DistributionNumerics.ScaledExprelProduct(1, -logarithm, product);
-            double displacement = double.IsNegativeInfinity(product) ? Alpha / Kappa : DistributionNumerics.ScaledExprelProduct(Alpha, -logarithm, product);
+            return InteriorQuantile(Xi, Alpha, Kappa, Math.Log(-Math.Log(probability)));
+        }
+
+        /// <summary>
+        /// The quantile at an interior probability p, given the Gumbel logarithm log(−log p).
+        /// </summary>
+        /// <param name="xi">The location parameter ξ.</param>
+        /// <param name="alpha">The scale parameter α.</param>
+        /// <param name="kappa">The shape parameter κ.</param>
+        /// <param name="logarithm">log(−log p) for a probability p strictly between zero and one.</param>
+        /// <returns>The quantile ξ + α (1 − e^(κ log(−log p)))/κ, evaluated through the scaled divided exponential.</returns>
+        /// <remarks>
+        /// Shared by <see cref="InverseCDF(double)"/> and <see cref="ParameterSetQuantiles(double[,], IList{double}, out bool[])"/>,
+        /// so both evaluate exactly the same operations.
+        /// </remarks>
+        private static double InteriorQuantile(double xi, double alpha, double kappa, double logarithm)
+        {
+            double product = kappa * logarithm;
+            double unitQuantile = double.IsNegativeInfinity(product) ? 1 / kappa : DistributionNumerics.ScaledExprelProduct(1, -logarithm, product);
+            double displacement = double.IsNegativeInfinity(product) ? alpha / kappa : DistributionNumerics.ScaledExprelProduct(alpha, -logarithm, product);
             return double.IsInfinity(displacement) && Tools.IsFinite(unitQuantile)
-                ? Alpha * (Xi / Alpha + unitQuantile) : Xi + displacement;
+                ? alpha * (xi / alpha + unitQuantile) : xi + displacement;
+        }
+
+        /// <inheritdoc/>
+        /// <remarks>
+        /// <para>
+        /// The values are bitwise those of the base member (the per-row loop <c>ValidateParameters</c> →
+        /// <c>SetParameters</c> → <c>InverseCDF</c> on a clone): a row is valid exactly when
+        /// <see cref="ValidateParameters(double, double, double, bool)"/> accepts it, and each interior probability
+        /// is evaluated by the same private kernel <see cref="InverseCDF(double)"/> uses. The Gumbel logarithm
+        /// log(−log p) of each probability is computed once instead of once per row, and the parameters are read
+        /// from the row without being applied to the clone. Probabilities of exactly zero or one, and invalid
+        /// probabilities, go through <see cref="InverseCDF(double)"/> on the clone with the row applied, so the
+        /// support limits and the exception are those of the base member.
+        /// </para>
+        /// <para>
+        /// The rows are evaluated serially in order, so the result does not depend on the machine or the thread
+        /// count.
+        /// </para>
+        /// </remarks>
+        public override double[,] ParameterSetQuantiles(double[,] parameterSets, IList<double> probabilities, out bool[] valid)
+        {
+            if (parameterSets == null) throw new ArgumentNullException(nameof(parameterSets));
+            if (probabilities == null) throw new ArgumentNullException(nameof(probabilities));
+            int count = parameterSets.GetLength(0);
+            int arity = NumberOfParameters;
+            if (parameterSets.GetLength(1) != arity)
+                throw new ArgumentException("Each parameter set must have exactly " + arity + " parameters.", nameof(parameterSets));
+
+            int m = probabilities.Count;
+            var logarithms = new double[m];
+            var interior = new bool[m];
+            for (int k = 0; k < m; k++)
+            {
+                double probability = probabilities[k];
+                interior[k] = probability > 0.0d && probability < 1.0d;
+                if (interior[k]) logarithms[k] = Math.Log(-Math.Log(probability));
+            }
+
+            var result = new double[count, m];
+            valid = new bool[count];
+            var probe = (GeneralizedExtremeValue)Clone();
+            for (int i = 0; i < count; i++)
+            {
+                double xi = parameterSets[i, 0], alpha = parameterSets[i, 1], kappa = parameterSets[i, 2];
+                valid[i] = ValidateParameters(xi, alpha, kappa, false) is null;
+                if (!valid[i])
+                {
+                    for (int k = 0; k < m; k++)
+                        result[i, k] = double.NaN;
+                    continue;
+                }
+                bool applied = false;
+                for (int k = 0; k < m; k++)
+                {
+                    if (interior[k])
+                    {
+                        result[i, k] = InteriorQuantile(xi, alpha, kappa, logarithms[k]);
+                        continue;
+                    }
+                    if (!applied)
+                    {
+                        probe.SetParameters(xi, alpha, kappa);
+                        applied = true;
+                    }
+                    result[i, k] = probe.InverseCDF(probabilities[k]);
+                }
+            }
+            return result;
         }
 
         /// <summary>

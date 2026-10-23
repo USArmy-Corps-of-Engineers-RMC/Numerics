@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Numerics.Distributions;
 
@@ -74,6 +75,62 @@ namespace Distributions.Univariate
                 { double.NaN, 1.3, -0.1 },
             };
             AssertMatchesPerRowLoop(new GeneralizedExtremeValue(4.8294, 1.2409, -0.1136), parameterSets, 2);
+        }
+
+        /// <summary>
+        /// The GEV override (the probability transform computed once for all rows) stays bitwise identical to
+        /// the per-row loop over many random rows, extreme and tiny shapes, and probabilities at and next to the
+        /// ends of the support.
+        /// </summary>
+        [TestMethod]
+        public void GeneralizedExtremeValueOverrideMatchesPerRowLoopOverManyRows()
+        {
+            var random = new Random(20261023);
+            int rows = 2000;
+            var parameterSets = new double[rows, 3];
+            for (int i = 0; i < rows; i++)
+            {
+                parameterSets[i, 0] = 100 + 50 * (random.NextDouble() - 0.5);
+                parameterSets[i, 1] = 20 * Math.Exp(random.NextDouble() - 0.5);
+                parameterSets[i, 2] = 0.8 * (random.NextDouble() - 0.5);
+            }
+            double[] shapes = { 0.0, -0.0, 1E-300, -1E-300, 1E-17, -1E-17, 5.0, -5.0, 50.0, -50.0 };
+            for (int s = 0; s < shapes.Length; s++) parameterSets[s, 2] = shapes[s];
+            parameterSets[20, 0] = 1E300;
+            parameterSets[21, 1] = 1E300;
+            parameterSets[22, 1] = 0.0;
+            parameterSets[23, 2] = double.PositiveInfinity;
+
+            var probabilities = new[] { 0.0, double.Epsilon, 1E-300, 1E-12, 0.01, 0.5, 0.99, 1.0 - 1E-12, 1.0 - 1E-16, 1.0 };
+            var distribution = new GeneralizedExtremeValue(100, 20, -0.1);
+            var quantiles = distribution.ParameterSetQuantiles(parameterSets, probabilities, out bool[] valid);
+
+            var probe = new GeneralizedExtremeValue();
+            for (int i = 0; i < rows; i++)
+            {
+                var row = new[] { parameterSets[i, 0], parameterSets[i, 1], parameterSets[i, 2] };
+                Assert.AreEqual(probe.ValidateParameters(row, false) is null, valid[i], $"row {i}");
+                if (!valid[i])
+                {
+                    for (int k = 0; k < probabilities.Length; k++) Assert.IsTrue(double.IsNaN(quantiles[i, k]));
+                    continue;
+                }
+                probe.SetParameters(row);
+                for (int k = 0; k < probabilities.Length; k++)
+                {
+                    double expected = probe.InverseCDF(probabilities[k]);
+                    Assert.AreEqual(BitConverter.DoubleToInt64Bits(expected), BitConverter.DoubleToInt64Bits(quantiles[i, k]),
+                        $"row {i}, p {probabilities[k]:R}: expected {expected:R}, actual {quantiles[i, k]:R}");
+                }
+            }
+            Assert.AreEqual(2, valid.Count(v => !v));
+
+            // An invalid probability throws as the per-row InverseCDF does, and only when a row is valid.
+            Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => distribution.ParameterSetQuantiles(parameterSets, new[] { 0.5, 1.5 }, out _));
+            Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => distribution.ParameterSetQuantiles(parameterSets, new[] { double.NaN }, out _));
+            var none = distribution.ParameterSetQuantiles(new double[,] { { 1.0, -1.0, 0.0 } }, new[] { 1.5 }, out bool[] noneValid);
+            Assert.IsFalse(noneValid[0]);
+            Assert.IsTrue(double.IsNaN(none[0, 0]));
         }
 
         /// <summary>Log-Pearson Type III rows with the clone's non-default base carried to every row.</summary>
