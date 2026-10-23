@@ -158,6 +158,27 @@ def column_percentiles(data: Any, k: Any) -> tuple[np.ndarray, np.ndarray]:
     return result, to_numpy_ints(excluded)
 
 
+def wilson_score_interval(successes: float, trials: float, confidence_level: float) -> tuple[float, float]:
+    """Return the Wilson score interval of a binomial proportion (``Statistics.WilsonScoreInterval``).
+
+    Parameters
+    ----------
+    successes : float
+        The number of successes, in [0, ``trials``]; may be fractional.
+    trials : float
+        The number of trials (positive).
+    confidence_level : float
+        The two-sided level in (0, 1).
+
+    Returns
+    -------
+    tuple of float
+        The lower and upper bounds, clamped to [0, 1].
+    """
+    bounds = _stats().Statistics.WilsonScoreInterval(float(successes), float(trials), float(confidence_level))
+    return float(bounds.Item1), float(bounds.Item2)
+
+
 def linear_moments(data: Any) -> np.ndarray:
     """Return the sample L-moments through ``Statistics.LinearMoments``.
 
@@ -351,7 +372,7 @@ def autocorrelation(data: Any, max_lag: int | None = None,
 
 __all__ = [
     "RunningStatistics", "autocorrelation", "column_percentiles", "linear_moments", "mean", "percentile",
-    "plotting_positions", "weighted_plotting_positions",
+    "plotting_positions", "weighted_plotting_positions", "wilson_score_interval",
     "standard_deviation",
     "variance",
 ]

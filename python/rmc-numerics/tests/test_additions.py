@@ -93,3 +93,23 @@ def test_weighted_plotting_positions_reduce_to_the_unweighted_formula() -> None:
     expected = (cumulative - 0.44 * weights) / (total + (1.0 - 2.0 * 0.44) * (total / weights.size))
     np.testing.assert_allclose(positions, expected, rtol=1e-15, atol=0.0)
     np.testing.assert_array_equal(unit.view(np.uint64), statistics.plotting_positions(40, 0.44).view(np.uint64))
+
+
+def test_wilson_score_interval_known_values_and_operation_order() -> None:
+    # Arrange
+    _require("Numerics.Data.Statistics", "Statistics", "WilsonScoreInterval")
+    import math
+
+    # Act
+    lower, upper = statistics.wilson_score_interval(5, 20, 0.9)
+    # Assert (SciPy binomtest(5, 20).proportion_ci(0.9, method="wilson"))
+    assert lower == pytest.approx(0.12737716852035774, abs=1e-12)
+    assert upper == pytest.approx(0.4322017501601245, abs=1e-12)
+    z = float(distributions.Normal(0.0, 1.0).inverse_cdf(0.5 + 0.8 / 2.0))
+    p_hat = 12.5 / 37.25
+    z2n = z * z / 37.25
+    denominator = 1.0 + z2n
+    center = (p_hat + z2n / 2.0) / denominator
+    half = z * math.sqrt(p_hat * (1.0 - p_hat) / 37.25 + z2n / (4.0 * 37.25)) / denominator
+    assert statistics.wilson_score_interval(12.5, 37.25, 0.8) == (max(0.0, center - half), min(1.0, center + half))
+    assert statistics.wilson_score_interval(0, 10, 0.95)[0] == pytest.approx(0.0, abs=1e-15)

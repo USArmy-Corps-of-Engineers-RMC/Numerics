@@ -776,6 +776,46 @@ namespace Numerics.Data.Statistics
         }
 
         /// <summary>
+        /// Returns the Wilson score interval for a binomial proportion.
+        /// </summary>
+        /// <param name="successes">The number of successes, in [0, <paramref name="trials"/>].</param>
+        /// <param name="trials">The number of trials; must be positive.</param>
+        /// <param name="confidenceLevel">The two-sided confidence level, in (0, 1); for example 0.9.</param>
+        /// <returns>The lower and upper bounds, clamped to [0, 1].</returns>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="trials"/> is not positive and
+        /// finite, <paramref name="successes"/> is outside [0, <paramref name="trials"/>], or
+        /// <paramref name="confidenceLevel"/> is not strictly between zero and one.</exception>
+        /// <remarks>
+        /// <para>
+        /// With p̂ = s / n and z the standard normal quantile at 0.5 + level / 2, the center is
+        /// (p̂ + z²/2n) / (1 + z²/n) and the half-width is z √(p̂(1 − p̂)/n + z²/4n²) / (1 + z²/n), evaluated in that
+        /// order with z² / n formed once. The counts may be fractional, for example weighted counts.
+        /// </para>
+        /// <para>
+        /// <b> References: </b>
+        /// Wilson, E. B. (1927). Probable inference, the law of succession, and statistical inference. Journal
+        /// of the American Statistical Association, 22(158), 209-212.
+        /// </para>
+        /// </remarks>
+        public static (double Lower, double Upper) WilsonScoreInterval(double successes, double trials, double confidenceLevel)
+        {
+            if (double.IsNaN(trials) || double.IsInfinity(trials) || trials <= 0d)
+                throw new ArgumentOutOfRangeException(nameof(trials), "The number of trials must be positive and finite.");
+            if (double.IsNaN(successes) || successes < 0d || successes > trials)
+                throw new ArgumentOutOfRangeException(nameof(successes), "The number of successes must be between zero and the number of trials.");
+            if (double.IsNaN(confidenceLevel) || confidenceLevel <= 0d || confidenceLevel >= 1d)
+                throw new ArgumentOutOfRangeException(nameof(confidenceLevel), "The confidence level must be between 0 and 1.");
+
+            double z = new Distributions.Normal(0.0, 1.0).InverseCDF(0.5 + confidenceLevel / 2.0);
+            double pHat = successes / trials;
+            double zSquaredOverN = z * z / trials;
+            double denominator = 1.0 + zSquaredOverN;
+            double center = (pHat + zSquaredOverN / 2.0) / denominator;
+            double halfWidth = z * Math.Sqrt(pHat * (1.0 - pHat) / trials + zSquaredOverN / (4.0 * trials)) / denominator;
+            return (Math.Max(0.0, center - halfWidth), Math.Min(1.0, center + halfWidth));
+        }
+
+        /// <summary>
         /// Estimates the 5-number summary {min, 25th-percentile, 50th-percentile, 75th-percentile, max} from a sample of data.
         /// </summary>
         /// <param name="data">Sample of data, no sorting is assumed.</param>
