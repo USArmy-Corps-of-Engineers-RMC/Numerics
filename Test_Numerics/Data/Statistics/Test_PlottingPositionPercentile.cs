@@ -61,6 +61,36 @@ namespace Data.Statistics
             }
         }
 
+        /// <summary>
+        /// Hand-computed values for the Gringorten and Filliben median formulas, the two-observation boundary, the
+        /// extremes at k = 0 and 1 for every formula, and agreement of sorted and unsorted scalar calls.
+        /// </summary>
+        [TestMethod]
+        public void HandValuesAndBoundaries()
+        {
+            // Gringorten: h = (9 − 0.88) k + 0.44; k = 0.5 → h = 4.5 → 3.5; k = 0.9 → h = 7.748 → 6 + 0.748 · 3.
+            Assert.AreEqual(3.5, Stats.Percentile(Sample, 0.5, PPType.Gringorten), 1E-12);
+            Assert.AreEqual(8.244, Stats.Percentile(Sample, 0.9, PPType.Gringorten), 1E-12);
+            // Median (alpha = 0.3175): k = 0.25 → h = 8.365 · 0.25 + 0.3175 = 2.40875 → 1 + 0.40875 · 1.
+            Assert.AreEqual(1.40875, Stats.Percentile(Sample, 0.25, PPType.Median), 1E-12);
+
+            var pair = new[] { 10.0, 2.0 };
+            Assert.AreEqual(6.0, Stats.Percentile(pair, 0.5, PPType.Weibull), 1E-12);
+            Assert.AreEqual(2.0, Stats.Percentile(pair, 1.0 / 3.0, PPType.Weibull), 1E-12);
+            Assert.AreEqual(10.0, Stats.Percentile(pair, 0.9, PPType.Weibull));
+
+            var sorted = (double[])Sample.Clone();
+            Array.Sort(sorted);
+            foreach (PPType type in Enum.GetValues(typeof(PPType)))
+            {
+                Assert.AreEqual(1.0, Stats.Percentile(Sample, 0.0, type), $"{type}");
+                Assert.AreEqual(9.0, Stats.Percentile(Sample, 1.0, type), $"{type}");
+                foreach (double k in new[] { 0.13, 0.5, 0.87 })
+                    Assert.AreEqual(BitConverter.DoubleToInt64Bits(Stats.Percentile(Sample, k, type)),
+                        BitConverter.DoubleToInt64Bits(Stats.Percentile(sorted, k, type, true)), $"{type}, k = {k}");
+            }
+        }
+
         /// <summary>A single value is returned for every k; invalid inputs are refused.</summary>
         [TestMethod]
         public void EdgeCasesAndArgumentErrors()
