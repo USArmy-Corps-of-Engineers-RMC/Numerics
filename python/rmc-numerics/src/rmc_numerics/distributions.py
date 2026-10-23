@@ -25,7 +25,7 @@ from rmc_numerics.enums import (
     SortOrder,
     Transform,
 )
-from rmc_numerics.marshal import to_net_doubles, to_net_matrix, to_numpy_doubles, to_numpy_matrix
+from rmc_numerics.marshal import to_net_doubles, to_net_matrix, to_numpy_bools, to_numpy_doubles, to_numpy_matrix
 
 
 def _nd() -> Any:
@@ -404,8 +404,7 @@ class UnivariateDistribution:
             raise NotImplementedError("The loaded Numerics assembly has no UnivariateDistributionBase."
                                       "ParameterSetQuantiles; it needs RMC.Numerics 2.3 or later.")
         quantiles, valid = member(to_net_matrix(rows), to_net_doubles(p), None)
-        flags = np.fromiter((bool(flag) for flag in valid), dtype=bool, count=rows.shape[0])
-        return to_numpy_matrix(quantiles), flags
+        return to_numpy_matrix(quantiles), to_numpy_bools(valid)
 
     def parameter_set_validity(self, parameter_sets: Any) -> np.ndarray:
         """Return which parameter sets this family accepts (``ValidateParameters(row, false)`` is null).
