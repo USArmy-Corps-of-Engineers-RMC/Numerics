@@ -601,7 +601,7 @@ namespace Numerics.Distributions
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="sample"/> is null.</exception>
         /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="location"/> is not finite, the
         /// sample has fewer than two observations, an observation is not finite or lies below the location, or
-        /// every observation equals the location.</exception>
+        /// the observations are all equal (a constant sample has no finite maximum-likelihood scale and shape).</exception>
         /// <remarks>
         /// <para>
         /// The log-likelihood in (α, κ) is maximized by Nelder-Mead, as in <see cref="MLE(IList{double})"/>, which
@@ -625,16 +625,18 @@ namespace Numerics.Distributions
             if (sample.Count < 2)
                 throw new ArgumentOutOfRangeException(nameof(sample), "At least two observations are required.");
             double excessSum = 0d;
+            bool distinct = false;
             for (int i = 0; i < sample.Count; i++)
             {
+                distinct |= sample[i] != sample[0];
                 if (!Tools.IsFinite(sample[i]))
                     throw new ArgumentOutOfRangeException(nameof(sample), "Observations must be finite.");
                 if (sample[i] < location)
                     throw new ArgumentOutOfRangeException(nameof(sample), "Every observation must be at or above the location.");
                 excessSum += sample[i] - location;
             }
-            if (excessSum <= 0d)
-                throw new ArgumentOutOfRangeException(nameof(sample), "At least one observation must exceed the location.");
+            if (!distinct)
+                throw new ArgumentOutOfRangeException(nameof(sample), "A constant sample cannot be fitted.");
             double meanExcess = excessSum / sample.Count;
 
             double logLH(double[] x)

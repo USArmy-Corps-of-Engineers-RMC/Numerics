@@ -224,6 +224,41 @@ namespace Distributions.Univariate
             Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => GPA.MLE(new[] { 1d, -0.5 }, 0d));
             Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => GPA.MLE(new[] { 1d, double.PositiveInfinity }, 0d));
             Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => GPA.MLE(new[] { 3d, 3d }, 3d));
+            Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => GPA.MLE(new[] { 5d, 5d, 5d }, 0d));
+            Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => GPA.MLE(new[] { 1d, 2d }, double.NegativeInfinity));
+            Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => GPA.MLE(new[] { 1d, double.NaN }, 0d));
+        }
+
+        /// <summary>
+        /// Test the known-location fit at its boundaries: two observations, observations exactly at the location,
+        /// and a sample whose linear-moment start leaves an observation outside the support (the exponential
+        /// start is then used). Each fit is valid, keeps the location, and is not worse than its start.
+        /// </summary>
+        [TestMethod()]
+        public void Test_GPA_MLE_FixedLocation_Boundaries()
+        {
+            var cases = new (double[] Sample, double Location)[]
+            {
+                (new[] { 1d, 3d }, 0d),
+                (new[] { 0d, 0d, 0.5, 2d, 4.5, 0d, 1.25 }, 0d),
+                // Two tight clusters: the linear-moment start is κ = 4.07, α = 36.2, whose upper endpoint
+                // α/κ = 8.91 lies below the largest observations, so the exponential start is used.
+                (new[] { 5d, 5.1, 5.2, 5.3, 9.0, 9.1, 9.2, 9.3 }, 0d),
+            };
+            foreach (var (sample, location) in cases)
+            {
+                var parameters = new GeneralizedPareto().MLE(sample, location);
+                Assert.AreEqual(location, parameters[0]);
+                var fitted = new GeneralizedPareto(parameters[0], parameters[1], parameters[2]);
+                Assert.IsTrue(fitted.ParametersValid);
+                double logLikelihood = fitted.LogLikelihood(sample);
+                Assert.IsFalse(double.IsNaN(logLikelihood) || double.IsInfinity(logLikelihood));
+                double mean = 0;
+                foreach (double x in sample) mean += x - location;
+                mean /= sample.Length;
+                var exponential = new GeneralizedPareto(location, mean, 0d);
+                Assert.IsGreaterThanOrEqualTo(exponential.LogLikelihood(sample) - 1E-9, logLikelihood);
+            }
         }
 
         /// <summary>
