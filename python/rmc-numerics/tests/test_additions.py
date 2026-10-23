@@ -152,3 +152,25 @@ def test_weighted_mean_curve_reproduces_the_unweighted_curve_at_equal_weights() 
     # Assert
     np.testing.assert_array_equal(equal.view(np.uint64), plain.view(np.uint64))
     assert not np.array_equal(weighted, plain)
+
+
+def test_the_added_wrappers_refuse_invalid_input_as_value_errors() -> None:
+    # Arrange
+    _require("Numerics.Data.Statistics", "Statistics", "WilsonScoreInterval")
+    from rmc_numerics.bootstrap import UncertaintyAnalysisResults
+    from rmc_numerics.errors import net_errors
+
+    members = [distributions.Normal(0.0, 1.0), distributions.Normal(1.0, 1.0)]
+    calls = [
+        lambda: statistics.column_percentiles(np.ones((3, 2)), [1.5]),
+        lambda: distributions.GeneralizedPareto.fit_known_location([1.0, 2.0, -1.0], 0.0),
+        lambda: statistics.weighted_plotting_positions([1.0, -1.0], 0.5),
+        lambda: statistics.weighted_plotting_positions([1.0, 1.0], 0.75),
+        lambda: statistics.wilson_score_interval(11, 10, 0.9),
+        lambda: statistics.plotting_position_percentile([1.0, 2.0], 1.5, "weibull"),
+        lambda: UncertaintyAnalysisResults().process_mean_curve(members, [0.5], weights=[1.0, -1.0]),
+    ]
+    # Act / Assert
+    for call in calls:
+        with pytest.raises(ValueError), net_errors():
+            call()
