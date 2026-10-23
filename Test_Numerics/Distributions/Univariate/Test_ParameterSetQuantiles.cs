@@ -133,6 +133,37 @@ namespace Distributions.Univariate
             Assert.IsTrue(double.IsNaN(none[0, 0]));
         }
 
+        /// <summary>
+        /// The GEV override handles empty inputs as the base member does, never modifies the calling instance
+        /// (even one whose own parameters are invalid), and leaves the scalar InverseCDF on its known values.
+        /// </summary>
+        [TestMethod]
+        public void GeneralizedExtremeValueOverrideEdgeCases()
+        {
+            var distribution = new GeneralizedExtremeValue(4.8294, 1.2409, -0.1136);
+            var noRows = distribution.ParameterSetQuantiles(new double[0, 3], Probabilities, out bool[] noRowsValid);
+            Assert.AreEqual(0, noRows.GetLength(0));
+            Assert.AreEqual(Probabilities.Length, noRows.GetLength(1));
+            Assert.IsEmpty(noRowsValid);
+            var noProbabilities = distribution.ParameterSetQuantiles(new double[,] { { 4.0, 1.0, 0.1 }, { 4.0, 0.0, 0.1 } }, new double[0], out bool[] valid);
+            Assert.AreEqual(0, noProbabilities.GetLength(1));
+            CollectionAssert.AreEqual(new[] { true, false }, valid);
+            CollectionAssert.AreEqual(new[] { 4.8294, 1.2409, -0.1136 }, distribution.GetParameters);
+
+            var invalidSelf = new GeneralizedExtremeValue(4.0, -1.0, 0.0);
+            var fromInvalid = invalidSelf.ParameterSetQuantiles(new double[,] { { 4.0, 1.0, 0.0 } }, new[] { 0.5 }, out bool[] fromInvalidValid);
+            Assert.IsTrue(fromInvalidValid[0]);
+            Assert.AreEqual(BitConverter.DoubleToInt64Bits(new GeneralizedExtremeValue(4.0, 1.0, 0.0).InverseCDF(0.5)), BitConverter.DoubleToInt64Bits(fromInvalid[0, 0]));
+            Assert.IsFalse(invalidSelf.ParametersValid);
+
+            // Gumbel limit and a closed form: at κ = 0 the quantile is ξ − α ln(−ln p).
+            var gumbel = new GeneralizedExtremeValue(10.0, 2.0, 0.0);
+            Assert.AreEqual(10.0 - 2.0 * Math.Log(-Math.Log(0.9)), gumbel.InverseCDF(0.9), 1E-12);
+            // κ ≠ 0: ξ + α (1 − (−ln p)^κ) / κ.
+            var gev = new GeneralizedExtremeValue(10.0, 2.0, 0.2);
+            Assert.AreEqual(10.0 + 2.0 * (1.0 - Math.Pow(-Math.Log(0.9), 0.2)) / 0.2, gev.InverseCDF(0.9), 1E-12);
+        }
+
         /// <summary>Log-Pearson Type III rows with the clone's non-default base carried to every row.</summary>
         [TestMethod]
         public void LogPearsonTypeIIIMatchesPerRowLoopAndCarriesBase()
