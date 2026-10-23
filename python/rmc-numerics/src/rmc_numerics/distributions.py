@@ -651,6 +651,25 @@ class GeneralizedPareto(UnivariateDistribution):
     def __init__(self, location: float, scale: float, shape: float) -> None:
         super().__init__(_nd().GeneralizedPareto(float(location), float(scale), float(shape)))
 
+    @classmethod
+    def fit_known_location(cls, sample: Any, location: float) -> GeneralizedPareto:
+        """Fit the scale and shape by maximum likelihood at a known location (``MLE(sample, location)``).
+
+        Parameters
+        ----------
+        sample : array_like
+            Observations, each at or above ``location`` (for example the peaks over a threshold).
+        location : float
+            The known location ξ (for example the threshold).
+
+        Returns
+        -------
+        GeneralizedPareto
+            The fitted distribution, with location ``location``.
+        """
+        parameters = to_numpy_doubles(_nd().GeneralizedPareto().MLE(to_net_doubles(sample), float(location)))
+        return cls(float(parameters[0]), float(parameters[1]), float(parameters[2]))
+
 
 @_register("Gumbel")
 class Gumbel(UnivariateDistribution):

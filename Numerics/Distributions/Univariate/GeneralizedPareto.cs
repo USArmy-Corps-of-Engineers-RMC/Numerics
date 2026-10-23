@@ -591,6 +591,80 @@ namespace Numerics.Distributions
             return [xi, solver.BestParameterSet.Values[0], solver.BestParameterSet.Values[1]];
         }
 
+        /// <summary>
+        /// Estimates the scale and shape by maximum likelihood with the location fixed at a known value, for
+        /// example the threshold of a peaks-over-threshold series.
+        /// </summary>
+        /// <param name="sample">The observations, each at or above <paramref name="location"/>.</param>
+        /// <param name="location">The known location parameter ξ (Xi).</param>
+        /// <returns>The parameters {ξ, α, κ}, with ξ equal to <paramref name="location"/>.</returns>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="sample"/> is null.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="location"/> is not finite, the
+        /// sample has fewer than two observations, an observation is not finite or lies below the location, or
+        /// every observation equals the location.</exception>
+        /// <remarks>
+        /// <para>
+        /// The log-likelihood in (α, κ) is maximized by Nelder-Mead, as in <see cref="MLE(IList{double})"/>, which
+        /// instead fixes ξ at the sample minimum. The starting point is the linear-moment estimate with known
+        /// location, κ = (λ1 − ξ)/λ2 − 2 and α = (1 + κ)(λ1 − ξ) (Hosking and Wallis, 1997). When that point is not
+        /// finite, lies outside the bounds, or leaves an observation outside the support, the exponential
+        /// estimate κ = 0, α = mean(x − ξ) is used instead, which is always feasible. The scale is bounded by
+        /// [machine epsilon, 10^(ceil(log10 α0) + 1)] and the shape by [−10, 10], the bounds the three-parameter
+        /// fit uses.
+        /// </para>
+        /// <para>
+        /// κ is the Hosking shape: a positive κ gives a bounded upper tail. In the (μ, σ, c) parameterization
+        /// used by many other libraries, μ = ξ, σ = α and c = −κ.
+        /// </para>
+        /// </remarks>
+        public double[] MLE(IList<double> sample, double location)
+        {
+            if (sample == null) throw new ArgumentNullException(nameof(sample));
+            if (double.IsNaN(location) || double.IsInfinity(location))
+                throw new ArgumentOutOfRangeException(nameof(location), "The location must be finite.");
+            if (sample.Count < 2)
+                throw new ArgumentOutOfRangeException(nameof(sample), "At least two observations are required.");
+            double excessSum = 0d;
+            for (int i = 0; i < sample.Count; i++)
+            {
+                if (!Tools.IsFinite(sample[i]))
+                    throw new ArgumentOutOfRangeException(nameof(sample), "Observations must be finite.");
+                if (sample[i] < location)
+                    throw new ArgumentOutOfRangeException(nameof(sample), "Every observation must be at or above the location.");
+                excessSum += sample[i] - location;
+            }
+            if (excessSum <= 0d)
+                throw new ArgumentOutOfRangeException(nameof(sample), "At least one observation must exceed the location.");
+            double meanExcess = excessSum / sample.Count;
+
+            double logLH(double[] x)
+            {
+                var GPA = new GeneralizedPareto();
+                GPA.SetParameters(new[] { location, x[0], x[1] });
+                return GPA.LogLikelihood(sample);
+            }
+
+            // Start from the known-location linear-moment estimate, else from the exponential estimate.
+            var moments = Statistics.LinearMoments(sample);
+            double kappa0 = (moments[0] - location) / moments[1] - 2d;
+            double alpha0 = (1d + kappa0) * (moments[0] - location);
+            bool feasible = Tools.IsFinite(kappa0) && Tools.IsFinite(alpha0) && alpha0 > 0d && kappa0 > -10d && kappa0 < 10d;
+            if (feasible && !Tools.IsFinite(logLH(new[] { alpha0, kappa0 }))) feasible = false;
+            if (!feasible)
+            {
+                kappa0 = 0d;
+                alpha0 = meanExcess;
+            }
+
+            var initials = new[] { alpha0, kappa0 };
+            var lowers = new[] { Tools.DoubleMachineEpsilon, -10d };
+            var uppers = new[] { Math.Pow(10d, Math.Ceiling(Math.Log10(alpha0) + 1d)), 10d };
+            var solver = new NelderMead(logLH, 2, initials, lowers, uppers);
+            solver.ReportFailure = true;
+            solver.Maximize();
+            return [location, solver.BestParameterSet.Values[0], solver.BestParameterSet.Values[1]];
+        }
+
         /// <inheritdoc/>
         public override double PDF(double x)
         {

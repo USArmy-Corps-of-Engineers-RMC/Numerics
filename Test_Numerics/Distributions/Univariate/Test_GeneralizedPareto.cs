@@ -139,6 +139,94 @@ namespace Distributions.Univariate
         }
 
         /// <summary>
+        /// Test the maximum likelihood fit with a known location against an independent reference.
+        /// </summary>
+        /// <remarks>
+        /// The reference maximizes the same log-likelihood with SciPy (scipy.stats.genpareto.logpdf, shape
+        /// c = −κ, location fixed at 0) by Nelder-Mead at xatol = 1E-12: α = 2.388710825197821,
+        /// κ = −0.07721168825622311, log-likelihood −38.959310020261206. SciPy's own
+        /// genpareto.fit(x, floc=0) gives α = 2.38873, κ = −0.07721. The log-likelihood is flat near its
+        /// maximum, so the Nelder-Mead default convergence (relative change 1E-8 in the log-likelihood, as for
+        /// every Numerics MLE) places the parameters within about 2E-4 relative of the maximum.
+        /// </remarks>
+        [TestMethod()]
+        public void Test_GPA_MLE_FixedLocation_Reference()
+        {
+            var excesses = new double[] { 1.2, 0.4, 3.9, 2.2, 0.15, 5.6, 1.05, 0.8, 7.3, 2.9, 0.33, 1.7, 4.4, 0.62, 2.5, 11.2, 0.09, 1.33, 3.1, 0.95 };
+            var GPA = new GeneralizedPareto();
+            var parameters = GPA.MLE(excesses, 0d);
+            Assert.AreEqual(0d, parameters[0]);
+            Assert.AreEqual(2.388710825197821, parameters[1], 1E-3 * 2.388710825197821);
+            Assert.AreEqual(-0.07721168825622311, parameters[2], 1E-3);
+            var fitted = new GeneralizedPareto(parameters[0], parameters[1], parameters[2]);
+            Assert.AreEqual(-38.959310020261206, fitted.LogLikelihood(excesses), 1E-6);
+
+            // Shifting the sample and the location together leaves the fit unchanged.
+            var shifted = new double[excesses.Length];
+            for (int i = 0; i < excesses.Length; i++) shifted[i] = excesses[i] + 10d;
+            var moved = GPA.MLE(shifted, 10d);
+            Assert.AreEqual(10d, moved[0]);
+            Assert.AreEqual(parameters[1], moved[1], 1E-3 * parameters[1]);
+            Assert.AreEqual(parameters[2], moved[2], 1E-3);
+
+            // The fixed-location overload leaves the existing fit untouched.
+            var minimumFit = new GeneralizedPareto().MLE(sample);
+            Assert.AreEqual(Statistics.Minimum(sample), minimumFit[0]);
+        }
+
+        /// <summary>
+        /// Test the maximum likelihood fit with a known location on the Rao and Hamed sample at its threshold.
+        /// </summary>
+        /// <remarks>
+        /// Reference: "Flood Frequency Analysis", A.R. Rao &amp; K.H. Hamed, CRC Press, 2000, Example 8.3.1
+        /// page 279, whose MLE has ξ = 50400 (the sample minimum), α = 55142.29 and κ = 0.0945.
+        /// </remarks>
+        [TestMethod()]
+        public void Test_GPA_MLE_FixedLocation_Threshold()
+        {
+            var parameters = new GeneralizedPareto().MLE(sample, 50400d);
+            Assert.AreEqual(50400d, parameters[0]);
+            Assert.AreEqual(55142.29d, parameters[1], 0.01 * 55142.29d);
+            Assert.AreEqual(0.0945d, parameters[2], 0.01 * 0.0945d);
+        }
+
+        /// <summary>
+        /// Test that the known-location fit recovers the parameters of a large simulated sample, including a
+        /// bounded tail whose linear-moment start can fall outside the support.
+        /// </summary>
+        [TestMethod()]
+        public void Test_GPA_MLE_FixedLocation_Recovery()
+        {
+            foreach (var (alpha, kappa) in new[] { (10d, -0.2), (10d, 0d), (10d, 0.3) })
+            {
+                var truth = new GeneralizedPareto(5d, alpha, kappa);
+                var draws = truth.GenerateRandomValues(20000, 12345);
+                var parameters = new GeneralizedPareto().MLE(draws, 5d);
+                Assert.AreEqual(5d, parameters[0]);
+                Assert.AreEqual(alpha, parameters[1], 0.05 * alpha, $"kappa = {kappa}");
+                Assert.AreEqual(kappa, parameters[2], 0.03, $"kappa = {kappa}");
+                var fitted = new GeneralizedPareto(parameters[0], parameters[1], parameters[2]);
+                double logLikelihood = fitted.LogLikelihood(draws);
+                Assert.IsFalse(double.IsNaN(logLikelihood) || double.IsInfinity(logLikelihood));
+            }
+        }
+
+        /// <summary>
+        /// Test the argument checks of the known-location fit.
+        /// </summary>
+        [TestMethod()]
+        public void Test_GPA_MLE_FixedLocation_InvalidArguments()
+        {
+            var GPA = new GeneralizedPareto();
+            Assert.ThrowsExactly<ArgumentNullException>(() => GPA.MLE(null!, 0d));
+            Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => GPA.MLE(new[] { 1d, 2d }, double.NaN));
+            Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => GPA.MLE(new[] { 1d }, 0d));
+            Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => GPA.MLE(new[] { 1d, -0.5 }, 0d));
+            Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => GPA.MLE(new[] { 1d, double.PositiveInfinity }, 0d));
+            Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => GPA.MLE(new[] { 3d, 3d }, 3d));
+        }
+
+        /// <summary>
         /// Test the quantile function for the GPA Distribution.
         /// </summary>
         /// <remarks>
