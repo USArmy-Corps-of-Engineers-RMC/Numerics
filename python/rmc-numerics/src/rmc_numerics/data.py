@@ -13,7 +13,7 @@ from typing import Any
 
 import numpy as np
 
-from rmc_numerics._util import bind, evaluate, loop, namespace, net_enum
+from rmc_numerics._util import bind, bind_list, evaluate, loop, namespace, net_enum
 from rmc_numerics.enums import Extrapolation, SortOrder, Transform
 from rmc_numerics.marshal import to_net_doubles
 
@@ -155,6 +155,7 @@ class Linear:
         self.net.XTransform = net_enum(data.Transform, x_transform)
         self.net.YTransform = net_enum(data.Transform, y_transform)
         self._interpolate = bind(self.net.Interpolate)
+        self._interpolate_list = bind_list(self.net.Interpolate)
         self._extrapolate = bind(self.net.Extrapolate)
 
     def interpolate(self, x: Any) -> Any:
@@ -170,7 +171,7 @@ class Linear:
         float or numpy.ndarray
             Interpolated values, shaped like ``x``.
         """
-        return evaluate(x, self._interpolate, self.net.Interpolate)
+        return evaluate(x, self._interpolate, self._interpolate_list)
 
     def extrapolate(self, x: Any) -> Any:
         """Evaluate the end segments' straight lines beyond the knots (``Extrapolate``).

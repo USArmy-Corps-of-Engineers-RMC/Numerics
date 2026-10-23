@@ -17,7 +17,7 @@ from typing import Any
 
 import numpy as np
 
-from rmc_numerics._util import bind, evaluate, loop, namespace, net_enum, unwrap
+from rmc_numerics._util import bind, bind_list, evaluate, loop, namespace, net_enum, unwrap
 from rmc_numerics.enums import (
     EstimationMethod,
     Extrapolation,
@@ -61,6 +61,14 @@ class UnivariateDistribution:
         member = cache.get(name)
         if member is None:
             member = cache[name] = bind(getattr(self.net, name))
+        return member
+
+    def _vector(self, name: str) -> Any:
+        """Return the ``IList<double>`` overload of an array member, bound once per instance (``_util.bind_list``)."""
+        cache = self.__dict__.setdefault("_bound_lists", {})
+        member = cache.get(name)
+        if member is None:
+            member = cache[name] = bind_list(getattr(self.net, name))
         return member
 
     def __repr__(self) -> str:
@@ -124,7 +132,7 @@ class UnivariateDistribution:
         float or numpy.ndarray
             Densities, shaped like ``x``.
         """
-        return evaluate(x, self._scalar("PDF"), self.net.PDF)
+        return evaluate(x, self._scalar("PDF"), self._vector("PDF"))
 
     def cdf(self, x: Any) -> Any:
         """Evaluate the cumulative distribution function (non-exceedance probability).
@@ -139,7 +147,7 @@ class UnivariateDistribution:
         float or numpy.ndarray
             Non-exceedance probabilities, shaped like ``x``.
         """
-        return evaluate(x, self._scalar("CDF"), self.net.CDF)
+        return evaluate(x, self._scalar("CDF"), self._vector("CDF"))
 
     def ccdf(self, x: Any) -> Any:
         """Evaluate the complementary CDF (exceedance probability) through ``CCDF``.
@@ -172,7 +180,7 @@ class UnivariateDistribution:
         float or numpy.ndarray
             Quantiles, shaped like ``probability``.
         """
-        return evaluate(probability, self._scalar("InverseCDF"), self.net.InverseCDF)
+        return evaluate(probability, self._scalar("InverseCDF"), self._vector("InverseCDF"))
 
     def log_pdf(self, x: Any) -> Any:
         """Evaluate the natural logarithm of the density through ``LogPDF``.
@@ -1074,7 +1082,7 @@ def standard_z(probability: Any) -> Any:
         Standard normal deviates, shaped like ``probability``.
     """
     n = _nd().Normal
-    return evaluate(probability, _static("StandardZ", n), n.StandardZ)
+    return evaluate(probability, _static("StandardZ", n), _static_list("StandardZ", n))
 
 
 def standard_cdf(z: Any) -> Any:
@@ -1091,7 +1099,7 @@ def standard_cdf(z: Any) -> Any:
         Non-exceedance probabilities, shaped like ``z``.
     """
     n = _nd().Normal
-    return evaluate(z, _static("StandardCDF", n), n.StandardCDF)
+    return evaluate(z, _static("StandardCDF", n), _static_list("StandardCDF", n))
 
 
 _STATIC_BOUND: dict[str, Any] = {}
@@ -1102,6 +1110,17 @@ def _static(name: str, owner: Any) -> Any:
     member = _STATIC_BOUND.get(name)
     if member is None:
         member = _STATIC_BOUND[name] = bind(getattr(owner, name))
+    return member
+
+
+_STATIC_LIST_BOUND: dict[str, Any] = {}
+
+
+def _static_list(name: str, owner: Any) -> Any:
+    """Return a static member's ``IList<double>`` overload, bound once per process (see ``_util.bind_list``)."""
+    member = _STATIC_LIST_BOUND.get(name)
+    if member is None:
+        member = _STATIC_LIST_BOUND[name] = bind_list(getattr(owner, name))
     return member
 
 
@@ -1119,7 +1138,7 @@ def standard_pdf(z: Any) -> Any:
         Densities, shaped like ``z``.
     """
     n = _nd().Normal
-    return evaluate(z, n.StandardPDF, n.StandardPDF)
+    return evaluate(z, _static("StandardPDF", n), _static_list("StandardPDF", n))
 
 
 __all__ = [

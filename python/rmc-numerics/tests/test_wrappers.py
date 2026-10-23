@@ -310,6 +310,31 @@ def test_scalar_members_are_bound_and_agree_with_the_array_overloads() -> None:
     assert gev.log_pdf(5.0) == pytest.approx(math.log(gev.pdf(5.0)), rel=1e-14)
 
 
+def test_array_members_bind_the_list_overload_once_and_keep_the_group_values() -> None:
+    # Arrange
+    gev = distributions.GeneralizedExtremeValue(4.0, 1.0, -0.1)
+    p = np.linspace(0.001, 0.999, 257)
+    from rmc_numerics.marshal import to_net_doubles, to_numpy_doubles
+
+    normal = distributions._nd().Normal
+    # Act
+    bound = gev._vector("InverseCDF")
+    grouped = to_numpy_doubles(gev.net.InverseCDF(to_net_doubles(p)))
+    z_grouped = to_numpy_doubles(normal.StandardZ(to_net_doubles(p)))
+    linear = data.Linear([0.0, 1.0, 2.0], [0.0, 10.0, 40.0])
+    x = np.array([0.25, 1.5, 3.0])
+    # Assert
+    assert gev._vector("InverseCDF") is bound  # bound once per instance
+    assert distributions._static_list("StandardZ", normal) is distributions._static_list("StandardZ", normal)
+    np.testing.assert_array_equal(gev.inverse_cdf(p).view(np.uint64), grouped.view(np.uint64))
+    np.testing.assert_array_equal(distributions.standard_z(p).view(np.uint64), z_grouped.view(np.uint64))
+    np.testing.assert_array_equal(gev.cdf(grouped), to_numpy_doubles(gev.net.CDF(to_net_doubles(grouped))))
+    np.testing.assert_array_equal(gev.pdf(grouped), to_numpy_doubles(gev.net.PDF(to_net_doubles(grouped))))
+    np.testing.assert_array_equal(distributions.standard_pdf(z_grouped),
+                                  to_numpy_doubles(normal.StandardPDF(to_net_doubles(z_grouped))))
+    np.testing.assert_array_equal(linear.interpolate(x), [2.5, 25.0, 40.0])
+
+
 def test_parameter_names_validation_and_covariance() -> None:
     # Arrange
     gev = distributions.GeneralizedExtremeValue(4.0, 1.0, -0.1)

@@ -54,6 +54,8 @@ def evaluate(values: Any, scalar: Callable[[float], float], vector: Callable[[An
     A scalar input calls ``scalar`` and returns a Python float. Any other input is
     flattened to float64, passed to ``vector`` as one ``System.Double[]`` (the
     ``IList<double>`` overload), and the result is reshaped to the input's shape.
+    Callers pass ``vector`` already bound with :func:`bind_list` where the member is a
+    method group, so the overload is not resolved again on every call.
     """
     array = np.asarray(values, dtype=np.float64)
     if array.ndim == 0:
@@ -89,6 +91,25 @@ def bind(member: Any, arity: int = 1) -> Any:
 
     try:
         return member.Overloads[(System.Double,) * arity] if arity > 1 else member.Overloads[System.Double]
+    except (KeyError, TypeError, AttributeError):
+        return member
+
+
+def bind_list(member: Any) -> Any:
+    """Return the ``IList<double>`` overload of a .NET method group.
+
+    pythonnet resolves an overloaded method group on every call. For the array members
+    (``InverseCDF(IList<double>)`` beside ``InverseCDF(double)``) the resolution costs about
+    30 microseconds a call, several times the evaluation of a short array; binding the
+    overload once removes it. The arithmetic is unchanged: the bound overload is the member
+    the group resolves to for a ``System.Double[]`` argument. A group without that overload
+    is returned as it is.
+    """
+    import System  # noqa: PLC0415 - the runtime is started by the caller
+    from System.Collections.Generic import IList  # noqa: PLC0415
+
+    try:
+        return member.Overloads[IList[System.Double]]
     except (KeyError, TypeError, AttributeError):
         return member
 
