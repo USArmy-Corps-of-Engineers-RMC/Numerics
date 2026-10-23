@@ -720,7 +720,7 @@ namespace Numerics.Data.Statistics
         /// sets. The integral is evaluated in probability space u = Phi(z) with adaptive
         /// Gauss-Kronrod quadrature over [1e-16, 1 - 1e-16] (the excluded endpoint slivers bound the
         /// truncation error by 2e-16), and the conditional survival product is accumulated in log
-        /// space through <see cref="Tools.Log1p"/> and recovered through <see cref="Tools.Expm1"/>,
+        /// space through <see cref="Tools.Log1p(double)"/> and recovered through <see cref="Tools.Expm1(double)"/>,
         /// so rare-event unions retain relative accuracy. The result is deterministic.
         /// </para>
         /// <para>

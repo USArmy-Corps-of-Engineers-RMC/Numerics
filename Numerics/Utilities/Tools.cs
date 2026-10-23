@@ -241,7 +241,7 @@ namespace Numerics
         /// returned. For large positive inputs the compensation's intermediate product overflows
         /// while <c>exp(x) - 1</c> is still finite; there the subtraction is exact to the last unit
         /// anyway, so the direct difference is returned. This is the companion of
-        /// <see cref="Log1p"/> for log-space probability arithmetic such as survival products of
+        /// <see cref="Log1p(double)"/> for log-space probability arithmetic such as survival products of
         /// many small probabilities.
         /// </remarks>
         public static double Expm1(double x)
@@ -255,6 +255,44 @@ namespace Numerics
             // place of u, where exp(x) - 1 carries no cancellation to compensate for.
             if (double.IsInfinity(numerator)) return u - 1.0;
             return numerator / Math.Log(u);
+        }
+
+        /// <summary>
+        /// Computes <c>log(1 + x)</c> for each value of a list, with improved numerical accuracy for small values.
+        /// </summary>
+        /// <param name="values">The input values.</param>
+        /// <returns>One result per value, each equal to <see cref="Log1p(double)"/> at that value.</returns>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="values"/> is null.</exception>
+        /// <remarks>
+        /// One call evaluates the whole list, in the same way as the list forms of the distribution members
+        /// (for example <see cref="Distributions.Normal.StandardZ(IList{double})"/>); a caller crossing a language
+        /// boundary (for example from Python) pays the crossing once instead of once per value.
+        /// </remarks>
+        public static double[] Log1p(IList<double> values)
+        {
+            if (values == null) throw new ArgumentNullException(nameof(values));
+            var result = new double[values.Count];
+            for (int i = 0; i < values.Count; i++)
+                result[i] = Log1p(values[i]);
+            return result;
+        }
+
+        /// <summary>
+        /// Computes <c>exp(x) - 1</c> for each value of a list, with improved numerical accuracy for small values.
+        /// </summary>
+        /// <param name="values">The input values.</param>
+        /// <returns>One result per value, each equal to <see cref="Expm1(double)"/> at that value.</returns>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="values"/> is null.</exception>
+        /// <remarks>
+        /// One call evaluates the whole list, in the same way as <see cref="Log1p(IList{double})"/>.
+        /// </remarks>
+        public static double[] Expm1(IList<double> values)
+        {
+            if (values == null) throw new ArgumentNullException(nameof(values));
+            var result = new double[values.Count];
+            for (int i = 0; i < values.Count; i++)
+                result[i] = Expm1(values[i]);
+            return result;
         }
 
         /// <summary>
