@@ -77,3 +77,19 @@ def test_generalized_pareto_fit_known_location_matches_the_reference_maximum() -
     assert scale == pytest.approx(2.388710825197821, rel=1e-3)
     assert shape == pytest.approx(-0.07721168825622311, abs=1e-3)
     assert fitted.log_likelihood(excesses + 10.0) == pytest.approx(-38.959310020261206, abs=1e-6)
+
+
+def test_weighted_plotting_positions_reduce_to_the_unweighted_formula() -> None:
+    # Arrange
+    _require("Numerics.Data.Statistics", "PlottingPositions", "Function",
+             "System.Collections.Generic.IList`1[System.Double]", "System.Double")
+    weights = np.array([0.5, 2.0, 0.0, 1.25, 3.0])
+    # Act
+    positions = statistics.weighted_plotting_positions(weights, 0.44)
+    unit = statistics.weighted_plotting_positions(np.ones(40), 0.44)
+    # Assert
+    cumulative = np.cumsum(weights)
+    total = cumulative[-1]
+    expected = (cumulative - 0.44 * weights) / (total + (1.0 - 2.0 * 0.44) * (total / weights.size))
+    np.testing.assert_allclose(positions, expected, rtol=1e-15, atol=0.0)
+    np.testing.assert_array_equal(unit.view(np.uint64), statistics.plotting_positions(40, 0.44).view(np.uint64))

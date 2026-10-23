@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Numerics.Data.Statistics
 {
@@ -43,6 +44,60 @@ namespace Numerics.Data.Statistics
             var PP = new double[N];
             for (int i = 1; i <= N; i++)
                 PP[i - 1] = (i - alpha) / (N + 1 - 2d * alpha);
+            return PP;
+        }
+
+        /// <summary>
+        /// The general plotting position formula for weighted observations, for example importance-sampling
+        /// weights.
+        /// </summary>
+        /// <param name="weights">The non-negative, finite weight of each observation, in the ascending order of the
+        /// observations' values.</param>
+        /// <param name="alpha">The alpha coefficient. Range [0,1].</param>
+        /// <returns>An array of non-decreasing plotting positions, one per weight.</returns>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="weights"/> is null.</exception>
+        /// <exception cref="ArgumentException">Thrown when <paramref name="weights"/> is empty or every weight is zero.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when a weight is negative or not finite, or
+        /// <paramref name="alpha"/> is outside [0,1].</exception>
+        /// <remarks>
+        /// <para>
+        /// With c_i the cumulative weight through observation i, W the total weight and w̄ = W / n the mean
+        /// weight, the position of observation i is F_i = (c_i − α w_i) / (W + w̄ − 2α w̄), which is
+        /// (c_i − α w_i) / (W + (1 − 2α) w̄). Unit weights give c_i = i, W = n and w̄ = 1, so every position is
+        /// bitwise that of <see cref="Function(int, double)"/>, (i − α) / (n + 1 − 2α). A zero-weight observation
+        /// takes the position of its predecessor.
+        /// </para>
+        /// <para>
+        /// The cumulative and total weights are sequential sums in the order given, the total being the last
+        /// cumulative weight.
+        /// </para>
+        /// </remarks>
+        public static double[] Function(IList<double> weights, double alpha)
+        {
+            if (weights == null) throw new ArgumentNullException(nameof(weights));
+            if (weights.Count == 0) throw new ArgumentException("At least one weight is required.", nameof(weights));
+            if (double.IsNaN(alpha) || alpha < 0d || alpha > 1d)
+                throw new ArgumentOutOfRangeException(nameof(alpha), "The alpha coefficient must be between 0 and 1.");
+
+            int n = weights.Count;
+            var cumulative = new double[n];
+            double run = 0d;
+            for (int i = 0; i < n; i++)
+            {
+                double weight = weights[i];
+                if (double.IsNaN(weight) || double.IsInfinity(weight) || weight < 0d)
+                    throw new ArgumentOutOfRangeException(nameof(weights), "Each weight must be finite and non-negative.");
+                run += weight;
+                cumulative[i] = run;
+            }
+            double total = run;
+            if (total <= 0d) throw new ArgumentException("The weights must not all be zero.", nameof(weights));
+
+            double mean = total / n;
+            double denominator = total + mean - 2d * alpha * mean;
+            var PP = new double[n];
+            for (int i = 0; i < n; i++)
+                PP[i] = (cumulative[i] - alpha * weights[i]) / denominator;
             return PP;
         }
 

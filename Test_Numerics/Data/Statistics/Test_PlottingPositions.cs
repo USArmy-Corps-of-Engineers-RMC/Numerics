@@ -158,5 +158,48 @@ namespace Data.Statistics
                 Assert.AreEqual(valid[i], test2[i], 1E-6);
             }
         }
+
+        /// <summary>
+        /// Test the weighted plotting positions: unit weights reproduce the unweighted formula bit for bit,
+        /// integer weights and scaled weights follow the formula, and invalid weights are refused.
+        /// </summary>
+        [TestMethod]
+        public void Test_WeightedFunction()
+        {
+            foreach (double alpha in new[] { 0.0, 0.3175, 0.375, 0.4, 0.44, 0.5, 1.0 })
+            {
+                foreach (int n in new[] { 3, 10, 30, 1001 })
+                {
+                    var ones = new double[n];
+                    for (int i = 0; i < n; i++) ones[i] = 1.0;
+                    var weighted = PlottingPositions.Function(ones, alpha);
+                    var plain = PlottingPositions.Function(n, alpha);
+                    for (int i = 0; i < n; i++)
+                        Assert.AreEqual(System.BitConverter.DoubleToInt64Bits(plain[i]), System.BitConverter.DoubleToInt64Bits(weighted[i]), $"alpha {alpha}, n {n}, i {i}");
+                }
+            }
+
+            // Weights {1, 2, 1}, alpha = 0.5: W = 4, mean 4/3, denominator 4 + 4/3 - 4/3 = 4;
+            // F = (1 - 0.5) / 4, (3 - 1) / 4, (4 - 0.5) / 4.
+            var hazen = PlottingPositions.Function(new[] { 1.0, 2.0, 1.0 }, 0.5);
+            CollectionAssert.AreEqual(new[] { 0.125, 0.5, 0.875 }, hazen);
+
+            // Weibull with weights {1, 0, 3}: W = 4, mean 4/3, denominator 16/3; F = 3/16, 3/16, 12/16.
+            var weibull = PlottingPositions.Function(new[] { 1.0, 0.0, 3.0 }, 0.0);
+            Assert.AreEqual(3.0 / 16.0, weibull[0], 1E-15);
+            Assert.AreEqual(weibull[0], weibull[1]);
+            Assert.AreEqual(0.75, weibull[2], 1E-15);
+
+            // Positions depend only on the relative weights.
+            var scaled = PlottingPositions.Function(new[] { 0.25, 0.5, 0.25 }, 0.5);
+            CollectionAssert.AreEqual(hazen, scaled);
+
+            Assert.ThrowsExactly<System.ArgumentNullException>(() => PlottingPositions.Function(null!, 0.5));
+            Assert.ThrowsExactly<System.ArgumentException>(() => PlottingPositions.Function(new double[0], 0.5));
+            Assert.ThrowsExactly<System.ArgumentException>(() => PlottingPositions.Function(new[] { 0.0, 0.0 }, 0.5));
+            Assert.ThrowsExactly<System.ArgumentOutOfRangeException>(() => PlottingPositions.Function(new[] { 1.0, -1.0 }, 0.5));
+            Assert.ThrowsExactly<System.ArgumentOutOfRangeException>(() => PlottingPositions.Function(new[] { 1.0, double.NaN }, 0.5));
+            Assert.ThrowsExactly<System.ArgumentOutOfRangeException>(() => PlottingPositions.Function(new[] { 1.0, 1.0 }, 1.5));
+        }
     }
 }

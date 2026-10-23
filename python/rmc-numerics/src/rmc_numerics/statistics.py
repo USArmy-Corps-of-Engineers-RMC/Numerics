@@ -196,6 +196,28 @@ def plotting_positions(n: int, kind: PlottingPosition | str | float = PlottingPo
     return to_numpy_doubles(pp.Function(int(n), net_enum(pp.PlottingPostionType, kind)))
 
 
+def weighted_plotting_positions(weights: Any, alpha: float) -> np.ndarray:
+    """Return weighted plotting positions through ``PlottingPositions.Function(IList, double)``.
+
+    ``F_i = (c_i - alpha w_i) / (W + (1 - 2 alpha) W / n)`` with ``c_i`` the sequential cumulative
+    weight and ``W`` the total; unit weights give bitwise the positions of
+    :func:`plotting_positions`.
+
+    Parameters
+    ----------
+    weights : array_like
+        Non-negative weights of the observations in ascending order of their values.
+    alpha : float
+        The plotting-position parameter in [0, 1] (0 Weibull, 0.44 Gringorten, 0.5 Hazen).
+
+    Returns
+    -------
+    numpy.ndarray
+        The non-decreasing positions, one per weight.
+    """
+    return to_numpy_doubles(_stats().PlottingPositions.Function(to_net_doubles(weights), float(alpha)))
+
+
 class RunningStatistics:
     """Streaming moments (``Numerics.Data.Statistics.RunningStatistics``).
 
@@ -329,7 +351,7 @@ def autocorrelation(data: Any, max_lag: int | None = None,
 
 __all__ = [
     "RunningStatistics", "autocorrelation", "column_percentiles", "linear_moments", "mean", "percentile",
-    "plotting_positions",
+    "plotting_positions", "weighted_plotting_positions",
     "standard_deviation",
     "variance",
 ]
