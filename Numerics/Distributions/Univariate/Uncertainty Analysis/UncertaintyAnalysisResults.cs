@@ -444,7 +444,8 @@ namespace Numerics.Distributions
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="weights"/> is null.</exception>
         /// <exception cref="ArgumentException">Thrown when a required array is null or empty, the weights and
         /// distributions differ in length, or no non-null distribution has a positive weight.</exception>
-        /// <exception cref="ArgumentOutOfRangeException">Thrown when a weight is negative or not finite.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when a weight is negative or not finite, or the total
+        /// weight overflows.</exception>
         /// <exception cref="InvalidOperationException">Thrown when every sampled distribution is null.</exception>
         /// <remarks>
         /// <para>
@@ -476,12 +477,14 @@ namespace Numerics.Distributions
             bool anyPositive = false;
             bool seen = false;
             double common = 0d;
+            double sum = 0d;
             for (int j = 0; j < weights.Length; j++)
             {
                 if (double.IsNaN(weights[j]) || double.IsInfinity(weights[j]) || weights[j] < 0d)
                     throw new ArgumentOutOfRangeException(nameof(weights), "Each weight must be finite and non-negative.");
                 if (sampledDistributions[j] is null) continue;
                 if (weights[j] > 0d) anyPositive = true;
+                sum += weights[j];
                 if (!seen)
                 {
                     common = weights[j];
@@ -494,6 +497,8 @@ namespace Numerics.Distributions
             }
             if (!anyPositive)
                 throw new ArgumentException("At least one non-null sampled distribution must have a positive weight.", nameof(weights));
+            if (double.IsInfinity(sum))
+                throw new ArgumentOutOfRangeException(nameof(weights), "The total weight must be finite.");
 
             MeanCurve = ComputeMeanCurve(sampledDistributions, uniform ? null : weights, probabilities, minProbability, maxProbability);
         }

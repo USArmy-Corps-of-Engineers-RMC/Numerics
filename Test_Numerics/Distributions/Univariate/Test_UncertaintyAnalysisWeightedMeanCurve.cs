@@ -135,7 +135,90 @@ namespace Distributions.Univariate
             Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => results.ProcessMeanCurve(branches, Probabilities, new[] { 1d, double.PositiveInfinity, 1d, 1d }));
             Assert.ThrowsExactly<ArgumentException>(() => results.ProcessMeanCurve(branches, Probabilities, new[] { 0d, 0d, 0d, 0d }));
             Assert.ThrowsExactly<ArgumentException>(() => results.ProcessMeanCurve(branches, Array.Empty<double>(), new[] { 1d, 1d, 1d, 1d }));
+            Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => results.ProcessMeanCurve(branches, Probabilities, new[] { double.MaxValue, double.MaxValue, 1d, 1d }));
+            Assert.ThrowsExactly<ArgumentException>(() => results.ProcessMeanCurve(null!, Probabilities, new[] { 1d }));
+            Assert.ThrowsExactly<InvalidOperationException>(() => results.ProcessMeanCurve(new UnivariateDistributionBase[] { null!, null! }, Probabilities, new[] { 1d, 2d }));
+            // A positive weight on a null member does not count.
+            Assert.ThrowsExactly<ArgumentException>(() => results.ProcessMeanCurve(new UnivariateDistributionBase[] { branches[0], null! }, Probabilities, new[] { 0d, 2d }));
             Assert.IsNull(results.MeanCurve);
+        }
+
+        /// <summary>
+        /// A single positive unit weight among zeros gives bitwise the unweighted curve of that member alone:
+        /// the zero-weight members leave the range and the sums, and 1 × F / 1 is F / 1.
+        /// </summary>
+        [TestMethod]
+        public void SinglePositiveUnitWeightEqualsTheMemberAlone()
+        {
+            var branches = Branches();
+            var weighted = new UncertaintyAnalysisResults();
+            weighted.ProcessMeanCurve(branches, Probabilities, new[] { 0d, 1d, 0d, 0d });
+            var alone = new UncertaintyAnalysisResults();
+            alone.ProcessMeanCurve(new[] { branches[1] }, Probabilities);
+            AssertBitwise(alone.MeanCurve!, weighted.MeanCurve!);
+            for (int i = 0; i < Probabilities.Length; i++)
+                Assert.AreEqual(branches[1].InverseCDF(Probabilities[i]), weighted.MeanCurve![i], 1E-3 * Math.Abs(weighted.MeanCurve[i]));
+        }
+
+        /// <summary>
+        /// A large non-uniform ensemble (more members than reduction chunks, with null members) is bitwise
+        /// reproducible from call to call, so the result does not depend on the thread schedule; the range
+        /// arguments pass through, and uniform weights with non-default ranges still equal the unweighted curve.
+        /// </summary>
+        [TestMethod]
+        public void LargeEnsembleIsReproducibleAndRangesPassThrough()
+        {
+            var random = new Random(20261023);
+            int count = 301;
+            var members = new UnivariateDistributionBase[count];
+            var weights = new double[count];
+            for (int j = 0; j < count; j++)
+            {
+                members[j] = j % 37 == 5 ? null! : new GeneralizedExtremeValue(100 + 10 * random.NextDouble(), 15 + 10 * random.NextDouble(), 0.3 * (random.NextDouble() - 0.5));
+                weights[j] = random.NextDouble();
+            }
+            var first = new UncertaintyAnalysisResults();
+            first.ProcessMeanCurve(members, Probabilities, weights);
+            for (int repeat = 0; repeat < 5; repeat++)
+            {
+                var again = new UncertaintyAnalysisResults();
+                again.ProcessMeanCurve(members, Probabilities, weights);
+                AssertBitwise(first.MeanCurve!, again.MeanCurve!);
+            }
+            var mixture = new Mixture(NonNullWeights(members, weights, out var nonNull), nonNull);
+            for (int i = 0; i < Probabilities.Length; i++)
+                Assert.AreEqual(mixture.InverseCDF(Probabilities[i]), first.MeanCurve![i], 2E-3 * Math.Abs(first.MeanCurve[i]), $"p = {Probabilities[i]}.");
+
+            var uniform = new double[count];
+            for (int j = 0; j < count; j++) uniform[j] = 0.5;
+            var plain = new UncertaintyAnalysisResults();
+            plain.ProcessMeanCurve(members, Probabilities, 0.01, 1 - 1E-6);
+            var equal = new UncertaintyAnalysisResults();
+            equal.ProcessMeanCurve(members, Probabilities, uniform, 0.01, 1 - 1E-6);
+            AssertBitwise(plain.MeanCurve!, equal.MeanCurve!);
+        }
+
+        /// <summary>The non-null members and their normalized weights, for the mixture reference.</summary>
+        /// <param name="members">The ensemble, with null members.</param>
+        /// <param name="weights">The aligned weights.</param>
+        /// <param name="nonNull">On return, the non-null members.</param>
+        /// <returns>The normalized weights of the non-null members.</returns>
+        private static double[] NonNullWeights(UnivariateDistributionBase[] members, double[] weights, out UnivariateDistributionBase[] nonNull)
+        {
+            var kept = new System.Collections.Generic.List<UnivariateDistributionBase>();
+            var w = new System.Collections.Generic.List<double>();
+            double total = 0;
+            for (int j = 0; j < members.Length; j++)
+            {
+                if (members[j] is null) continue;
+                kept.Add(members[j]);
+                w.Add(weights[j]);
+                total += weights[j];
+            }
+            nonNull = kept.ToArray();
+            var normalized = w.ToArray();
+            for (int j = 0; j < normalized.Length; j++) normalized[j] /= total;
+            return normalized;
         }
     }
 }
