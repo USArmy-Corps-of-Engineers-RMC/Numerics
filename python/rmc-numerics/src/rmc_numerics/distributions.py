@@ -17,7 +17,7 @@ from typing import Any
 
 import numpy as np
 
-from rmc_numerics._util import bind, bind_list, evaluate, loop, namespace, net_enum, unwrap
+from rmc_numerics._util import bind, bind_list, evaluate, list_overload, loop, namespace, net_enum, unwrap
 from rmc_numerics.enums import (
     EstimationMethod,
     Extrapolation,
@@ -70,6 +70,21 @@ class UnivariateDistribution:
         if member is None:
             member = cache[name] = bind_list(getattr(self.net, name))
         return member
+
+    def _evaluate(self, name: str, values: Any) -> Any:
+        """Evaluate a scalar member on a scalar or an array, through its array overload when Numerics has one.
+
+        ``CCDF``, ``LogPDF``, ``LogCDF`` and ``LogCCDF`` gained ``IList<double>`` overloads in
+        RMC.Numerics 2.3; on an older assembly the array is evaluated element by element with the
+        bound scalar overload. Both give the distribution's own scalar values, bit for bit.
+        """
+        cache = self.__dict__.setdefault("_optional_lists", {})
+        if name not in cache:
+            cache[name] = list_overload(getattr(self.net, name))
+        vector = cache[name]
+        if vector is None:
+            return loop(values, self._scalar(name))
+        return evaluate(values, self._scalar(name), vector)
 
     def __repr__(self) -> str:
         return f"{type(self).__name__}({', '.join(repr(float(p)) for p in self.parameters)})"
@@ -152,8 +167,8 @@ class UnivariateDistribution:
     def ccdf(self, x: Any) -> Any:
         """Evaluate the complementary CDF (exceedance probability) through ``CCDF``.
 
-        Numerics has no array overload of ``CCDF``, so arrays are evaluated element by
-        element; the arithmetic is the distribution's own ``CCDF``.
+        An array crosses once into ``CCDF(IList<double>)`` (element by element on an assembly
+        older than RMC.Numerics 2.3); every value is the distribution's own ``CCDF``.
 
         Parameters
         ----------
@@ -165,7 +180,7 @@ class UnivariateDistribution:
         float or numpy.ndarray
             Exceedance probabilities, shaped like ``x``.
         """
-        return loop(x, self._scalar("CCDF"))
+        return self._evaluate("CCDF", x)
 
     def inverse_cdf(self, probability: Any) -> Any:
         """Evaluate the quantile function at non-exceedance probabilities.
@@ -185,8 +200,8 @@ class UnivariateDistribution:
     def log_pdf(self, x: Any) -> Any:
         """Evaluate the natural logarithm of the density through ``LogPDF``.
 
-        Numerics has no array overload of ``LogPDF``, so arrays are evaluated element by
-        element; the arithmetic is the distribution's own ``LogPDF``.
+        An array crosses once into ``LogPDF(IList<double>)`` (element by element on an assembly
+        older than RMC.Numerics 2.3); every value is the distribution's own ``LogPDF``.
 
         Parameters
         ----------
@@ -198,12 +213,13 @@ class UnivariateDistribution:
         float or numpy.ndarray
             Log densities, shaped like ``x``.
         """
-        return loop(x, self._scalar("LogPDF"))
+        return self._evaluate("LogPDF", x)
 
     def log_cdf(self, x: Any) -> Any:
         """Evaluate the natural logarithm of the CDF through ``LogCDF``.
 
-        Evaluated element by element (Numerics has no array overload of ``LogCDF``).
+        An array crosses once into ``LogCDF(IList<double>)`` (element by element on an assembly
+        older than RMC.Numerics 2.3).
 
         Parameters
         ----------
@@ -215,12 +231,13 @@ class UnivariateDistribution:
         float or numpy.ndarray
             Log non-exceedance probabilities, shaped like ``x``.
         """
-        return loop(x, self._scalar("LogCDF"))
+        return self._evaluate("LogCDF", x)
 
     def log_ccdf(self, x: Any) -> Any:
         """Evaluate the natural logarithm of the complementary CDF through ``LogCCDF``.
 
-        Evaluated element by element (Numerics has no array overload of ``LogCCDF``).
+        An array crosses once into ``LogCCDF(IList<double>)`` (element by element on an assembly
+        older than RMC.Numerics 2.3).
 
         Parameters
         ----------
@@ -232,7 +249,7 @@ class UnivariateDistribution:
         float or numpy.ndarray
             Log exceedance probabilities, shaped like ``x``.
         """
-        return loop(x, self._scalar("LogCCDF"))
+        return self._evaluate("LogCCDF", x)
 
     @property
     def type_name(self) -> str:
@@ -409,8 +426,10 @@ class UnivariateDistribution:
     def parameter_set_validity(self, parameter_sets: Any) -> np.ndarray:
         """Return which parameter sets this family accepts (``ValidateParameters(row, false)`` is null).
 
-        The rows cross one at a time; a family with a ``ValidateParameters(double, ..., bool)``
-        overload takes each row without an array copy.
+        With RMC.Numerics 2.3 the matrix crosses once, into ``ParameterSetQuantiles`` with no
+        probabilities, whose validity flags are this test row by row. On an older assembly the rows
+        cross one at a time; a family with a ``ValidateParameters(double, ..., bool)`` overload takes
+        each row without an array copy.
 
         Parameters
         ----------
@@ -431,6 +450,10 @@ class UnivariateDistribution:
         arity = self.number_of_parameters
         if rows.shape[1] != arity:
             raise ValueError(f"Expected {arity} parameters per row; got {rows.shape[1]}.")
+        table = getattr(self.net, "ParameterSetQuantiles", None)
+        if table is not None:
+            _, valid = table(to_net_matrix(rows), to_net_doubles(np.empty(0)), None)
+            return to_numpy_bools(valid)
         out = np.empty(rows.shape[0], dtype=bool)
         typed = _typed_member(self.net, "ValidateParameters", arity, flag=True)
         for index, row in enumerate(rows.tolist()):

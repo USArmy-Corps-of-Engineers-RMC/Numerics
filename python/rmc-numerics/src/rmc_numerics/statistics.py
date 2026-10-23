@@ -10,7 +10,7 @@ from typing import Any
 
 import numpy as np
 
-from rmc_numerics._util import namespace, net_enum
+from rmc_numerics._util import cached_overload, namespace, net_enum
 from rmc_numerics.enums import AutocorrelationType, PlottingPosition, WeightType
 from rmc_numerics.marshal import to_net_doubles, to_net_matrix, to_numpy_doubles, to_numpy_ints, to_numpy_matrix
 
@@ -18,6 +18,26 @@ from rmc_numerics.marshal import to_net_doubles, to_net_matrix, to_numpy_doubles
 def _stats() -> Any:
     """Return the ``Numerics.Data.Statistics`` namespace after starting the runtime."""
     return namespace("Numerics.Data.Statistics")
+
+
+def _statistics_member(name: str, *signature: str) -> Any:
+    """Return one overload of a ``Statistics`` method group, bound once per process.
+
+    ``signature`` names the parameter types: ``"list"`` (``IList<double>``), ``"double"``,
+    ``"bool"``, ``"kind"`` (``PlottingPositions.PlottingPostionType``) and ``"weight"``
+    (``WeightType``). The bound overload is the member pythonnet would resolve for the same
+    arguments; binding it once removes the per-call resolution (see ``_util.cached_overload``).
+    """
+    def factory() -> Any:
+        stats = _stats()
+        import System  # noqa: PLC0415 - the runtime is running
+        from System.Collections.Generic import IList  # noqa: PLC0415
+
+        types = {"list": IList[System.Double], "double": System.Double, "bool": System.Boolean,
+                 "kind": stats.PlottingPositions.PlottingPostionType, "weight": stats.WeightType}
+        return getattr(stats.Statistics, name).Overloads[tuple(types[item] for item in signature)]
+
+    return cached_overload(f"Statistics.{name}({', '.join(signature)})", factory)
 
 
 def mean(data: Any, weights: Any = None) -> float:
@@ -35,10 +55,9 @@ def mean(data: Any, weights: Any = None) -> float:
     float
         The (weighted) mean.
     """
-    stats = _stats()
     if weights is None:
-        return float(stats.Statistics.Mean(to_net_doubles(data)))
-    return float(stats.Statistics.Mean(to_net_doubles(data), to_net_doubles(weights)))
+        return float(_statistics_member("Mean", "list")(to_net_doubles(data)))
+    return float(_statistics_member("Mean", "list", "list")(to_net_doubles(data), to_net_doubles(weights)))
 
 
 def variance(data: Any, weights: Any = None, weight_type: WeightType | str = WeightType.FREQUENCY) -> float:
@@ -60,9 +79,9 @@ def variance(data: Any, weights: Any = None, weight_type: WeightType | str = Wei
     """
     stats = _stats()
     if weights is None:
-        return float(stats.Statistics.Variance(to_net_doubles(data)))
-    return float(stats.Statistics.Variance(to_net_doubles(data), to_net_doubles(weights),
-                                           net_enum(stats.WeightType, weight_type)))
+        return float(_statistics_member("Variance", "list")(to_net_doubles(data)))
+    member = _statistics_member("Variance", "list", "list", "weight")
+    return float(member(to_net_doubles(data), to_net_doubles(weights), net_enum(stats.WeightType, weight_type)))
 
 
 def standard_deviation(data: Any, weights: Any = None, weight_type: WeightType | str = WeightType.FREQUENCY) -> float:
@@ -84,9 +103,9 @@ def standard_deviation(data: Any, weights: Any = None, weight_type: WeightType |
     """
     stats = _stats()
     if weights is None:
-        return float(stats.Statistics.StandardDeviation(to_net_doubles(data)))
-    return float(stats.Statistics.StandardDeviation(to_net_doubles(data), to_net_doubles(weights),
-                                                    net_enum(stats.WeightType, weight_type)))
+        return float(_statistics_member("StandardDeviation", "list")(to_net_doubles(data)))
+    member = _statistics_member("StandardDeviation", "list", "list", "weight")
+    return float(member(to_net_doubles(data), to_net_doubles(weights), net_enum(stats.WeightType, weight_type)))
 
 
 def percentile(data: Any, k: Any, weights: Any = None, data_is_sorted: bool = False) -> Any:
@@ -112,18 +131,17 @@ def percentile(data: Any, k: Any, weights: Any = None, data_is_sorted: bool = Fa
     float or numpy.ndarray
         Percentile values, shaped like ``k``.
     """
-    s = _stats().Statistics
     values = to_net_doubles(data)
-    w = None if weights is None else to_net_doubles(weights)
     karr = np.asarray(k, dtype=np.float64)
-    if karr.ndim == 0:
-        if w is None:
-            return float(s.Percentile(values, float(karr), bool(data_is_sorted)))
-        return float(s.Percentile(values, float(karr), w, bool(data_is_sorted)))
-    ks = to_net_doubles(karr.ravel())
-    result = s.Percentile(values, ks, bool(data_is_sorted)) if w is None else s.Percentile(values, ks, w,
-                                                                                         bool(data_is_sorted))
-    return to_numpy_doubles(result).reshape(karr.shape)
+    scalar = karr.ndim == 0
+    ks = float(karr) if scalar else to_net_doubles(karr.ravel())
+    k_type = "double" if scalar else "list"
+    if weights is None:
+        result = _statistics_member("Percentile", "list", k_type, "bool")(values, ks, bool(data_is_sorted))
+    else:
+        result = _statistics_member("Percentile", "list", k_type, "list", "bool")(values, ks, to_net_doubles(weights),
+                                                                                 bool(data_is_sorted))
+    return float(result) if scalar else to_numpy_doubles(result).reshape(karr.shape)
 
 
 def plotting_position_percentile(data: Any, k: Any,
@@ -152,21 +170,24 @@ def plotting_position_percentile(data: Any, k: Any,
     float or numpy.ndarray
         Percentile values, shaped like ``k``.
     """
-    stats = _stats()
-    s, kind_net = stats.Statistics, net_enum(stats.PlottingPositions.PlottingPostionType, kind)
+    kind_net = net_enum(_stats().PlottingPositions.PlottingPostionType, kind)
     values = to_net_doubles(data)
     karr = np.asarray(k, dtype=np.float64)
     if karr.ndim == 0:
-        return float(s.Percentile(values, float(karr), kind_net, bool(data_is_sorted)))
-    result = s.Percentile(values, to_net_doubles(karr.ravel()), kind_net, bool(data_is_sorted))
+        return float(_statistics_member("Percentile", "list", "double", "kind", "bool")(
+            values, float(karr), kind_net, bool(data_is_sorted)))
+    result = _statistics_member("Percentile", "list", "list", "kind", "bool")(
+        values, to_net_doubles(karr.ravel()), kind_net, bool(data_is_sorted))
     return to_numpy_doubles(result).reshape(karr.shape)
 
 
-def column_percentiles(data: Any, k: Any) -> tuple[np.ndarray, np.ndarray]:
-    """Return the Type 7 percentiles of each column over its finite entries (``Statistics.ColumnPercentiles``).
+def column_percentiles(data: Any, k: Any,
+                       kind: PlottingPosition | str | None = None) -> tuple[np.ndarray, np.ndarray]:
+    """Return the percentiles of each column over its finite entries (``Statistics.ColumnPercentiles``).
 
     Each column's finite entries go through ``Statistics.Percentile`` in one call for the
-    whole matrix, so every value is bitwise the per-column ``percentile`` of the finite
+    whole matrix, so every value is bitwise the per-column ``percentile`` (Type 7, the
+    default) or ``plotting_position_percentile`` (when ``kind`` is given) of the finite
     entries; NaN and infinite entries are excluded rather than sorted in.
 
     Parameters
@@ -176,6 +197,10 @@ def column_percentiles(data: Any, k: Any) -> tuple[np.ndarray, np.ndarray]:
         column per variable (for example a curve node).
     k : float or array_like
         Percentiles as fractions in [0, 1].
+    kind : PlottingPosition or str, optional
+        A plotting-position formula (``"weibull"`` is Hyndman-Fan type 6) for
+        ``ColumnPercentiles(double[,], IList, PlottingPostionType, out int[])``; None (the
+        default) gives the Type 7 percentiles. The plotting-position form needs RMC.Numerics 2.3.
 
     Returns
     -------
@@ -185,9 +210,14 @@ def column_percentiles(data: Any, k: Any) -> tuple[np.ndarray, np.ndarray]:
     excluded : numpy.ndarray
         The int32 number of non-finite entries excluded from each column.
     """
-    s = _stats().Statistics
+    stats = _stats()
     karr = np.asarray(k, dtype=np.float64)
-    table, excluded = s.ColumnPercentiles(to_net_matrix(data), to_net_doubles(karr.ravel()), None)
+    matrix, ks = to_net_matrix(data), to_net_doubles(karr.ravel())
+    if kind is None:
+        table, excluded = stats.Statistics.ColumnPercentiles(matrix, ks, None)
+    else:
+        kind_net = net_enum(stats.PlottingPositions.PlottingPostionType, kind)
+        table, excluded = stats.Statistics.ColumnPercentiles(matrix, ks, kind_net, None)
     result = to_numpy_matrix(table)
     if karr.ndim == 0:
         result = result[0]

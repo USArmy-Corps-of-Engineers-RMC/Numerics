@@ -52,6 +52,26 @@ class OrderedPairedData:
                                           net_enum(data.SortOrder, x_order), bool(strict_y),
                                           net_enum(data.SortOrder, y_order))
 
+    def _lookup(self, name: str) -> tuple[Any, Any]:
+        """Return the scalar and list overloads of ``GetYFromX`` or ``GetXFromY`` with extrapolation sides.
+
+        Both are bound once per wrapped object: pythonnet resolves the four-overload group on every
+        call otherwise, which costs more than a short lookup. The bound overloads are the members the
+        group resolves to for these arguments.
+        """
+        cache = self.__dict__.setdefault("_bound", {})
+        entry = cache.get(name)
+        if entry is None or entry[0] is not self.net:
+            data = _data()
+            import System  # noqa: PLC0415 - the runtime is running (self.net exists)
+            from System.Collections.Generic import IList  # noqa: PLC0415
+
+            group = getattr(self.net, name)
+            tail = (data.Transform, data.Transform, data.ExtrapolationSides)
+            entry = cache[name] = (self.net, group.Overloads[(System.Double, *tail)],
+                                   group.Overloads[(IList[System.Double], *tail)])
+        return entry[1], entry[2]
+
     def __len__(self) -> int:
         return int(self.net.Count)
 
@@ -97,8 +117,8 @@ class OrderedPairedData:
         data = _data()
         xt, yt = net_enum(data.Transform, x_transform), net_enum(data.Transform, y_transform)
         ext = net_enum(data.ExtrapolationSides, extrapolation)
-        return evaluate(x, lambda v: self.net.GetYFromX(v, xt, yt, ext),
-                        lambda arr: self.net.GetYFromX(arr, xt, yt, ext))
+        scalar, vector = self._lookup("GetYFromX")
+        return evaluate(x, lambda v: scalar(v, xt, yt, ext), lambda arr: vector(arr, xt, yt, ext))
 
     def get_x_from_y(self, y: Any, x_transform: Transform | str = Transform.NONE,
                      y_transform: Transform | str = Transform.NONE,
@@ -122,8 +142,8 @@ class OrderedPairedData:
         data = _data()
         xt, yt = net_enum(data.Transform, x_transform), net_enum(data.Transform, y_transform)
         ext = net_enum(data.ExtrapolationSides, extrapolation)
-        return evaluate(y, lambda v: self.net.GetXFromY(v, xt, yt, ext),
-                        lambda arr: self.net.GetXFromY(arr, xt, yt, ext))
+        scalar, vector = self._lookup("GetXFromY")
+        return evaluate(y, lambda v: scalar(v, xt, yt, ext), lambda arr: vector(arr, xt, yt, ext))
 
 
 class Linear:

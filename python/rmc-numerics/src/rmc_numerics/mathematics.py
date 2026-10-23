@@ -18,7 +18,7 @@ from typing import Any
 
 import numpy as np
 
-from rmc_numerics._util import bind, loop, namespace, net_enum
+from rmc_numerics._util import bind, cached_overload, evaluate, list_overload, loop, namespace, net_enum
 from rmc_numerics.marshal import to_net_doubles, to_net_matrix, to_numpy_doubles, to_numpy_matrix
 
 
@@ -186,7 +186,8 @@ def beta_incomplete(a: Any, b: Any, x: Any) -> Any:
     float or numpy.ndarray
         The values, shaped like ``x``.
     """
-    member = namespace("Numerics.Mathematics.SpecialFunctions").Beta.Incomplete
+    member = cached_overload("Beta.Incomplete(double, double, double)", lambda: bind(
+        namespace("Numerics.Mathematics.SpecialFunctions").Beta.Incomplete, 3))
     aa, bb = float(a), float(b)
     return loop(x, lambda v: member(aa, bb, v))
 
@@ -206,7 +207,8 @@ def beta_incomplete_inverse(a: Any, b: Any, probability: Any) -> Any:
     float or numpy.ndarray
         The x with I_x(a, b) equal to each probability, shaped like ``probability``.
     """
-    member = namespace("Numerics.Mathematics.SpecialFunctions").Beta.IncompleteInverse
+    member = cached_overload("Beta.IncompleteInverse(double, double, double)", lambda: bind(
+        namespace("Numerics.Mathematics.SpecialFunctions").Beta.IncompleteInverse, 3))
     aa, bb = float(a), float(b)
     return loop(probability, lambda p: member(aa, bb, p))
 
@@ -365,6 +367,21 @@ class LinkController:
         return to_numpy_matrix(self.net.LinkJacobian(to_net_doubles(x)).ToArray())
 
 
+def _tools(name: str, x: Any) -> Any:
+    """Evaluate ``Tools.Expm1`` or ``Tools.Log1p`` on a scalar or an array.
+
+    The scalar overload is bound once per process; an array crosses once into the
+    ``IList<double>`` overload (RMC.Numerics 2.3), or element by element on an older assembly.
+    Every value is the scalar member's.
+    """
+    scalar = cached_overload(f"Tools.{name}(double)", lambda: bind(getattr(namespace("Numerics").Tools, name)))
+    vector = cached_overload(f"Tools.{name}(IList<double>)",
+                             lambda: list_overload(getattr(namespace("Numerics").Tools, name)) or False)
+    if vector is False:
+        return loop(x, scalar)
+    return evaluate(x, scalar, vector)
+
+
 def expm1(x: Any) -> Any:
     """Return exp(x) − 1 accurately near zero (``Tools.Expm1``).
 
@@ -378,7 +395,7 @@ def expm1(x: Any) -> Any:
     float or numpy.ndarray
         The values exp(x) − 1, shaped like ``x``.
     """
-    return loop(x, bind(namespace("Numerics").Tools.Expm1))
+    return _tools("Expm1", x)
 
 
 def log1p(x: Any) -> Any:
@@ -394,7 +411,7 @@ def log1p(x: Any) -> Any:
     float or numpy.ndarray
         The values log(1 + x), shaped like ``x``.
     """
-    return loop(x, bind(namespace("Numerics").Tools.Log1p))
+    return _tools("Log1p", x)
 
 
 __all__ = [

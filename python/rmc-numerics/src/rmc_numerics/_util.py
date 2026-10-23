@@ -21,11 +21,17 @@ def unwrap(obj: Any) -> Any:
     return getattr(obj, "__implementation__", obj)
 
 
+_ENUM_MEMBERS: dict[tuple[Any, str], Any] = {}
+
+
 def net_enum(net_type: Any, value: Any) -> Any:
     """Map a Python enum member or a name to a member of a .NET enum.
 
     Names match case-insensitively and ignore underscores, so ``"normal_z"``,
     ``"NormalZ"`` and ``Transform.NORMAL_Z`` all select ``Transform.NormalZ``.
+    A resolved name is remembered per enum type: resolving it again through
+    ``System.Enum.GetNames`` costs about fifteen microseconds a call, more than many of
+    the members the value is passed to.
 
     Raises
     ------
@@ -36,14 +42,18 @@ def net_enum(net_type: Any, value: Any) -> Any:
         value = value.value
     if not isinstance(value, str):
         return value
+    key = value.replace("_", "").lower()
+    member = _ENUM_MEMBERS.get((net_type, key))
+    if member is not None:
+        return member
     import clr  # noqa: PLC0415
     import System  # noqa: PLC0415 - the runtime is started by the caller
 
-    key = value.replace("_", "").lower()
     clr_type = clr.GetClrType(net_type)
     for name in System.Enum.GetNames(clr_type):
         if str(name).lower() == key:
-            return getattr(net_type, str(name))
+            member = _ENUM_MEMBERS[(net_type, key)] = getattr(net_type, str(name))
+            return member
     names = ", ".join(str(name) for name in System.Enum.GetNames(clr_type))
     raise ValueError(f"'{value}' is not a member of {clr_type.Name} ({names}).")
 
@@ -112,6 +122,34 @@ def bind_list(member: Any) -> Any:
         return member.Overloads[IList[System.Double]]
     except (KeyError, TypeError, AttributeError):
         return member
+
+
+def list_overload(member: Any) -> Any:
+    """Return the ``IList<double>`` overload of a .NET method group, or None when it has none.
+
+    Like :func:`bind_list`, but a group without the array overload gives None, so a wrapper
+    can fall back to element-by-element evaluation on an assembly that predates the overload.
+    """
+    bound = bind_list(member)
+    return None if bound is member else bound
+
+
+_OVERLOADS: dict[str, Any] = {}
+
+
+def cached_overload(key: str, factory: Callable[[], Any]) -> Any:
+    """Return a bound .NET overload, resolving it with ``factory`` on first use only.
+
+    pythonnet resolves an overloaded method group on every call; for a group with many
+    overloads (``Statistics.Percentile`` has eight) the resolution costs 40 to 70
+    microseconds, several times the call itself. Binding the exact overload once per
+    process, under a key naming the member and its signature, removes that cost without
+    changing which member runs.
+    """
+    member = _OVERLOADS.get(key)
+    if member is None:
+        member = _OVERLOADS[key] = factory()
+    return member
 
 
 def namespace(name: str) -> Any:

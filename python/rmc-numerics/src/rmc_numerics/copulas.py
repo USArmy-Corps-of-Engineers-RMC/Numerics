@@ -13,7 +13,7 @@ import numpy as np
 
 from rmc_numerics._util import namespace, unwrap
 from rmc_numerics.distributions import UnivariateDistribution
-from rmc_numerics.marshal import to_numpy_doubles, to_numpy_matrix
+from rmc_numerics.marshal import to_net_doubles, to_numpy_doubles, to_numpy_matrix
 
 
 def _nc() -> Any:
@@ -21,14 +21,36 @@ def _nc() -> Any:
     return namespace("Numerics.Distributions.Copulas")
 
 
-def _pairwise(u: Any, v: Any, member: Any) -> Any:
-    """Evaluate a scalar (u, v) copula member over broadcast arrays."""
+def _pairwise(u: Any, v: Any, copula: Any, name: str) -> Any:
+    """Evaluate a (u, v) copula member over broadcast arrays.
+
+    A scalar pair calls the ``(double, double)`` overload. Arrays cross once into the
+    ``(IList<double>, IList<double>)`` overload of ``BivariateCopula`` (RMC.Numerics 2.3), or pair
+    by pair on an older assembly; every value is the scalar member's. Both overloads are bound
+    once per copula object.
+    """
+    import System  # noqa: PLC0415 - the runtime is running (the copula exists)
+    from System.Collections.Generic import IList  # noqa: PLC0415
+
+    cache = copula.__dict__.setdefault("_bound", {})
+    entry = cache.get(name)
+    if entry is None or entry[0] is not copula.net:
+        group = getattr(copula.net, name)
+        scalar = group.Overloads[System.Double, System.Double]
+        try:
+            vector = group.Overloads[IList[System.Double], IList[System.Double]]
+        except (KeyError, TypeError):
+            vector = None
+        entry = cache[name] = (copula.net, scalar, vector)
+    _, scalar, vector = entry
     uu, vv = np.broadcast_arrays(np.asarray(u, dtype=np.float64), np.asarray(v, dtype=np.float64))
     if uu.ndim == 0:
-        return float(member(float(uu), float(vv)))
+        return float(scalar(float(uu), float(vv)))
+    if vector is not None:
+        return to_numpy_doubles(vector(to_net_doubles(uu.ravel()), to_net_doubles(vv.ravel()))).reshape(uu.shape)
     out = np.empty(uu.size, dtype=np.float64)
     for index, (a, b) in enumerate(zip(uu.ravel(), vv.ravel(), strict=True)):
-        out[index] = member(float(a), float(b))
+        out[index] = scalar(float(a), float(b))
     return out.reshape(uu.shape)
 
 
@@ -82,7 +104,7 @@ class BivariateCopula:
         float or numpy.ndarray
             Densities.
         """
-        return _pairwise(u, v, self.net.PDF)
+        return _pairwise(u, v, self, "PDF")
 
     def cdf(self, u: Any, v: Any) -> Any:
         """Return the copula C(u, v).
@@ -97,7 +119,7 @@ class BivariateCopula:
         float or numpy.ndarray
             Joint non-exceedance probabilities.
         """
-        return _pairwise(u, v, self.net.CDF)
+        return _pairwise(u, v, self, "CDF")
 
     def conditional_cdf(self, u: Any, v: Any) -> Any:
         """Return the conditional CDF ``ConditionalCDF(u, v)``.
@@ -112,7 +134,7 @@ class BivariateCopula:
         float or numpy.ndarray
             Conditional probabilities.
         """
-        return _pairwise(u, v, self.net.ConditionalCDF)
+        return _pairwise(u, v, self, "ConditionalCDF")
 
     def inverse_conditional_cdf(self, u: Any, t: Any) -> Any:
         """Return the inverse conditional CDF ``InverseConditionalCDF(u, t)``.
@@ -129,7 +151,7 @@ class BivariateCopula:
         float or numpy.ndarray
             The second margin v.
         """
-        return _pairwise(u, t, self.net.InverseConditionalCDF)
+        return _pairwise(u, t, self, "InverseConditionalCDF")
 
     def inverse_cdf(self, u: float, v: float) -> np.ndarray:
         """Map two independent uniforms to a dependent pair (``InverseCDF(u, v)``).
