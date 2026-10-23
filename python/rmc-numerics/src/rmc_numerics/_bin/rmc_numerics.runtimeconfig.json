@@ -7,7 +7,9 @@
     },
     "configProperties": {
       "System.Reflection.Metadata.MetadataUpdater.IsSupported": false,
-      "System.Runtime.Serialization.EnableUnsafeBinaryFormatterSerialization": false
+      "System.Runtime.Serialization.EnableUnsafeBinaryFormatterSerialization": false,
+      "System.Runtime.TieredCompilation.QuickJitForLoops": false,
+      "System.Runtime.TieredPGO": false
     }
   }
 }

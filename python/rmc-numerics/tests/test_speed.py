@@ -8,6 +8,7 @@ are also checked against them at a tolerance that covers the different operation
 from __future__ import annotations
 
 import importlib
+import json
 import math
 
 import numpy as np
@@ -238,3 +239,22 @@ def test_ordered_paired_data_bound_lookups_return_the_bits_of_the_method_group()
     assert scalar == float(table.net.GetYFromX(42.0, xt, yt, ext))
     assert _bits(inverse).tolist() == _bits(to_numpy_doubles(
         table.net.GetXFromY(to_net_doubles(np.linspace(0.05, 0.95, 19)), xt, yt, ext))).tolist()
+
+
+def test_runtime_config_compiles_loops_optimized_without_profile_guided_tiering() -> None:
+    # Arrange
+    from rmc_numerics import identity, runtime  # noqa: PLC0415
+
+    initialize()
+    import System  # noqa: PLC0415
+
+    packaged = json.loads((runtime._PACKAGED_BIN / runtime.RUNTIME_CONFIG_FILE).read_text(encoding="utf-8"))
+    loaded_file = runtime._resolve_runtime_config(identity.numerics_identity().location.parent)
+    loaded = json.loads(loaded_file.read_text(encoding="utf-8"))["runtimeOptions"]["configProperties"]
+    # Act / Assert: the packaged settings, and the running runtime reports the settings it was started with
+    properties = packaged["runtimeOptions"]["configProperties"]
+    assert properties["System.Runtime.TieredCompilation.QuickJitForLoops"] is False
+    assert properties["System.Runtime.TieredPGO"] is False
+    for name in ("System.Runtime.TieredCompilation.QuickJitForLoops", "System.Runtime.TieredPGO"):
+        if name in loaded:
+            assert str(System.AppContext.GetData(name)).lower() == str(loaded[name]).lower()

@@ -21,6 +21,16 @@ A ``dll_dir`` or ``RMC_NUMERICS_DLL_DIR`` that is not a directory is an error ra
 than a reason to keep searching. The runtime configuration is always the packaged
 ``_bin/rmc_numerics.runtimeconfig.json`` unless the chosen directory holds its own.
 
+The packaged configuration turns off quick JIT for methods with loops
+(``System.Runtime.TieredCompilation.QuickJitForLoops``) and profile-guided tiering
+(``System.Runtime.TieredPGO``). Most Numerics work from Python is one call that loops over an
+array, and a process that keeps compiling new methods delays the promotion of unoptimized
+first-tier code for seconds, so the array members ran up to about three times slower than their
+optimized code. Compiling those methods optimized at first use removes that, at a start-up
+cost of about twenty milliseconds. The settings change only when machine code is optimized, never the
+floating-point operations it performs, so every value is unchanged; the ``DOTNET_TC_QuickJitForLoops``
+and ``DOTNET_TieredPGO`` environment variables override them.
+
 The .NET installation is ``DOTNET_ROOT`` when that variable is set, otherwise the one
 clr_loader discovers (the default installation directory on Windows and macOS, or the
 parent of the ``dotnet`` executable on ``PATH``).
