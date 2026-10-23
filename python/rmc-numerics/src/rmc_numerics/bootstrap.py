@@ -133,7 +133,8 @@ class UncertaintyAnalysisResults:
         return self.confidence_intervals
 
     def process_mean_curve(self, sampled: Sequence[UnivariateDistribution | None], probabilities: Any,
-                           min_probability: float = 0.001, max_probability: float = 1 - 1e-9) -> np.ndarray:
+                           min_probability: float = 0.001, max_probability: float = 1 - 1e-9,
+                           weights: Any = None) -> np.ndarray:
         """Compute the expected-probability curve E[F] (``ProcessMeanCurve``).
 
         Parameters
@@ -144,14 +145,22 @@ class UncertaintyAnalysisResults:
             Non-exceedance probabilities at which the curve is read.
         min_probability, max_probability : float, optional
             Range of the value grid.
+        weights : array_like, optional
+            Non-negative member weights (for example logic-tree branch weights), one per
+            member; the weighted overload averages ``sum(w F) / sum(w)``. Equal weights give
+            bitwise the unweighted curve. Default None, the unweighted mean.
 
         Returns
         -------
         numpy.ndarray
             The mean curve.
         """
-        self.net.ProcessMeanCurve(_members(sampled), to_net_doubles(probabilities), float(min_probability),
-                                  float(max_probability))
+        if weights is None:
+            self.net.ProcessMeanCurve(_members(sampled), to_net_doubles(probabilities), float(min_probability),
+                                      float(max_probability))
+        else:
+            self.net.ProcessMeanCurve(_members(sampled), to_net_doubles(probabilities), to_net_doubles(weights),
+                                      float(min_probability), float(max_probability))
         return self.mean_curve
 
     @property

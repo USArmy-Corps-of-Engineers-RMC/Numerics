@@ -132,3 +132,23 @@ def test_weibull_plotting_position_percentile_agrees_with_numpy_type_6() -> None
     assert scalar == statistics.plotting_position_percentile(data, [0.9], "weibull")[0]
     assert scalar == pytest.approx(np.quantile(data, 0.9, method="weibull"), rel=1e-13)
     assert hazen == pytest.approx(8.1, abs=1e-12)
+
+
+def test_weighted_mean_curve_reproduces_the_unweighted_curve_at_equal_weights() -> None:
+    # Arrange
+    _require("Numerics.Distributions", "UncertaintyAnalysisResults", "ProcessMeanCurve",
+             "Numerics.Distributions.UnivariateDistributionBase[], Numerics", "System.Double[]", "System.Double[]",
+             "System.Double", "System.Double")
+    from rmc_numerics.bootstrap import UncertaintyAnalysisResults
+
+    members = [distributions.GeneralizedExtremeValue(100.0, 20.0, -0.1),
+               distributions.GeneralizedExtremeValue(110.0, 25.0, 0.0),
+               distributions.GeneralizedExtremeValue(95.0, 15.0, 0.1)]
+    p = [0.01, 0.5, 0.99]
+    # Act
+    plain = UncertaintyAnalysisResults().process_mean_curve(members, p)
+    equal = UncertaintyAnalysisResults().process_mean_curve(members, p, weights=[0.2, 0.2, 0.2])
+    weighted = UncertaintyAnalysisResults().process_mean_curve(members, p, weights=[0.6, 0.3, 0.1])
+    # Assert
+    np.testing.assert_array_equal(equal.view(np.uint64), plain.view(np.uint64))
+    assert not np.array_equal(weighted, plain)
