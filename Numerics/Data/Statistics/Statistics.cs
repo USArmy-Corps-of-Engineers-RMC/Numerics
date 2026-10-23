@@ -653,7 +653,7 @@ namespace Numerics.Data.Statistics
             if (double.IsNaN(k) || k < 0.0 || k > 1.0) throw new ArgumentOutOfRangeException(nameof(k), "k must be in [0,1].");
 
             // Copy & sort if needed
-            var sortedData = dataIsSorted ? data: data.OrderBy(x => x).ToArray();
+            var sortedData = dataIsSorted ? data : SortedCopy(data);
 
             // Trivial cases
             if (n == 1 || k == 0.0) return sortedData[0];
@@ -683,7 +683,7 @@ namespace Numerics.Data.Statistics
             if (k == null) throw new ArgumentNullException(nameof(k));
 
             // Copy & sort if needed
-            var sortedData = dataIsSorted ? data : data.OrderBy(x => x).ToArray();
+            var sortedData = dataIsSorted ? data : SortedCopy(data);
             var result = new double[k.Count];
             for (int i = 0; i < k.Count; i++)
             {
@@ -729,7 +729,7 @@ namespace Numerics.Data.Statistics
             if (n == 0) throw new ArgumentException("Sequence contains no elements.", nameof(data));
             if (double.IsNaN(k) || k < 0.0 || k > 1.0) throw new ArgumentOutOfRangeException(nameof(k), "k must be in [0,1].");
             double h = PlottingPositionRank(n, k, plottingPositionType);
-            var sortedData = dataIsSorted ? data : data.OrderBy(x => x).ToArray();
+            var sortedData = dataIsSorted ? data : SortedCopy(data);
             return InterpolateRank(sortedData, h);
         }
 
@@ -756,10 +756,53 @@ namespace Numerics.Data.Statistics
             if (k == null) throw new ArgumentNullException(nameof(k));
             var result = new double[k.Count];
             if (k.Count == 0) return result;
-            var sortedData = dataIsSorted ? data : data.OrderBy(x => x).ToArray();
+            var sortedData = dataIsSorted ? data : SortedCopy(data);
             for (int i = 0; i < k.Count; i++)
                 result[i] = Percentile(sortedData, k[i], plottingPositionType, true);
             return result;
+        }
+
+        /// <summary>
+        /// Returns an ascending copy of the data, ordered exactly as a stable sort orders it.
+        /// </summary>
+        /// <param name="data">The data.</param>
+        /// <returns>The values in ascending order, NaN first.</returns>
+        /// <remarks>
+        /// <para>
+        /// The percentile members sorted with the stable <c>OrderBy</c> of <c>System.Linq</c> under
+        /// <see cref="Comparer{T}.Default"/>; this returns the identical array, bit for bit, several times faster.
+        /// <see cref="Array.Sort{T}(T[])"/> orders the values the same way (NaN first, then ascending) but is not
+        /// stable, and the only values that compare equal while differing in their bits are the zeros (−0 and +0)
+        /// and the NaNs (their payloads). Each of those groups occupies one contiguous run of the sorted array, so
+        /// writing the group's members back into its run in their original order reproduces the stable order
+        /// exactly. Every other run of equal values is bitwise uniform, so its order cannot be observed.
+        /// </para>
+        /// </remarks>
+        private static double[] SortedCopy(IList<double> data)
+        {
+            var sorted = new double[data.Count];
+            data.CopyTo(sorted, 0);
+            Array.Sort(sorted);
+
+            int nanCount = 0, zeroCount = 0;
+            for (int i = 0; i < sorted.Length; i++)
+            {
+                if (double.IsNaN(sorted[i])) nanCount++;
+                else if (sorted[i] == 0d) zeroCount++;
+            }
+            if (nanCount < 2 && zeroCount < 2) return sorted;
+
+            // The zeros sit after the NaNs and every negative value.
+            int zeroStart = nanCount;
+            while (zeroStart < sorted.Length && sorted[zeroStart] < 0d) zeroStart++;
+            int nanIndex = 0, zeroIndex = zeroStart;
+            for (int i = 0; i < data.Count; i++)
+            {
+                double value = data[i];
+                if (double.IsNaN(value)) sorted[nanIndex++] = value;
+                else if (value == 0d) sorted[zeroIndex++] = value;
+            }
+            return sorted;
         }
 
         /// <summary>
@@ -853,6 +896,83 @@ namespace Numerics.Data.Statistics
         /// </remarks>
         public static double[,] ColumnPercentiles(double[,] data, IList<double> k, out int[] excluded)
         {
+            return ColumnPercentiles(data, k, column => Percentile(column, k, false), out excluded);
+        }
+
+        /// <summary>
+        /// Returns the plotting-position percentiles of each column of a matrix over its finite entries.
+        /// </summary>
+        /// <param name="data">The samples, one row per member and one column per variable, for example one row
+        /// per year and one column per grid cell.</param>
+        /// <param name="k">The list of k-th percentiles to find, each in [0,1].</param>
+        /// <param name="plottingPositionType">The plotting positions of the order statistics.</param>
+        /// <returns>
+        /// A 2-D array with one row per entry of <paramref name="k"/> and one column per column of
+        /// <paramref name="data"/>; a column without a finite entry gives <see cref="double.NaN"/>.
+        /// </returns>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="data"/> or <paramref name="k"/> is null.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when any entry of <paramref name="k"/> is not a finite
+        /// value in [0,1], or <paramref name="plottingPositionType"/> is not a defined value.</exception>
+        /// <remarks>
+        /// See <see cref="ColumnPercentiles(double[,], IList{double}, PlottingPositions.PlottingPostionType, out int[])"/>.
+        /// </remarks>
+        public static double[,] ColumnPercentiles(double[,] data, IList<double> k, PlottingPositions.PlottingPostionType plottingPositionType)
+        {
+            return ColumnPercentiles(data, k, plottingPositionType, out _);
+        }
+
+        /// <summary>
+        /// Returns the plotting-position percentiles of each column of a matrix over its finite entries, and the
+        /// number of non-finite entries excluded from each column.
+        /// </summary>
+        /// <param name="data">The samples, one row per member and one column per variable, for example one row
+        /// per year and one column per grid cell.</param>
+        /// <param name="k">The list of k-th percentiles to find, each in [0,1].</param>
+        /// <param name="plottingPositionType">The plotting positions of the order statistics.</param>
+        /// <param name="excluded">On return, the number of NaN or infinite entries excluded from each column.</param>
+        /// <returns>
+        /// A 2-D array with one row per entry of <paramref name="k"/> and one column per column of
+        /// <paramref name="data"/>; a column without a finite entry gives <see cref="double.NaN"/>.
+        /// </returns>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="data"/> or <paramref name="k"/> is null.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when any entry of <paramref name="k"/> is not a finite
+        /// value in [0,1], or <paramref name="plottingPositionType"/> is not a defined value.</exception>
+        /// <remarks>
+        /// <para>
+        /// The plotting-position counterpart of <see cref="ColumnPercentiles(double[,], IList{double}, out int[])"/>:
+        /// each column's finite entries are gathered in row order and passed to
+        /// <see cref="Percentile(IList{double}, IList{double}, PlottingPositions.PlottingPostionType, bool)"/>, so every
+        /// value is bitwise the percentile that member returns for that column (Weibull is Hyndman and Fan type 6).
+        /// NaN and infinite entries are excluded, and the columns are evaluated in parallel, each into its own result
+        /// column, so the result does not depend on the machine or the thread count.
+        /// </para>
+        /// <para>
+        /// One call replaces one call per column, which matters when the caller crosses a language boundary for
+        /// each call (for example the annual maxima of every cell of a grid).
+        /// </para>
+        /// </remarks>
+        public static double[,] ColumnPercentiles(double[,] data, IList<double> k, PlottingPositions.PlottingPostionType plottingPositionType, out int[] excluded)
+        {
+            if (data == null) throw new ArgumentNullException(nameof(data));
+            if (k == null) throw new ArgumentNullException(nameof(k));
+            if (!Enum.IsDefined(typeof(PlottingPositions.PlottingPostionType), plottingPositionType))
+                throw new ArgumentOutOfRangeException(nameof(plottingPositionType), "Unknown plotting position type.");
+            return ColumnPercentiles(data, k, column => Percentile(column, k, plottingPositionType, false), out excluded);
+        }
+
+        /// <summary>
+        /// Evaluates a percentile member over the finite entries of each column of a matrix.
+        /// </summary>
+        /// <param name="data">The samples, one row per member and one column per variable.</param>
+        /// <param name="k">The list of k-th percentiles to find, each in [0,1].</param>
+        /// <param name="columnPercentiles">Returns the percentiles of one column's gathered finite entries, one per
+        /// entry of <paramref name="k"/>.</param>
+        /// <param name="excluded">On return, the number of NaN or infinite entries excluded from each column.</param>
+        /// <returns>One row per entry of <paramref name="k"/> and one column per column of <paramref name="data"/>.</returns>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="data"/> or <paramref name="k"/> is null.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when any entry of <paramref name="k"/> is not a finite value in [0,1].</exception>
+        private static double[,] ColumnPercentiles(double[,] data, IList<double> k, Func<IList<double>, double[]> columnPercentiles, out int[] excluded)
+        {
             if (data == null) throw new ArgumentNullException(nameof(data));
             if (k == null) throw new ArgumentNullException(nameof(k));
             for (int i = 0; i < k.Count; i++)
@@ -879,7 +999,7 @@ namespace Numerics.Data.Statistics
                     for (int i = 0; i < k.Count; i++) result[i, j] = double.NaN;
                     return;
                 }
-                var percentiles = Percentile(new ArraySegment<double>(column, 0, finite), k, false);
+                var percentiles = columnPercentiles(new ArraySegment<double>(column, 0, finite));
                 for (int i = 0; i < k.Count; i++) result[i, j] = percentiles[i];
             });
             excluded = counts;
