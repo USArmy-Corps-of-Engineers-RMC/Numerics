@@ -693,6 +693,89 @@ namespace Numerics.Data.Statistics
         }
 
         /// <summary>
+        /// Returns the percentiles of each column of a matrix over its finite entries.
+        /// </summary>
+        /// <param name="data">The samples, one row per member and one column per variable, for example one row
+        /// per realization of an ensemble and one column per node of a curve.</param>
+        /// <param name="k">The list of k-th percentiles to find, each in [0,1].</param>
+        /// <returns>
+        /// A 2-D array with one row per entry of <paramref name="k"/> and one column per column of
+        /// <paramref name="data"/>; a column without a finite entry gives <see cref="double.NaN"/>.
+        /// </returns>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="data"/> or <paramref name="k"/> is null.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when any entry of <paramref name="k"/> is not a finite value in [0,1].</exception>
+        /// <remarks>
+        /// See <see cref="ColumnPercentiles(double[,], IList{double}, out int[])"/>.
+        /// </remarks>
+        public static double[,] ColumnPercentiles(double[,] data, IList<double> k)
+        {
+            return ColumnPercentiles(data, k, out _);
+        }
+
+        /// <summary>
+        /// Returns the percentiles of each column of a matrix over its finite entries, and the number of
+        /// non-finite entries excluded from each column.
+        /// </summary>
+        /// <param name="data">The samples, one row per member and one column per variable, for example one row
+        /// per realization of an ensemble and one column per node of a curve.</param>
+        /// <param name="k">The list of k-th percentiles to find, each in [0,1].</param>
+        /// <param name="excluded">On return, the number of NaN or infinite entries excluded from each column.</param>
+        /// <returns>
+        /// A 2-D array with one row per entry of <paramref name="k"/> and one column per column of
+        /// <paramref name="data"/>; a column without a finite entry gives <see cref="double.NaN"/>.
+        /// </returns>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="data"/> or <paramref name="k"/> is null.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when any entry of <paramref name="k"/> is not a finite value in [0,1].</exception>
+        /// <remarks>
+        /// <para>
+        /// Each column's finite entries are gathered in row order and passed to
+        /// <see cref="Percentile(IList{double}, IList{double}, bool)"/>, so every value is bitwise the
+        /// zero-based linear interpolation (Type 7) that member returns for that column. NaN and infinite entries
+        /// are excluded rather than sorted in: left in, NaN would sort first and move the low percentiles. With
+        /// every entry of a column finite, the column's result is the percentile over all its entries.
+        /// </para>
+        /// <para>
+        /// The columns are evaluated in parallel, each into its own result column from its own gathered copy,
+        /// so the result does not depend on the machine or the thread count. One call replaces one call per
+        /// column.
+        /// </para>
+        /// </remarks>
+        public static double[,] ColumnPercentiles(double[,] data, IList<double> k, out int[] excluded)
+        {
+            if (data == null) throw new ArgumentNullException(nameof(data));
+            if (k == null) throw new ArgumentNullException(nameof(k));
+            for (int i = 0; i < k.Count; i++)
+            {
+                if (double.IsNaN(k[i]) || k[i] < 0.0 || k[i] > 1.0) throw new ArgumentOutOfRangeException(nameof(k), "k must be in [0,1].");
+            }
+
+            int rows = data.GetLength(0);
+            int columns = data.GetLength(1);
+            var result = new double[k.Count, columns];
+            var counts = new int[columns];
+            Parallel.For(0, columns, j =>
+            {
+                var column = new double[rows];
+                int finite = 0;
+                for (int r = 0; r < rows; r++)
+                {
+                    double value = data[r, j];
+                    if (!double.IsNaN(value) && !double.IsInfinity(value)) column[finite++] = value;
+                }
+                counts[j] = rows - finite;
+                if (finite == 0)
+                {
+                    for (int i = 0; i < k.Count; i++) result[i, j] = double.NaN;
+                    return;
+                }
+                var percentiles = Percentile(new ArraySegment<double>(column, 0, finite), k, false);
+                for (int i = 0; i < k.Count; i++) result[i, j] = percentiles[i];
+            });
+            excluded = counts;
+            return result;
+        }
+
+        /// <summary>
         /// Estimates the 5-number summary {min, 25th-percentile, 50th-percentile, 75th-percentile, max} from a sample of data.
         /// </summary>
         /// <param name="data">Sample of data, no sorting is assumed.</param>

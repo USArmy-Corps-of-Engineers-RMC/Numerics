@@ -12,7 +12,7 @@ import numpy as np
 
 from rmc_numerics._util import namespace, net_enum
 from rmc_numerics.enums import AutocorrelationType, PlottingPosition, WeightType
-from rmc_numerics.marshal import to_net_doubles, to_numpy_doubles, to_numpy_matrix
+from rmc_numerics.marshal import to_net_doubles, to_net_matrix, to_numpy_doubles, to_numpy_ints, to_numpy_matrix
 
 
 def _stats() -> Any:
@@ -124,6 +124,38 @@ def percentile(data: Any, k: Any, weights: Any = None, data_is_sorted: bool = Fa
     result = s.Percentile(values, ks, bool(data_is_sorted)) if w is None else s.Percentile(values, ks, w,
                                                                                          bool(data_is_sorted))
     return to_numpy_doubles(result).reshape(karr.shape)
+
+
+def column_percentiles(data: Any, k: Any) -> tuple[np.ndarray, np.ndarray]:
+    """Return the Type 7 percentiles of each column over its finite entries (``Statistics.ColumnPercentiles``).
+
+    Each column's finite entries go through ``Statistics.Percentile`` in one call for the
+    whole matrix, so every value is bitwise the per-column ``percentile`` of the finite
+    entries; NaN and infinite entries are excluded rather than sorted in.
+
+    Parameters
+    ----------
+    data : array_like
+        Two-dimensional samples, one row per member (for example a realization) and one
+        column per variable (for example a curve node).
+    k : float or array_like
+        Percentiles as fractions in [0, 1].
+
+    Returns
+    -------
+    percentiles : numpy.ndarray
+        Shape ``(len(k), columns)`` (``(columns,)`` for a scalar ``k``); NaN for a column
+        without a finite entry.
+    excluded : numpy.ndarray
+        The int32 number of non-finite entries excluded from each column.
+    """
+    s = _stats().Statistics
+    karr = np.asarray(k, dtype=np.float64)
+    table, excluded = s.ColumnPercentiles(to_net_matrix(data), to_net_doubles(karr.ravel()), None)
+    result = to_numpy_matrix(table)
+    if karr.ndim == 0:
+        result = result[0]
+    return result, to_numpy_ints(excluded)
 
 
 def linear_moments(data: Any) -> np.ndarray:
@@ -296,7 +328,8 @@ def autocorrelation(data: Any, max_lag: int | None = None,
 
 
 __all__ = [
-    "RunningStatistics", "autocorrelation", "linear_moments", "mean", "percentile", "plotting_positions",
+    "RunningStatistics", "autocorrelation", "column_percentiles", "linear_moments", "mean", "percentile",
+    "plotting_positions",
     "standard_deviation",
     "variance",
 ]
