@@ -284,7 +284,7 @@ namespace Distributions.BivariateCopulas
         /// must still complete. The asserted contract is the
         /// inverse relationship, not a particular value: every call returns a probability in
         /// [0, 1] whose value is monotone in the conditional level. The contract is
-        /// deliberately not a round trip through <see cref="BivariateCopula.ConditionalCDF"/>:
+        /// deliberately not a round trip through <see cref="BivariateCopula.ConditionalCDF(double, double)"/>:
         /// the Archimedean families evaluate that through the generator ratio
         /// φ′(u)/φ′(C(u,v)) rather than the closed form this inverse solves, and its precision
         /// degrades at v = 1 for large θ (the generator-ratio form returns about 0.52 at θ = 20, u = 0.846,

@@ -309,7 +309,7 @@ namespace Distributions.BivariateCopulas
         /// so several values satisfy h(v|u) = 1 − 1E-16 to full double precision and the
         /// solver may legitimately return any of them. The asserted contract is therefore
         /// completion, range, and monotonicity in the conditional level — deliberately not a
-        /// round trip through <see cref="BivariateCopula.ConditionalCDF"/>, which the
+        /// round trip through <see cref="BivariateCopula.ConditionalCDF(double, double)"/>, which the
         /// Archimedean families evaluate through the generator ratio φ′(u)/φ′(C(u,v)) rather
         /// than the closed form this inverse solves, and whose precision degrades at v = 1 for
         /// large θ. Interior levels are pinned against reference values above, which is where

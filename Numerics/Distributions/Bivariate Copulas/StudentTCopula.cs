@@ -338,7 +338,7 @@ namespace Numerics.Distributions.Copulas
         /// <param name="v">The second uniform variate in (0, 1), used as the conditional probability.</param>
         /// <returns>
         /// A 2-element array [u, v'] where v' is the conditionally sampled variate,
-        /// computed by <see cref="InverseConditionalCDF"/>.
+        /// computed by <see cref="InverseConditionalCDF(double, double)"/>.
         /// </returns>
         public override double[] InverseCDF(double u, double v)
         {
