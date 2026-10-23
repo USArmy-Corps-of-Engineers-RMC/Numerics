@@ -290,6 +290,79 @@ namespace Numerics.Distributions
         }
 
         /// <summary>
+        /// The CCDF evaluated over a list of x values.
+        /// </summary>
+        /// <param name="xValues">List of x values.</param>
+        /// <returns>One exceedance probability per x value, each equal to <see cref="CCDF(double)"/> at that value.</returns>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="xValues"/> is null.</exception>
+        /// <remarks>
+        /// One call evaluates the whole list, in the same way as <see cref="CDF(IList{double})"/>; a caller crossing
+        /// a language boundary (for example from Python) pays the crossing once instead of once per value.
+        /// </remarks>
+        public double[] CCDF(IList<double> xValues)
+        {
+            if (xValues == null) throw new ArgumentNullException(nameof(xValues));
+            var result = new double[xValues.Count];
+            for (int i = 0; i < xValues.Count; i++)
+                result[i] = CCDF(xValues[i]);
+            return result;
+        }
+
+        /// <summary>
+        /// The natural logarithm of the PDF evaluated over a list of x values.
+        /// </summary>
+        /// <param name="xValues">List of x values.</param>
+        /// <returns>One log density per x value, each equal to <see cref="LogPDF(double)"/> at that value.</returns>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="xValues"/> is null.</exception>
+        /// <remarks>
+        /// One call evaluates the whole list, in the same way as <see cref="PDF(IList{double})"/>.
+        /// </remarks>
+        public double[] LogPDF(IList<double> xValues)
+        {
+            if (xValues == null) throw new ArgumentNullException(nameof(xValues));
+            var result = new double[xValues.Count];
+            for (int i = 0; i < xValues.Count; i++)
+                result[i] = LogPDF(xValues[i]);
+            return result;
+        }
+
+        /// <summary>
+        /// The natural logarithm of the CDF evaluated over a list of x values.
+        /// </summary>
+        /// <param name="xValues">List of x values.</param>
+        /// <returns>One log non-exceedance probability per x value, each equal to <see cref="LogCDF(double)"/> at that value.</returns>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="xValues"/> is null.</exception>
+        /// <remarks>
+        /// One call evaluates the whole list, in the same way as <see cref="CDF(IList{double})"/>.
+        /// </remarks>
+        public double[] LogCDF(IList<double> xValues)
+        {
+            if (xValues == null) throw new ArgumentNullException(nameof(xValues));
+            var result = new double[xValues.Count];
+            for (int i = 0; i < xValues.Count; i++)
+                result[i] = LogCDF(xValues[i]);
+            return result;
+        }
+
+        /// <summary>
+        /// The natural logarithm of the CCDF evaluated over a list of x values.
+        /// </summary>
+        /// <param name="xValues">List of x values.</param>
+        /// <returns>One log exceedance probability per x value, each equal to <see cref="LogCCDF(double)"/> at that value.</returns>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="xValues"/> is null.</exception>
+        /// <remarks>
+        /// One call evaluates the whole list, in the same way as <see cref="CDF(IList{double})"/>.
+        /// </remarks>
+        public double[] LogCCDF(IList<double> xValues)
+        {
+            if (xValues == null) throw new ArgumentNullException(nameof(xValues));
+            var result = new double[xValues.Count];
+            for (int i = 0; i < xValues.Count; i++)
+                result[i] = LogCCDF(xValues[i]);
+            return result;
+        }
+
+        /// <summary>
         /// The Inverse CDF evaluated over a list of probabilities.
         /// </summary>
         /// <param name="probabilities">List of probability values.</param>
