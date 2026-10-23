@@ -88,3 +88,61 @@ def test_singles_block_round_trip_c_order() -> None:
     assert dims == (2, 3, 4)
     assert float(flat[(1 * 3 + 0) * 4 + 2]) == float(block[1, 0, 2])
     np.testing.assert_array_equal(back.view(np.uint32), block.view(np.uint32))
+
+
+def test_longs_round_trip_bit_exact_and_range_refusal() -> None:
+    # Arrange
+    values = np.array([-(2**63), -1, 0, 1, 637_134_336_000_000_000, 2**63 - 1], dtype=np.int64)
+    # Act
+    net = marshal.to_net_longs(values)
+    back = marshal.to_numpy_longs(net)
+    # Assert
+    assert int(net[5]) == 2**63 - 1 and int(net[0]) == -(2**63)
+    np.testing.assert_array_equal(back, values)
+    assert back.dtype == np.int64
+    assert marshal.to_numpy_longs(marshal.to_net_longs([])).size == 0
+    np.testing.assert_array_equal(marshal.to_numpy_longs(marshal.to_net_longs([2**40, -3.9])), [2**40, -3])
+    with pytest.raises(OverflowError, match="Int64"):
+        marshal.to_net_longs([2**63])
+    with pytest.raises(OverflowError, match="Int64"):
+        marshal.to_net_longs(np.array([2**64 - 1], dtype=np.uint64))
+    with pytest.raises(OverflowError, match="not finite"):
+        marshal.to_net_longs([np.nan])
+    with pytest.raises(TypeError):
+        marshal.to_net_longs(np.array(["a"]))
+    with pytest.raises(ValueError, match="1-D"):
+        marshal.to_net_longs(np.zeros((2, 2), dtype=np.int64))
+
+
+def test_sbytes_round_trip_bit_exact_and_range_refusal() -> None:
+    # Arrange
+    values = np.array([-128, -1, 0, 1, 127], dtype=np.int8)
+    # Act
+    net = marshal.to_net_sbytes(values)
+    back = marshal.to_numpy_sbytes(net)
+    # Assert
+    assert [int(net[i]) for i in range(net.Length)] == [-128, -1, 0, 1, 127]
+    np.testing.assert_array_equal(back, values)
+    assert back.dtype == np.int8
+    assert marshal.to_numpy_sbytes(marshal.to_net_sbytes([])).size == 0
+    with pytest.raises(OverflowError, match="SByte"):
+        marshal.to_net_sbytes([128])
+    with pytest.raises(OverflowError, match="SByte"):
+        marshal.to_net_sbytes(np.array([-129], dtype=np.int16))
+
+
+def test_bools_round_trip_and_type_refusal() -> None:
+    # Arrange
+    values = np.array([True, False, False, True, True], dtype=bool)
+    # Act
+    net = marshal.to_net_bools(values)
+    back = marshal.to_numpy_bools(net)
+    # Assert
+    assert [bool(net[i]) for i in range(net.Length)] == values.tolist()
+    np.testing.assert_array_equal(back, values)
+    assert back.dtype == np.bool_
+    assert marshal.to_numpy_bools(marshal.to_net_bools([])).size == 0
+    with pytest.raises(TypeError, match="booleans"):
+        marshal.to_net_bools([1, 0])
+    with pytest.raises(ValueError, match="1-D"):
+        marshal.to_net_bools(np.zeros((2, 2), dtype=bool))

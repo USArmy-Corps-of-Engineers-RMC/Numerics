@@ -6,7 +6,8 @@ RMC.Numerics for Python. The wheel ships the `Numerics.dll` assembly from the pu
 - the single CoreCLR loader (`rmc_numerics.runtime`): one .NET runtime and one `Numerics`
   assembly per Python process, with `add_assembly` for dependent assemblies such as
   `Hydrologics.dll` or `RMC.BestFit.dll`;
-- bit-exact bulk marshaling between NumPy and .NET arrays (`rmc_numerics.marshal`);
+- bit-exact bulk marshaling between NumPy and .NET arrays (`rmc_numerics.marshal`: `Double`,
+  `Int32`, `Int64`, `SByte`, `Boolean` and `Single` arrays and `double[,]`);
 - the load identity (`rmc_numerics.numerics_identity`): the loaded assembly's version and
   file SHA-256;
 - thin typed wrappers over Numerics: univariate distributions (GEV, GPD, Gumbel, Normal,
