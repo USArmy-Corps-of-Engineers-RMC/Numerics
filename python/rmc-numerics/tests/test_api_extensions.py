@@ -7,12 +7,14 @@ every existing form working.
 
 from __future__ import annotations
 
+import math
+
 import numpy as np
 import pytest
 from scipy import optimize
 from scipy import stats as sps
 
-from rmc_numerics import distributions, statistics
+from rmc_numerics import distributions, mathematics, statistics
 
 
 def _bits(values: object) -> np.ndarray:
@@ -110,3 +112,22 @@ def test_column_means_equal_the_per_column_mean_and_numpy() -> None:
             continue
         assert _bits(means[column]).tolist() == _bits(statistics.mean(finite)).tolist()
         np.testing.assert_allclose(means[column], finite.mean(), rtol=1e-14)
+
+
+def test_log1p_agrees_with_python_math_log1p_to_the_last_unit() -> None:
+    # Arrange: the accuracy fix ships with the 2.3 column means; an older assembly keeps the direct form above 1e-4
+    if not hasattr(statistics._stats().Statistics, "ColumnMeans"):
+        pytest.skip("the loaded Numerics.dll predates the compensated Tools.Log1p at every argument")
+    rng = np.random.default_rng(37)
+    x = np.concatenate([-rng.random(20000) * 0.999999, 10.0 ** rng.uniform(-16, 3, 20000),
+                        -(10.0 ** rng.uniform(-16, -0.0001, 20000)), 10.0 ** rng.uniform(3, 300, 500),
+                        np.linspace(1e-4, 1e-2, 2001), -np.linspace(1e-4, 1e-2, 2001)])
+    # Act
+    values = mathematics.log1p(x)
+    reference = np.array([math.log1p(v) for v in x.tolist()])
+    # Assert: at most one unit in the last place (0 on Windows, where both use the same C runtime log)
+    ulps = np.abs(values.view(np.int64) - reference.view(np.int64))
+    assert int(ulps.max()) <= 1
+    assert math.isinf(mathematics.log1p(-1.0)) and mathematics.log1p(-1.0) < 0
+    assert math.isnan(mathematics.log1p(-1.5)) and math.isnan(mathematics.log1p(float("nan")))
+    assert mathematics.log1p(float("inf")) == float("inf")

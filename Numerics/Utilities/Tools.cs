@@ -213,16 +213,25 @@ namespace Numerics
         /// this method avoids catastrophic cancellation that occurs in <c>Math.Log(1 + x)</c>.
         /// </returns>
         /// <remarks>
-        /// Uses a direct call to <see cref="Math.Log(double)"/> when <c>|x| &gt; 1e-4</c>.
-        /// For <c>|x| ≤ 1e-4</c>, applies a compensated evaluation of <c>log(1 + x)</c>:
-        /// <code>log(y) - ((y - 1) - x) / y</code> with <c>y = 1 + x</c>, which reduces rounding error.
+        /// <para>
+        /// Applies the compensated evaluation <code>log(y) - ((y - 1) - x) / y</code> with <c>y = 1 + x</c> at every
+        /// finite <c>x &gt; -1</c>: <c>(y - 1) - x</c> is exactly the rounding error of <c>1 + x</c>, and dividing it
+        /// by <c>y</c> is the first-order correction of <c>log(y)</c> for that error, so the result is accurate to
+        /// the last unit wherever <c>log</c> is. The direct <c>log(1 + x)</c> loses up to about 1e-12 relative
+        /// accuracy for <c>1e-4 &lt; |x| &lt; 1e-2</c>, where the rounding of <c>1 + x</c> is a large share of the
+        /// result; earlier versions used it there.
+        /// </para>
+        /// <para>
+        /// Where <c>1 + x</c> is zero, negative, infinite or NaN the correction is not defined, and the value is
+        /// <see cref="Math.Log(double)"/> of <c>1 + x</c>: −∞ at <c>x = −1</c>, NaN below it or for NaN, and +∞
+        /// for +∞.
+        /// </para>
         /// </remarks>
         public static double Log1p(double x)
         {
-            if (Math.Abs(x) > 1e-4)
-                return Math.Log(1.0 + x);
-            // series expansion for small x
             double y = 1.0 + x;
+            if (!(y > 0d) || double.IsInfinity(y))
+                return Math.Log(y);
             return Math.Log(y) - ((y - 1.0) - x) / y;
         }
 
