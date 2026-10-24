@@ -815,18 +815,10 @@ namespace Numerics.Data.Statistics
         /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="plottingPositionType"/> is not a defined value.</exception>
         private static double PlottingPositionRank(int n, double k, PlottingPositions.PlottingPostionType plottingPositionType)
         {
-            double alpha;
-            switch (plottingPositionType)
-            {
-                case PlottingPositions.PlottingPostionType.Weibull: alpha = 0d; break;
-                case PlottingPositions.PlottingPostionType.Median: alpha = 0.3175d; break;
-                case PlottingPositions.PlottingPostionType.Blom: alpha = 0.375d; break;
-                case PlottingPositions.PlottingPostionType.Cunnane: alpha = 0.4d; break;
-                case PlottingPositions.PlottingPostionType.Gringorten: alpha = 0.44d; break;
-                case PlottingPositions.PlottingPostionType.Hazen: alpha = 0.5d; break;
-                case PlottingPositions.PlottingPostionType.KaplanMeier: return n * k;
-                default: throw new ArgumentOutOfRangeException(nameof(plottingPositionType), "Unknown plotting position type.");
-            }
+            if (plottingPositionType == PlottingPositions.PlottingPostionType.KaplanMeier) return n * k;
+            if (!Enum.IsDefined(typeof(PlottingPositions.PlottingPostionType), plottingPositionType))
+                throw new ArgumentOutOfRangeException(nameof(plottingPositionType), "Unknown plotting position type.");
+            double alpha = PlottingPositions.Alpha(plottingPositionType);
             return (n + 1 - 2d * alpha) * k + alpha;
         }
 

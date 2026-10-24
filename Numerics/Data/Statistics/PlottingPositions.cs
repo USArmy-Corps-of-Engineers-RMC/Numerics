@@ -112,6 +112,79 @@ namespace Numerics.Data.Statistics
         }
 
         /// <summary>
+        /// Returns the alpha coefficient of a named plotting position formula, (i - alpha) / (n + 1 - 2 alpha).
+        /// </summary>
+        /// <param name="plottingPostionType">The plotting position formula type.</param>
+        /// <returns>0 for Weibull, 0.3175 for Median, 0.375 for Blom, 0.40 for Cunnane, 0.44 for Gringorten and 0.50 for Hazen.</returns>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when the type is <see cref="PlottingPostionType.KaplanMeier"/>,
+        /// which is the formula i / n rather than an alpha formula, or is not a defined value.</exception>
+        /// <remarks>
+        /// The single table of the alpha coefficients: the named formulas (<see cref="Weibull(int)"/> through
+        /// <see cref="Hazen(int)"/>), the typed overloads <see cref="Function(int, PlottingPostionType)"/> and
+        /// <see cref="Function(IList{double}, PlottingPostionType)"/>, and the plotting-position percentiles of
+        /// <see cref="Statistics.Percentile(IList{double}, double, PlottingPostionType, bool)"/> all read it.
+        /// </remarks>
+        public static double Alpha(PlottingPostionType plottingPostionType)
+        {
+            switch (plottingPostionType)
+            {
+                case PlottingPostionType.Weibull: return 0d;
+                case PlottingPostionType.Median: return 0.3175d;
+                case PlottingPostionType.Blom: return 0.375d;
+                case PlottingPostionType.Cunnane: return 0.4d;
+                case PlottingPostionType.Gringorten: return 0.44d;
+                case PlottingPostionType.Hazen: return 0.5d;
+                case PlottingPostionType.KaplanMeier:
+                    throw new ArgumentOutOfRangeException(nameof(plottingPostionType), "The Kaplan-Meier formula i / n has no alpha coefficient.");
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(plottingPostionType), "Unknown plotting position type.");
+            }
+        }
+
+        /// <summary>
+        /// The named plotting position formula for weighted observations, for example importance-sampling weights.
+        /// </summary>
+        /// <param name="weights">The non-negative, finite weight of each observation, in the ascending order of the
+        /// observations' values.</param>
+        /// <param name="plottingPostionType">The plotting position formula type.</param>
+        /// <returns>An array of non-decreasing plotting positions in [0,1], one per weight.</returns>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="weights"/> is null.</exception>
+        /// <exception cref="ArgumentException">Thrown when <paramref name="weights"/> is empty or every weight is zero.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when a weight is negative or not finite, the total
+        /// weight overflows, or <paramref name="plottingPostionType"/> is not a defined value.</exception>
+        /// <remarks>
+        /// The alpha formulas are <see cref="Function(IList{double}, double)"/> at <see cref="Alpha(PlottingPostionType)"/>.
+        /// Kaplan-Meier is F_i = c_i / W with c_i the sequential cumulative weight and W the total, so unit weights
+        /// give bitwise i / n, the positions of <see cref="KaplanMeier(int)"/>. Every named alpha lies in [0, 0.5],
+        /// where every weighted position lies in [0, 1].
+        /// </remarks>
+        public static double[] Function(IList<double> weights, PlottingPostionType plottingPostionType)
+        {
+            if (weights == null) throw new ArgumentNullException(nameof(weights));
+            if (plottingPostionType != PlottingPostionType.KaplanMeier)
+                return Function(weights, Alpha(plottingPostionType));
+            if (weights.Count == 0) throw new ArgumentException("At least one weight is required.", nameof(weights));
+            int n = weights.Count;
+            var cumulative = new double[n];
+            double run = 0d;
+            for (int i = 0; i < n; i++)
+            {
+                double weight = weights[i];
+                if (double.IsNaN(weight) || double.IsInfinity(weight) || weight < 0d)
+                    throw new ArgumentOutOfRangeException(nameof(weights), "Each weight must be finite and non-negative.");
+                run += weight;
+                cumulative[i] = run;
+            }
+            if (double.IsInfinity(run))
+                throw new ArgumentOutOfRangeException(nameof(weights), "The total weight must be finite.");
+            if (run <= 0d) throw new ArgumentException("The weights must not all be zero.", nameof(weights));
+            var PP = new double[n];
+            for (int i = 0; i < n; i++)
+                PP[i] = cumulative[i] / run;
+            return PP;
+        }
+
+        /// <summary>
         /// The general plotting position formula. This formula assumes the data is uncensored and complete.
         /// </summary>
         /// <param name="N">The sample size.</param>
@@ -157,7 +230,7 @@ namespace Numerics.Data.Statistics
         /// <returns>An array of plotting positions of size N.</returns>
         public static double[] Weibull(int N)
         {
-            return Function(N, 0d);
+            return Function(N, Alpha(PlottingPostionType.Weibull));
         }
 
         /// <summary>
@@ -167,7 +240,7 @@ namespace Numerics.Data.Statistics
         /// <returns>An array of plotting positions of size N.</returns>
         public static double[] Median(int N)
         {
-            return Function(N, 0.3175d);
+            return Function(N, Alpha(PlottingPostionType.Median));
         }
 
         /// <summary>
@@ -178,7 +251,7 @@ namespace Numerics.Data.Statistics
         /// <returns>An array of plotting positions of size N.</returns>
         public static double[] Blom(int N)
         {
-            return Function(N, 0.375d);
+            return Function(N, Alpha(PlottingPostionType.Blom));
         }
 
         /// <summary>
@@ -188,7 +261,7 @@ namespace Numerics.Data.Statistics
         /// <returns>An array of plotting positions of size N.</returns>
         public static double[] Cunnane(int N)
         {
-            return Function(N, 0.4d);
+            return Function(N, Alpha(PlottingPostionType.Cunnane));
         }
 
         /// <summary>
@@ -198,7 +271,7 @@ namespace Numerics.Data.Statistics
         /// <returns>An array of plotting positions of size N.</returns>
         public static double[] Gringorten(int N)
         {
-            return Function(N, 0.44d);
+            return Function(N, Alpha(PlottingPostionType.Gringorten));
         }
 
         /// <summary>
@@ -209,7 +282,7 @@ namespace Numerics.Data.Statistics
         /// <returns>An array of plotting positions of size N.</returns>
         public static double[] Hazen(int N)
         {
-            return Function(N, 0.5d);
+            return Function(N, Alpha(PlottingPostionType.Hazen));
         }
 
         /// <summary>
