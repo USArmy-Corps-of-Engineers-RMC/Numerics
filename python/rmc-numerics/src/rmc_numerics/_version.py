@@ -7,7 +7,7 @@ clean committed tree with::
     dotnet build Numerics/Numerics.csproj -c Release -f net10.0 -p:Version=2.3.0-dev.2
         -p:ContinuousIntegrationBuild=true
 
-(.NET SDK 10.0.400), and is staged with ``scripts/build_wheel.py --stage-only --dll PATH``. Its
+(.NET SDK 10.0.400 on its bundled runtime 10.0.11), and is staged with ``scripts/build_wheel.py --stage-only --dll PATH``. Its
 assembly version stays 2.2.0.0, so no consumer pin moves in the interim; the SHA-256 and the
 informational version tell it apart. At the release every value below moves to the published
 2.3.0 package and ``NUMERICS_SOURCE_COMMIT`` becomes empty.
@@ -29,5 +29,5 @@ NUMERICS_SOURCE_COMMIT = "2660f1a589cc5460953885e08a990be39d6f27a9"
 """The Numerics commit a locally built ``Numerics.dll`` was built from; empty for a NuGet package assembly."""
 
 NUMERICS_BUILD_COMMAND = ("dotnet build Numerics/Numerics.csproj -c Release -f net10.0 -p:Version=2.3.0-dev.2 "
-                          "-p:ContinuousIntegrationBuild=true (Windows, .NET SDK 10.0.400)")
+                          "-p:ContinuousIntegrationBuild=true (Windows, .NET SDK 10.0.400 on its bundled runtime 10.0.11)")
 """How a locally built ``Numerics.dll`` was built (receipts record it); empty for a NuGet package assembly."""

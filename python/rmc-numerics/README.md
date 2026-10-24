@@ -71,7 +71,8 @@ python scripts/build_wheel.py --stage-only --dll ../../Numerics/bin/Release/net1
 ```
 
 `ContinuousIntegrationBuild` maps source paths, so any git checkout of that commit builds the
-same bytes on Windows with .NET SDK 10.0.400, provided the checkout has CRLF line endings
+same bytes on Windows with .NET SDK 10.0.400 running on its bundled runtime 10.0.11 (the compiler runs on
+the newest installed 10.0 runtime and records its version in the embedded PDB), provided the checkout has CRLF line endings
 (`core.autocrlf true`) and its `origin` remote is `https://github.com/USACE-RMC/Numerics` (SourceLink
 writes it into the embedded PDB). A Linux build differs (the SDK-generated sources in the embedded
 PDB carry the host newline), so Linux and Docker use the Windows-built file. `--download` and the `PythonWheel.yml` CI job cannot find a `2.3.0-dev.2`

@@ -125,7 +125,7 @@ def test_expm1_and_log1p_arrays_equal_the_scalar_members_and_numpy() -> None:
     np.testing.assert_allclose(e[finite], np.expm1(x[finite]), rtol=1e-15)
     # Below |x| = 1e-4 Tools.Log1p is the compensated form on every assembly (1e-15 against the C library). Above
     # it, assemblies before RMC.Numerics 2.3 evaluated log(1 + x) directly, which costs up to about 1e-12 relative
-    # accuracy; test_api_extensions holds the 2.3 accuracy to the last unit.
+    # accuracy; test_api_extensions holds the 2.3 accuracy (within one unit in the last place).
     compensated = np.isfinite(log_x) & (np.abs(log_x) <= 1e-4)
     np.testing.assert_allclose(lg[compensated], np.log1p(log_x[compensated]), rtol=1e-15)
     np.testing.assert_allclose(lg[np.isfinite(log_x)], np.log1p(log_x[np.isfinite(log_x)]), rtol=1e-11)

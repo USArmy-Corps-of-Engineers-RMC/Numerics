@@ -216,8 +216,9 @@ namespace Numerics
         /// <para>
         /// Applies the compensated evaluation <code>log(y) - ((y - 1) - x) / y</code> with <c>y = 1 + x</c> at every
         /// finite <c>x &gt; -1</c>: <c>(y - 1) - x</c> is exactly the rounding error of <c>1 + x</c>, and dividing it
-        /// by <c>y</c> is the first-order correction of <c>log(y)</c> for that error, so the result is accurate to
-        /// the last unit wherever <c>log</c> is. The direct <c>log(1 + x)</c> loses up to about 1e-12 relative
+        /// by <c>y</c> is the first-order correction of <c>log(y)</c> for that error, so the result is within one unit
+        /// in the last place of the correctly rounded value wherever <c>log</c> is (it is not correctly rounded
+        /// everywhere). The direct <c>log(1 + x)</c> loses up to about 1e-12 relative
         /// accuracy for <c>1e-4 &lt; |x| &lt; 1e-2</c>, where the rounding of <c>1 + x</c> is a large share of the
         /// result; earlier versions used it there.
         /// </para>

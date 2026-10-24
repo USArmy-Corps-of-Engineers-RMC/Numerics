@@ -114,7 +114,7 @@ def test_column_means_equal_the_per_column_mean_and_numpy() -> None:
         np.testing.assert_allclose(means[column], finite.mean(), rtol=1e-14)
 
 
-def test_log1p_agrees_with_python_math_log1p_to_the_last_unit() -> None:
+def test_log1p_agrees_with_python_math_log1p_within_one_unit_in_the_last_place() -> None:
     # Arrange: the accuracy fix ships with the 2.3 column means; an older assembly keeps the direct form above 1e-4
     if not hasattr(statistics._stats().Statistics, "ColumnMeans"):
         pytest.skip("the loaded Numerics.dll predates the compensated Tools.Log1p at every argument")

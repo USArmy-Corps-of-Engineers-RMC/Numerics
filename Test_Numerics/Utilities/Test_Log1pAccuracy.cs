@@ -9,9 +9,11 @@ namespace Utilities
     /// argument above −1.
     /// </summary>
     /// <remarks>
-    /// The reference values are Python 3.14 <c>math.log1p</c> (the C library's <c>log1p</c>). Over 301,000 random
-    /// arguments spanning (−1, 1e300) the compensated form agrees with it to the last bit; the assertions allow one
-    /// unit in the last place, because the C libraries of other platforms round <c>log</c> differently. The former
+    /// The reference values are Python 3.14 <c>math.log1p</c> (the C library's <c>log1p</c>). On Windows (UCRT) the
+    /// compensated form agrees with it bit for bit over 301,000 random arguments spanning (−1, 1e300); on other
+    /// platforms the C library rounds <c>log</c> and <c>log1p</c> differently, and the values agree within one unit in
+    /// the last place, which is the tolerance the assertions allow. The result is within one unit in the last place
+    /// of the correctly rounded value, not correctly rounded everywhere. The former
     /// direct <c>log(1 + x)</c> above <c>|x| = 1e-4</c> was off by up to 8,000 units there (about 1e-12 relative).
     /// </remarks>
     [TestClass]
