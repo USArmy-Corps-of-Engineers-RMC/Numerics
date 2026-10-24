@@ -62,11 +62,11 @@ The assembly directory is, in order: `rmc_numerics.initialize(dll_dir)`, the
 
 This branch pins one locally built `Numerics.dll` instead of a NuGet package assembly:
 `_version.py` names its source commit (`NUMERICS_SOURCE_COMMIT`), its SHA-256, the
-informational version `2.3.0-dev.2` and the assembly version `2.2.0.0`, which stays at the
+informational version `2.3.0-dev.3` and the assembly version `2.2.0.0`, which stays at the
 2.2.0 value so consumer pins do not move. Build it once, on Windows, from a clean committed tree:
 
 ```bash
-dotnet build Numerics/Numerics.csproj -c Release -f net10.0 -p:Version=2.3.0-dev.2 -p:ContinuousIntegrationBuild=true
+dotnet build Numerics/Numerics.csproj -c Release -f net10.0 -p:Version=2.3.0-dev.3 -p:ContinuousIntegrationBuild=true
 python scripts/build_wheel.py --stage-only --dll ../../Numerics/bin/Release/net10.0/Numerics.dll
 ```
 
@@ -75,7 +75,7 @@ same bytes on Windows with .NET SDK 10.0.400 running on its bundled runtime 10.0
 the newest installed 10.0 runtime and records its version in the embedded PDB), provided the checkout has CRLF line endings
 (`core.autocrlf true`) and its `origin` remote is `https://github.com/USACE-RMC/Numerics` (SourceLink
 writes it into the embedded PDB). A Linux build differs (the SDK-generated sources in the embedded
-PDB carry the host newline), so Linux and Docker use the Windows-built file. `--download` and the `PythonWheel.yml` CI job cannot find a `2.3.0-dev.2`
+PDB carry the host newline), so Linux and Docker use the Windows-built file. `--download` and the `PythonWheel.yml` CI job cannot find a `2.3.0-dev.3`
 package: a branch carrying these pins (including a local `main` it is merged into) must not be
 pushed until the pins move to the published 2.3.0 package.
 
