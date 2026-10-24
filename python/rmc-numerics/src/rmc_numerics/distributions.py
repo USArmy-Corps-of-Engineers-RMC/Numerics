@@ -556,8 +556,13 @@ class UnivariateDistribution:
         """
         return float(self.net.LogLikelihood(to_net_doubles(sample)))
 
-    def estimate(self, sample: Any, method: EstimationMethod | str = EstimationMethod.MAXIMUM_LIKELIHOOD) -> None:
+    def estimate(self, sample: Any, method: EstimationMethod | str = EstimationMethod.MAXIMUM_LIKELIHOOD,
+                 fixed_parameters: Any = None) -> None:
         """Fit the parameters in place through ``IEstimation.Estimate``.
+
+        With ``fixed_parameters`` the fit holds those parameters at their values through
+        ``IFixedParameterEstimation.Estimate(sample, method, fixed)`` (RMC.Numerics 2.3), for example the
+        generalized Pareto scale and shape by maximum likelihood at a known location.
 
         Parameters
         ----------
@@ -565,18 +570,33 @@ class UnivariateDistribution:
             Observations.
         method : EstimationMethod or str, optional
             Estimation method; default maximum likelihood.
+        fixed_parameters : array_like, optional
+            One entry per parameter in Numerics order: a finite value holds that parameter fixed and
+            NaN marks a parameter to estimate. None (the default) estimates every parameter.
 
         Raises
         ------
         TypeError
-            If the distribution does not implement ``IEstimation``.
+            If the distribution does not implement ``IEstimation``, or ``fixed_parameters`` is given and
+            it does not implement ``IFixedParameterEstimation``.
+        NotImplementedError
+            If ``fixed_parameters`` is given and the loaded assembly predates ``IFixedParameterEstimation``.
         """
         nd = _nd()
         import clr  # noqa: PLC0415
 
         if not clr.GetClrType(nd.IEstimation).IsInstanceOfType(self.net):
             raise TypeError(f"{self.display_name} does not support parameter estimation.")
-        nd.IEstimation(self.net).Estimate(to_net_doubles(sample), net_enum(nd.ParameterEstimationMethod, method))
+        kind = net_enum(nd.ParameterEstimationMethod, method)
+        if fixed_parameters is None:
+            nd.IEstimation(self.net).Estimate(to_net_doubles(sample), kind)
+            return
+        if not hasattr(nd, "IFixedParameterEstimation"):
+            raise NotImplementedError("The loaded Numerics assembly has no IFixedParameterEstimation; it needs "
+                                      "RMC.Numerics 2.3 or later.")
+        if not clr.GetClrType(nd.IFixedParameterEstimation).IsInstanceOfType(self.net):
+            raise TypeError(f"{self.display_name} does not support estimation with fixed parameters.")
+        nd.IFixedParameterEstimation(self.net).Estimate(to_net_doubles(sample), kind, to_net_doubles(fixed_parameters))
 
     def clone(self) -> UnivariateDistribution:
         """Return a deep copy through ``Clone``.

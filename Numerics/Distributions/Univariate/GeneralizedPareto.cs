@@ -20,7 +20,7 @@ namespace Numerics.Distributions
     /// </para>
     /// </remarks>
     [Serializable]
-    public sealed class GeneralizedPareto : UnivariateDistributionBase, IEstimation, IMaximumLikelihoodEstimation, ILinearMomentEstimation, IStandardError, IBootstrappable
+    public sealed class GeneralizedPareto : UnivariateDistributionBase, IEstimation, IFixedParameterEstimation, IMaximumLikelihoodEstimation, ILinearMomentEstimation, IStandardError, IBootstrappable
     {
 
         /// <summary>
@@ -286,6 +286,49 @@ namespace Numerics.Distributions
             {
                 throw new NotImplementedException();
             }
+        }
+
+        /// <summary>
+        /// Estimates and sets the parameters given a sample of observations, holding the given parameters at their values.
+        /// </summary>
+        /// <param name="sample">The array of sample data.</param>
+        /// <param name="estimationMethod">The parameter estimation method.</param>
+        /// <param name="fixedParameters">The parameters {ξ, α, κ}: a finite value holds that parameter fixed, and NaN
+        /// marks a parameter to estimate.</param>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="fixedParameters"/> is null.</exception>
+        /// <exception cref="ArgumentException">Thrown when <paramref name="fixedParameters"/> does not hold three entries,
+        /// or holds an infinite entry.</exception>
+        /// <exception cref="NotSupportedException">Thrown for a combination other than no fixed parameter (any method)
+        /// or a fixed location with <see cref="ParameterEstimationMethod.MaximumLikelihood"/>.</exception>
+        /// <remarks>
+        /// With no parameter fixed this is <see cref="Estimate(IList{double}, ParameterEstimationMethod)"/>. With the
+        /// location fixed and maximum likelihood it sets the parameters of <see cref="MLE(IList{double}, double)"/>
+        /// (both run the same known-location fit), with that member's argument checks.
+        /// </remarks>
+        public void Estimate(IList<double> sample, ParameterEstimationMethod estimationMethod, IList<double> fixedParameters)
+        {
+            if (fixedParameters == null) throw new ArgumentNullException(nameof(fixedParameters));
+            if (fixedParameters.Count != NumberOfParameters)
+                throw new ArgumentException("One entry per parameter {ξ, α, κ} is required.", nameof(fixedParameters));
+            for (int i = 0; i < fixedParameters.Count; i++)
+            {
+                if (double.IsInfinity(fixedParameters[i]))
+                    throw new ArgumentException("A fixed parameter must be finite; NaN marks a parameter to estimate.", nameof(fixedParameters));
+            }
+            bool locationFixed = !double.IsNaN(fixedParameters[0]);
+            bool scaleFixed = !double.IsNaN(fixedParameters[1]);
+            bool shapeFixed = !double.IsNaN(fixedParameters[2]);
+            if (!locationFixed && !scaleFixed && !shapeFixed)
+            {
+                Estimate(sample, estimationMethod);
+                return;
+            }
+            if (locationFixed && !scaleFixed && !shapeFixed && estimationMethod == ParameterEstimationMethod.MaximumLikelihood)
+            {
+                SetParameters(KnownLocationMLE(sample, fixedParameters[0]));
+                return;
+            }
+            throw new NotSupportedException("The generalized Pareto distribution supports a fixed location with maximum likelihood only.");
         }
 
         /// <inheritdoc/>
@@ -618,6 +661,20 @@ namespace Numerics.Distributions
         /// </para>
         /// </remarks>
         public double[] MLE(IList<double> sample, double location)
+        {
+            return KnownLocationMLE(sample, location);
+        }
+
+        /// <summary>
+        /// The known-location maximum-likelihood fit shared by <see cref="MLE(IList{double}, double)"/> and the
+        /// fixed-location <see cref="Estimate(IList{double}, ParameterEstimationMethod, IList{double})"/>.
+        /// </summary>
+        /// <param name="sample">The observations, each at or above <paramref name="location"/>.</param>
+        /// <param name="location">The known location parameter ξ (Xi).</param>
+        /// <returns>The parameters {ξ, α, κ}, with ξ equal to <paramref name="location"/>.</returns>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="sample"/> is null.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown for the argument errors documented on <see cref="MLE(IList{double}, double)"/>.</exception>
+        private static double[] KnownLocationMLE(IList<double> sample, double location)
         {
             if (sample == null) throw new ArgumentNullException(nameof(sample));
             if (double.IsNaN(location) || double.IsInfinity(location))

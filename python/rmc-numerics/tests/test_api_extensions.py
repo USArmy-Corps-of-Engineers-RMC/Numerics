@@ -9,8 +9,10 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
+from scipy import optimize
+from scipy import stats as sps
 
-from rmc_numerics import statistics
+from rmc_numerics import distributions, statistics
 
 
 def _bits(values: object) -> np.ndarray:
@@ -51,11 +53,36 @@ def test_wilson_score_interval_keeps_its_tuple_shape_on_every_assembly() -> None
     # Arrange / Act: 2.3 returns double[]; the interim build returned a (Lower, Upper) tuple
     bounds = statistics.wilson_score_interval(3.0, 17.0, 0.9)
     # Assert: the wrapper's shape is unchanged, and the values agree with the closed form by SciPy
-    from scipy import stats as sps  # noqa: PLC0415
-
     assert isinstance(bounds, tuple) and len(bounds) == 2 and all(type(b) is float for b in bounds)
     z = sps.norm.ppf(0.95)
     p, n = 3.0 / 17.0, 17.0
     center = (p + z * z / (2 * n)) / (1 + z * z / n)
     half = z * np.sqrt(p * (1 - p) / n + z * z / (4 * n * n)) / (1 + z * z / n)
     np.testing.assert_allclose(bounds, (center - half, center + half), rtol=1e-12)
+
+
+def test_fixed_location_estimate_equals_the_known_location_fit_and_scipy() -> None:
+    # Arrange
+    nd = distributions._nd()
+    excesses = np.array([1.2, 0.4, 3.9, 2.2, 0.15, 5.6, 1.05, 0.8, 7.3, 2.9, 0.33, 1.7, 4.4, 0.62, 2.5, 11.2, 0.09,
+                         1.33, 3.1, 0.95])
+    fit = distributions.create_distribution("GeneralizedPareto")
+    if not hasattr(nd, "IFixedParameterEstimation"):
+        with pytest.raises(NotImplementedError, match="IFixedParameterEstimation"):
+            fit.estimate(excesses, "maximum_likelihood", [0.0, np.nan, np.nan])
+        pytest.skip("the loaded Numerics.dll has no IFixedParameterEstimation")
+    # Act
+    fit.estimate(excesses, "maximum_likelihood", [0.0, np.nan, np.nan])
+    known = distributions.GeneralizedPareto.fit_known_location(excesses, 0.0)
+    # Assert: bitwise the known-location fit, and close to SciPy's maximum (Nelder-Mead tolerance)
+    assert _bits(fit.parameters).tolist() == _bits(known.parameters).tolist()
+    best = optimize.minimize(lambda v: -sps.genpareto.logpdf(excesses, -v[1], 0.0, v[0]).sum(), [2.0, 0.0],
+                             method="Nelder-Mead", options={"xatol": 1e-12, "fatol": 1e-14, "maxiter": 20000})
+    np.testing.assert_allclose(fit.parameters[1:], best.x, rtol=1e-3, atol=1e-3)
+    unconstrained = distributions.create_distribution("GeneralizedPareto")
+    unconstrained.estimate(excesses, "method_of_linear_moments", [np.nan, np.nan, np.nan])
+    reference = distributions.create_distribution("GeneralizedPareto")
+    reference.estimate(excesses, "method_of_linear_moments")
+    assert _bits(unconstrained.parameters).tolist() == _bits(reference.parameters).tolist()
+    with pytest.raises(TypeError, match="fixed parameters"):
+        distributions.create_distribution("Normal").estimate(excesses, "maximum_likelihood", [0.0, np.nan])
