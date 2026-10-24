@@ -52,7 +52,7 @@ def test_plotting_position_alpha_table_and_the_weighted_named_formulas() -> None
 
 
 def test_wilson_score_interval_keeps_its_tuple_shape_on_every_assembly() -> None:
-    # Arrange / Act: 2.3 returns double[]; the interim build returned a (Lower, Upper) tuple
+    # Arrange / Act: Numerics returns a (Lower, Upper) value tuple; the wrapper returns a tuple of floats
     bounds = statistics.wilson_score_interval(3.0, 17.0, 0.9)
     # Assert: the wrapper's shape is unchanged, and the values agree with the closed form by SciPy
     assert isinstance(bounds, tuple) and len(bounds) == 2 and all(type(b) is float for b in bounds)
