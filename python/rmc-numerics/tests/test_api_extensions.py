@@ -45,3 +45,17 @@ def test_plotting_position_alpha_table_and_the_weighted_named_formulas() -> None
         statistics.plotting_positions(30, "kaplan_meier")).tolist()
     with pytest.raises(ValueError, match="not a member"):
         statistics.weighted_plotting_positions([1.0], "nope")
+
+
+def test_wilson_score_interval_keeps_its_tuple_shape_on_every_assembly() -> None:
+    # Arrange / Act: 2.3 returns double[]; the interim build returned a (Lower, Upper) tuple
+    bounds = statistics.wilson_score_interval(3.0, 17.0, 0.9)
+    # Assert: the wrapper's shape is unchanged, and the values agree with the closed form by SciPy
+    from scipy import stats as sps  # noqa: PLC0415
+
+    assert isinstance(bounds, tuple) and len(bounds) == 2 and all(type(b) is float for b in bounds)
+    z = sps.norm.ppf(0.95)
+    p, n = 3.0 / 17.0, 17.0
+    center = (p + z * z / (2 * n)) / (1 + z * z / n)
+    half = z * np.sqrt(p * (1 - p) / n + z * z / (4 * n * n)) / (1 + z * z / n)
+    np.testing.assert_allclose(bounds, (center - half, center + half), rtol=1e-12)

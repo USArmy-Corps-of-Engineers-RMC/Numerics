@@ -242,7 +242,9 @@ def wilson_score_interval(successes: float, trials: float, confidence_level: flo
         The lower and upper bounds, clamped to [0, 1].
     """
     bounds = _stats().Statistics.WilsonScoreInterval(float(successes), float(trials), float(confidence_level))
-    return float(bounds.Item1), float(bounds.Item2)
+    if hasattr(bounds, "Item1"):  # assemblies before 2.3.0 returned a (Lower, Upper) tuple
+        return float(bounds.Item1), float(bounds.Item2)
+    return float(bounds[0]), float(bounds[1])
 
 
 def linear_moments(data: Any) -> np.ndarray:

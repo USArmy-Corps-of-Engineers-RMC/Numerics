@@ -27,7 +27,8 @@ namespace Data.Statistics
             };
             foreach (var c in cases)
             {
-                var (lower, upper) = Stats.WilsonScoreInterval(c.S, c.N, c.Level);
+                var bounds = Stats.WilsonScoreInterval(c.S, c.N, c.Level);
+                var (lower, upper) = (bounds[0], bounds[1]);
                 Assert.AreEqual(c.Lower, lower, 1E-12, $"{c.S}/{c.N} at {c.Level}");
                 Assert.AreEqual(c.Upper, upper, 1E-12, $"{c.S}/{c.N} at {c.Level}");
             }
@@ -48,7 +49,8 @@ namespace Data.Statistics
                 double denominator = 1.0 + zSquaredOverN;
                 double center = (pHat + zSquaredOverN / 2.0) / denominator;
                 double halfWidth = z * Math.Sqrt(pHat * (1.0 - pHat) / n + zSquaredOverN / (4.0 * n)) / denominator;
-                var (lower, upper) = Stats.WilsonScoreInterval(s, n, level);
+                var bounds = Stats.WilsonScoreInterval(s, n, level);
+                var (lower, upper) = (bounds[0], bounds[1]);
                 Assert.AreEqual(BitConverter.DoubleToInt64Bits(Math.Max(0.0, center - halfWidth)), BitConverter.DoubleToInt64Bits(lower));
                 Assert.AreEqual(BitConverter.DoubleToInt64Bits(Math.Min(1.0, center + halfWidth)), BitConverter.DoubleToInt64Bits(upper));
                 Assert.IsLessThanOrEqualTo(upper, lower);
@@ -64,8 +66,10 @@ namespace Data.Statistics
         {
             foreach (var (s, n) in new[] { (3.0, 17.0), (0.0, 5.0), (250.0, 1000.0), (0.5, 2.0) })
             {
-                var (lower, upper) = Stats.WilsonScoreInterval(s, n, 0.9);
-                var (mirrorLower, mirrorUpper) = Stats.WilsonScoreInterval(n - s, n, 0.9);
+                var bounds = Stats.WilsonScoreInterval(s, n, 0.9);
+                var (lower, upper) = (bounds[0], bounds[1]);
+                var mirrorBounds = Stats.WilsonScoreInterval(n - s, n, 0.9);
+                var (mirrorLower, mirrorUpper) = (mirrorBounds[0], mirrorBounds[1]);
                 Assert.AreEqual(1.0 - upper, mirrorLower, 1E-14);
                 Assert.AreEqual(1.0 - lower, mirrorUpper, 1E-14);
                 Assert.IsLessThanOrEqualTo(s / n + 1E-15, lower);
@@ -75,15 +79,18 @@ namespace Data.Statistics
             double previous = double.PositiveInfinity;
             foreach (double n in new[] { 10.0, 100.0, 1E4, 1E6, 1E9 })
             {
-                var (lower, upper) = Stats.WilsonScoreInterval(0.3 * n, n, 0.95);
+                var bounds = Stats.WilsonScoreInterval(0.3 * n, n, 0.95);
+                var (lower, upper) = (bounds[0], bounds[1]);
                 Assert.IsLessThan(previous, upper - lower);
                 previous = upper - lower;
             }
             double z = new Normal(0, 1).InverseCDF(0.975);
             Assert.AreEqual(2 * z * Math.Sqrt(0.3 * 0.7 / 1E9), previous, 1E-6 * previous);
 
-            var (narrowLower, narrowUpper) = Stats.WilsonScoreInterval(30, 100, 0.5);
-            var (wideLower, wideUpper) = Stats.WilsonScoreInterval(30, 100, 0.999999);
+            var narrowBounds = Stats.WilsonScoreInterval(30, 100, 0.5);
+                var (narrowLower, narrowUpper) = (narrowBounds[0], narrowBounds[1]);
+            var wideBounds = Stats.WilsonScoreInterval(30, 100, 0.999999);
+                var (wideLower, wideUpper) = (wideBounds[0], wideBounds[1]);
             Assert.IsLessThan(narrowLower, wideLower);
             Assert.IsGreaterThan(narrowUpper, wideUpper);
         }

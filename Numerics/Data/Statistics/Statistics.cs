@@ -1004,7 +1004,7 @@ namespace Numerics.Data.Statistics
         /// <param name="successes">The number of successes, in [0, <paramref name="trials"/>].</param>
         /// <param name="trials">The number of trials; must be positive.</param>
         /// <param name="confidenceLevel">The two-sided confidence level, in (0, 1); for example 0.9.</param>
-        /// <returns>The lower and upper bounds, clamped to [0, 1].</returns>
+        /// <returns>A two-element array: the lower and the upper bound, clamped to [0, 1].</returns>
         /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="trials"/> is not positive and
         /// finite, <paramref name="successes"/> is outside [0, <paramref name="trials"/>], or
         /// <paramref name="confidenceLevel"/> is not strictly between zero and one.</exception>
@@ -1015,12 +1015,16 @@ namespace Numerics.Data.Statistics
         /// order with z² / n formed once. The counts may be fractional, for example weighted counts.
         /// </para>
         /// <para>
+        /// The bounds are returned as an array, as the other interval members of the library return theirs (for
+        /// example <see cref="Autocorrelation.CorrelationConfidenceInterval(int, double)"/>).
+        /// </para>
+        /// <para>
         /// <b> References: </b>
         /// Wilson, E. B. (1927). Probable inference, the law of succession, and statistical inference. Journal
         /// of the American Statistical Association, 22(158), 209-212.
         /// </para>
         /// </remarks>
-        public static (double Lower, double Upper) WilsonScoreInterval(double successes, double trials, double confidenceLevel)
+        public static double[] WilsonScoreInterval(double successes, double trials, double confidenceLevel)
         {
             if (double.IsNaN(trials) || double.IsInfinity(trials) || trials <= 0d)
                 throw new ArgumentOutOfRangeException(nameof(trials), "The number of trials must be positive and finite.");
@@ -1035,7 +1039,7 @@ namespace Numerics.Data.Statistics
             double denominator = 1.0 + zSquaredOverN;
             double center = (pHat + zSquaredOverN / 2.0) / denominator;
             double halfWidth = z * Math.Sqrt(pHat * (1.0 - pHat) / trials + zSquaredOverN / (4.0 * trials)) / denominator;
-            return (Math.Max(0.0, center - halfWidth), Math.Min(1.0, center + halfWidth));
+            return [Math.Max(0.0, center - halfWidth), Math.Min(1.0, center + halfWidth)];
         }
 
         /// <summary>
