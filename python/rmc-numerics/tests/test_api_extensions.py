@@ -86,3 +86,27 @@ def test_fixed_location_estimate_equals_the_known_location_fit_and_scipy() -> No
     assert _bits(unconstrained.parameters).tolist() == _bits(reference.parameters).tolist()
     with pytest.raises(TypeError, match="fixed parameters"):
         distributions.create_distribution("Normal").estimate(excesses, "maximum_likelihood", [0.0, np.nan])
+
+
+def test_column_means_equal_the_per_column_mean_and_numpy() -> None:
+    # Arrange
+    rng = np.random.default_rng(29)
+    data = 1e3 * np.exp(rng.standard_normal((500, 40)))
+    data[rng.random(data.shape) < 0.03] = np.nan
+    data[7, 3] = -np.inf
+    data[:, 11] = np.nan
+    if not hasattr(statistics._stats().Statistics, "ColumnMeans"):
+        with pytest.raises(NotImplementedError, match="ColumnMeans"):
+            statistics.column_means(data)
+        pytest.skip("the loaded Numerics.dll has no Statistics.ColumnMeans")
+    # Act
+    means, excluded = statistics.column_means(data)
+    # Assert: bitwise the sequential mean of the finite entries; NumPy (pairwise sums) to 1e-14
+    for column in range(data.shape[1]):
+        finite = data[np.isfinite(data[:, column]), column]
+        assert excluded[column] == data.shape[0] - finite.size
+        if finite.size == 0:
+            assert np.isnan(means[column])
+            continue
+        assert _bits(means[column]).tolist() == _bits(statistics.mean(finite)).tolist()
+        np.testing.assert_allclose(means[column], finite.mean(), rtol=1e-14)

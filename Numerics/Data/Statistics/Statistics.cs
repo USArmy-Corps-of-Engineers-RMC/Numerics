@@ -971,10 +971,72 @@ namespace Numerics.Data.Statistics
             {
                 if (double.IsNaN(k[i]) || k[i] < 0.0 || k[i] > 1.0) throw new ArgumentOutOfRangeException(nameof(k), "k must be in [0,1].");
             }
+            return FiniteColumnStatistics(data, k.Count, columnPercentiles, out excluded);
+        }
 
+        /// <summary>
+        /// Returns the arithmetic mean of each column of a matrix over its finite entries.
+        /// </summary>
+        /// <param name="data">The samples, one row per member and one column per variable, for example one row
+        /// per bootstrap replicate and one column per node of a curve.</param>
+        /// <returns>One mean per column of <paramref name="data"/>; a column without a finite entry gives
+        /// <see cref="double.NaN"/>.</returns>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="data"/> is null.</exception>
+        /// <remarks>
+        /// See <see cref="ColumnMeans(double[,], out int[])"/>.
+        /// </remarks>
+        public static double[] ColumnMeans(double[,] data)
+        {
+            return ColumnMeans(data, out _);
+        }
+
+        /// <summary>
+        /// Returns the arithmetic mean of each column of a matrix over its finite entries, and the number of
+        /// non-finite entries excluded from each column.
+        /// </summary>
+        /// <param name="data">The samples, one row per member and one column per variable, for example one row
+        /// per bootstrap replicate and one column per node of a curve.</param>
+        /// <param name="excluded">On return, the number of NaN or infinite entries excluded from each column.</param>
+        /// <returns>One mean per column of <paramref name="data"/>; a column without a finite entry gives
+        /// <see cref="double.NaN"/>.</returns>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="data"/> is null.</exception>
+        /// <remarks>
+        /// <para>
+        /// The mean counterpart of <see cref="ColumnPercentiles(double[,], IList{double}, out int[])"/>, with the same
+        /// rule for non-finite entries: each column's finite entries are gathered in row order and passed to
+        /// <see cref="Mean(IList{double})"/>, so every value is bitwise the sequential mean of those entries, and
+        /// NaN and infinite entries are excluded. With every entry of a column finite, the value is
+        /// <see cref="Mean(IList{double})"/> of the whole column.
+        /// </para>
+        /// <para>
+        /// The columns are evaluated in parallel, each into its own result entry, so the result does not depend
+        /// on the machine or the thread count. One call replaces one call per column.
+        /// </para>
+        /// </remarks>
+        public static double[] ColumnMeans(double[,] data, out int[] excluded)
+        {
+            var table = FiniteColumnStatistics(data, 1, column => new[] { Mean(column) }, out excluded);
+            var means = new double[table.GetLength(1)];
+            for (int j = 0; j < means.Length; j++) means[j] = table[0, j];
+            return means;
+        }
+
+        /// <summary>
+        /// Evaluates a statistic over the finite entries of each column of a matrix, in parallel over the columns.
+        /// </summary>
+        /// <param name="data">The samples, one row per member and one column per variable.</param>
+        /// <param name="outputs">The number of values the statistic returns for one column.</param>
+        /// <param name="statistic">Returns the <paramref name="outputs"/> values of one column's gathered finite entries.</param>
+        /// <param name="excluded">On return, the number of NaN or infinite entries excluded from each column.</param>
+        /// <returns>One row per output and one column per column of <paramref name="data"/>; NaN for a column
+        /// without a finite entry.</returns>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="data"/> is null.</exception>
+        private static double[,] FiniteColumnStatistics(double[,] data, int outputs, Func<IList<double>, double[]> statistic, out int[] excluded)
+        {
+            if (data == null) throw new ArgumentNullException(nameof(data));
             int rows = data.GetLength(0);
             int columns = data.GetLength(1);
-            var result = new double[k.Count, columns];
+            var result = new double[outputs, columns];
             var counts = new int[columns];
             Parallel.For(0, columns, j =>
             {
@@ -988,11 +1050,11 @@ namespace Numerics.Data.Statistics
                 counts[j] = rows - finite;
                 if (finite == 0)
                 {
-                    for (int i = 0; i < k.Count; i++) result[i, j] = double.NaN;
+                    for (int i = 0; i < outputs; i++) result[i, j] = double.NaN;
                     return;
                 }
-                var percentiles = columnPercentiles(new ArraySegment<double>(column, 0, finite));
-                for (int i = 0; i < k.Count; i++) result[i, j] = percentiles[i];
+                var values = statistic(new ArraySegment<double>(column, 0, finite));
+                for (int i = 0; i < outputs; i++) result[i, j] = values[i];
             });
             excluded = counts;
             return result;

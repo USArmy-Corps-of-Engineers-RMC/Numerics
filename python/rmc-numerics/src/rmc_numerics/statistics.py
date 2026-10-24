@@ -224,6 +224,38 @@ def column_percentiles(data: Any, k: Any,
     return result, to_numpy_ints(excluded)
 
 
+def column_means(data: Any) -> tuple[np.ndarray, np.ndarray]:
+    """Return the mean of each column over its finite entries (``Statistics.ColumnMeans``).
+
+    Each column's finite entries go through ``Statistics.Mean`` (a sequential sum) in one call for
+    the whole matrix, so every value is bitwise :func:`mean` of the column's finite entries; NaN and
+    infinite entries are excluded, as in :func:`column_percentiles`.
+
+    Parameters
+    ----------
+    data : array_like
+        Two-dimensional samples, one row per member and one column per variable.
+
+    Returns
+    -------
+    means : numpy.ndarray
+        One mean per column; NaN for a column without a finite entry.
+    excluded : numpy.ndarray
+        The int32 number of non-finite entries excluded from each column.
+
+    Raises
+    ------
+    NotImplementedError
+        If the loaded assembly predates ``Statistics.ColumnMeans`` (RMC.Numerics 2.3).
+    """
+    s = _stats().Statistics
+    if not hasattr(s, "ColumnMeans"):
+        raise NotImplementedError("The loaded Numerics assembly has no Statistics.ColumnMeans; it needs "
+                                  "RMC.Numerics 2.3 or later.")
+    means, excluded = s.ColumnMeans(to_net_matrix(data), None)
+    return to_numpy_doubles(means), to_numpy_ints(excluded)
+
+
 def wilson_score_interval(successes: float, trials: float, confidence_level: float) -> tuple[float, float]:
     """Return the Wilson score interval of a binomial proportion (``Statistics.WilsonScoreInterval``).
 
@@ -479,7 +511,8 @@ def autocorrelation(data: Any, max_lag: int | None = None,
 
 
 __all__ = [
-    "RunningStatistics", "autocorrelation", "column_percentiles", "linear_moments", "mean", "percentile",
+    "RunningStatistics", "autocorrelation", "column_means", "column_percentiles", "linear_moments", "mean",
+    "percentile",
     "plotting_position_alpha", "plotting_position_percentile", "plotting_positions", "weighted_plotting_positions",
     "wilson_score_interval",
     "standard_deviation",
